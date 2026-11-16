@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  cuisineOptions, kitchenCuisines, isBasicLike, recipeRoles, inventionHandoff,
+  cuisineOptions, kitchenCuisines, isBasicLike, recipeRoles, inventionHandoff, seedFromHandoff, handoffFromProfileRecipe,
 } from '../inventRecipe.js';
 
 const NODES = new Map([
@@ -55,6 +55,63 @@ describe('inventionHandoff', () => {
       { ingredient: 'chicken', amount: { raw: '1 lb', qty: 1, unit: 'lb', inferred: true } },
       { ingredient: 'lemon', amount: null },
     ]);
+  });
+});
+
+describe('inventionHandoff keeps the dish type and cuisine (BUILDER-3)', () => {
+  it('carries type and cuisine, and the seed made from it asks for that dish and cuisine', () => {
+    const h = inventionHandoff({ name: 'Wok night', ingredients: [{ name: 'chicken' }, { name: 'garlic' }], type: 'stir-fry', cuisine: 'Chinese' });
+    expect(h).toMatchObject({ type: 'stir-fry', cuisine: 'Chinese' });
+    expect(seedFromHandoff(h)).toMatchObject({ type: 'stir-fry', fromName: true, cuisine: 'Chinese', title: 'Wok night' });
+  });
+  it('with no dish type chosen, the seed does not apply one', () => {
+    const h = inventionHandoff({ name: 'x', ingredients: [{ name: 'chicken' }, { name: 'rice' }], type: null, cuisine: null });
+    const seed = seedFromHandoff(h);
+    expect(seed.type).toBeUndefined();
+    expect(seed.fromName).toBeUndefined();
+    expect(seed.cuisine).toBeUndefined();
+  });
+});
+
+describe('seedFromHandoff', () => {
+  it('turns names, BowlEntries and { name } into lowercase pinned lines, once each, with typed amounts', () => {
+    const seed = seedFromHandoff({
+      ingredients: ['Chicken', { ingredient: 'garlic', amount: { raw: '3 cloves' } }, { name: 'Rice' }, 'chicken', { ingredient: 'lemon', amount: null }, ''],
+      title: '  Dinner ', steps: ['Cook.'], stepsFrom: 'A recipe', image: 'x.png',
+    });
+    expect(seed).toEqual({
+      pinned: [
+        { key: 'chicken', source: 'user' }, { key: 'garlic', source: 'user', amount: '3 cloves' },
+        { key: 'rice', source: 'user' }, { key: 'lemon', source: 'user' },
+      ],
+      title: 'Dinner', steps: ['Cook.'], stepsFrom: 'A recipe', image: 'x.png',
+    });
+  });
+  it('passes an existing seed straight through and returns null for nothing', () => {
+    const s = { type: 'soup', pinned: [] };
+    expect(seedFromHandoff({ seed: s, ts: 1 })).toBe(s);
+    expect(seedFromHandoff(null)).toBeNull();
+  });
+  it('a handoff with no ingredients (a photo, a scratch start) has no lines, so the builder asks its first question', () => {
+    expect(seedFromHandoff({ source: 'make-photo', ingredients: [], image: { name: 'f' } }).pinned).toEqual([]);
+  });
+});
+
+describe('handoffFromProfileRecipe', () => {
+  it('an invention reopens under its own id, with amounts read from raw', () => {
+    const h = handoffFromProfileRecipe({ id: 'inv-1', source: 'invent', name: 'My Pasta', cuisine: 'Italian', ingredients: [
+      { name: 'tomato', raw: '2 cups tomato' }, { name: 'basil', raw: 'basil' }] });
+    expect(h.editId).toBe('inv-1');
+    expect(h.replaces).toBeUndefined();
+    expect(h.title).toBe('My Pasta');
+    expect(h.cuisine).toBe('Italian');
+    expect(seedFromHandoff(h).pinned).toEqual([{ key: 'tomato', source: 'user', amount: '2 cups' }, { key: 'basil', source: 'user' }]);
+  });
+  it('a recipe the old Notebook saved (names only, no id) reopens by name, with no amounts', () => {
+    const h = handoffFromProfileRecipe({ name: 'Old Soup', ingredients: [{ name: 'tomato', raw: 'tomato' }, 'basil'] });
+    expect(h.replaces).toBe('Old Soup');
+    expect(h.editId).toBeUndefined();
+    expect(seedFromHandoff(h)).toMatchObject({ title: 'Old Soup', replaces: 'Old Soup', pinned: [{ key: 'tomato', source: 'user' }, { key: 'basil', source: 'user' }] });
   });
 });
 

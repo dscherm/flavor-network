@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 /**
- * INVENT-6: the Cookbook's "✨ Invent this" hands a Recipe Lab seed to Make a recipe once.
+ * INVENT-6 / BUILDER-3: the Cookbook's "✨ Invent this" hands a Recipe Lab seed to the Recipe Notebook builder (the one chalkboard builder).
  * (Mocks copied from App.deepLink.test.jsx.)
  * Shared links: a URL that names a surface (`?path=cocktail`) opens that
  * surface directly; a bare visit still shows the landing picker and does
@@ -118,26 +118,12 @@ vi.mock('../components/SauceLab.jsx', () => ({
   },
 }));
 
-// RecipeLab — capture the pill callbacks and render trigger buttons.
-let capturedFindCocktail = null;
-let capturedFindSauce    = null;
-
-vi.mock('../components/RecipeLab.jsx', () => ({
-  default: ({ onFindCocktail, onFindSauce }) => {
-    capturedFindCocktail = onFindCocktail;
-    capturedFindSauce    = onFindSauce;
-    return (
-      <div data-testid="recipe-lab">
-        <button
-          data-testid="pill-cocktail"
-          onClick={() => onFindCocktail?.(['tomato', 'basil'], 'Pasta')}
-        >Find Cocktail</button>
-        <button
-          data-testid="pill-sauce"
-          onClick={() => onFindSauce?.(['tomato', 'basil'], 'Pasta')}
-        >Find Sauce</button>
-      </div>
-    );
+// RecipeBuilderTab (the Recipe Notebook tab) — capture what App hands it.
+let lastBuilderProps = null;
+vi.mock('../components/RecipeBuilderTab.jsx', () => ({
+  default: (props) => {
+    lastBuilderProps = props;
+    return <div data-testid="builder-stub" data-active={String(props.active)} />;
   },
 }));
 
@@ -230,8 +216,7 @@ beforeEach(() => {
   lastCocktailCtx      = undefined;
   lastSauceCtx         = undefined;
   capturedExitFn       = null;
-  capturedFindCocktail = null;
-  capturedFindSauce    = null;
+  lastBuilderProps     = null;
 
   global.fetch = vi.fn().mockImplementation((url) => {
     if (String(url).includes('cocktail_codex_v2')) {
@@ -265,24 +250,24 @@ function visit(search) {
 }
 
 
-describe('App — Cookbook ✨ Invent this hands a seed to Make a recipe', () => {
-  beforeEach(() => { lastMakeProps = null; });
+describe('App — Cookbook ✨ Invent this hands a seed to the recipe builder', () => {
+  beforeEach(() => { lastMakeProps = null; lastBuilderProps = null; });
   afterEach(() => { visit(''); });
 
-  it('switches to Make a recipe, passes the seed, and clears it once consumed', async () => {
+  it('switches to the Recipe Notebook builder and hands it the seed as the handoff', async () => {
     visit('?path=cookbook');
     await mountApp();
     fireEvent.click(screen.getByTestId('cookbook-stub-invent'));
-    expect(screen.getByTestId('make-start')).toBeInTheDocument();
-    expect(lastMakeProps.initialInventSeed).toEqual({ type: 'stir-fry', main: 'chicken', pinned: [{ key: 'ginger', source: 'search' }] });
-    await act(async () => { lastMakeProps.onInventSeedConsumed(); });
-    expect(lastMakeProps.initialInventSeed).toBeNull();
+    const stub = screen.getByTestId('builder-stub');
+    expect(stub).toHaveAttribute('data-active', 'true');
+    expect(lastBuilderProps.handoff.seed).toEqual({ type: 'stir-fry', main: 'chicken', pinned: [{ key: 'ginger', source: 'search' }] });
+    expect(lastBuilderProps.handoff.ts).toBeGreaterThan(0);
   });
 });
 
 // SHARE-3: "Make it your own" on a shared recipe page leaves a seed in sessionStorage; App takes it once.
 describe('App — a seed left by the shared recipe page', () => {
-  beforeEach(() => { lastMakeProps = null; lastCocktailProps = null; lastSauceProps = null; sessionStorage.clear(); });
+  beforeEach(() => { lastMakeProps = null; lastBuilderProps = null; lastCocktailProps = null; lastSauceProps = null; sessionStorage.clear(); });
   afterEach(() => { visit(''); sessionStorage.clear(); });
 
   const stash = (lab, seed) => sessionStorage.setItem('shared-invent-seed', JSON.stringify({ lab, seed, at: Date.now() }));
@@ -308,14 +293,14 @@ describe('App — a seed left by the shared recipe page', () => {
     expect(sessionStorage.getItem('shared-invent-seed')).toBeNull();
   });
 
-  it('dish: Make a recipe receives it as its initial Invent seed', async () => {
+  it('dish: the recipe builder opens on it (and Make a recipe is not involved)', async () => {
     const seed = { type: 'braise-stew', fromName: true, main: 'beef', pinned: [{ key: 'carrot', source: 'search' }] };
     stash('make', seed);
     visit('?path=make');
     await mountApp();
-    expect(lastMakeProps.initialInventSeed).toEqual(seed);
-    await act(async () => { lastMakeProps.onInventSeedConsumed(); });
-    expect(lastMakeProps.initialInventSeed).toBeNull();
+    expect(screen.getByTestId('builder-stub')).toHaveAttribute('data-active', 'true');
+    expect(lastBuilderProps.handoff.seed).toEqual(seed);
+    expect(sessionStorage.getItem('shared-invent-seed')).toBeNull();
   });
 
   it('with no stash nothing is handed over', async () => {

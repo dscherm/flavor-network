@@ -78,7 +78,11 @@ export function saveInvention(profile, input, ctx = {}) {
   if (item.kind === 'recipe') {
     const recipe = recipeFromItem({ ...item, cuisine: text(input?.cuisine) });
     const list = asList(base.recipes);
-    const at = list.findIndex((r) => (r?.id && r.id === recipe.id) || (!input?.id && r?.source === 'invent' && sameName(r, recipe)));
+    let at = list.findIndex((r) => (r?.id && r.id === recipe.id) || (!input?.id && r?.source === 'invent' && sameName(r, recipe)));
+    // A recipe the old Notebook saved (names only: no id, not an invention) that the cook reopened and saved
+    // again is replaced, as that Notebook replaced by name; it is never added a second time.
+    const was = text(input?.replacesName);
+    if (at < 0 && was) at = list.findIndex((r) => r && !r.id && r.source !== 'invent' && sameName(r, { name: was }));
     const invented = list.filter((r) => r?.source === 'invent').length;
     if (at < 0 && invented >= SAVED_LIMITS.perKind) {
       return { ok: false, profile: base, item: null, reason: `You have ${SAVED_LIMITS.perKind} saved recipes. Delete one to save another.` };

@@ -9,6 +9,7 @@
  *   onChange  (value)   called with the chooser's value or null, never with undefined
  *   item      the saved item being edited ({ id, picture }), or null; seeds the chooser and the thumbnail
  *   color     tint for the drawings
+ *   initialPhoto  a File (a photo handed over with the recipe): the chooser opens on "A photo as chalk" with it drawn at the default look
  *   filter    forwarded to RecipePicture (tests)
  *   load      forwarded to PictureView / the stored-picture read (tests)
  * Test ids: picture-field, picture-field-open, picture-field-done, picture-field-thumb (and RecipePicture's own).
@@ -20,7 +21,7 @@ import { SANS, CHALK_CREAM, CHALK_DIM, ACCENT, btn } from './inventUi.jsx';
 
 const tap = { minHeight: 44 };
 
-export default function PictureField({ kind = 'dish', value, onChange, item = null, color, filter, load, testid = 'picture-field' }) {
+export default function PictureField({ kind = 'dish', value, onChange, item = null, color, filter, load, testid = 'picture-field', initialPhoto = null }) {
   const [open, setOpen] = useState(false);
   const stored = item?.picture || null;
   const itemId = item?.id || '';
@@ -65,7 +66,7 @@ export default function PictureField({ kind = 'dish', value, onChange, item = nu
           <p className="text-[14px] mb-2" style={{ fontFamily: SANS, color: CHALK_DIM }}>
             A picture for this recipe. A photo is turned into a chalk drawing on this device; the photo itself is never kept or sent.
           </p>
-          <RecipePicture key={seed?.kind === 'chalk' ? 'chalk' : 'other'} kind={kind} value={seed} color={color} filter={filter} onChange={(v) => onChange(v === undefined ? null : v)} />
+          <RecipePicture key={seed?.kind === 'chalk' ? 'chalk' : 'other'} kind={kind} value={seed} color={color} filter={filter} initialPhoto={initialPhoto} onChange={(v) => onChange(v === undefined ? null : v)} />
           <button type="button" onClick={() => setOpen(false)} data-testid={`${testid}-done`}
             className="mt-3 w-full rounded-lg px-4" style={{ ...btn({ background: `${ACCENT}22`, color: CHALK_CREAM }), ...tap }}>
             Done

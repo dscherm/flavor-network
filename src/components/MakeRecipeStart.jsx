@@ -3,8 +3,6 @@ import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebase.js';
 import { matchRecipeIngredients } from '../data/parseRecipeIngredient.js';
 import useAuth from '../hooks/useAuth.js';
-import useSaveInvention from '../hooks/useSaveInvention.js';
-import InventSaveOverlay from './InventSaveOverlay.jsx';
 import {
   FONT,
   CHALK_CREAM,
@@ -27,7 +25,6 @@ export const SHORTCUT_DOC_URL =
 // KITCHEN-2: the kitchen + invent panels (and the ML they pull in) load
 // only when opened.
 const KitchenPanel = lazy(() => import('./KitchenPanel.jsx'));
-const InventRecipe = lazy(() => import('./InventRecipe.jsx'));
 
 // Shared chalk-slate panel style for the inner stages (URL input, parsing,
 // preview, error, photo preview).
@@ -140,16 +137,11 @@ export default function MakeRecipeStart({
   // Already validated as http(s) by App; re-checked by handleParseUrl.
   initialImportUrl = null,
   onImportConsumed,
-  // "✨ Invent this" from the Cookbook search: a Recipe Lab seed, opened once on Invent.
-  initialInventSeed = null,
-  onInventSeedConsumed,
-  // The profile hook (saveInvention writes the recipe into profile.recipes, where the Cookbook lists it).
-  // Absent = the invent panel shows no save row.
-  userProfile = null,
-  // Aroma-match handlers from App (BUILDER-2): a missing one hides its button in the builder.
-  onFindCocktail = null,
-  onFindSauce = null,
-  onFindWine = null,
+  // BUILDER-3: "Invent a recipe" is the Recipe Notebook tab's chalkboard builder, not a panel here.
+  // initialPanel 'kitchen' opens My kitchen on arrival (from the builder's "My kitchen" button);
+  // onKitchenClosed lets App return the cook to the builder.
+  initialPanel = null,
+  onKitchenClosed,
 }) {
   const fileInputRef = useRef(null);
   const firstCardRef = useRef(null);
@@ -200,16 +192,13 @@ export default function MakeRecipeStart({
   const [kitchen, setKitchen] = useState(() => loadKitchen());
   const [assumeBasics, setAssumeBasics] = useState(() => loadAssumeBasics());
   const [spiceRack, setSpiceRack] = useState(() => loadSpiceRack());
-  const [panel, setPanel] = useState(null); // null | 'kitchen' | 'invent'
-  const [inventSeed, setInventSeed] = useState(null); // null for every ordinary way into Invent
+  const [panel, setPanel] = useState(initialPanel === 'kitchen' ? 'kitchen' : null); // null | 'kitchen'
   const [openRecipe, setOpenRecipe] = useState(null); // a Cookbook recipe, shown as in the Cookbook
   const updateKitchen = (next) => { setKitchen(next); saveKitchen(next); };
   const updateAssumeBasics = (on) => { setAssumeBasics(on); saveAssumeBasics(on); };
   const updateSpiceRack = (on) => { setSpiceRack(on); saveSpiceRack(on); };
 
   const { user, loading: authLoading, authError, loginWithGoogle, loginWithApple } = useAuth();
-  const saveAuth = { user, authError, loginWithGoogle, loginWithApple };
-  const save = useSaveInvention({ kind: 'recipe', userProfile, auth: saveAuth });
 
   useEffect(() => {
     if (stage === STAGE.CARDS) firstCardRef.current?.focus();
@@ -255,14 +244,6 @@ export default function MakeRecipeStart({
     handleParseUrl(initialImportUrl);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialImportUrl]);
-
-  useEffect(() => {
-    if (!initialInventSeed) return;
-    setInventSeed(initialInventSeed);
-    setPanel('invent');
-    onInventSeedConsumed?.();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialInventSeed]);
 
   const knownNames = useMemo(() => {
     if (!nodes) return [];
@@ -557,7 +538,7 @@ export default function MakeRecipeStart({
   const onCardClick = (id) => {
     if (id === 'existing') return handleExisting();
     if (id === 'kitchen') { setPanel('kitchen'); return; }
-    if (id === 'invent') { setInventSeed(null); setPanel('invent'); return; }
+    if (id === 'invent') { setRecipeMounted(true); setActiveTab('recipe'); return; }
     if (id === 'photo') return handlePhotoCardClick();
     if (id === 'weblink') { setStage(STAGE.URL_INPUT); return; }
   };
@@ -1018,7 +999,7 @@ export default function MakeRecipeStart({
       {panel && (
         <Suspense fallback={(
           <div className="fixed inset-x-0 top-0 z-[82]" style={{ bottom: 'var(--tab-bar-h)' }}>
-            <ChalkLoader label={panel === 'invent' ? 'Opening the recipe builder…' : 'Opening the pantry…'} color="#a3e635" />
+            <ChalkLoader label="Opening the pantry…" color="#a3e635" />
           </div>
         )}>
           {panel === 'kitchen' && (
@@ -1032,28 +1013,12 @@ export default function MakeRecipeStart({
               nodes={nodes}
               onOpenRecipe={setOpenRecipe}
               onUseRealRecipe={(m) => sendToNotebook(realRecipeHandoff(m, { assumeBasics }))}
-              onInvent={() => { setInventSeed(null); setPanel('invent'); }}
-              onClose={() => setPanel(null)}
-            />
-          )}
-          {panel === 'invent' && (
-            <InventRecipe
-              seed={inventSeed}
-              kitchen={kitchen}
-              nodes={nodes}
-              edges={edges}
-              onWrite={sendToNotebook}
-              onFindCocktail={onFindCocktail}
-              onFindSauce={onFindSauce}
-              onFindWine={onFindWine}
-              onEditKitchen={() => setPanel('kitchen')}
-              onSave={save.onSave}
-              onClose={() => { save.cancelPending(); setPanel(null); }}
+              onInvent={() => { setPanel(null); setRecipeMounted(true); setActiveTab('recipe'); }}
+              onClose={() => { setPanel(null); onKitchenClosed?.(); }}
             />
           )}
         </Suspense>
       )}
-      <InventSaveOverlay save={save} auth={saveAuth} />
       {openRecipe && (
         // Above the kitchen panel (z 82); RecipeDetail itself is fixed at z 80.
         <div className="relative z-[90]">

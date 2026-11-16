@@ -90,7 +90,10 @@ export function recipeRoles(names, { nodes = null, main = null } = {}) {
   return roles;
 }
 
-/** The recipeHandoff for an invention (amounts from quantityRuntime, if any). */
+/**
+ * The recipeHandoff for an invention (amounts from quantityRuntime, if any).
+ * `inv.type` (a dishSkeletons id) and `inv.cuisine` ride along so the builder reopens on the same dish.
+ */
 export function inventionHandoff(inv, { amounts = null, closest = null } = {}) {
   return {
     source: 'make-invent',
@@ -100,7 +103,69 @@ export function inventionHandoff(inv, { amounts = null, closest = null } = {}) {
     steps: closest?.steps || [],
     stepsFrom: closest?.title || '',
     recipeType: null,
+    type: inv.type || null,
+    cuisine: inv.cuisine || null,
     image: null,
+    ts: Date.now(),
+  };
+}
+
+const amountText = (a) => (typeof a === 'string' ? a.trim() : (a && typeof a.raw === 'string' ? a.raw.trim() : ''));
+
+/**
+ * A recipeHandoff (or a profile recipe) as the seed the chalkboard builder opens on.
+ * Ingredients may be names, BowlEntry { ingredient, amount } or { name, raw }; they are the cook's own lines (source 'user',
+ * so none is labelled "from your search"). A handoff that
+ * already carries a `seed` (a search or a shared page's "Make it your own") passes it through.
+ * Carries the title, method steps, photo, dish type (`type`, applied only when given) and cuisine.
+ * `editId` reopens a saved invention under its own id; `replaces` is the name of a recipe the old
+ * Notebook saved (names only, no id) so that saving replaces it instead of adding a second.
+ */
+export function seedFromHandoff(h) {
+  if (!h || typeof h !== 'object') return null;
+  if (h.seed && typeof h.seed === 'object') return h.seed;
+  const seen = new Set();
+  const pinned = [];
+  for (const it of Array.isArray(h.ingredients) ? h.ingredients : []) {
+    const key = lower(typeof it === 'string' ? it : (it?.ingredient ?? it?.name));
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    const amount = typeof it === 'string' ? '' : amountText(it.amount);
+    pinned.push({ key, source: 'user', ...(amount ? { amount } : {}) });
+  }
+  return {
+    pinned,
+    ...(typeof h.title === 'string' && h.title.trim() ? { title: h.title.trim() } : {}),
+    ...(Array.isArray(h.steps) && h.steps.length ? { steps: h.steps.map(String), stepsFrom: h.stepsFrom || '' } : {}),
+    ...(h.image ? { image: h.image } : {}),
+    ...(h.type ? { type: h.type, fromName: true } : {}),
+    ...(h.cuisine ? { cuisine: h.cuisine } : {}),
+    ...(h.editId ? { editId: h.editId } : {}),
+    ...(h.replaces ? { replaces: h.replaces } : {}),
+  };
+}
+
+/**
+ * A recipe from the profile (the Cookbook and Profile list these) as a handoff for the builder.
+ * Amounts come from `raw` ("2 cups rice") when it ends with the ingredient's name; a recipe saved
+ * by the old Notebook has only names, so it opens with no amounts.
+ */
+export function handoffFromProfileRecipe(recipe) {
+  const ingredients = (Array.isArray(recipe?.ingredients) ? recipe.ingredients : []).map((i) => {
+    if (typeof i === 'string') return i;
+    const name = lower(i?.name);
+    const raw = String(i?.raw || '').trim();
+    const rest = raw && lower(raw).endsWith(name) ? raw.slice(0, raw.length - name.length).trim() : '';
+    return { ingredient: name, amount: rest ? { raw: rest } : null };
+  }).filter((i) => (typeof i === 'string' ? i : i.ingredient));
+  const own = typeof recipe?.id === 'string' && recipe.id && recipe.source === 'invent';
+  return {
+    source: 'profile',
+    mode: 'recipe',
+    ingredients,
+    title: recipe?.name || '',
+    cuisine: recipe?.cuisine || null,
+    ...(own ? { editId: recipe.id } : { replaces: recipe?.name || '' }),
     ts: Date.now(),
   };
 }

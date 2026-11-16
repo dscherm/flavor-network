@@ -46,7 +46,7 @@ function initialMode(value) {
 }
 
 export default function RecipePicture({
-  kind = 'dish', value = null, onChange, color, filter = DEFAULT_FILTER, debounceMs = 250,
+  kind = 'dish', value = null, onChange, color, filter = DEFAULT_FILTER, debounceMs = 250, initialPhoto = null,
 }) {
   const [mode, setMode] = useState(() => initialMode(value));
   const [settings, setSettings] = useState({ ...CHALK_DEFAULTS });
@@ -142,6 +142,11 @@ export default function RecipePicture({
 
   async function onFile(e) {
     const file = e.target.files && e.target.files[0];
+    await loadFile(file);
+    if (fileRef.current) fileRef.current.value = '';
+  }
+
+  async function loadFile(file) {
     if (!file) return;
     cancelRun();
     runIdRef.current += 1;
@@ -160,8 +165,17 @@ export default function RecipePicture({
       setStatus('idle');
       setMessage(UNREADABLE);
     }
-    if (fileRef.current) fileRef.current.value = '';
   }
+
+  // A photo the recipe arrived with (a handoff): drawn once at the default look; nothing is kept until "Use this picture".
+  const initialPhotoRef = useRef(initialPhoto);
+  useEffect(() => {
+    const file = initialPhotoRef.current;
+    if (!file) return;
+    setMode('photo');
+    loadFile(file);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function changeSetting(key, raw) {
     const next = { ...settings, [key]: Number(raw) };

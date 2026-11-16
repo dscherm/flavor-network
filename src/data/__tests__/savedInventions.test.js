@@ -12,6 +12,35 @@ const lines = (...keys) => keys.map((key) => ({ key, amount: '', role: null }));
 const input = (over = {}) => ({ kind: 'cocktail', name: 'My Drink', category: 3, lines: [{ key: 'bourbon', amount: '2 oz', role: 'spirit' }, { key: 'bitters', amount: '2 dashes', role: 'aromatic' }], ...over });
 const ctx = (n = 1) => ({ now: 1000 + n, makeId: () => `id-${n}` });
 
+describe('saveInvention: a recipe the old Notebook saved (names only, BUILDER-3)', () => {
+  const legacy = { name: 'Old Soup', ingredients: [{ name: 'tomato', quantity: null, unit: null, raw: 'tomato' }, { name: 'basil', quantity: null, unit: null, raw: 'basil' }] };
+  const other = { name: 'Another', ingredients: [{ name: 'rice', quantity: null, unit: null, raw: 'rice' }] };
+  const recipe = (over = {}) => ({ kind: 'recipe', name: 'Old Soup', lines: lines('tomato', 'basil'), ...over });
+
+  it('saving it again from the builder (replacesName) replaces it: one entry, the new name, nothing else touched', () => {
+    const res = saveInvention({ recipes: [legacy, other] }, recipe({ name: 'Tomato Basil Soup', replacesName: 'Old Soup' }), ctx());
+    expect(res.ok).toBe(true);
+    expect(res.profile.recipes.map((r) => r.name)).toEqual(['Tomato Basil Soup', 'Another']);
+    expect(res.profile.recipes[1]).toBe(other);
+  });
+  it('with its own name kept it is still one entry', () => {
+    const res = saveInvention({ recipes: [legacy] }, recipe({ replacesName: 'Old Soup' }), ctx());
+    expect(res.profile.recipes).toHaveLength(1);
+    expect(res.profile.recipes[0]).toMatchObject({ name: 'Old Soup', source: 'invent' });
+  });
+  it('without replacesName a new invention with the same name does not overwrite an old Notebook recipe', () => {
+    const res = saveInvention({ recipes: [legacy] }, recipe(), ctx());
+    expect(res.profile.recipes).toHaveLength(2);
+    expect(res.profile.recipes[0]).toBe(legacy);
+  });
+  it('never replaces an invention (it has an id) or a different name', () => {
+    const mine = { id: 'inv-9', source: 'invent', name: 'Old Soup', ingredients: legacy.ingredients };
+    const res = saveInvention({ recipes: [mine, other] }, recipe({ name: 'New', replacesName: 'Old Soup' }), ctx());
+    expect(res.profile.recipes).toHaveLength(3);
+    expect(res.profile.recipes[0]).toBe(mine);
+  });
+});
+
 describe('saveInvention', () => {
   it('appends one item to the right array and changes nothing else', () => {
     const profile = { cuisines: ['thai'], recipes: [{ name: 'Old', ingredients: [] }], cocktails: [], sauces: [], pairings: [], quizAnswers: null };

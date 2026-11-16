@@ -69,11 +69,20 @@ describe('MakeRecipeStart — KITCHEN-2 kitchen flow', () => {
     expect(h.steps.length).toBeGreaterThan(0);
   });
 
-  it('invent card opens Invent a recipe, which still works (with a quiet note) when the model is unavailable', async () => {
-    mount();
+  it('the invent card opens the Recipe Notebook tab, which is the chalkboard builder (BUILDER-3)', async () => {
+    const s = mount();
     fireEvent.click(screen.getByTestId('make-card-invent'));
-    expect(await screen.findByTestId('invent-recipe-no-model')).toBeInTheDocument();
-    expect(screen.getByTestId('invent-recipe-start-question')).toHaveTextContent('What is the main ingredient?');
-    expect(screen.queryByTestId('invent-recipe-unavailable')).toBeNull();
+    expect(s.setRecipeMounted).toHaveBeenCalledWith(true);
+    expect(s.setActiveTab).toHaveBeenCalledWith('recipe');
+    expect(screen.queryByTestId('invent-recipe')).toBeNull();
+  });
+
+  it('opened from My kitchen in the builder it starts on the kitchen, and closing it reports back', async () => {
+    const onKitchenClosed = vi.fn();
+    const s = { setRecipeHandoff: vi.fn(), setRecipeMounted: vi.fn(), setActiveTab: vi.fn(), setCookbookPickerMode: vi.fn() };
+    render(<MakeRecipeStart {...s} nodes={NODES} edges={[]} initialPanel="kitchen" onKitchenClosed={onKitchenClosed} />);
+    const close = await screen.findByTestId('kitchen-close');
+    fireEvent.click(close);
+    expect(onKitchenClosed).toHaveBeenCalledTimes(1);
   });
 });

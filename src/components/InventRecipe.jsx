@@ -21,7 +21,7 @@
  *
  * Props
  *   kitchen, nodes, edges    as before (names the cook has; ingredient graph; pairing edges)
- *   seed       { type?, fromName?, main?, cuisine?, pinned?: [{ key, source: 'search' }] } from the
+ *   seed       { type?, fromName?, main?, cuisine?, pinned?: [{ key, source: 'search' | 'user' }] } from the
  *              Cookbook search. Searched ingredients become the list; `main` answers step 1 (with
  *              none, step 1 is skipped); `type` is applied only when `fromName` (the search named
  *              a recipe), otherwise the best fit is simply recommended; `cuisine` sets the chip.
@@ -33,7 +33,9 @@
  *   onWrite, onEditKitchen, onClose
  *   onFindCocktail, onFindSauce, onFindWine   (names, title) → the App's aroma-match handlers; each missing one hides its button.
  *   seed also carries a handoff's { steps, stepsFrom, image (File | url) } (shown as a collapsed Method and a photo with remove)
- *   and pinned[].amount (a typed amount for that line).
+ *   and pinned[].amount (a typed amount for that line). seedFromHandoff (inventRecipe.js) builds one from any recipeHandoff;
+ *   it adds { title (the name box), editId (save under that saved recipe's id), replaces (the name of a recipe the old
+ *   Notebook saved with names only: saving replaces it rather than adding a second) }.
  *
  * Test ids: invent-recipe, -close, -kitchen, -source, -no-model, -cuisines, -dishline, -method,
  * -closest, -note, -write, -restart, plus the shared components' prefixes
@@ -126,6 +128,7 @@ export default function InventRecipe({
     ? { steps: seed.steps.map(String), from: seed.stepsFrom || '' } : null));
   const [methodOpen, setMethodOpen] = useState(false);
   const [photoUrl, setPhotoUrl] = useState(null);
+  const handoffFile = photoUrl && typeof File !== 'undefined' && seed?.image instanceof File ? seed.image : null;
   // PICTURE-4: undefined = untouched (an edited dish keeps its own); null = none; else the chooser's value.
   const [picture, setPicture] = useState(undefined);
 
@@ -141,13 +144,17 @@ export default function InventRecipe({
     const pins = (seed?.pinned || NO_PINS).map((p) => lower(p.key)).filter(Boolean);
     const main = seed?.main ? lower(seed.main) : null;
     const keys = [...new Set([...(main ? [main] : []), ...pins])];
+    const ownKeys = new Set((seed?.pinned || NO_PINS).filter((p) => p?.source === 'user').map((p) => lower(p.key)));
     const typeId = seed?.fromName && DISH_SKELETONS[seed.type] ? seed.type : null;
-    let build = openBuild({ lab: 'recipe', lines: keys.map((key) => ({ key, source: 'search' })) });
+    let build = openBuild({ lab: 'recipe', lines: keys.map((key) => ({ key, source: ownKeys.has(key) ? 'user' : 'search' })) });
     if (typeId) build = applyCategory(build, dishSkeleton(typeId, { nodes: nodeMap }));
     const seededAmounts = new Map((seed?.pinned || NO_PINS).filter((p) => p?.key && p.amount).map((p) => [lower(p.key), String(p.amount)]));
-    return { ...fresh(), started: keys.length > 0, build, typeId, cuisine: seed?.cuisine || null, edits: seededAmounts };
+    return {
+      ...fresh(), started: keys.length > 0, build, typeId, cuisine: seed?.cuisine || null, edits: seededAmounts,
+      name: typeof seed?.title === 'string' ? seed.title : '', editId: seed?.editId ?? null, replaces: seed?.replaces || '',
+    };
   });
-  const { started, build, typeId, cuisine, name, edits, editId } = state;
+  const { started, build, typeId, cuisine, name, edits, editId, replaces } = state;
   const skeleton = typeId ? DISH_SKELETONS[typeId] : null;
   const invent = useInventUsage('recipe', { started, categoryId: typeId, editing: !!editItem });
   const patch = (p) => setState((st) => ({ ...st, ...p }));
@@ -358,6 +365,7 @@ export default function InventRecipe({
     kind: 'recipe', ...(editId ? { id: editId } : {}), name, category: typeId || null, lines: savedLines,
     ...(skeleton ? { method: skeleton.method } : {}), ...(cuisine ? { cuisine } : {}),
     ...(picture !== undefined ? { picture } : {}),
+    ...(replaces ? { replacesName: replaces } : {}),
   };
   const check = toSavedItem(savedInput);
   const [lastSaved, setLastSaved] = useState(null);
@@ -381,7 +389,7 @@ export default function InventRecipe({
       else if (amounts.get(k)) amountMap.set(k, amounts.get(k));
     }
     onWrite?.(inventionHandoff(
-      { name: name.trim() || 'Untitled dish', ingredients: keys.map((n) => ({ name: n })) },
+      { name: name.trim() || 'Untitled dish', ingredients: keys.map((n) => ({ name: n })), type: typeId, cuisine },
       { amounts: amountMap, closest: skeleton ? closest : null },
     ));
   };
@@ -575,7 +583,7 @@ export default function InventRecipe({
               <InventNameSave testidPrefix="invent-recipe-namesave" name={name} placeholder="Name your dish" saveLabel="Add to my recipes"
                 canSave={check.ok} disabledReason={check.ok ? undefined : check.reason}
                 status={saveState.status} message={saveState.message}
-                pictureField={{ kind: 'dish', value: picture, onChange: setPicture, item: editItem }} pictureNote={saveState.pictureReason}
+                pictureField={{ kind: 'dish', value: picture, onChange: setPicture, item: editItem, initialPhoto: handoffFile }} pictureNote={saveState.pictureReason}
                 shareItem={lastSaved ? { kind: 'recipe', item: lastSaved } : null}
                 onNameCommit={invent.named} onName={(t) => { setSaveState({ status: 'idle', message: '' }); patch({ name: t }); }} onSave={save} />
             )}

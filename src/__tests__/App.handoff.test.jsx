@@ -108,11 +108,11 @@ vi.mock('../components/SauceLab.jsx', () => ({
   },
 }));
 
-// RecipeLab — capture the pill callbacks and render trigger buttons.
+// RecipeBuilderTab (the Recipe Notebook tab) — capture the Find callbacks and render trigger buttons.
 let capturedFindCocktail = null;
 let capturedFindSauce    = null;
 
-vi.mock('../components/RecipeLab.jsx', () => ({
+vi.mock('../components/RecipeBuilderTab.jsx', () => ({
   default: ({ onFindCocktail, onFindSauce }) => {
     capturedFindCocktail = onFindCocktail;
     capturedFindSauce    = onFindSauce;
@@ -262,14 +262,14 @@ function clickNotebookTab() {
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
 describe('App — RecipeLab receives pill callbacks', () => {
-  it('passes onFindCocktail function to RecipeLab', async () => {
+  it('passes onFindCocktail function to the recipe builder tab', async () => {
     await mountApp();
     // Navigate to recipe tab to mount RecipeLab
     await act(async () => { clickNotebookTab(); });
     expect(typeof capturedFindCocktail).toBe('function');
   });
 
-  it('passes onFindSauce function to RecipeLab', async () => {
+  it('passes onFindSauce function to the recipe builder tab', async () => {
     await mountApp();
     await act(async () => { clickNotebookTab(); });
     expect(typeof capturedFindSauce).toBe('function');

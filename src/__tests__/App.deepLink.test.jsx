@@ -104,11 +104,11 @@ vi.mock('../components/SauceLab.jsx', () => ({
   },
 }));
 
-// RecipeLab — capture the pill callbacks and render trigger buttons.
+// RecipeBuilderTab — capture the pill callbacks and render trigger buttons.
 let capturedFindCocktail = null;
 let capturedFindSauce    = null;
 
-vi.mock('../components/RecipeLab.jsx', () => ({
+vi.mock('../components/RecipeBuilderTab.jsx', () => ({
   default: ({ onFindCocktail, onFindSauce }) => {
     capturedFindCocktail = onFindCocktail;
     capturedFindSauce    = onFindSauce;

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-// INVENT-12: saving an invented recipe from Make a recipe — through the existing user-recipe path
-// (profile.recipes, which the Cookbook lists). The invent panel is mocked; the profile writer is mocked.
+// INVENT-12 / BUILDER-3: saving a recipe from the Recipe Notebook builder — through the existing user-recipe path
+// (profile.recipes, which the Cookbook lists). The builder is mocked; the profile writer is mocked.
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
@@ -29,22 +29,21 @@ vi.mock('../InventRecipe.jsx', () => ({
   },
 }));
 
-import MakeRecipeStart from '../MakeRecipeStart.jsx';
+import RecipeBuilderTab from '../RecipeBuilderTab.jsx';
 import { saveInvention } from '../../data/savedInventions.js';
 
 const NODES = new Map([['chicken', { category: 'protein', cuisines: [] }], ['broccoli', { category: 'vegetable', cuisines: [] }]]);
 const SIGNED_IN = { user: { uid: 'u1' }, loading: false, authError: null, loginWithGoogle: vi.fn(), loginWithApple: vi.fn(), logout: vi.fn() };
 const SIGNED_OUT = { ...SIGNED_IN, user: null };
 
-function mount(userProfile) {
-  const s = { setRecipeHandoff: vi.fn(), setRecipeMounted: vi.fn(), setActiveTab: vi.fn(), setCookbookPickerMode: vi.fn() };
-  const ui = (up) => <MakeRecipeStart {...s} nodes={NODES} edges={[]} userProfile={up} />;
+function mount(userProfile, extra = {}) {
+  const ui = (up) => <RecipeBuilderTab nodes={NODES} edges={[]} userProfile={up} onBack={vi.fn()} {...extra} />;
   const view = render(ui(userProfile));
   return { view, ui };
 }
-const openInvent = async () => { fireEvent.click(await screen.findByTestId('make-card-invent')); return screen.findByTestId('mock-invent-recipe'); };
+const openInvent = async () => screen.findByTestId('mock-invent-recipe');
 
-describe('MakeRecipeStart — saving an invented recipe', () => {
+describe('RecipeBuilderTab — saving a recipe', () => {
   beforeEach(() => { localStorage.clear(); panelProps.current = null; auth.value = SIGNED_IN; });
 
   it('without a profile writer the panel gets no onSave', async () => {
@@ -108,5 +107,31 @@ describe('MakeRecipeStart — saving an invented recipe', () => {
     await openInvent();
     fireEvent.click(screen.getByTestId('mock-save'));
     await waitFor(() => expect(screen.getByTestId('mock-result').textContent).toContain('error'));
+  });
+
+  it('the builder is the one chalkboard builder: it gets the handoff as its seed, the kitchen, and the Find handlers', async () => {
+    const onFindCocktail = vi.fn();
+    const handoff = { source: 'cocktail', ts: 5, ingredients: [{ ingredient: 'chicken', amount: { raw: '1 lb' } }, 'broccoli'], title: 'Dish', steps: ['Stir.'], stepsFrom: 'Dish', type: 'stir-fry', cuisine: 'chinese' };
+    mount({ saveInvention: vi.fn() }, { handoff, onFindCocktail });
+    await openInvent();
+    expect(panelProps.current.seed).toMatchObject({
+      pinned: [{ key: 'chicken', source: 'user', amount: '1 lb' }, { key: 'broccoli', source: 'user' }],
+      title: 'Dish', steps: ['Stir.'], stepsFrom: 'Dish', type: 'stir-fry', fromName: true, cuisine: 'chinese',
+    });
+    expect(panelProps.current.onFindCocktail).toBe(onFindCocktail);
+    expect(panelProps.current.onWrite).toBeUndefined();
+  });
+
+  it('Back closes through the host and drops a save waiting on sign-in', async () => {
+    const onBack = vi.fn();
+    mount({ saveInvention: vi.fn() }, { onBack });
+    await openInvent();
+    fireEvent.click(screen.getByTestId('mock-close'));
+    expect(onBack).toHaveBeenCalledTimes(1);
+  });
+
+  it('waits for the ingredient graph instead of opening the builder without it', () => {
+    render(<RecipeBuilderTab nodes={null} edges={null} userProfile={null} onBack={vi.fn()} />);
+    expect(screen.queryByTestId('mock-invent-recipe')).toBeNull();
   });
 });

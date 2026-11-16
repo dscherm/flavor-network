@@ -53,7 +53,7 @@ const WineLab = lazyWithRetry(() => import('./components/WineLab.jsx'));
 import CocktailLabV2 from './components/CocktailLabV2.jsx';
 import { ChalkLoader } from './components/chalkArt.jsx';
 import SauceLab from './components/SauceLab.jsx';
-import RecipeLab from './components/RecipeLab.jsx';
+import RecipeBuilderTab from './components/RecipeBuilderTab.jsx';
 import MobileTabBar from './components/MobileTabBar.jsx';
 import AlphaModeDetailsCard from './components/AlphaModeDetailsCard.jsx';
 import LabsFab from './components/LabsFab.jsx';
@@ -99,6 +99,7 @@ import useUserProfile from './hooks/useUserProfile.js';
 import useAuth from './hooks/useAuth.js';
 import { readImportParam, stripImportParam } from './utils/importParam.js';
 import { takeInventSeed } from './data/sharedHandoff.js';
+import { handoffFromProfileRecipe } from './data/inventRecipe.js';
 import { usage } from './data/usageEvents.js';
 
 // Spec §1.H — URL deep-link routing. `?path=<slug>` ↔ activeTab.
@@ -151,10 +152,9 @@ export default function App() {
   const [importUrl, setImportUrl] = useState(() => (
     typeof window === 'undefined' ? null : readImportParam(window.location.search)
   ));
-  // "✨ Invent this" from the Cookbook search: a Recipe Lab seed handed to Make a recipe once.
   // "Make it your own" on a shared recipe page leaves a seed in sessionStorage; read once here and removed.
+  // A Recipe Lab seed ("✨ Invent this" from the Cookbook search, or this) opens the Recipe Notebook builder.
   const [sharedSeed] = useState(() => takeInventSeed());
-  const [inventSeed, setInventSeed] = useState(() => (sharedSeed?.lab === 'make' ? sharedSeed.seed : null));
   const [labInventSeed, setLabInventSeed] = useState(() => (sharedSeed && sharedSeed.lab !== 'make' ? sharedSeed : null));
   const [startPageComplete, setStartPageComplete] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -226,6 +226,7 @@ export default function App() {
     if (typeof window === 'undefined') return 'network';
     // WEBLINK-17: an import always lands on Make a recipe, whatever ?path= says.
     if (importUrl) return 'make';
+    if (sharedSeed?.lab === 'make') return 'recipe';
     const path = new URLSearchParams(window.location.search).get('path');
     // Default to 'make' — the network/Model surface is parked (2026-06-23),
     // so the kitchen flow is the home surface. A direct ?path=explore still
@@ -358,7 +359,23 @@ export default function App() {
   // resets its bowl every time `ts` changes — never on plain
   // `selectedNodes` updates, so clicking around in the Network /
   // Cocktail / Sauce tabs no longer silently pollutes the recipe.
-  const [recipeHandoff, setRecipeHandoff] = useState(null);
+  const [recipeHandoff, setRecipeHandoff] = useState(() => (
+    sharedSeed?.lab === 'make' ? { source: 'invent-seed', seed: sharedSeed.seed, ts: Date.now() } : null
+  ));
+  // BUILDER-3: where the builder's Back goes (the tab it was opened from), and whether the tab change
+  // that just happened is a return (from the cocktail / sauce / wine matches, or My kitchen), not a new door.
+  const recipeBackRef = useRef('labs');
+  const prevTabRef = useRef(initialTab);
+  const returnToBuilderRef = useRef(false);
+  useEffect(() => {
+    const prev = prevTabRef.current;
+    if (activeTab === 'recipe' && prev !== 'recipe' && !returnToBuilderRef.current) recipeBackRef.current = prev;
+    if (activeTab === 'recipe') returnToBuilderRef.current = false;
+    prevTabRef.current = activeTab;
+  }, [activeTab]);
+  // "My kitchen" from the builder: Make a recipe opens it, and its Close comes back here.
+  const [kitchenFromBuilder, setKitchenFromBuilder] = useState(false);
+  useEffect(() => { if (activeTab !== 'make') setKitchenFromBuilder(false); }, [activeTab]);
   // Make-a-Recipe: MakeRecipeStart's 4-card router (existing / scratch /
   // photo / weblink) commits straight to the Recipe Notebook. The former
   // Stage-2 chalkboard cards-grid was removed per user request.
@@ -2109,16 +2126,9 @@ export default function App() {
               setActiveTab('network');
             }}
             onLoadRecipe={(recipe) => {
-              const ingredients = (recipe?.ingredients || [])
-                .map((i) => (typeof i === 'string' ? i : i?.name))
-                .filter(Boolean);
-              setRecipeHandoff({
-                source: 'profile',
-                ingredients,
-                mode: 'recipe',
-                ts: Date.now(),
-                title: recipe?.name || '',
-              });
+              // Amounts and the id of a recipe the cook invented come along; one the old Notebook saved
+              // (names only) reopens by name and is replaced, not duplicated, when saved again.
+              setRecipeHandoff(handoffFromProfileRecipe(recipe));
               setRecipeInitialMode(null);
               setRecipeMounted(true);
               setActiveTab('recipe');
@@ -2160,7 +2170,7 @@ export default function App() {
             externalFilter={externalLabFilter}
             matchesContext={matchesContext}
             onExitMatches={() => setMatchesContext(null)}
-            onBackToRecipe={() => { const back = matchesContext?.returnTab || 'recipe'; setMatchesContext(null); setActiveTab(back); }}
+            onBackToRecipe={() => { const back = matchesContext?.returnTab || 'recipe'; if (back === 'recipe') returnToBuilderRef.current = true; setMatchesContext(null); setActiveTab(back); }}
             onOpenRecipeLab={(_mode, initialIngredients) => {
               setRecipeHandoff({
                 source: 'cocktail',
@@ -2194,7 +2204,7 @@ export default function App() {
             matchesContext={matchesContext}
             onExitMatches={() => setMatchesContext(null)}
             onFindWine={handleFindWine}
-            onBackToRecipe={() => { const back = matchesContext?.returnTab || 'recipe'; setMatchesContext(null); setActiveTab(back); }}
+            onBackToRecipe={() => { const back = matchesContext?.returnTab || 'recipe'; if (back === 'recipe') returnToBuilderRef.current = true; setMatchesContext(null); setActiveTab(back); }}
             onSelectionChange={handleLabSelectionChange}
             onOpenRecipeLab={(_mode, initialIngredients) => {
               // Same one-shot handoff pattern as Cocktail Lab —
@@ -2223,18 +2233,17 @@ export default function App() {
               : 'hidden'
           }`}
         >
-          <RecipeLab
-            fullData={data}
-            initialIngredient={selectedNode}
-            initialIngredients={selectedNodes}
-            initialMode={recipeInitialMode}
+          <RecipeBuilderTab
+            active={activeTab === 'recipe'}
+            nodes={data?.graph?.nodes}
+            edges={data?.graph?.edges}
             handoff={recipeHandoff}
             userProfile={userProfile}
-            isMobile={isMobile}
             onFindCocktail={handleFindCocktail}
             onFindSauce={handleFindSauce}
             onFindWine={handleFindWine}
-            onOpenCookbook={() => setActiveTab('cookbook')}
+            onEditKitchen={() => { setKitchenFromBuilder(true); setActiveTab('make'); }}
+            onBack={() => setActiveTab(recipeBackRef.current || 'labs')}
           />
         </div>
       )}
@@ -2270,7 +2279,7 @@ export default function App() {
           <WineLab
             matchesContext={wineMatches}
             onExitMatches={() => setWineMatches(null)}
-            onBackToRecipe={wineMatches ? () => { const back = wineMatches.returnTab || 'recipe'; setWineMatches(null); setActiveTab(back); } : null}
+            onBackToRecipe={wineMatches ? () => { const back = wineMatches.returnTab || 'recipe'; if (back === 'recipe') returnToBuilderRef.current = true; setWineMatches(null); setActiveTab(back); } : null}
           />
         </Suspense>
       )}
@@ -2285,9 +2294,6 @@ export default function App() {
           <MakeRecipeStart
             userProfile={userProfile}
             setRecipeHandoff={setRecipeHandoff}
-            onFindCocktail={(ings, name) => handleFindCocktail(ings, name, 'make')}
-            onFindSauce={(ings, name) => handleFindSauce(ings, name, 'make')}
-            onFindWine={(ings, name) => handleFindWine(ings, name, 'make')}
             setRecipeMounted={setRecipeMounted}
             setActiveTab={setActiveTab}
             setCookbookPickerMode={setCookbookPickerMode}
@@ -2295,8 +2301,8 @@ export default function App() {
             edges={data?.graph?.edges}
             initialImportUrl={importUrl}
             onImportConsumed={() => setImportUrl(null)}
-            initialInventSeed={inventSeed}
-            onInventSeedConsumed={() => setInventSeed(null)}
+            initialPanel={kitchenFromBuilder ? 'kitchen' : null}
+            onKitchenClosed={() => { if (kitchenFromBuilder) { returnToBuilderRef.current = true; setKitchenFromBuilder(false); setActiveTab('recipe'); } }}
           />
         </div>
       )}
@@ -2323,7 +2329,7 @@ export default function App() {
             userRecipes={userProfile?.profile?.recipes || []}
             userProfile={userProfile}
             onOpenShopping={() => setActiveTab('shopping')}
-            onInventThis={(seed) => { setInventSeed(seed); setActiveTab('make'); }}
+            onInventThis={(seed) => { setRecipeHandoff({ source: 'invent-seed', seed, ts: Date.now() }); setRecipeMounted(true); setActiveTab('recipe'); }}
             pickerMode={cookbookPickerMode}
             onExitPickerMode={() => {
               setCookbookPickerMode(null);

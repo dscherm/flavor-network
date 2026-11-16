@@ -48,6 +48,23 @@ beforeEach(() => {
 });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
+describe('RecipePicture: a photo handed over with the recipe (BUILDER-3)', () => {
+  it('opens on the photo mode and draws that photo at the default look, keeping nothing until "Use this picture"', async () => {
+    const filter = makeFilter();
+    const onChange = vi.fn();
+    render(<RecipePicture kind="dish" onChange={onChange} filter={filter} debounceMs={0} initialPhoto={photo()} />);
+    await waitFor(() => expect(filter.runs.length).toBe(1));
+    expect(filter.runs[0].settings).toEqual(CHALK_DEFAULTS);
+    expect(screen.getByRole('radio', { name: 'A photo as chalk' })).toHaveAttribute('aria-checked', 'true');
+    expect(onChange).not.toHaveBeenCalled();
+    filter.runs[0].resolve();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Use this picture' })).not.toBeDisabled());
+    fireEvent.click(screen.getByRole('button', { name: 'Use this picture' }));
+    await waitFor(() => expect(onChange).toHaveBeenCalledTimes(1));
+    expect(onChange.mock.calls[0][0]).toMatchObject({ kind: 'chalk' });
+  });
+});
+
 describe('pictureArt registry', () => {
   it('pins the ids so a rename cannot orphan stored pictures', () => {
     expect(picturesFor('cocktail').map((p) => p.id)).toEqual([
