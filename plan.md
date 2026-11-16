@@ -2453,7 +2453,7 @@ Firebase console. Order: USAGE-1, then USAGE-2; USAGE-3 and USAGE-4 are independ
   "id": "USAGE-1",
   "title": "Consent banner, privacy page and analytics wiring (nothing sent before a yes)",
   "category": "feature",
-  "passes": false,
+  "passes": true,
   "description": "src/data/usage.js: consent state (unset, yes, no) kept on the device; track(name, params) is a no-op unless consent is yes; Firebase Analytics is imported lazily only after a yes and only when isSupported(); failures are swallowed. A one-time banner with Yes and No in the chalk language, not blocking the page, 44px targets; the choice can be changed in Profile. A plain /privacy page (routed like the shared recipe page, no account needed) listing what is collected, by whom (Google), the typed text that is sent (search terms that found nothing, unrecognised ingredient names), and how to turn it off; linked from the banner, the Labs menu and the shared recipe page. No user id, email or display name is ever set on analytics. The measurement id comes from the Firebase config; without one, everything stays a no-op. README's statement that the app records nothing is rewritten to match.",
   "acceptance": [
     "With consent unset or no: no analytics module is loaded and no request goes to Google (test with a spy on the dynamic import; browser network check)",
