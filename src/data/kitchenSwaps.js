@@ -19,6 +19,20 @@
  *     strict, and a test checks this flag never contradicts its stand-in
  *     rule (saucePantry.sameRoleAndKind).
  *
+ * FOUR KINDS of answer (STANDIN-1). An entry carries an optional `type`:
+ *   'swap' (the default, and what every entry above is): another ingredient, shallot for onion;
+ *   'form': the same thing in another form (dried thyme for fresh, garlic powder for a clove);
+ *   'make': made from things (simple syrup from sugar and water): `use` is the first part, `plus` the rest;
+ *   'none': nothing replaces it (`reason` says why; no `use`).
+ * Any kind may carry `ratio` (one numeric factor, applied to a row's single number), `amountNote` (a conversion that
+ * is not one factor: "1 tsp dried for 1 tbsp fresh") and `note`.
+ *
+ * WHO MAY USE WHICH. The recipe side (findSwap, swapsFor, SWAPS: "what do I need", "what can I cook", the invent
+ * panels, the Sauce Lab) reads ONLY swap-kind entries, exactly as before: a recipe is never counted as makeable
+ * through a dried herb for a fresh one, or a syrup made from sugar. The shopping sheet reads every kind through
+ * standInsFor / STAND_INS. A swap-kind entry may keep its `plus` helpers (cream: milk and butter); those are
+ * untyped on purpose, so the recipe side and the sheet treat them as they always did.
+ *
  * Checked against the blended everyday-pairs index (scripts/
  * measureKitchenMakeable.mjs): the two sides of each swap share partners.
  */
@@ -27,8 +41,14 @@ import { isSuggestable } from './curation/suggestable.js';
 const S = (forName, use, role, kind, extra = {}) => ({ for: forName, use, role, kind, plus: [], ...extra });
 /** A two-way swap: a for b and b for a. */
 const both = (a, b, role, kind, extra = {}) => [S(a, b, role, kind, extra), S(b, a, role, kind, extra)];
+/** The same thing in another form: dried thyme for fresh thyme. */
+export const FORM = (forName, use, role, kind, extra = {}) => S(forName, use, role, kind, { type: 'form', ...extra });
+/** Made from parts: parts[0] is `use`, the rest are `plus`. */
+export const MAKE = (forName, parts, role, kind, extra = {}) => S(forName, parts[0], role, kind, { type: 'make', plus: parts.slice(1), ...extra });
+/** Nothing replaces it; `reason` is one line saying why. */
+export const NONE = (forName, reason, role = null, kind = null, extra = {}) => ({ for: forName, use: null, role, kind, plus: [], type: 'none', reason, ...extra });
 
-export const SWAPS = [
+const TABLE = [
   // Alliums. Never garlic: it is not an onion.
   S('scallion', 'onion', 'aromatic', 'onion'),
   S('shallot', 'onion', 'aromatic', 'onion'),
@@ -66,8 +86,8 @@ export const SWAPS = [
   ...both('cheddar', 'monterey jack cheese', 'dairy', 'melting cheese'),
   ...both('feta', 'cotija cheese', 'dairy', 'crumbly cheese'),
   // Fat for the pan (not for a pastry or a cake).
-  ...both('butter', 'olive oil', 'fat', 'cooking fat', { supportingOnly: true, sauce: false }),
-  S('butter', 'vegetable oil', 'fat', 'cooking fat', { supportingOnly: true, sauce: false }),
+  ...both('butter', 'olive oil', 'fat', 'cooking fat', { supportingOnly: true, sauce: false, supportingNote: 'fine for frying' }),
+  S('butter', 'vegetable oil', 'fat', 'cooking fat', { supportingOnly: true, sauce: false, supportingNote: 'fine for frying' }),
   S('ghee', 'butter', 'fat', 'butter'),
   // Sweeteners.
   ...both('honey', 'sugar', 'sweetener', 'sweet'),
@@ -91,21 +111,44 @@ export const SWAPS = [
   S('macaroni', 'pasta', 'grain', 'short pasta'),
   S('corn tortilla', 'tortilla', 'grain', 'tortilla'),
   S('corn tortilla', 'flour tortilla', 'grain', 'tortilla'),
+  // The other three kinds. STANDIN-1 writes ONE real entry, an honest 'none' (egg); STANDIN-2 and STANDIN-3 write
+  // the forms and the makes (the tests build theirs with FORM / MAKE / NONE). Written from common cooking
+  // knowledge (the assistant's judgement).
+  NONE('egg', 'an egg sets and binds a custard, a quiche or a hollandaise; nothing else does both', 'protein', 'egg'),
 ];
+
+const kindOf = (s) => s.type || 'swap';
+/** Every entry of every kind (the shopping sheet reads this). */
+export const STAND_INS = TABLE;
+/** The swap-kind entries only: the recipe side's table, and what the strictness tests check. */
+export const SWAPS = TABLE.filter((s) => kindOf(s) === 'swap');
 
 const norm = (s) => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
 
-const BY_FOR = new Map();
-for (const s of SWAPS) {
-  const k = norm(s.for);
-  if (!BY_FOR.has(k)) BY_FOR.set(k, []);
-  BY_FOR.get(k).push(s);
-}
+const group = (list) => {
+  const by = new Map();
+  for (const s of list) {
+    const k = norm(s.for);
+    if (!by.has(k)) by.set(k, []);
+    by.get(k).push(s);
+  }
+  return by;
+};
+const BY_FOR = group(SWAPS);
+const ALL_BY_FOR = group(STAND_INS);
 
-/** Every swap for one recipe item (table order). */
+/** Every SWAP for one recipe item (table order). The recipe side's lookup: never a form, a make or a none. */
 export function swapsFor(name) {
   return BY_FOR.get(norm(name)) || [];
 }
+
+/** Every stand-in of every kind for one item (table order). The shopping sheet's lookup. */
+export function standInsFor(name) {
+  return ALL_BY_FOR.get(norm(name)) || [];
+}
+
+/** 'swap' | 'form' | 'make' | 'none' */
+export const standInKind = kindOf;
 
 /**
  * The first swap from the table the kitchen can make for one missing item.

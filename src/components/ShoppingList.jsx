@@ -20,9 +20,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   addLine, toggle, clearChecked, emptyList, groupByAisle, toText, itemAmountText, uncheckedCount,
-  replaceItem, undoReplace, remove, makeHas,
+  replaceItem, reformItem, undoReplace, remove, makeHas,
 } from '../data/shoppingList.js';
-import { swappedAmount, restoreRow } from '../data/shoppingAlternatives.js';
+import { swappedAmount, restoreRow, rowMain } from '../data/shoppingAlternatives.js';
 import { IngredientName } from './IngredientCardProvider.jsx';
 import { kitchenSuggestions } from '../data/kitchenRecipes.js';
 import { loadKitchen, saveKitchen, addToKitchen } from '../data/myKitchen.js';
@@ -148,15 +148,35 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
     }, 0);
   };
 
-  const pickAlternative = (item, alt) => {
+  const pickAlternative = (item, alt0) => {
+    // A 'make' answer replaces the row with its PARTS (simple syrup -> sugar and water): the first part the cook
+    // lacks takes the row's place, the other parts the cook lacks are added beside it by the merge rule, and the row
+    // keeps no quantity (the amounts go in its note). Undo gives the original row back and takes the parts off.
+    const isMake = alt0.kind === 'make';
+    const haveParts = makeHas({ ...stockNow(), names: opts.names });
+    const parts = [alt0.key, ...(alt0.plus || [])];
+    const lacking = isMake ? parts.filter((p) => !haveParts(p)) : [];
+    const alt = isMake && lacking.length ? { ...alt0, key: lacking[0], label: lacking[0], plus: lacking.slice(1) } : alt0;
     const amount = swappedAmount(item, alt);
-    const alt1 = { key: alt.key, label: alt.label, amount, note: amount ? `${alt.useText} Amount adjusted.` : alt.useText };
+    const detail = [alt.useText, alt.amountNote ? `${cap(alt.amountNote)}.` : '', alt.note ? `${cap(alt.note)}.` : ''].filter(Boolean).join(' ');
+    const alt1 = { key: alt.key, label: alt.label, amount, note: amount ? `${detail} Amount adjusted.` : detail };
+    // Another form of the same ingredient (dried thyme for thyme) keeps the row's key and changes its label.
+    if (alt.sameKey) {
+      const f = reformItem(list, item.id, alt1, opts);
+      if (f.status !== 'reformed') { setNote('Nothing changed.'); closeSheet(item.id); return; }
+      onChange((cur) => reformItem(cur, item.id, alt1, opts).list);
+      setRemoved(null);
+      setNote(`Using ${alt.label} for ${item.label}${amount === '' ? ' (the amount is in the note)' : ''}. You can undo it on the row.`);
+      usage.shopAlternativeUsed({ alt_source: 'food', outcome: 'replaced' });
+      closeSheet(item.id);
+      return;
+    }
     const res = replaceItem(list, item.id, alt1, opts);
     if (res.status === 'missing' || res.status === 'empty' || res.status === 'same') { setNote('Nothing changed.'); closeSheet(item.id); return; }
 
     // An alternative that needs a second ingredient (the table names it: buttermilk -> milk and lemon): the
     // companion goes on the list too, by the usual no-doubling-up rule, unless the cook already has it.
-    const haveIt = makeHas({ ...stockNow(), names: opts.names });
+    const haveIt = haveParts;
     const wanted = (alt.plus || []).filter((p) => !haveIt(p));
     const stamp = Date.now();
     const ids = wanted.map((_, i) => `companion-${stamp}-${i}`);
@@ -182,6 +202,10 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
       if (addedIds.length) companions.current.set(target?.id || item.id, addedIds);
       setNote((qty ? `Added to ${target.label}: now ${qty}.` : `${cap(alt.label)} is already on your list, so ${item.label} was added to it.`) + extra);
       closeSheet(target?.id || item.id);
+    } else if (isMake) {
+      if (addedIds.length) companions.current.set(item.id, addedIds);
+      setNote(`${cap(item.label)} is made from ${parts.join(' and ')}, so ${lacking.join(' and ')} ${lacking.length > 1 ? 'are' : 'is'} on the list instead. You can undo it on the row.`);
+      closeSheet(item.id);
     } else {
       if (addedIds.length) companions.current.set(item.id, addedIds);
       setNote(`Swapped ${item.label} for ${alt.label}${amount ? ' and adjusted the amount' : ''}.${extra} You can undo it on the row.`);
@@ -454,6 +478,7 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
         <StoreAlternatives
           item={sheetItem}
           sauce={sheetItem.from.some((id) => sauceRecipe.has(id))}
+          main={rowMain(sheetItem, list.recipes, { categoryOf: (n) => ing.categories.get(String(n || '').toLowerCase().trim()) || null, names: ing.names.size ? ing.names : null })}
           names={ing.names.size ? ing.names : null}
           stock={stockNow}
           {...(loadRoles ? { loadRoles } : {})}

@@ -147,16 +147,20 @@ dish list when Add from a recipe is first opened; never the pairing data or a mo
 Every unticked row has the button (`src/components/StoreAlternatives.jsx`, logic in `src/data/shoppingAlternatives.js`).
 Up to three alternatives, from two sources only, and only on a tap:
 
-1. The hand-written food table (`SWAPS` / `swapsFor` in `src/data/kitchenSwaps.js`): same role and same kind. A swap that
-   holds only for a supporting item (butter -> oil for the pan) is withheld because a list row has no recipe role.
+1. The hand-written food table (`standInsFor` in `src/data/kitchenSwaps.js`), four kinds of answer: use instead, another form,
+   make it, and an honest "nothing really replaces it" (see `docs/stand-ins.md`). A swap that holds only for a supporting item
+   (butter -> oil for the pan) is offered when the row came from a dish in which it is not a main, and withheld, with the reason,
+   when it is a main or the row has no recipe.
 2. For base spirits only: another plain bottle of the same family from `swapCandidates` in `src/data/cocktailRiff.js`
    (bourbon -> scotch, rye whiskey, tennessee whiskey). Never a flavoured bottle, never another family.
 
 Two names for one ingredient (rye and rye whiskey) are one alternative; the fuller name is kept. If the alternative needs a
 second ingredient the table names (buttermilk -> milk and lemon), that ingredient is put on the list too, by the same
 no-doubling-up rule, unless the cook already has it; Undo takes back what the swap added. "Use what I have" appears on an
-alternative the cook owns and takes the row off without changing My kitchen or My bar. No amount is ever invented: the table
-has no ratios, so the original quantity is kept and the usage sentence becomes the row's note.
+alternative the cook owns and takes the row off without changing My kitchen or My bar. No amount is ever invented: a numeric
+ratio in the table scales a single-number row; an entry that converts by a note ("1 tsp dried for 1 tbsp fresh") drops the row's number
+and carries the note; otherwise the original quantity is kept and the usage sentence becomes the row's note. Coverage and the
+kinds are in `docs/stand-ins.md`.
 
 Coverage, counted on 2026-11-16 over the curated names plus the additions: 58 ingredients get at least one alternative (45
 from the food table, 13 spirits). Common items with none: garlic, ginger, eggs, flour, baking powder and soda, chicken breast

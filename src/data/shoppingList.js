@@ -366,6 +366,32 @@ export function replaceItem(list, id, alt, opts = {}) {
 }
 
 /**
+ * The same ingredient in another FORM (dried thyme for fresh thyme, garlic powder for a clove; a 'form' stand-in whose
+ * name the list resolves to the row's own key, so replaceItem would say 'same'). The row keeps its key (so it still
+ * merges and never doubles), takes the new label, and takes the amount given: alt.amount, or none when alt.amount is
+ * '' (a converted amount is not the original number). It carries swappedFrom (the original label) and was, so
+ * undoReplace puts the original row back exactly.
+ * alt = { label, amount?, note? }
+ * @returns {{ list, status: 'reformed'|'same'|'missing'|'empty' }}
+ */
+export function reformItem(list, id, alt, opts = {}) {
+  const at = list.items.findIndex((i) => i.id === id);
+  if (at < 0) return { list, status: 'missing' };
+  const orig = list.items[at];
+  const label = String(alt?.label || '').trim();
+  if (!label) return { list, status: 'empty' };
+  if (label.toLowerCase() === String(orig.label || '').toLowerCase()) return { list, status: 'same' };
+  const ctx = ctxOf(opts);
+  const parts = alt.amount != null ? [partFromAmount(alt.amount)].filter(Boolean) : orig.parts;
+  const items = list.items.slice();
+  items[at] = {
+    ...orig, label, parts, swappedFrom: orig.label || orig.key, updatedAt: ctx.now,
+    ...(alt.note ? { note: String(alt.note) } : {}), was: { row: orig, at },
+  };
+  return { list: withItems(list, items), status: 'reformed' };
+}
+
+/**
  * Undo a replaceItem on the row that carries `was`. The row comes back exactly (only updatedAt is new) unless,
  * since the swap, the same ingredient was added to the list again: then it is folded into that line by the
  * merge rule, because an ingredient is never on the list twice.

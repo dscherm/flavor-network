@@ -3,6 +3,9 @@
  *
  *   item        the shopping row { id, key, label, parts, from }
  *   sauce       the row comes from a sauce (swaps that do not hold in a sauce are left out)
+ *   main        rowMain(): is the ingredient a main of the row's recipe(s)? true | false | null (no recipe). Only false
+ *               offers a swap that holds only for a supporting ingredient (butter for oil in the pan)
+ *   swaps       (name) => entries, the stand-in lookup (defaults to every kind in kitchenSwaps; tests inject)
  *   names       curated ingredient names (resolves bar candidates)
  *   stock       () => { kitchen, pantry, bar, spiceRack? } what the cook has, read when the sheet opens
  *   loadRoles   () => Promise<roles>  the cocktail role table, fetched only for an alcohol row
@@ -11,13 +14,15 @@
  *   onClose()   Escape, Close, or a tap outside
  *
  * Up to three alternatives, from kitchenSwaps and (base spirits) cocktailRiff.swapCandidates only; see
- * shoppingAlternatives.js. Advice, never applied without a tap. Rendered into document.body so it cannot sit
+ * shoppingAlternatives.js. Each is labelled in plain words: "Use instead", "Another form", "Make it". An ingredient
+ * nothing replaces says so, with the reason ("Nothing really replaces egg"); one with no entry at all says "No
+ * stand-in I'd trust". Advice, never applied without a tap. Rendered into document.body so it cannot sit
  * behind the bottom bar or the consent banner. Focus goes in, Tab wraps, Escape closes; the screen returns focus
  * to the row's button.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { alternativesFor, needsRoles } from '../data/shoppingAlternatives.js';
+import { alternativesFor, needsRoles, KIND_LABEL } from '../data/shoppingAlternatives.js';
 import { makeHas } from '../data/shoppingList.js';
 import { getCocktailRoles } from '../data/ingredientRoles.js';
 import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_RAIL } from '../data/chalkTheme.js';
@@ -26,7 +31,7 @@ const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 const FOCUS = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
 const btn = { fontFamily: SANS, fontSize: 14, color: CHALK_CREAM, border: `1.5px solid ${CHALK_DIM}`, background: 'transparent', outlineColor: CHALK_CREAM };
 
-export default function StoreAlternatives({ item, sauce = false, names = null, stock, loadRoles = getCocktailRoles, onPick, onUseHave, onClose }) {
+export default function StoreAlternatives({ item, sauce = false, main = null, swaps, names = null, stock, loadRoles = getCocktailRoles, onPick, onUseHave, onClose }) {
   const sheet = useRef(null);
   const wantsRoles = needsRoles(item.key);
   const [roles, setRoles] = useState({ status: wantsRoles ? 'loading' : 'idle', data: null });
@@ -41,9 +46,9 @@ export default function StoreAlternatives({ item, sauce = false, names = null, s
   }, [wantsRoles, loadRoles]);
 
   const has = useMemo(() => makeHas({ ...(stock ? stock() : {}), names }), [stock, names]);
-  const { alternatives, known } = useMemo(
-    () => alternativesFor(item, { has, roles: roles.data, names, sauce }),
-    [item, has, roles.data, names, sauce],
+  const { alternatives, known, none, withheld = [] } = useMemo(
+    () => alternativesFor(item, { has, roles: roles.data, names, sauce, main, ...(swaps ? { swaps } : {}) }),
+    [item, has, roles.data, names, sauce, main, swaps],
   );
 
   useEffect(() => {
@@ -97,30 +102,47 @@ export default function StoreAlternatives({ item, sauce = false, names = null, s
           <ul data-testid="store-alt-list" aria-label="Alternatives" className="mt-3">
             {alternatives.map((a) => (
               <li key={a.key} data-testid={`store-alt-${a.key}`} className="py-2" style={{ borderTop: `1px solid ${CHALK_RAIL}55` }}>
+                <p data-testid={`store-alt-kind-${a.key}`} style={{ fontFamily: SANS, fontSize: 12, letterSpacing: 0.4, textTransform: 'uppercase', color: CHALK_DIM }}>{KIND_LABEL[a.kind] || KIND_LABEL.swap}</p>
                 <div style={{ fontFamily: SANS, fontSize: 17 }}>
-                  {a.label}
+                  {a.kind === 'make' ? [a.key, ...a.plus].join(' + ') : a.label}
                   {a.have && <span data-testid={`store-alt-have-${a.key}`} style={{ color: CHALK_CREAM, fontSize: 13, marginLeft: 8, border: `1px solid ${CHALK_DIM}`, borderRadius: 999, padding: '1px 8px' }}>you have this</span>}
                 </div>
                 <p style={{ fontFamily: SANS, fontSize: 14, color: CHALK_DIM }}>{a.useText}</p>
+                {a.amountNote && <p data-testid={`store-alt-amount-${a.key}`} style={{ fontFamily: SANS, fontSize: 14, color: CHALK_DIM }}>Amount: {a.amountNote}.</p>}
+                {a.note && <p data-testid={`store-alt-note-${a.key}`} style={{ fontFamily: SANS, fontSize: 14, color: CHALK_DIM }}>{a.note.charAt(0).toUpperCase() + a.note.slice(1)}.</p>}
                 <button
                   type="button"
                   data-testid={a.have ? `store-alt-use-have-${a.key}` : `store-alt-pick-${a.key}`}
                   onClick={() => (a.have ? onUseHave(a) : onPick(a))}
-                  aria-label={a.have ? `Use what I have: ${a.label}, instead of ${item.label}` : `Use ${a.label} instead of ${item.label}`}
+                  aria-label={a.have ? `Use what I have: ${a.label}, instead of ${item.label}`
+                    : a.kind === 'make' ? `Make ${item.label}: put ${[a.key, ...a.plus].join(' and ')} on the list instead of ${item.label}` : `Use ${a.label} instead of ${item.label}`}
                   className={`mt-1 min-h-[44px] px-3 rounded-lg ${FOCUS}`}
                   style={{ ...btn, fontWeight: 600 }}
                 >
-                  {a.have ? 'Use what I have' : `Use ${a.label} instead`}
+                  {a.have ? 'Use what I have' : a.kind === 'make' ? 'Make it' : `Use ${a.label} instead`}
                 </button>
               </li>
             ))}
           </ul>
         )}
 
-        {!loading && !known && (
+        {!loading && !known && none && (
+          <div data-testid="store-alt-nothing" style={{ marginTop: 12 }}>
+            <p style={{ fontFamily: SANS, fontSize: 15 }}>Nothing really replaces {item.label}.</p>
+            {none.reason && <p style={{ fontFamily: SANS, fontSize: 14, color: CHALK_DIM }}>{none.reason.charAt(0).toUpperCase() + none.reason.slice(1)}.</p>}
+          </div>
+        )}
+
+        {!loading && !known && !none && (
           <p data-testid="store-alt-none" style={{ fontFamily: SANS, fontSize: 15, marginTop: 12 }}>
             No stand-in I&apos;d trust for {item.label}.
           </p>
+        )}
+
+        {!loading && withheld.length > 0 && (
+          <ul data-testid="store-alt-withheld" aria-label="Left out" className="mt-2">
+            {withheld.map((w) => <li key={w.key} style={{ fontFamily: SANS, fontSize: 13, color: CHALK_DIM }}>{w.reason}</li>)}
+          </ul>
         )}
 
         <div className="mt-3">
