@@ -2891,3 +2891,102 @@ exploration for the owner and builds nothing in the app.
   ]
 }
 ```
+
+## 2026-11-16 — Shopping list: check off, fill from recipes, alternatives
+
+Spec: `.schermness/spec.md` → "Shopping list: check off as you shop, fill it from recipes, swap
+what the store lacks". Owner, verbatim: "create a shopping cart tool for them and allow them to
+check off items as they shop. also allow them to quickly add ingredients for recipes they can
+search up inside the shoping cart that autofills the cart with ingredients that they don't have
+in their "pantry". make sure that a critieria of this isn't to double up on ingredients that are
+already in their cart unless the cart has specific quantities then you can add on to those
+quantities." and "also provide them with a button that provides an alternative to the ingredient
+in case the store doesn't have the ingreiend". Today there is no stored list, only "Copy
+shopping list". Order: SHOP-1, SHOP-2, SHOP-3, SHOP-4, SHOP-5, one at a time.
+
+```json
+{
+  "id": "SHOP-1",
+  "title": "Shopping list logic: one line per ingredient, quantities added only when both are specific",
+  "category": "feature",
+  "passes": false,
+  "description": "src/data/shoppingList.js, pure: List = { items, recipes }, Item = { id, key, label, parts: [{ qty, unit }], checked, from: [recipeId], swappedFrom?, note? }. Functions: emptyList, addLine(list, { key|text, amount }), addRecipe(list, recipe, has, { includeBasics }) returning { list, summary: { added, merged, skippedHave, skippedBasics } }, toggle, remove, clearChecked, replaceItem (for an alternative, keeping swappedFrom so it can be undone), groupByAisle (produce, dairy, meat and fish, dry goods, spices, drinks, other, from the curated ingredient category, with a stated mapping), toText (the existing 'Copy shopping list' format), unchecked count. Matching is by canonical ingredient name through the curation aliases; a checked-off line does not count as on the list. THE MERGE RULE (owner's criterion, spec Decision 3): existing line without a quantity + anything = one line, still without a quantity; existing with a quantity + incoming without = unchanged; both with quantities in like units (both weights, both volumes, or the same count word) = summed, shown in a sensible unit; both with quantities in unlike units = one line with both parts ('2 cloves + 1 tbsp'), never converted by guesswork. 'has' is one predicate over everything the cook has (My kitchen, the sauce pantry, My bar). Kitchen basics (isBasic) are skipped unless includeBasics. Adding a recipe already in list.recipes is reported so the screen can ask first. Reuse parseAmountText, whatDoINeed.js and the alias resolver; do not write a second amount parser.",
+  "acceptance": [
+    "The merge table in the spec is a table-driven test, including: 200 g + 300 g = 500 g; 1 cup + 2 tbsp summed as volume; 2 cloves + 1 tbsp kept as two parts; no-quantity line stays no-quantity; a checked line is not merged into; aliases merge (scallion and green onion); free-text items that match no ingredient merge only on identical normalised text",
+    "addRecipe on a real built-in dish, sauce and cocktail with a real kitchen/bar fixture adds only what the cook lacks, skips basics by default, and its summary counts are right (tests)",
+    "Property-style test: after any sequence of addLine/addRecipe, no two UNCHECKED items share a canonical key",
+    "A cap of 200 items is enforced with a plain message; toText matches the existing copy format for a list with and without quantities",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "SHOP-2",
+  "title": "The shopping list screen: check off as you shop, kept on the device and with the account",
+  "category": "ui",
+  "passes": false,
+  "description": "ShoppingList.jsx, opened from a new 'Shopping list' entry in the Labs menu that shows the unchecked count. Rows grouped by aisle; each row a large checkbox, the name, the quantity, and which recipes it is for; checking strikes it and drops it to the bottom of its group; rows of at least 44 px, usable one-handed at 375 px. 'Add an item' (typeahead over curated ingredients, free text allowed, optional amount). 'Copy list', 'Clear checked', 'Put checked items in my kitchen' (a button, never automatic; bar items go to My bar), 'Clear all' (asks first), an empty state that explains the two ways to fill it. Storage: localStorage first under one versioned key so it works signed out and offline; when signed in, a `shopping` field on the profile document, merged by item id with last-change-wins per item (each item carries an updatedAt), through the existing useUserProfile sync. State how the known issue recorded in BACKLOG (useUserProfile cloud sync dropping a field) is avoided for this field. The profile rules must allow the new field within a size cap; rules tests on the emulator only.",
+  "acceptance": [
+    "Component tests: check and uncheck, order after checking, add by typeahead and free text, clear checked, clear all asks first, put checked in my kitchen updates the kitchen and (for spirits) the bar, the count in the Labs menu",
+    "The list survives a reload signed out; signed in, two devices' changes merge per item (unit test of the merge with offline edits on both sides); a profile without the field loads as an empty list",
+    "Rules tests if firestore.rules changes: own list read and write allowed, another user's denied, oversize denied",
+    "Looked at in a browser at 375px with an empty list and a list of about 15 items in several aisles; described honestly; no horizontal overflow; not hidden behind the bottom bar or the consent banner",
+    "npm run gate (and npm run test:rules if rules changed) green; nothing deployed without the owner's go-ahead"
+  ]
+}
+```
+
+```json
+{
+  "id": "SHOP-3",
+  "title": "Add from a recipe: search inside the list, add only what the cook lacks; 'Add to shopping list' on What do I need",
+  "category": "feature",
+  "passes": false,
+  "description": "In the shopping list, 'Add from a recipe' opens one search box over the built-in cocktails, sauces and dishes and the cook's own saved cocktails, sauces and recipes (by name; reuse the labs' existing search helpers). Picking a recipe shows its lines split into 'You need' (ticked) and 'You have' (unticked, greyed; from My kitchen, the sauce pantry and My bar), with an 'include basics' tick, and 'Add N to the list'. After adding, a short summary says what was added and what merged into lines already there ('garlic: now 5 cloves'). Adding a recipe that is already on the list asks first. The three 'What do I need?' panels (Cocktail Lab, Sauce Lab, Cookbook) gain 'Add to shopping list' beside 'Copy shopping list', using the same addRecipe, with 'Open list' afterwards. The recipe search must not load the large pairing dataset if the list is opened first (state what is fetched).",
+  "acceptance": [
+    "Searching finds a built-in drink, sauce and dish and one of the cook's own saved items (component tests)",
+    "With a kitchen fixture, the preview ticks exactly the missing lines; un-ticking one leaves it off; ticking a 'you have' line adds it (tests)",
+    "Adding two recipes that share an ingredient leaves one line with the summed quantity where both are specific and like-for-like, and the summary says so (test on two real recipes)",
+    "Adding the same recipe twice asks first (test)",
+    "'Add to shopping list' on each of the three What do I need panels adds the same items the panel lists as missing (tests)",
+    "Looked at in a browser at 375px: search, preview, add, summary; described honestly",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "SHOP-4",
+  "title": "'Store doesn't have it?': an alternative for any item on the list",
+  "category": "feature",
+  "passes": false,
+  "description": "Each unchecked row has 'Store doesn't have it?'. It opens up to three alternatives for that ingredient, each with how to use it (swapUseText, e.g. 'use three quarters as much'), ones the cook already has marked 'you have this'. Sources, in order: kitchenSwaps.js (swapsFor / findSwap) for food, cocktailRiff.swapCandidates for bar items, then same-category neighbours from the curated ingredients ONLY where a stated rule makes that safe (say what the rule is; if none is safe, do not use this source). An alternative that is already on the list merges by the SHOP-1 rule instead of creating a second line. Picking one replaces the row, keeps 'instead of <original>' on it, and offers Undo; if the cook already has the alternative, offer 'Use what I have' which simply removes the row. Where nothing is known the sheet says so plainly and suggests leaving it out only when the recipe marks the line optional. Wording is advice ('could stand in'), never a guarantee.",
+  "acceptance": [
+    "For named ingredients with known swaps (e.g. buttermilk, shallot, a base spirit) the sheet lists the alternatives with usage text; for one with none it says so (tests)",
+    "Picking an alternative replaces the row, keeps the original for Undo, and adjusts the quantity only when the swap table gives a ratio (test); Undo restores the row exactly",
+    "An alternative already on the list merges instead of doubling up (test)",
+    "'Use what I have' removes the row and leaves the kitchen unchanged (test)",
+    "Keyboard and screen-reader reachable; 375px browser look described honestly",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "SHOP-5",
+  "title": "Shopping list: usage events, docs and the final pass",
+  "category": "chore",
+  "passes": false,
+  "description": "Usage events, sent only with the analytics Yes and carrying counts and kinds only, never item text: shop_opened, shop_recipe_added (kind, origin, added and merged counts), shop_alternative_used. Add them to the catalogue (src/data/usageEvents.js), docs/usage-data.md and the privacy page together (the parity test enforces it). docs: a short docs/shopping-list.md (what is stored and where, the merge rule with its table, what 'pantry' means, limits). README, BACKLOG (left out on purpose: prices, stores, sharing a list, weight-volume conversion, per-store aisle order) and a CLOSEOUT.md UNRELEASED note stating the exact deploy targets. Final pass at 375px: add a dish from inside the list with a kitchen that has some of it, add a second recipe that shares an ingredient, check items off, use an alternative, put checked items in the kitchen, reload, and (emulator or stub only) the signed-in sync. Anything not exercised for real is named.",
+  "acceptance": [
+    "The three events arrive at the test double with only the listed params; item text never appears (tests); catalogue, doc table and privacy page in step",
+    "docs/shopping-list.md matches what the code does, including the merge table",
+    "The end-to-end pass was done at 375px and is described step by step, with what was and was not exercised stated",
+    "npm run gate, functions and rules tests green; nothing deployed without the owner's go-ahead"
+  ]
+}
+```
