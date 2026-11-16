@@ -13,7 +13,8 @@
  */
 import { useRef, useState } from 'react';
 import { emptyList } from '../data/shoppingList.js';
-import { addTicked, askAgainText, summaryText } from '../data/shoppingRecipes.js';
+import { usage } from '../data/usageEvents.js';
+import { addTicked, askAgainText, shopRecipeUsage, summaryText } from '../data/shoppingRecipes.js';
 import { FONT, CHALK_CREAM, CHALK_DIM } from '../data/chalkTheme.js';
 
 const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
@@ -32,6 +33,8 @@ export default function AddToShoppingList({ recipe, missing, list, onChange, onO
     const res = addTicked(current, recipe, lines, { force });
     onChange((cur) => addTicked(cur || emptyList(), recipe, lines, { force }).list);
     setAsk(false);
+    const ev = shopRecipeUsage(recipe, 'panel', res.summary);
+    if (ev) usage.shopRecipeAdded(ev);
     setDone(summaryText(recipe.name, res.summary));
   };
 

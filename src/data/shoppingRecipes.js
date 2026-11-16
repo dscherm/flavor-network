@@ -141,6 +141,19 @@ export function addTicked(list, recipe, ticked, { force = false, names = null, n
   return addRecipe(list, withLines(recipe, ticked), () => false, { includeBasics: true, force, names, now, newId });
 }
 
+/**
+ * The usage-event payload for one add (usageEvents.shopRecipeAdded), or null when nothing was added or merged.
+ * Counts and labels only: the kind, built_in or own, where the add came from, and the two counts. A built-in
+ * recipe's slug rides along; an own recipe's id and name never do.
+ */
+export function shopRecipeUsage(recipe, where, summary) {
+  const added = Number(summary?.added) || 0;
+  const merged = Number(summary?.merged) || 0;
+  if (!added && !merged) return null;
+  const own = String(recipe?.id || '').startsWith('own:') || !recipe?.slug;
+  return { kind: recipe?.kind, origin: own ? 'own' : 'built_in', slug: own ? undefined : recipe.slug, where, added, merged };
+}
+
 const joinList = (xs) => xs.join(', ');
 
 /**

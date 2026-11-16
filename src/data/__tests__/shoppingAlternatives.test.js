@@ -1,7 +1,7 @@
 // SHOP-4: alternatives for a shopping row, over the REAL swap table and the REAL cocktail role table.
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
-import { alternativesFor, swappedAmount, restoreRow, MAX_ALTERNATIVES } from '../shoppingAlternatives.js';
+import { alternativesFor, swappedAmount, restoreRow, sameIngredient, MAX_ALTERNATIVES } from '../shoppingAlternatives.js';
 import { SWAPS, swapsFor, swapUseText } from '../kitchenSwaps.js';
 import { buildRolePool, swapCandidates, familyKey } from '../cocktailRiff.js';
 import { addLine } from '../shoppingList.js';
@@ -56,6 +56,40 @@ describe('food alternatives come from kitchenSwaps, with the usage in plain word
     const { alternatives } = alts('buttermilk', { has });
     // milk needs lemon too, which the cook lacks, so only yogurt is "have", and it goes first
     expect(alternatives.map((a) => [a.key, a.have])).toEqual([['yogurt', true], ['milk', false]]);
+  });
+});
+
+describe('two names for one ingredient are one alternative (SHOP-5)', () => {
+  // The app's curated names include "rye whiskey" (curation additions); the raw file does not.
+  const curated = new Set([...names, 'rye whiskey']);
+
+  it('bourbon offers rye whiskey, not "rye" and "rye whiskey" side by side; the fuller name is kept', () => {
+    const keys = alts('bourbon', { names: curated, max: 9 }).alternatives.map((a) => a.key);
+    expect(keys).toContain('rye whiskey');
+    expect(keys).not.toContain('rye');
+    expect(keys).toEqual(expect.arrayContaining(['scotch']));
+  });
+  it('the dedupe keeps "you have this": a cook with plain "rye" still sees rye whiskey as theirs', () => {
+    const { alternatives } = alts('bourbon', { names: curated, has: (k) => k === 'rye' || k === 'rye whiskey' });
+    const rye = alternatives.find((a) => a.key === 'rye whiskey');
+    expect(rye.have).toBe(true);
+    expect(alternatives[0].key).toBe('rye whiskey');
+  });
+  it('an alternative that is the row itself under another name is not offered back', () => {
+    expect(alts('rye', { names: curated, max: 9 }).alternatives.map((a) => a.key)).not.toContain('rye whiskey');
+    expect(alts('rye whiskey', { names: curated, max: 9 }).alternatives.map((a) => a.key)).not.toContain('rye');
+  });
+  it('sameIngredient is about the same thing, not a stand-in', () => {
+    expect(sameIngredient('rye', 'rye whiskey')).toBe(true);
+    expect(sameIngredient('lemon', 'lemon juice')).toBe(true);
+    expect(sameIngredient('bourbon', 'rye whiskey')).toBe(false);
+    expect(sameIngredient('milk', 'buttermilk')).toBe(false);
+  });
+  it('over every curated name, no list of alternatives holds the same ingredient twice', () => {
+    for (const k of [...curated]) {
+      const list = alts(k, { names: curated, max: 9 }).alternatives.map((a) => a.key);
+      for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length; j++) expect(sameIngredient(list[i], list[j]), `${k}: ${list[i]} / ${list[j]}`).toBe(false);
+    }
   });
 });
 

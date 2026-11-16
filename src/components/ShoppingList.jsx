@@ -20,13 +20,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   addLine, toggle, clearChecked, emptyList, groupByAisle, toText, itemAmountText, uncheckedCount,
-  replaceItem, undoReplace, remove,
+  replaceItem, undoReplace, remove, makeHas,
 } from '../data/shoppingList.js';
 import { swappedAmount, restoreRow } from '../data/shoppingAlternatives.js';
 import { kitchenSuggestions } from '../data/kitchenRecipes.js';
 import { loadKitchen, saveKitchen, addToKitchen } from '../data/myKitchen.js';
 import { loadBar, saveBar, addToBar, isBooze } from '../data/myBar.js';
 import { loadShoppingIngredients } from '../data/shoppingIngredients.js';
+import { usage } from '../data/usageEvents.js';
 import ShoppingRecipeAdd from './ShoppingRecipeAdd.jsx';
 import StoreAlternatives from './StoreAlternatives.jsx';
 import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, chalkSurfaceStyle } from '../data/chalkTheme.js';
@@ -51,6 +52,7 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
   const [sheetId, setSheetId] = useState(null); // the row whose alternatives are open
   const [removed, setRemoved] = useState(null); // { row, at, msg }: "Use what I have" can be undone while its message shows
   const altButtons = useRef(new Map());
+  const companions = useRef(new Map()); // swapped row id -> ids of rows the swap added for its companion ingredient
 
   useEffect(() => {
     let live = true;
@@ -61,6 +63,14 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
   }, [loadIngredients]);
 
   useEffect(() => { if (confirmClear) keepRef.current?.focus(); }, [confirmClear]);
+
+  // shop_opened: once per opening of this screen (the ref also covers a development double-mount).
+  const openedRef = useRef(false);
+  useEffect(() => {
+    if (openedRef.current) return;
+    openedRef.current = true;
+    usage.shopOpened();
+  }, []);
 
   const groups = useMemo(() => groupByAisle(list, (k) => ing.categories.get(k)), [list, ing.categories]);
   const recipeName = useMemo(() => new Map(list.recipes.map((r) => [r.id, r.name])), [list.recipes]);
@@ -139,17 +149,41 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
     const alt1 = { key: alt.key, label: alt.label, amount, note: amount ? `${alt.useText} Amount adjusted.` : alt.useText };
     const res = replaceItem(list, item.id, alt1, opts);
     if (res.status === 'missing' || res.status === 'empty' || res.status === 'same') { setNote('Nothing changed.'); closeSheet(item.id); return; }
-    onChange((cur) => replaceItem(cur, item.id, alt1, opts).list);
+
+    // An alternative that needs a second ingredient (the table names it: buttermilk -> milk and lemon): the
+    // companion goes on the list too, by the usual no-doubling-up rule, unless the cook already has it.
+    const haveIt = makeHas({ ...stockNow(), names: opts.names });
+    const wanted = (alt.plus || []).filter((p) => !haveIt(p));
+    const stamp = Date.now();
+    const ids = wanted.map((_, i) => `companion-${stamp}-${i}`);
+    const companionNote = `With the ${alt.label} that stands in for ${item.label}`;
+    const withCompanions = (base) => wanted.reduce((acc, c, i) => {
+      const r = addLine(acc.list, { key: c, note: companionNote }, { ...opts, newId: () => ids[i] });
+      return { list: r.list, results: [...acc.results, r.status] };
+    }, { list: base, results: [] });
+    const pre = withCompanions(res.list);
+    const addedKeys = wanted.filter((_, i) => pre.results[i] === 'added');
+    const alreadyKeys = wanted.filter((_, i) => pre.results[i] === 'merged');
+    const addedIds = ids.filter((_, i) => pre.results[i] === 'added');
+
+    onChange((cur) => withCompanions(replaceItem(cur, item.id, alt1, opts).list).list);
     setRemoved(null);
+    const extra = [
+      addedKeys.length ? ` ${cap(alt.label)} needs ${addedKeys.join(' and ')}, so that is on the list too.` : '',
+      alreadyKeys.length ? ` ${cap(alreadyKeys.join(' and '))} ${alreadyKeys.length > 1 ? 'are' : 'is'} already on your list.` : '',
+    ].join('');
     if (res.status === 'merged') {
       const target = res.list.items.find((i) => i.swappedFrom === item.key && i.key !== item.key);
       const qty = target ? itemAmountText(target) : '';
-      setNote(qty ? `Added to ${target.label}: now ${qty}.` : `${cap(alt.label)} is already on your list, so ${item.label} was added to it.`);
+      if (addedIds.length) companions.current.set(target?.id || item.id, addedIds);
+      setNote((qty ? `Added to ${target.label}: now ${qty}.` : `${cap(alt.label)} is already on your list, so ${item.label} was added to it.`) + extra);
       closeSheet(target?.id || item.id);
     } else {
-      setNote(`Swapped ${item.label} for ${alt.label}${amount ? ' and adjusted the amount' : ''}. You can undo it on the row.`);
+      if (addedIds.length) companions.current.set(item.id, addedIds);
+      setNote(`Swapped ${item.label} for ${alt.label}${amount ? ' and adjusted the amount' : ''}.${extra} You can undo it on the row.`);
       closeSheet(item.id);
     }
+    usage.shopAlternativeUsed({ alt_source: alt.source === 'cocktailRiff' ? 'bar' : 'food', outcome: 'replaced' });
   };
 
   const useWhatIHave = (item, alt) => {
@@ -158,6 +192,7 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
     onChange((cur) => remove(cur, item.id));
     setRemoved({ row: item, at, msg });
     setNote(msg);
+    usage.shopAlternativeUsed({ alt_source: alt.source === 'cocktailRiff' ? 'bar' : 'food', outcome: 'used_own' });
     closeSheet();
   };
 
@@ -170,8 +205,15 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
   };
 
   const undoSwap = (item) => {
-    onChange((cur) => undoReplace(cur, item.id));
-    setNote(`Put ${item.was?.row?.label || 'the original'} back.`);
+    const added = companions.current.get(item.id) || [];
+    companions.current.delete(item.id);
+    const gone = added.filter((id) => list.items.some((i) => i.id === id && !i.checked));
+    onChange((cur) => {
+      const back = undoReplace(cur, item.id);
+      return gone.length ? { ...back, items: back.items.filter((i) => !(gone.includes(i.id) && !i.checked)) } : back;
+    });
+    const goneNames = gone.map((id) => list.items.find((i) => i.id === id)?.label).filter(Boolean);
+    setNote(`Put ${item.was?.row?.label || 'the original'} back.${goneNames.length ? ` Took ${goneNames.join(' and ')} off the list again.` : ''}`);
   };
 
   const clearAll = () => {

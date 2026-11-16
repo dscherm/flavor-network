@@ -7,6 +7,8 @@ downloaded. Not sent from localhost. The code is `src/data/usageEvents.js`; the
 privacy page (`/privacy`) lists the same events from the same catalogue, and a
 test fails if this table and the code disagree.
 
+The shopping list is a stored list, not usage data: it lives in this browser and, when signed in, in the account (see `docs/shopping-list.md`). Its three events carry counts and labels only.
+
 Never sent: an account id, email or name; the name, ingredients or text of any
 recipe, drink or sauce a person made; a nickname chosen for a shared recipe; the
 id of a link a person made; photos. Recipe pictures are not usage data at all: no picture event exists, and the privacy page says where a shared recipe's picture is public (see `docs/sharing.md`, "Pictures on recipes"). Two events carry typed text (below); text
@@ -35,6 +37,9 @@ every text value is at most 100 characters (the two typed-text params at most 60
 | `scan_started` | A photo is picked for My bar and sent to be read. | `route` |
 | `scan_succeeded` | The scan returns and at least one bottle or item is listed for review. | `route`, `count` |
 | `scan_kept` | The cook confirms the review list and the checked bottles are added to My bar. | `route`, `count` |
+| `shop_opened` | The shopping list screen opens (once per opening). | (none) |
+| `shop_recipe_added` | Ingredients of a recipe are added to the shopping list, from Add from a recipe on the list or from an Add to shopping list button on a What do I need? panel. | `kind`, `origin`, `slug`, `where`, `added`, `merged` |
+| `shop_alternative_used` | The cook picks an alternative for an item the store does not have, either replacing the row or using what they already have. | `alt_source`, `outcome` |
 | `signin_started` | The cook taps Sign in with Google or Apple. | `provider` |
 | `signin_completed` | Sign-in succeeds (pop-up, or the return from a redirect sign-in). | `provider` |
 
@@ -43,11 +48,15 @@ every text value is at most 100 characters (the two typed-text params at most 60
 | Param | Values |
 |---|---|
 | `lab` | `lab_opened`: cocktail, sauce, recipe (the Recipe Notebook), make, cookbook, pairing, wine, network. Invent events: cocktail, sauce, recipe. `search_no_result`: cocktail, sauce, cookbook. `ingredient_unrecognised`: cocktail, sauce, recipe, bar. |
-| `kind` | cocktail, sauce, dish |
+| `kind` | cocktail, sauce, dish (`shop_recipe_added` uses the same three) |
 | `origin` | built_in (a recipe that ships with the app) or own (one a person made) |
 | `slug` | The built-in recipe's address name, for example `negroni`. Sent only when `origin` is built_in; never for an own recipe. |
 | `term` | The words in a search that found nothing: lowercased, trimmed, at most 60 characters. |
 | `text` | The ingredient name that was not recognised: lowercased, trimmed, at most 60 characters. |
+| `where` | list (the shopping list's own Add from a recipe) or panel (an Add to shopping list button on a What do I need? panel) |
+| `added`, `merged` | Whole numbers 0 to 9999: how many items a recipe added to the shopping list, and how many merged into a line already there. Counts only, never the items. |
+| `alt_source` | food (the food stand-in table) or bar (another bottle of the same spirit family) |
+| `outcome` | replaced (the row became the alternative) or used_own (the cook already had one and took the row off) |
 | `route` | key (the person's own Gemini key) or code (an invite code) |
 | `count` | A whole number of bottles, 0 to 9999. |
 | `provider` | google or apple |
@@ -58,6 +67,7 @@ every text value is at most 100 characters (the two typed-text params at most 60
 - `invent_started`, `invent_named` fire once per run of a panel; Start over begins a new run. Editing a saved item is not a start.
 - `search_no_result` waits until the same query has sat unchanged for about 1.2 seconds, then fires once for that query. Clearing the box lets the same query count again.
 - `share_sheet_opened` fires once per opening of the sheet, including when an own recipe's sheet turns into the link sheet after Create link.
+- `shop_opened` fires once per opening of the shopping list screen. `shop_recipe_added` fires when the add actually happens (after the ask-first, not at the tap that asks), and only if something was added or merged. `shop_alternative_used` fires when an alternative is picked, not when the sheet opens.
 - Typed-text events fire on submit, not on each keystroke.
 
 ## Feedback notes (separate from usage data)
@@ -109,9 +119,12 @@ Events arrive without any of this; the steps only make the params usable in repo
    | `text` | Unrecognised ingredient |
    | `route` | Scan route |
    | `provider` | Sign-in provider |
+   | `where` | Shopping list entry point |
+   | `alt_source` | Shopping alternative source |
+   | `outcome` | Shopping alternative outcome |
 
-2. Create a custom metric for `count`: Admin, Custom definitions, Custom metrics, Create custom metric,
-   scope Event, event parameter `count`, unit of measure Standard.
+2. Create a custom metric for `count`, and again for `added` and `merged`: Admin, Custom definitions, Custom metrics,
+   Create custom metric, scope Event, the event parameter, unit of measure Standard.
 3. Mark key events: Admin, Events, and switch on "Mark as key event" for `signin_completed`,
    `shared_signup`, `invent_saved`, `shared_saved`, `share_link_created` and `scan_kept`.
 4. To check events before relying on them, open Admin, DebugView, then on a deployed copy of the

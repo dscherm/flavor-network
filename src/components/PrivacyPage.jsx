@@ -73,6 +73,13 @@ export default function PrivacyPage() {
           answered above, because you press Send yourself. Please do not put personal details in a note.
         </p>
 
+        <h2 style={h2}>Your shopping list (separate from usage data)</h2>
+        <p data-testid="privacy-shopping">
+          The shopping list is kept in this browser. If you are signed in it is also saved with your account, so it follows
+          you to your other devices; it is not public and not shared with anyone. The three shopping events listed above carry
+          only counts and labels, never what is on your list.
+        </p>
+
         <h2 style={h2}>Pictures on recipes you share (separate from usage data)</h2>
         <p data-testid="privacy-pictures">
           If you add a picture to a recipe, your photo is turned into a chalk drawing inside your browser and the original

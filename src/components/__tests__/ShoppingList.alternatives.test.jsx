@@ -123,15 +123,40 @@ describe('picking', () => {
     expect(row.textContent).not.toMatch(/adjusted/i);
     expect(screen.getByTestId('shopping-swap-milk').textContent).toMatch(/instead of buttermilk/);
     expect(screen.getByTestId('shopping-swap-milk').textContent).toMatch(/Use milk and lemon instead\./);
-    expect(screen.getByTestId('shopping-note').textContent).toMatch(/Swapped buttermilk for milk\. You can undo it on the row\./);
+    expect(screen.getByTestId('shopping-note').textContent).toMatch(/Swapped buttermilk for milk\. Milk needs lemon, so that is on the list too\. You can undo it on the row\./);
     expect(screen.queryByTestId('store-alt-sheet')).toBeNull();
-    expect(latest.list.items).toHaveLength(1);
+    expect(unchecked().sort()).toEqual(['lemon', 'milk']); // the companion the table names
     fireEvent.click(screen.getByTestId('shopping-undo-swap-milk'));
     await screen.findByTestId('shopping-row-buttermilk');
     const { updatedAt: _a, ...restored } = latest.list.items[0];
     const { updatedAt: _b, ...original } = before;
     expect(restored).toEqual(original);
     expect(screen.queryByTestId('shopping-swap-milk')).toBeNull();
+    expect(latest.list.items).toHaveLength(1); // the lemon the swap added went with it
+    expect(screen.getByTestId('shopping-note').textContent).toMatch(/Took lemon off the list again\./);
+  });
+
+  it('a companion the cook already has is not added; one already on the list is merged, never doubled', async () => {
+    render(<Harness initial={stateWith([{ key: 'buttermilk', label: 'buttermilk', amount: '500 ml' }])} stock={() => ({ kitchen: ['lemon'], pantry: [], bar: [] })} />);
+    fireEvent.click(within(await open('buttermilk')).getByTestId('store-alt-pick-milk'));
+    await screen.findByTestId('shopping-row-milk');
+    expect(unchecked()).toEqual(['milk']);
+    expect(screen.getByTestId('shopping-note').textContent).not.toMatch(/lemon/);
+    cleanup();
+    render(<Harness initial={stateWith([{ key: 'buttermilk', label: 'buttermilk', amount: '500 ml' }, { key: 'lemon', label: 'lemon', amount: '2' }])} />);
+    fireEvent.click(within(await open('buttermilk')).getByTestId('store-alt-pick-milk'));
+    await screen.findByTestId('shopping-row-milk');
+    expect(unchecked().sort()).toEqual(['lemon', 'milk']);
+    expect(latest.list.items.find((i) => i.key === 'lemon').parts).toEqual([{ qty: 2, unit: '' }]); // no amount invented for it
+    expect(screen.getByTestId('shopping-note').textContent).toMatch(/Lemon is already on your list\./);
+    noDupes();
+  });
+
+  it('an alternative with no companion adds nothing else', async () => {
+    render(<Harness initial={stateWith([{ key: 'shallot', label: 'shallot' }])} />);
+    fireEvent.click(within(await open('shallot')).getByTestId('store-alt-pick-onion'));
+    await screen.findByTestId('shopping-row-onion');
+    expect(unchecked()).toEqual(['onion']);
   });
 
   it('an alternative already on the list merges, says so, and Undo gives both rows back', async () => {

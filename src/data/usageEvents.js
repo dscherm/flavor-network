@@ -26,6 +26,7 @@ const SHARE_KINDS = ['cocktail', 'sauce', 'dish'];
 const ORIGINS = ['built_in', 'own'];
 const ROUTES = ['key', 'code'];
 const PROVIDERS = ['google', 'apple'];
+const SHOP_WHERE = ['list', 'panel'];
 
 /**
  * Param types:
@@ -119,6 +120,31 @@ export const EVENTS = Object.freeze({
     fires: 'The cook confirms the review list and the checked bottles are added to My bar.',
     params: { route: { type: 'enum', values: ROUTES }, count: { type: 'count' } },
   },
+  shop_opened: {
+    plain: 'That the shopping list was opened (nothing about what is on it).',
+    fires: 'The shopping list screen opens (once per opening).',
+    params: {},
+  },
+  shop_recipe_added: {
+    plain: 'That ingredients of a recipe were added to the shopping list: its kind, whether it is built-in or the cook\'s own, where it was added from, and how many items were added or merged into lines already there (never the items, and never the name of an own recipe).',
+    fires: 'Ingredients of a recipe are added to the shopping list, from Add from a recipe on the list or from an Add to shopping list button on a What do I need? panel.',
+    params: {
+      kind: { type: 'enum', values: SHARE_KINDS },
+      origin: { type: 'enum', values: ORIGINS },
+      slug: { type: 'slug', optional: true },
+      where: { type: 'enum', values: SHOP_WHERE },
+      added: { type: 'count' },
+      merged: { type: 'count' },
+    },
+  },
+  shop_alternative_used: {
+    plain: 'That a shopping-list alternative was used, whether it came from the food or the bar table and whether it replaced the item or the cook used what they had (never which ingredient).',
+    fires: 'The cook picks an alternative for an item the store does not have, either replacing the row or using what they already have.',
+    params: {
+      alt_source: { type: 'enum', values: ['food', 'bar'] },
+      outcome: { type: 'enum', values: ['replaced', 'used_own'] },
+    },
+  },
   signin_started: {
     plain: 'That sign-in was started, and with which provider.',
     fires: 'The cook taps Sign in with Google or Apple.',
@@ -202,6 +228,9 @@ export const usage = Object.freeze({
   scanStarted: one('scan_started', 'route'),
   scanSucceeded: (route, count) => emit('scan_succeeded', { route, count }),
   scanKept: (route, count) => emit('scan_kept', { route, count }),
+  shopOpened: () => emit('shop_opened', {}),
+  shopRecipeAdded: (o) => emit('shop_recipe_added', o),
+  shopAlternativeUsed: (o) => emit('shop_alternative_used', o),
   signinStarted: one('signin_started', 'provider'),
   signinCompleted: one('signin_completed', 'provider'),
 });

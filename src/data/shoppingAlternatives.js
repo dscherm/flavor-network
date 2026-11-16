@@ -24,9 +24,9 @@
  */
 import { swapsFor as realSwapsFor, swapUseText } from './kitchenSwaps.js';
 import { buildRolePool, swapCandidates, roleOf, familyKey } from './cocktailRiff.js';
-import { isBooze } from './myBar.js';
+import { isBooze, coverLine } from './myBar.js';
 import { isSuggestable } from './curation/suggestable.js';
-import { addPart } from './shoppingList.js';
+import { addPart, canonicalKey } from './shoppingList.js';
 
 export const MAX_ALTERNATIVES = 3;
 const SPIRIT_FAMILIES = new Set(['whiskey', 'rum', 'brandy', 'agave spirit', 'gin', 'vodka']);
@@ -42,6 +42,30 @@ const NO_PAIRING = { names: new Set(), strength: new Map() };
 const RATIO_WORDS = new Map([[0.25, 'a quarter'], [0.5, 'half'], [0.75, 'three quarters'], [2, 'twice'], [1.5, 'one and a half times']]);
 const ratioText = (r) => `${RATIO_WORDS.get(r) || `${Math.round(r * 100)}%`} as much`;
 const validRatio = (r) => (typeof r === 'number' && Number.isFinite(r) && r > 0 && r !== 1 ? r : null);
+
+// Two names for one ingredient: the same curated name after the aliases, or each one covers the other in the
+// bar's own equivalence table ("rye" and "rye whiskey", "lemon" and "lemon juice"). A same-family bottle that merely
+// could stand in (bourbon for rye) is a substitution, not the same ingredient.
+const covers = (a, b) => { const r = coverLine({ key: a }, new Set([b])); return r.covered && !r.substitution; };
+export function sameIngredient(a, b) {
+  return a === b || canonicalKey(a) === canonicalKey(b) || (covers(a, b) && covers(b, a));
+}
+
+/** The clearer of two names for one ingredient: the fuller one ("rye whiskey" over "rye"); the first on a tie. */
+const clearer = (a, b) => (b.split(' ').length > a.split(' ').length ? b : a);
+
+/** Fold alternatives that are one ingredient under two names into one entry, keeping the clearer name. */
+function foldSameIngredient(list) {
+  const out = [];
+  for (const a of list) {
+    const at = out.findIndex((o) => sameIngredient(o.key, a.key));
+    if (at < 0) { out.push(a); continue; }
+    const o = out[at];
+    const keep = clearer(o.key, a.key) === o.key ? o : a;
+    out[at] = { ...keep, have: o.have || a.have };
+  }
+  return out;
+}
 
 /** True when a bar-spirit alternative is even possible for this key (the screen loads the role table only then). */
 export function needsRoles(key) {
@@ -66,7 +90,7 @@ export function alternativesFor(item, { has = () => false, roles = null, names =
   for (const s of swaps(key)) {
     if (s.supportingOnly) continue;
     if (sauce && s.sauce === false) continue;
-    if (seen.has(s.use) || !isSuggestable(s.use)) continue;
+    if (seen.has(s.use) || sameIngredient(key, s.use) || !isSuggestable(s.use)) continue;
     seen.add(s.use);
     const plus = [...(s.plus || [])];
     const ratio = validRatio(s.ratio);
@@ -84,7 +108,7 @@ export function alternativesFor(item, { has = () => false, roles = null, names =
       const pool = buildRolePool(roles, names || new Set());
       const rows = [{ key, role: 'spirit', swappable: true }];
       for (const c of swapCandidates(rows, 0, pool, NO_PAIRING, 60)) {
-        if (seen.has(c.name) || familyKey(c.name) !== family || !plainBottle(c.name, family)) continue;
+        if (seen.has(c.name) || sameIngredient(key, c.name) || familyKey(c.name) !== family || !plainBottle(c.name, family)) continue;
         seen.add(c.name);
         out.push({
           key: c.name, label: c.name, source: 'cocktailRiff', plus: [], ratio: null,
@@ -96,7 +120,8 @@ export function alternativesFor(item, { has = () => false, roles = null, names =
   }
 
   // Ones the cook already has first; otherwise the order the sources gave (stable).
-  const ordered = [...out.filter((a) => a.have), ...out.filter((a) => !a.have)].slice(0, max);
+  const folded = foldSameIngredient(out);
+  const ordered = [...folded.filter((a) => a.have), ...folded.filter((a) => !a.have)].slice(0, max);
   return { alternatives: ordered, known: ordered.length > 0 };
 }
 

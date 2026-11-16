@@ -70,4 +70,13 @@ describe('PrivacyPage', () => {
     expect(t).toMatch(/original\s+photo is never uploaded/);
     expect(t).toMatch(/public to anyone who has the link/);
   });
+  it('says where the shopping list is kept and that its events carry no list text, and lists the three events', () => {
+    render(<PrivacyPage />);
+    const t = screen.getByTestId('privacy-shopping').textContent;
+    expect(t).toMatch(/kept in this browser/);
+    expect(t).toMatch(/saved with your account/);
+    expect(t).toMatch(/never what is on your list/);
+    const listed = screen.getAllByTestId('privacy-event').map((e) => e.getAttribute('data-event'));
+    for (const name of ['shop_opened', 'shop_recipe_added', 'shop_alternative_used']) expect(listed).toContain(name);
+  });
 });

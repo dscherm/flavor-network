@@ -38,6 +38,9 @@ const CASES = [
   ['scan_started', () => usage.scanStarted('key'), { route: 'key' }],
   ['scan_succeeded', () => usage.scanSucceeded('code', 12), { route: 'code', count: 12 }],
   ['scan_kept', () => usage.scanKept('key', 9), { route: 'key', count: 9 }],
+  ['shop_opened', () => usage.shopOpened(), {}],
+  ['shop_recipe_added', () => usage.shopRecipeAdded({ kind: 'dish', origin: 'built_in', slug: 'beef-bolognese', where: 'list', added: 5, merged: 1 }), { kind: 'dish', origin: 'built_in', slug: 'beef-bolognese', where: 'list', added: 5, merged: 1 }],
+  ['shop_alternative_used', () => usage.shopAlternativeUsed({ alt_source: 'bar', outcome: 'used_own' }), { alt_source: 'bar', outcome: 'used_own' }],
   ['signin_started', () => usage.signinStarted('google'), { provider: 'google' }],
   ['signin_completed', () => usage.signinCompleted('apple'), { provider: 'apple' }],
 ];
@@ -45,7 +48,7 @@ const CASES = [
 describe('the catalogue follows Google Analytics rules', () => {
   const names = Object.keys(EVENTS);
   it('has at least the events the task lists', () => {
-    expect(names.length).toBe(17);
+    expect(names.length).toBe(20);
   });
   it.each(names)('%s: name, params and enum values are valid', (name) => {
     expect(name).toMatch(/^[a-z][a-z0-9_]*$/);
@@ -163,6 +166,58 @@ describe('a user recipe never leaks', () => {
   });
 });
 
+describe('shopping list events carry counts and labels only', () => {
+  const ITEM = { label: 'Grandma pickled ramps', key: 'pickled ramps', text: 'pickled ramps 2 jars', note: 'use ramps', name: "Grandma's Secret Sour", id: 'own:cocktail:abc123', slug: 'my-secret-recipe' };
+  const BAD = /pickled|ramps|Grandma|Secret|abc123|my-secret/i;
+
+  it('shop_opened sends no params at all, whatever is handed over', async () => {
+    consentYes();
+    usage.shopOpened(ITEM);
+    await flush();
+    expect(handle.logEvent.mock.calls).toEqual([['shop_opened', {}]]);
+  });
+
+  it('shop_recipe_added drops an item label and a user recipe name, and the slug of an own recipe', async () => {
+    consentYes();
+    usage.shopRecipeAdded({ ...ITEM, kind: 'cocktail', origin: 'own', where: 'panel', added: 3, merged: 0 });
+    usage.shopRecipeAdded({ ...ITEM, kind: 'sauce', origin: 'built_in', slug: 'bechamel', where: 'list', added: 2, merged: 2 });
+    await flush();
+    expect(handle.logEvent.mock.calls).toEqual([
+      ['shop_recipe_added', { kind: 'cocktail', origin: 'own', where: 'panel', added: 3, merged: 0 }],
+      ['shop_recipe_added', { kind: 'sauce', origin: 'built_in', slug: 'bechamel', where: 'list', added: 2, merged: 2 }],
+    ]);
+    expect(JSON.stringify(handle.logEvent.mock.calls)).not.toMatch(BAD);
+  });
+
+  it('shop_recipe_added refuses an item label in a count and an unknown entry point', async () => {
+    consentYes();
+    usage.shopRecipeAdded({ kind: 'dish', origin: 'own', where: 'list', added: 'pickled ramps', merged: 0 });
+    usage.shopRecipeAdded({ kind: 'dish', origin: 'own', where: 'somewhere', added: 1, merged: 0 });
+    usage.shopRecipeAdded({ kind: 'dish', origin: 'own', where: 'list', added: 1.5, merged: -1 });
+    await flush();
+    expect(handle.logEvent).not.toHaveBeenCalled();
+  });
+
+  it('shop_alternative_used drops the ingredient and the row text', async () => {
+    consentYes();
+    usage.shopAlternativeUsed({ ...ITEM, alt_source: 'food', outcome: 'replaced' });
+    usage.shopAlternativeUsed({ alt_source: 'pickled ramps', outcome: 'replaced' });
+    await flush();
+    expect(handle.logEvent.mock.calls).toEqual([['shop_alternative_used', { alt_source: 'food', outcome: 'replaced' }]]);
+    expect(JSON.stringify(handle.logEvent.mock.calls)).not.toMatch(BAD);
+  });
+
+  it('none of the three loads analytics without a Yes', async () => {
+    const loader = vi.fn(async () => ({ logEvent: vi.fn(), setEnabled: vi.fn() }));
+    __resetUsageForTests({ loader, isLocal: () => false });
+    usage.shopOpened();
+    usage.shopRecipeAdded({ kind: 'dish', origin: 'built_in', slug: 'x', where: 'list', added: 1, merged: 0 });
+    usage.shopAlternativeUsed({ alt_source: 'food', outcome: 'replaced' });
+    await flush();
+    expect(loader).not.toHaveBeenCalled();
+  });
+});
+
 describe('typed text', () => {
   it('is trimmed, lowercased, squeezed and cut to 60 characters', () => {
     const long = `  ${'Ab '.repeat(40)} `;
@@ -221,7 +276,7 @@ describe('the code and docs/usage-data.md list the same events', () => {
     const registered = new Set([...doc.split('## Owner steps')[1].matchAll(/^\s*\|\s*`([a-z_]+)`\s*\|/gm)].map((m) => m[1]));
     const allParams = new Set(Object.values(EVENTS).flatMap((d) => Object.keys(d.params)));
     for (const p of allParams) {
-      if (p === 'count') expect(doc).toMatch(/custom metric for `count`/i);
+      if (['count', 'added', 'merged'].includes(p)) expect(doc).toMatch(new RegExp('custom metric for `count`, and again for `added` and `merged`', 'i'));
       else expect(registered.has(p), `dimension for ${p}`).toBe(true);
     }
   });
