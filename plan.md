@@ -3056,3 +3056,107 @@ at sign-in). Order: SHOP-6, then PROFILE-2, one at a time.
   ]
 }
 ```
+
+## 2026-11-16 — One recipe builder on the chalkboard; one suggestion deck; ingredients open their card
+
+Spec: `.schermness/spec.md` -> "One recipe builder on the chalkboard; one suggestion deck; ingredients open
+their card". Owner, verbatim: "also i want to be able to click on the ingredients to look at their individual
+cards.  for the recipe notebook, i want to retire that look and use the universal chalkboard look that is used in
+other labs like the sauce lab and cocktail lab for inventing recipes.  and use the same suggestion deck", then
+"One builder". Order: BUILDER-1, 2, 3, 4, 5, one at a time.
+
+```json
+{
+  "id": "BUILDER-1",
+  "title": "One suggestion deck: the before-and-after grid deck in all three builders, and the same grid on the matched-sauces deck",
+  "category": "ui",
+  "passes": false,
+  "description": "Today SuggestionCardDeck (IngredientProfileCard, two FlavorGrid charts: Now and With X) is mounted only in the Recipe Notebook and always with a single card; the invent panels (InventCocktail, InventSauce, InventRecipe) show plain chips (InventSuggestions) and plain replacement lists; SauceSuggestionDeck draws the old BeforeAfterRadar twice per card. Build: (1) in each of the three invent panels, 'Goes well with what you have' keeps its chips for a quick add and gains a button, 'See how each changes the flavor', that opens SuggestionCardDeck with ALL current suggestions as cards (swipe, arrows, dots; Add on each card adds the line exactly as the chip does, amounts included). (2) The replacements ('Don't have it? Try...') open the same deck in swap mode over the stand-ins. (3) The deck's Now grid must equal the panel's own flavor profile: feed it the build's lines with amounts through the one profile calculation the panels already use (profileForRecipe / buildFlavorProfile / profilePair); if the deck today computes from names only, extend it rather than adding a second calculation, and keep its Recipe Notebook mount working. (4) SauceSuggestionDeck draws the FlavorGrid pair instead of BeforeAfterRadar; delete BeforeAfterRadar when nothing imports it. Deck opened from a panel is an overlay in the chalk look that returns to the panel where the cook was. Ingredients with no flavor data are handled as the grid already does.",
+  "acceptance": [
+    "Component tests per panel (cocktail, sauce, recipe): the button opens a deck with one card per suggestion; Add on the second card adds that ingredient to the build with the same amount the chip would give; closing returns to the panel with the list intact",
+    "Swap mode from a replacement in each panel replaces the line and closes (tests)",
+    "A test shows the deck's Now grid and the panel's flavor profile lead with the same notes for a build with amounts (Negroni lines; a Bolognese-like build)",
+    "SauceSuggestionDeck renders FlavorGrid, and BeforeAfterRadar no longer exists in src/ (grep in the report)",
+    "The Recipe Notebook's existing deck tests still pass",
+    "Looked at in a browser at 375px in one panel at least: deck open, swipe, add; described honestly; no horizontal overflow",
+    "npm run gate green; npm run measure:flavor numbers unchanged (state them)"
+  ]
+}
+```
+
+```json
+{
+  "id": "BUILDER-2",
+  "title": "The chalkboard recipe builder gains what only the Recipe Notebook had",
+  "category": "feature",
+  "passes": false,
+  "description": "InventRecipe.jsx (the chalkboard recipe builder) gains, reusing the existing components and logic rather than rewriting them: (1) the Flavor Profiles card (RecipeFlavorProfilesCard: overview ranked bars, fixed wheel, per-note pages whose Boost/Temper chips add to the build with a predicted amount, Enhance, Pairings), opened from the builder's flavor profile row; it must read the build's lines and amounts. (2) Model-based suggestions and smart swaps: the set-completion model's candidates (loadSuggestCandidates / recipeRuntime, as RecipeLabMobile uses them) join the builder's suggestion list and its deck from BUILDER-1, kitchen first, de-duplicated, with the pairing-index ranking as the fallback when the model is not loaded. (3) Find a cocktail, Need a sauce and Find wines buttons wired to the same App handlers the Notebook uses (handleFindCocktail, handleFindSauce, onFindWine), fed from the build. (4) Cooking-method chips (RecipeCookingMethod). (5) When the builder is opened from a handoff that carries method steps or a picture, they are shown (collapsed 'Method (N steps)', picture with remove) as the Notebook shows them. Do not remove anything from the Notebook in this task and do not change routes; BUILDER-3 does that. Retired on purpose and NOT to be ported: swipe-left delete, per-row match %, the focal flag, Recenter, NotebookStarter.",
+  "acceptance": [
+    "From a build of three or more ingredients the Flavor Profiles card opens; a Boost chip adds its ingredient to the build with an amount; the Pairings page buttons call the handlers with the build's names (component tests)",
+    "With a stubbed model the suggestion list contains model candidates and pairing candidates without duplicates, kitchen items first; with no model the list still fills (tests)",
+    "Find a cocktail / Need a sauce / Find wines call their handlers with the build's ingredient names and title (tests)",
+    "Cooking-method chips render and their selection is kept while the builder is open (test)",
+    "A seeded handoff with steps and an image shows both; removing the image works (test)",
+    "The cocktail and sauce builders are unchanged (their tests pass untouched)",
+    "Looked at in a browser at 375px: the builder with the new rows, the Flavor Profiles card opened from it; described honestly",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "BUILDER-3",
+  "title": "The Recipe Notebook tab opens the chalkboard builder; the paper page is retired",
+  "category": "feature",
+  "passes": false,
+  "description": "Tab 'recipe' and ?path=notebook mount the chalkboard recipe builder instead of RecipeLab/RecipeLabMobile. Every existing way in opens the builder seeded with that recipe: the Network panel's build recipe, Profile's load recipe, Cocktail and Sauce 'open in Recipe Notebook', the Pairing Lab's send to recipe, Make a recipe (sendToNotebook), URL import, and a handoff from an invention (inventionHandoff). The seed carries lines, amounts, title, steps, picture, and now also the dish type and cuisine that inventionHandoff drops today. With no handoff the tab opens the builder at its first question, or with the build the cook left there (keep work in progress across tab switches as the Notebook did; say how). Saving goes through saveInvention (amounts, picture, share). Recipes saved earlier by the Notebook (names only, userProfile.addRecipe) must still list in the Cookbook and Profile, open in the builder, and save without being duplicated or losing their name; do not migrate stored data in place. Unmount RecipeLab, RecipeLabMobile, RecipeNotebook and NotebookStarter (delete in BUILDER-5, not here, so this change is easy to revert). Update or replace the tests that asserted the paper page; a test that covered behaviour now retired by the spec (swipe-delete, match %, focal, recenter, starter) is removed with a line in the report naming it; any other failing test is a real regression to fix.",
+  "acceptance": [
+    "?path=notebook and the Labs entry show the chalkboard builder; no element with the paper styling or data-testid notebook-paper is rendered (test)",
+    "Each listed way in opens the builder with the handed-over lines and title (one test per door, with amounts and steps where that door carries them)",
+    "An invention handed to the tab keeps its dish type and cuisine (test)",
+    "A names-only recipe saved by the old Notebook opens in the builder, can be renamed and saved, and appears once afterwards (test)",
+    "Switching to another tab and back keeps the build in progress (test)",
+    "The report lists every test removed and why, and every Notebook feature with where it now lives or that it was retired by the spec",
+    "Looked at in a browser at 375px and at desktop width: the tab, one handoff from the Cocktail Lab, a save; described honestly",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "BUILDER-4",
+  "title": "Tap an ingredient to see its card",
+  "category": "feature",
+  "passes": false,
+  "description": "A reusable IngredientCard overlay built on the Pairing Lab's chalk single-ingredient card (PairingModeCard with props from buildPairingCardProps in src/data/pairingCardData.js, shown for the ingredient's own profile as the Pairing Lab's peek does), not on the Network's IngredientPanel. It shows the name, taste and aroma, what it pairs with, and shared compounds where known, with 'Open in Pairing Lab', and, when opened inside a builder, 'Add to this recipe' (or 'Swap it in' from a replacement). Closes with Back, Escape and a tap outside; focus returns to the name that opened it. One provider or hook (for example useIngredientCard) so surfaces only need to render a tappable name. Make ingredient names tappable in: the three builders' lines (InventList), suggestion deck cards (IngredientProfileCard name), suggestion chips via a small info button (a tap on the chip still adds), Flavor Profiles 'Driven by' names, cocktail, sauce and wine detail cards (LabNodeCard ingredient lines and 'pairs with' chips), Cookbook recipe card ingredients, What do I need rows, shopping list rows (the checkbox must keep working; the name is the link, with a target of at least 44 px that cannot be confused with the checkbox). NOT on the public shared recipe page. While the large dataset is still loading, tapping shows a short loading state and then the card; an ingredient the app does not know (free text, an unresolved name) is not a link, or says plainly that there is no card. Names resolve through the curation aliases. Add a usage event only if the catalogue, docs table and privacy page are updated together (name only as a count, never the ingredient text).",
+  "acceptance": [
+    "Component tests: the card opens from each listed surface with the right ingredient, closes three ways, and returns focus",
+    "Inside a builder, 'Add to this recipe' adds the ingredient once and closes; from a replacement it swaps (tests)",
+    "Shopping list: tapping the checkbox still checks the row and does not open the card; tapping the name opens it (test)",
+    "An alias opens the canonical ingredient's card; a free-text line renders no link (tests)",
+    "With the dataset not yet loaded the tap shows loading then the card (test with a delayed loader); the shared recipe page gains no link and loads no new data (test or grep in the report)",
+    "Keyboard and screen-reader reachable (names are buttons or links with a label such as 'About garlic')",
+    "Looked at in a browser at 375px from a builder line, a cocktail card and a shopping row; described honestly",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "BUILDER-5",
+  "title": "Flavor-map ingredient marks, removal of the retired notebook code, docs and the final pass",
+  "category": "chore",
+  "passes": false,
+  "description": "(1) Flavor map page of the Flavor Profiles card: bring back one mark per ingredient on the fixed seventeen-wedge wheel, placed from that ingredient's own strongest notes (the removed IngredientFlavorMap is in git history at 4336204^:src/components/RecipeFlavorProfilesCard.jsx; reuse its placement idea on the fixed wheel, with the current flavor tables, not the old model values), each mark labelled or listed so a screen reader gets it; cap or thin labels so twelve ingredients stay readable at 375 px. Close CHART-NOTEBOOK-DOTS in BACKLOG. (2) Delete, each only after a grep shows no importer outside its own tests: RecipeLab, RecipeLabMobile, RecipeNotebook, NotebookStarter, NotebookCanvas, RecipePanel, RecipeAnalysis, RecipeFlavorWheel, IngredientSuggestionsPopout, SuggestionDrawer, SwipeDeckCard, AromaHexWheel, CocktailBuilder, CocktailPanel, with their tests. Anything still imported is left and named. (3) Docs: README, .claude/CLAUDE.md (navigation and the directory list, which still names NotebookCanvas and RecipePanel), docs/flavor-profile.md, a short docs/recipe-builder.md (the one builder, its doors, what was retired, the ingredient card and where it opens), BACKLOG (CHART-SAUCE-CARD closed by BUILDER-1; anything left out), CLOSEOUT.md UNRELEASED with deploy targets. (4) Final pass at 375 px and desktop width: build a recipe from the Notebook tab, use the deck, open an ingredient card and add from it, open Flavor Profiles and the flavor map, find a sauce, save, reopen from the Cookbook, add to the shopping list and open a card there. Anything not exercised for real is named.",
+  "acceptance": [
+    "Flavor map shows one mark per ingredient with data, readable with twelve ingredients at 375px (component test for count and labels; described from a browser look)",
+    "Every listed file is deleted or named as still imported, with the grep shown; bundle builds; the report gives the line count removed",
+    "README, CLAUDE.md, docs and BACKLOG match the code; no doc still describes a paper notebook page",
+    "The final pass is described step by step with what was and was not exercised",
+    "npm run measure:flavor numbers unchanged (stated); npm run gate, functions tests green; nothing deployed"
+  ]
+}
+```
