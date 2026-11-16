@@ -2582,7 +2582,7 @@ it shows); PICTURE-5 last.
   "id": "PICTURE-3",
   "title": "Storing pictures: with a saved item and with a shared copy",
   "category": "feature",
-  "passes": false,
+  "passes": true,
   "description": "Saved items gain picture: { kind: 'icon'|'chalk', icon?, v }. A chalk picture is stored as its own document profiles/{uid}/pictures/{itemId} ({ data (base64), mime, w, h, updatedAt }), never inside the profile document; deleting the item deletes its picture. A shared copy stores sharedPictures/{shareId} ({ data, mime, w, h, owner, createdAt }) written with the share, and shared/{id} carries picture: { kind, icon? } only. firestore.rules: profiles/{uid}/pictures/{id} readable and writable by that user only, size-capped (data string length under 210,000); sharedPictures/{id} get by anyone, list by nobody, create by the signed-in owner within the cap and only alongside their own share id, delete by the owner, and unreadable to others once shared/{id}.removed is true. Offline or failed picture writes never block saving the item or creating the link; the item is saved without the picture and the user is told in one line. The original photo is never sent anywhere.",
   "acceptance": [
     "Rules tests on the emulator: own picture read and write allowed, another user's denied; oversize denied; sharedPictures get allowed, list denied, create denied signed out or with another owner or oversize, readable only by the owner after the share is removed",
