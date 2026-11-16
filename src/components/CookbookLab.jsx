@@ -20,6 +20,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNoResultSearch } from '../hooks/useUsage.js';
 import WhatDoINeed from './WhatDoINeed.jsx';
+import { recipeRefFor } from '../data/shoppingRecipes.js';
 import DishStory from './DishStory.jsx';
 import { needsFromKitchen } from '../data/whatDoINeed.js';
 import { loadKitchen, saveKitchen, addToKitchen, loadAssumeBasics, loadSpiceRack } from '../data/myKitchen.js';
@@ -153,7 +154,7 @@ const RADAR_AXES = ['taste', 'aroma', 'season', 'cuisine', 'method'];
 // DESIGN-3: the popup leads with pictures — dish drawing, meta as
 // icon+number, the profile radar — then ingredient chips, the method
 // behind a fold, and "Goes well with" as drawn mini-cards.
-export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = null, onClose, onOpenInNetwork, onOpenRecipeLab, onFindCocktail, onFindSauce, onFindWine }) {
+export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = null, shopping = null, onClose, onOpenInNetwork, onOpenRecipeLab, onFindCocktail, onFindSauce, onFindWine }) {
   const color = CUISINE_COLOR[recipe.cuisine] || '#94a3b8';
   const kind = dishTypeOf(recipe);
   const nodes = ctx?.graph?.nodes;
@@ -333,7 +334,11 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
           </div>
 
           {/* 3b — what to buy, from the shared kitchen */}
-          <WhatDoINeed title={recipe.name} needs={needs} stockEmpty={kitchen.length === 0} onHave={haveIt} color={color} />
+          <WhatDoINeed title={recipe.name} needs={needs} stockEmpty={kitchen.length === 0} onHave={haveIt} color={color}
+            shopping={shopping?.onChange ? {
+              ...shopping,
+              recipe: recipeRefFor('dish', recipe, userRecipe && userRecipe.id != null ? { ownKind: 'recipe', ownId: userRecipe.id } : {}),
+            } : null} />
 
           {/* 4 — method, folded */}
           {steps.length > 0 && (
@@ -436,6 +441,9 @@ export default function CookbookLab({
   userRecipes = [],
   // "✨ Invent this": called with the Recipe Lab seed built from the search box (App opens Make a recipe on it).
   onInventThis = null,
+  // SHOP-3: the profile hook (for the shopping list) and the way to open the list screen.
+  userProfile = null,
+  onOpenShopping = null,
 }) {
   // B-version (2026-06-03): user-saved recipes appear inside the
   // cookbook as additional 3D books, normalized into SEED_RECIPES
@@ -689,6 +697,7 @@ export default function CookbookLab({
         <RecipeDetail
           recipe={selected}
           onProfileOpen={onProfileOpen}
+          shopping={userProfile?.updateShopping ? { list: userProfile.profile?.shopping?.list, onChange: userProfile.updateShopping, onOpen: onOpenShopping } : null}
           userRecipe={selected._userSaved ? (Array.isArray(userRecipes) ? userRecipes.find((r) => String(r?.name || '').trim() === selected.name) || null : null) : null}
           ctx={ctx}
           onClose={() => setSelected(null)}

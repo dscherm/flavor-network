@@ -13,8 +13,8 @@
  * add box and the aisles). Not the pairings, not the graph, not any model. Until it arrives (or if it fails)
  * every item sits in "other" and the add box takes free text only; the list itself works.
  *
- * Places left for later tasks: the "Add from a recipe" control and the empty-state sentence about it
- * (SHOP-3), and the per-row "Store doesn't have it?" control (SHOP-4) go where marked below.
+ * "Add from a recipe" is ShoppingRecipeAdd (SHOP-3); props own / loadRecipes / recipeStock feed it (the cook's saved
+ * items, a test loader, a test stock). Left for a later task (SHOP-4): the per-row "Store doesn't have it?" control, where marked below.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -24,6 +24,7 @@ import { kitchenSuggestions } from '../data/kitchenRecipes.js';
 import { loadKitchen, saveKitchen, addToKitchen } from '../data/myKitchen.js';
 import { loadBar, saveBar, addToBar, isBooze } from '../data/myBar.js';
 import { loadShoppingIngredients } from '../data/shoppingIngredients.js';
+import ShoppingRecipeAdd from './ShoppingRecipeAdd.jsx';
 import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, chalkSurfaceStyle } from '../data/chalkTheme.js';
 
 const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
@@ -34,7 +35,7 @@ const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 const buttonStyle = { fontFamily: SANS, fontSize: 14, color: CHALK_CREAM, border: `1.5px solid ${CHALK_DIM}`, background: 'transparent', outlineColor: CHALK_CREAM };
 const inputStyle = { fontFamily: SANS, fontSize: 16, color: CHALK_CREAM, background: 'rgba(10,10,10,0.6)', border: `1.5px solid ${CHALK_DIM}`, outlineColor: CHALK_CREAM };
 
-export default function ShoppingList({ shopping, onChange, onClose, loadIngredients = loadShoppingIngredients }) {
+export default function ShoppingList({ shopping, onChange, onClose, loadIngredients = loadShoppingIngredients, own = null, loadRecipes, recipeStock }) {
   const list = shopping?.list || emptyList();
   const [ing, setIng] = useState({ status: 'loading', names: new Set(), vocab: [], categories: new Map() });
   const [text, setText] = useState('');
@@ -182,7 +183,14 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
             <p style={{ fontFamily: SANS, fontSize: 12, color: CHALK_SUB, marginTop: 6 }}>Ingredient suggestions are not available right now. You can still type any item.</p>
           )}
         </form>
-        {/* SHOP-3: "Add from a recipe" goes here, beside the add box. */}
+        <ShoppingRecipeAdd
+          list={list}
+          onChange={onChange}
+          own={own}
+          names={ing.names.size ? ing.names : null}
+          {...(loadRecipes ? { loadSources: loadRecipes } : {})}
+          {...(recipeStock ? { stock: recipeStock } : {})}
+        />
 
         <p data-testid="shopping-note" role="status" aria-live="polite" style={{ fontFamily: SANS, fontSize: 14, color: CHALK_CREAM, marginTop: 8, minHeight: 20 }}>{note}</p>
 
@@ -190,9 +198,8 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
           <div data-testid="shopping-empty" className="mt-4 rounded-xl p-4" style={{ border: `1.5px dashed ${CHALK_RAIL}` }}>
             <div style={{ fontFamily: FONT, fontSize: 26 }}>Nothing on your list yet</div>
             <p style={{ fontFamily: SANS, fontSize: 14, color: CHALK_DIM, marginTop: 4 }}>
-              Type an item above and tap Add. Tick things off as you shop; ticked items drop to the bottom of their aisle so you can see what is left.
+              Type an item above and tap Add, or tap Add from a recipe and search a cocktail, sauce or dish by name: it adds only what you do not already have. You can also tap Add to shopping list under What do I need? on any recipe. Tick things off as you shop; ticked items drop to the bottom of their aisle so you can see what is left.
             </p>
-            {/* SHOP-3: extend this with the "add from a recipe" way to fill the list. */}
           </div>
         ) : (
           <div className="mt-2">

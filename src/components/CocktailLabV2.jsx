@@ -26,6 +26,7 @@ import { cocktailSeedFromSearch } from '../data/inventSearch.js';
 import { loadBar, saveBar, splitBar, stockFor, coverCocktail, countedLines, barKey, isBooze, addToBar, whatCanIMake } from '../data/myBar.js';
 import { loadKitchen, saveKitchen, addToKitchen } from '../data/myKitchen.js';
 import WhatDoINeed from './WhatDoINeed.jsx';
+import { recipeRefFor } from '../data/shoppingRecipes.js';
 import { needsFromBarCoverage } from '../data/whatDoINeed.js';
 import { readSaved, withSavedCocktails } from '../data/savedInventions.js';
 import { fromSavedItem } from '../data/inventSaved.js';
@@ -71,6 +72,8 @@ export default function CocktailLabV2({
   onInventSeedConsumed = null,
   // PROFILE-1: called with (kind, builtIn) when a card's Flavor profile is opened. The later usage-data task counts these; nothing is sent now.
   onProfileOpen = null,
+  // SHOP-3: opens the shopping list screen ("Open list" after Add to shopping list).
+  onOpenShopping = null,
 }) {
   const [graph, setGraph] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -406,7 +409,11 @@ export default function CocktailLabV2({
   };
   const needsSection = cardNeeds ? (
     <WhatDoINeed title={selectedNode?.name || selectedCocktail} needs={cardNeeds} stockEmpty={stock.length === 0}
-      stockLabel="bar and kitchen" onHave={haveForDrink} color={familyForSelected?.color} />
+      stockLabel="bar and kitchen" onHave={haveForDrink} color={familyForSelected?.color}
+      shopping={userProfile?.updateShopping ? {
+        recipe: recipeRefFor('cocktail', selectedNode, selectedNode?.mine ? { ownKind: 'cocktail', ownId: selectedNode.savedId } : {}),
+        list: userProfile.profile?.shopping?.list, onChange: userProfile.updateShopping, onOpen: onOpenShopping,
+      } : null} />
   ) : null;
 
   const cardIngredients = useMemo(() => {

@@ -2154,6 +2154,7 @@ export default function App() {
             userProfile={userProfile}
             auth={inventAuth}
             initialInventSeed={labInventSeed?.lab === 'cocktail' ? labInventSeed.seed : null}
+            onOpenShopping={() => setActiveTab('shopping')}
             onInventSeedConsumed={() => setLabInventSeed(null)}
             onSelectionChange={handleLabSelectionChange}
             externalFilter={externalLabFilter}
@@ -2187,6 +2188,7 @@ export default function App() {
             userProfile={userProfile}
             auth={inventAuth}
             initialInventSeed={labInventSeed?.lab === 'sauce' ? labInventSeed.seed : null}
+            onOpenShopping={() => setActiveTab('shopping')}
             onInventSeedConsumed={() => setLabInventSeed(null)}
             externalFilter={externalLabFilter}
             matchesContext={matchesContext}
@@ -2258,6 +2260,7 @@ export default function App() {
           shopping={userProfile.profile.shopping}
           onChange={userProfile.updateShopping}
           onClose={() => setActiveTab('labs')}
+          own={{ cocktails: userProfile.profile.cocktails, sauces: userProfile.profile.sauces, recipes: userProfile.profile.recipes }}
         />
       )}
 
@@ -2315,6 +2318,8 @@ export default function App() {
             // received one. Every other consumer (e.g. CocktailPanel) already
             // uses the .profile. path.
             userRecipes={userProfile?.profile?.recipes || []}
+            userProfile={userProfile}
+            onOpenShopping={() => setActiveTab('shopping')}
             onInventThis={(seed) => { setInventSeed(seed); setActiveTab('make'); }}
             pickerMode={cookbookPickerMode}
             onExitPickerMode={() => {

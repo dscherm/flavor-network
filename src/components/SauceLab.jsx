@@ -14,6 +14,7 @@ import InventSauce from './InventSauce.jsx';
 import { sauceSeedFromSearch } from '../data/inventSearch.js';
 import { loadKitchen, saveKitchen, loadAssumeBasics, saveAssumeBasics, loadSpiceRack, saveSpiceRack, addToKitchen } from '../data/myKitchen.js';
 import WhatDoINeed from './WhatDoINeed.jsx';
+import { recipeRefFor } from '../data/shoppingRecipes.js';
 import DishStory from './DishStory.jsx';
 import { needsFromKitchen } from '../data/whatDoINeed.js';
 import { buildCategoryMap } from '../data/saucePantry.js';
@@ -68,6 +69,8 @@ export default function SauceLab({
   onInventSeedConsumed = null,
   // PROFILE-1: called with (kind, builtIn) when a card's Flavor profile is opened (for the later usage-data task; nothing is sent now).
   onProfileOpen = null,
+  // SHOP-3: opens the shopping list screen ("Open list" after Add to shopping list).
+  onOpenShopping = null,
 }) {
   const [codexRaw, setCodexData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -138,6 +141,10 @@ export default function SauceLab({
       stockEmpty={kitchen.length === 0}
       onHave={(name) => updateKitchen(addToKitchen(kitchen, name, new Set()))}
       color={familyForSelected?.color}
+      shopping={userProfile?.updateShopping ? {
+        recipe: recipeRefFor('sauce', sauce, sauce.mine ? { ownKind: 'sauce', ownId: sauce.savedId } : {}),
+        list: userProfile.profile?.shopping?.list, onChange: userProfile.updateShopping, onOpen: onOpenShopping,
+      } : null}
     />
   );
 

@@ -11,6 +11,7 @@
 import { useState } from 'react';
 import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB } from '../data/chalkTheme.js';
 import { shoppingListText } from '../data/whatDoINeed.js';
+import AddToShoppingList from './AddToShoppingList.jsx';
 
 const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 const SHADOW = '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)';
@@ -23,9 +24,10 @@ const SHADOW = '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)';
  *   stockLabel?: string,        // "kitchen" | "bar and kitchen"
  *   onHave?: (name: string) => void,
  *   color?: string,
+ *   shopping?: { recipe, list, onChange, onOpen }, // SHOP-3: shows "Add to shopping list" (adds exactly `needs.missing`)
  * }} props
  */
-export default function WhatDoINeed({ title, needs, stockEmpty = false, stockLabel = 'kitchen', onHave = null, color = '#a3e635' }) {
+export default function WhatDoINeed({ title, needs, stockEmpty = false, stockLabel = 'kitchen', onHave = null, color = '#a3e635', shopping = null }) {
   const [copied, setCopied] = useState(false);
   const [showHave, setShowHave] = useState(false);
   if (!needs || needs.total + needs.optional.length + (needs.better?.length || 0) === 0) return null;
@@ -106,6 +108,10 @@ export default function WhatDoINeed({ title, needs, stockEmpty = false, stockLab
             style={{ fontFamily: FONT, fontSize: 18, borderColor: `${color}88`, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
             {copied ? 'Copied ✓' : '🛒 Copy shopping list'}
           </button>
+        )}
+        {shopping && missing.length > 0 && (
+          <AddToShoppingList recipe={shopping.recipe} missing={missing} list={shopping.list}
+            onChange={shopping.onChange} onOpen={shopping.onOpen} color={color} />
         )}
         {have.length > 0 && (
           <button type="button" onClick={() => setShowHave((v) => !v)} aria-expanded={showHave} data-testid="what-do-i-need-toggle-have"
