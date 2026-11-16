@@ -86,6 +86,21 @@ describe('FlavorSwipe', () => {
     expect(screen.getByTestId('s-page-note').parentElement.className).toContain('motion-reduce:transition-none');
   });
 
+  it('the box follows the active page, and the page not showing is aria-hidden and inert (never read twice or tabbable)', () => {
+    render(<FlavorSwipe bars={bars} testidPrefix="s" />);
+    const note = screen.getByTestId('s-page-note'), wheel = screen.getByTestId('s-page-wheel');
+    const box = note.parentElement.parentElement;
+    expect(box.className).toContain('transition-[height]');
+    expect(box.className).toContain('motion-reduce:transition-none');
+    expect(wheel.hasAttribute('inert')).toBe(true);
+    expect(note.hasAttribute('inert')).toBe(false);
+    fireEvent.click(screen.getByTestId('s-dot-wheel'));
+    expect(note.hasAttribute('inert')).toBe(true);
+    expect(note.getAttribute('aria-hidden')).toBe('true');
+    expect(wheel.hasAttribute('inert')).toBe(false);
+    expect(wheel.getAttribute('aria-hidden')).toBeNull();
+  });
+
   it('gives screen readers every note, strongest first, whichever page is showing', () => {
     render(<FlavorSwipe bars={bars} testidPrefix="s" />);
     const items = screen.getAllByRole('listitem', { hidden: true });
@@ -111,7 +126,7 @@ describe('InventFlavorProfile around the swipe', () => {
     expect(screen.getByTestId('f-sentence')).toBeTruthy();
     expect(screen.getByTestId('f-note')).toHaveTextContent(/guide, not a taste test/);
     expect(screen.getByTestId('f-uncounted')).toHaveTextContent('mystery');
-    expect(screen.getByTestId('f-summary')).toBeTruthy();
+    expect(screen.queryByTestId('f-summary')).toBeNull(); // the sentence says it already
   });
   it('not enough data draws no chart and says why', () => {
     render(<InventFlavorProfile profile={{ bars: [], summary: 'Not enough flavor data for a chart yet.', uncounted: ['a', 'b'], counted: [], drawn: false }} testidPrefix="f" />);

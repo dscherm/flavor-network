@@ -17,7 +17,8 @@ describe('InventFlavorProfile', () => {
     render(<InventFlavorProfile profile={profile} testidPrefix="f" />);
     expect(screen.getByTestId('f-bar-sour').getAttribute('aria-label')).toBe('Sour 60 percent');
     expect(screen.getByTestId('f-bar-sweet')).toHaveTextContent('Sweet');
-    expect(screen.getByTestId('f-summary')).toHaveTextContent('leans sour');
+    expect(screen.getByTestId('f-sentence')).toHaveTextContent('Sour');
+    expect(screen.queryByTestId('f-summary')).toBeNull();
     expect(screen.getByTestId('f-uncounted')).toHaveTextContent('mystery bitters');
     expect(screen.getByTestId('f-note')).toHaveTextContent(/taste labels and aroma notes for each ingredient, weighted by amount/);
     expect(screen.getByTestId('f-note')).toHaveTextContent(/guide, not a taste test/);

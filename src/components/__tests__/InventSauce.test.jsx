@@ -273,7 +273,8 @@ describe('InventSauce — flavor profile', () => {
     addIng('fenugreek'); // no taste label and no line in the FLAVOR-4 strength table
     expect(screen.getByTestId(`${P}-profile`)).toBeInTheDocument();
     expect(screen.getByTestId(`${P}-profile-bar-sour`)).toBeInTheDocument();
-    expect(screen.getByTestId(`${P}-profile-summary`)).toHaveTextContent(/On the chart|this sauce/);
+    expect(screen.getByTestId(`${P}-profile-sentence`)).toBeTruthy();
+    expect(screen.queryByTestId(`${P}-profile-summary`)).toBeNull();
     expect(screen.getByTestId(`${P}-profile-uncounted`)).toHaveTextContent('fenugreek');
   });
 

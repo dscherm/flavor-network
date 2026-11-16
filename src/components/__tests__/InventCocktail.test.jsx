@@ -265,7 +265,8 @@ describe('InventCocktail: flavor profile', () => {
     addText('mystery bitters');
     expect(byId('invent-profile-bar-sour')).toBeTruthy();
     expect(byId('invent-profile-bar-sweet')).toBeTruthy();
-    expect(byId('invent-profile-summary')).toHaveTextContent(/On the chart|this drink/);
+    expect(byId('invent-profile-sentence')).toBeTruthy();
+    expect(screen.queryByTestId('invent-profile-summary')).toBeNull();
     expect(byId('invent-profile-uncounted')).toHaveTextContent('mystery bitters');
   });
 

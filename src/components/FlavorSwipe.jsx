@@ -1,15 +1,15 @@
 /**
  * FlavorSwipe — CHART-3. Two pages, the tasting note with strips first, the fixed wheel second. Reach the wheel by
  * swiping (pointer events), by the two dots (real buttons, 44px targets) or ArrowLeft / ArrowRight while focused.
- * Both pages sit side by side in one row so the box is as tall as the taller page and never jumps; the page that is
- * off screen is aria-hidden and invisible. No slide under prefers-reduced-motion. A visually hidden ranked list of every
+ * Both pages sit side by side in one row; the box height follows the page showing (it grows when the wheel is reached); the page that is
+ * off screen is aria-hidden, inert and invisible. No slide under prefers-reduced-motion. A visually hidden ranked list of every
  * note (taste and aroma, strongest first) gives screen readers the same content from either page.
  *
  * Props   bars [{ axis, label, color, score }]   testidPrefix default 'profile'
  * Test ids  {p}-swipe, {p}-page-note, {p}-page-wheel (data-active), {p}-dot-note, {p}-dot-wheel (aria-current),
  *           {p}-bar-{axis} in the hidden list (aria-label "Sweet 42 percent"), plus FlavorNote / FlavorWheel ids.
  */
-import { useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import FlavorNote from './FlavorNote.jsx';
 import FlavorWheel from './FlavorWheel.jsx';
 import { CHALK_CREAM, CHALK_DIM, CHALK_RAIL } from './inventUi.jsx';
@@ -21,8 +21,23 @@ export default function FlavorSwipe({ bars, testidPrefix = 'profile' }) {
   const p = testidPrefix;
   const [page, setPage] = useState(0);
   const start = useRef(null);
+  const pageEls = useRef([]);
+  const [height, setHeight] = useState(null);
   const ranked = [...(bars || [])].filter((b) => b && b.score > 0).sort((a, b) => b.score - a.score);
   const go = (i) => setPage(Math.max(0, Math.min(PAGES.length - 1, i)));
+
+  // The box is as tall as the page showing: measure it and follow it (a short transition, none under reduced motion).
+  useLayoutEffect(() => {
+    const el = pageEls.current[page];
+    if (el && el.offsetHeight > 0) setHeight(el.offsetHeight);
+  }, [page, bars]);
+  useEffect(() => {
+    const el = pageEls.current[page];
+    if (!el || typeof ResizeObserver === 'undefined') return undefined;
+    const ro = new ResizeObserver(() => { if (el.offsetHeight > 0) setHeight(el.offsetHeight); });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [page]);
 
   const onPointerDown = (e) => { start.current = { x: e.clientX, y: e.clientY }; };
   const onPointerUp = (e) => {
@@ -39,12 +54,12 @@ export default function FlavorSwipe({ bars, testidPrefix = 'profile' }) {
 
   return (
     <div className="min-w-0" data-testid={`${p}-swipe`} onKeyDown={onKeyDown}>
-      <div className="overflow-hidden" style={{ touchAction: 'pan-y' }} onPointerDown={onPointerDown} onPointerUp={onPointerUp} onPointerCancel={() => { start.current = null; }}>
-        <div className="flex items-stretch transition-transform duration-200 motion-reduce:transition-none" style={{ width: '200%', transform: `translateX(${-50 * page}%)` }}>
+      <div className="overflow-hidden transition-[height] duration-200 motion-reduce:transition-none" style={{ touchAction: 'pan-y', height: height == null ? undefined : height }} onPointerDown={onPointerDown} onPointerUp={onPointerUp} onPointerCancel={() => { start.current = null; }}>
+        <div className="flex items-start transition-transform duration-200 motion-reduce:transition-none" style={{ width: '200%', transform: `translateX(${-50 * page}%)` }}>
           {PAGES.map((pg, i) => {
             const active = i === page;
             return (
-              <div key={pg.id} data-testid={`${p}-page-${pg.id}`} data-active={active ? 'true' : 'false'} aria-hidden={active ? undefined : 'true'}
+              <div key={pg.id} data-testid={`${p}-page-${pg.id}`} data-active={active ? 'true' : 'false'} aria-hidden={active ? undefined : 'true'} inert={active ? undefined : ''} ref={(el) => { pageEls.current[i] = el; }}
                 className="min-w-0 flex-none" style={{ width: '50%', visibility: active ? 'visible' : 'hidden', transition: active ? 'visibility 0s' : 'visibility 0s linear 200ms' }}>
                 {pg.id === 'note' ? <FlavorNote bars={bars} testidPrefix={p} /> : <FlavorWheel bars={bars} testidPrefix={p} />}
               </div>

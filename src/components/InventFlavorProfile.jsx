@@ -11,6 +11,7 @@
  *   testidPrefix  default 'profile'
  *   surface       flavorDisplay surface (kept for callers; the chart no longer caps notes, so it has no effect)
  * When profile.drawn is false (and the list is not empty) only the plain line (profile.summary) shows, in {p}-empty.
+ * The one-line summary shows only where no tasting-note sentence is drawn (it would repeat it).
  * CHART-3 replaced the capped bar groups and the "show all" toggle: every note above the floor is in the sentence/strips,
  * the wheel and a visually hidden ranked list. Test ids: {p} root, {p}-bar-{axis} (hidden list, aria-label "Sweet 42
  * percent"), {p}-sentence, {p}-swipe, {p}-dot-note|wheel, {p}-summary, {p}-uncounted, {p}-note, {p}-empty.
@@ -47,7 +48,7 @@ export default function InventFlavorProfile({ profile, title = 'Flavor profile',
         : (
           <FlavorSwipe bars={profile.bars} testidPrefix={p} />
         )}
-      {profile?.summary ? <p className="mt-2 text-[14px]" style={{ fontFamily: SANS, color: CHALK_CREAM }} data-testid={`${p}-summary`}>{profile.summary}</p> : null}
+      {bars.length === 0 && profile?.summary ? <p className="mt-2 text-[14px]" style={{ fontFamily: SANS, color: CHALK_CREAM }} data-testid={`${p}-summary`}>{profile.summary}</p> : null}
       {uncounted.length > 0 && (
         <p className="mt-1 text-[12px]" style={small} data-testid={`${p}-uncounted`}>{L.uncounted}: {uncounted.join(', ')}</p>
       )}
