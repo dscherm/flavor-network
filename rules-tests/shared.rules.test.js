@@ -186,7 +186,7 @@ describe('shareReports/{id}', () => {
     await assertSucceeds(makeReport(anon(), goodReport({ note: 'x'.repeat(300) })));
   });
   it('accepts every reason on the list', async () => {
-    for (const reason of ['offensive', 'spam', 'private', 'not-recipe', 'other']) {
+    for (const reason of ['offensive', 'spam', 'private', 'not-recipe', 'picture', 'other']) {
       await assertSucceeds(makeReport(anon(), goodReport({ reason })));
     }
   });

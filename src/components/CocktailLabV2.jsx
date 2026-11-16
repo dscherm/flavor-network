@@ -29,6 +29,7 @@ import WhatDoINeed from './WhatDoINeed.jsx';
 import { needsFromBarCoverage } from '../data/whatDoINeed.js';
 import { readSaved, withSavedCocktails } from '../data/savedInventions.js';
 import { fromSavedItem } from '../data/inventSaved.js';
+import PictureView from './PictureView.jsx';
 import useSaveInvention from '../hooks/useSaveInvention.js';
 import InventSaveOverlay from './InventSaveOverlay.jsx';
 import SavedDeleteConfirm from './SavedDeleteConfirm.jsx';
@@ -562,6 +563,7 @@ export default function CocktailLabV2({
             clusterName={familyForSelected?.name || (selectedNode?.mine ? 'Uncategorised' : undefined)}
             clusterColor={familyForSelected?.color || '#9a8f7a'}
             clusterTag={selectedNode?.mine ? 'YOURS' : (subclusterName(selectedNode?.subcluster_id, selectedNode?.subcluster_id) || familyForSelected?.signature || null)}
+            headerArt={selectedNode?.mine && selectedNode.picture ? <PictureView picture={selectedNode.picture} itemId={selectedNode.savedId} size={120} testid="yours-card-picture" /> : null}
             details={cardDetails}
             actions={cardActions}
             share={shareProp}
@@ -625,6 +627,7 @@ export default function CocktailLabV2({
           clusterName={familyForSelected?.name || (selectedNode?.mine ? 'Uncategorised' : undefined)}
           clusterColor={familyForSelected?.color || '#9a8f7a'}
           clusterTag={selectedNode?.mine ? 'YOURS' : (subclusterName(selectedNode?.subcluster_id, selectedNode?.subcluster_id) || familyForSelected?.signature || null)}
+          headerArt={selectedNode?.mine && selectedNode.picture ? <PictureView picture={selectedNode.picture} itemId={selectedNode.savedId} size={120} testid="yours-card-picture" /> : null}
           details={cardDetails}
           actions={cardActions}
             share={shareProp}

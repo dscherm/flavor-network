@@ -164,6 +164,7 @@ export function savedCocktailToCodex(item, { families, roles = {}, name = item.n
     mine: true,
     savedId: item.id,
     createdAt: item.createdAt,
+    ...(item.picture ? { picture: item.picture } : {}),
   };
 }
 
@@ -230,6 +231,7 @@ export function savedSauceToCodex(item, { clusters, catMap = null, name = item.n
     mine: true,
     savedId: item.id,
     createdAt: item.createdAt,
+    ...(item.picture ? { picture: item.picture } : {}),
   };
 }
 

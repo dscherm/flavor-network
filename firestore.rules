@@ -139,7 +139,7 @@ service cloud.firestore {
         && request.resource.data.shareId is string
         && request.resource.data.shareId.size() == 10
         && request.resource.data.shareId.matches('[a-z0-9]+')
-        && request.resource.data.reason in ['offensive', 'spam', 'private', 'not-recipe', 'other']
+        && request.resource.data.reason in ['offensive', 'spam', 'private', 'not-recipe', 'picture', 'other']
         && request.resource.data.note is string
         && request.resource.data.note.size() <= 300
         && request.resource.data.at is number

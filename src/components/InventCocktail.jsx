@@ -115,6 +115,8 @@ export default function InventCocktail({
   const [notice, setNotice] = useState(null);
   const [hintOff, setHintOff] = useState(null);
   const [saveState, setSaveState] = useState({ status: 'idle', message: '' });
+  // PICTURE-4: undefined = the cook has not touched the picture (an edited drink keeps its own); null = none; else the chooser's value.
+  const [picture, setPicture] = useState(undefined);
   const { started, categoryId, build, edited, name } = st;
   const invent = useInventUsage('cocktail', { started, categoryId, editing: !!editItem });
   const patch = (p) => setSt((s) => ({ ...s, ...p }));
@@ -234,11 +236,12 @@ export default function InventCocktail({
       category: styled ? categoryId : null,
       lines: lines.map((l) => ({ key: l.key, amount: l.amount || '', role: roleOf(l.key, roles) || null })),
       ...(styled ? { method: drink.build, glass: drink.glass } : {}),
+      ...(picture !== undefined ? { picture } : {}),
     };
     let res;
     try { res = await onSave(input); } catch { res = { status: 'error', message: 'Could not save. Try again.' }; }
-    setSaveState({ status: res?.status || 'error', message: res?.message || '' });
-    if (res?.status === 'saved') setLastSaved(input);
+    setSaveState({ status: res?.status || 'error', message: res?.message || '', pictureReason: res?.pictureReason || '' });
+    if (res?.status === 'saved') setLastSaved(picture === undefined && editItem?.picture ? { ...input, picture: editItem.picture } : input);
   };
 
   const pickerOptions = INVENT_FAMILY_ORDER.map((id) => ({
@@ -343,11 +346,12 @@ export default function InventCocktail({
               <InventNameSave name={name} onName={(t) => { patch({ name: t }); setSaveState({ status: 'idle', message: '' }); }}
                 placeholder="Name your drink" onNameCommit={invent.named} canSave={canSave} disabledReason={disabledReason} saveLabel="Add to my cocktails"
                 status={saveState.status} message={saveState.message} onSave={save} testidPrefix="invent-namesave"
+                pictureField={{ kind: 'cocktail', value: picture, onChange: setPicture, item: editItem, color: pour?.color || undefined }} pictureNote={saveState.pictureReason}
                 shareItem={lastSaved ? { kind: 'cocktail', item: lastSaved } : null} />
             )}
 
             <div className="flex flex-wrap gap-2">
-              <button type="button" onClick={() => { setSt(emptyState()); setNotice(null); setHintOff(null); setOpenPart(null); setPickerOpen(false); setSaveState({ status: 'idle', message: '' }); }}
+              <button type="button" onClick={() => { setSt(emptyState()); setPicture(undefined); setNotice(null); setHintOff(null); setOpenPart(null); setPickerOpen(false); setSaveState({ status: 'idle', message: '' }); }}
                 data-testid="invent-restart" className="px-3 py-2 rounded-lg border min-h-[44px]" style={btnStyle}>Start over</button>
               {onRiff && styled && drink && (
                 <button type="button" onClick={() => onRiff(drinkAsCocktail({ ...finalDrink, name: name.trim() || finalDrink.name }))} data-testid="invent-riff"

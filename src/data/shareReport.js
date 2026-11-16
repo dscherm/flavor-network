@@ -13,6 +13,7 @@ export const REPORT_REASONS = [
   { id: 'spam', label: 'Spam or advertising' },
   { id: 'private', label: 'Private information' },
   { id: 'not-recipe', label: 'Not a recipe' },
+  { id: 'picture', label: 'The picture' },
   { id: 'other', label: 'Something else' },
 ];
 export const NOTE_MAX = 300;

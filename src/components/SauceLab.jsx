@@ -22,6 +22,7 @@ import { blendIndex } from '../data/everydayPairs.js';
 import useEverydayPairs from '../hooks/useEverydayPairs.js';
 import { readSaved, withSavedSauces } from '../data/savedInventions.js';
 import { fromSavedItem } from '../data/inventSaved.js';
+import PictureView from './PictureView.jsx';
 import useSaveInvention from '../hooks/useSaveInvention.js';
 import InventSaveOverlay from './InventSaveOverlay.jsx';
 import SavedDeleteConfirm from './SavedDeleteConfirm.jsx';
@@ -294,6 +295,7 @@ export default function SauceLab({
             clusterName={familyForSelected?.name || (detailSauce?.mine ? 'Uncategorised' : undefined)}
             clusterColor={familyForSelected?.color || '#9a8f7a'}
             clusterTag={detailSauce?.mine ? 'YOURS' : (detailSauce?.isRoot ? 'MOTHER' : (detailSauce?.cuisine || null))}
+            headerArt={detailSauce?.mine && detailSauce.picture ? <PictureView picture={detailSauce.picture} itemId={detailSauce.savedId} size={120} testid="yours-card-picture" /> : null}
             actions={savedActions(detailSauce)}
             share={shareFor(detailSauce)}
             flavor={flavorFor(detailSauce)}
@@ -426,6 +428,7 @@ export default function SauceLab({
             clusterName={familyForSelected?.name || (s?.mine ? 'Uncategorised' : undefined)}
             clusterColor={familyForSelected?.color || '#9a8f7a'}
             clusterTag={s?.mine ? 'YOURS' : (s?.isRoot ? 'MOTHER' : (s?.cuisine || null))}
+            headerArt={s?.mine && s.picture ? <PictureView picture={s.picture} itemId={s.savedId} size={120} testid="yours-card-picture" /> : null}
             actions={savedActions(s)}
             share={shareFor(s)}
             flavor={flavorFor(s)}

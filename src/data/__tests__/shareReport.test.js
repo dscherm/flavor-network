@@ -21,7 +21,7 @@ describe('buildReport', () => {
     expect(buildReport(ID, 'spam', undefined, T).note).toBe('');
   });
   it('lists the same reasons the rules allow', () => {
-    expect(REPORT_REASONS.map((r) => r.id)).toEqual(['offensive', 'spam', 'private', 'not-recipe', 'other']);
+    expect(REPORT_REASONS.map((r) => r.id)).toEqual(['offensive', 'spam', 'private', 'not-recipe', 'picture', 'other']);
   });
 });
 

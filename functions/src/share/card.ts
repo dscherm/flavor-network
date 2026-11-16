@@ -7,6 +7,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { layoutCard, layoutSiteCard, SHARE_CHARTS_ENABLED } from './cardLayout.generated';
+import type { CardPicture } from './picture';
 
 export const CANONICAL_HOST = 'neuralflavor.web.app';
 export const FALLBACK_IMAGE = '/icons/icon-512.png';
@@ -26,6 +27,8 @@ export interface CardData {
   glass?: string;
   meta?: string;
   garnish?: string;
+  /** PICTURE-4: a checked picture (picture.ts), drawn above the tasting note. Absent: the card is exactly as before. */
+  picture?: CardPicture;
 }
 
 export interface CardDeps {
@@ -70,6 +73,7 @@ export function layoutFor(data: CardData | null, link: string) {
     recipe: {
       kind: data.kind, name: data.name, category: data.category, glass: data.glass, meta: data.meta, garnish: data.garnish,
       lines: data.lines, lineCount: data.lineCount, method: '',
+      ...(data.picture ? { picture: data.picture } : {}),
     },
     bars: SHARE_CHARTS_ENABLED ? data.bars : [],
     link,
@@ -92,6 +96,15 @@ export function toSatori(card: LayoutCard) {
       if (p.stroke) style.border = `${p.strokeWidth || 1}px solid ${p.stroke}`;
       if (p.radius) style.borderRadius = p.radius;
       return { type: 'div', props: { style } };
+    }
+    if (p.type === 'image') {
+      return {
+        type: 'img',
+        props: {
+          src: p.src, width: p.w, height: p.h,
+          style: { position: 'absolute', left: p.x, top: p.y, width: p.w, height: p.h, objectFit: p.fit || 'cover', ...(p.radius ? { borderRadius: p.radius } : {}) },
+        },
+      };
     }
     if (p.type === 'line') {
       return {

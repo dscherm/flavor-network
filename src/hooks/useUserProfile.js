@@ -3,7 +3,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase.js';
 import { saveInvention as saveInventionInto, deleteInvention as deleteInventionFrom, PROFILE_FIELD } from '../data/savedInventions.js';
 import { newItemId } from '../data/inventSaved.js';
-import { cleanPictureField, prepareItemPicture, dropPicture } from '../data/pictureStore.js';
+import { cleanPictureField, sharedPictureField, prepareItemPicture, dropPicture } from '../data/pictureStore.js';
 
 const STORAGE_KEY = 'flavor-user-profile-v2';
 
@@ -13,7 +13,7 @@ const DEFAULT_PROFILE = {
   recipes: [],
   cocktails: [],
   sauces: [],
-  shares: [], // { id, kind, sourceId, fingerprint, name, createdAt } of the cook's live public links
+  shares: [], // { id, kind, sourceId, fingerprint, name, createdAt, picture? } of the cook's live public links
   pairings: [], // { a, b } where a < b alphabetically (canonical key)
   quizAnswers: null,
 };
@@ -87,6 +87,8 @@ function cleanShares(list) {
       fingerprint: String(s.fingerprint || ''),
       name: String(s.name || '').slice(0, 80),
       createdAt: typeof s.createdAt === 'number' ? s.createdAt : 0,
+      // PICTURE-4: what the link's picture is ({ kind:'icon', icon } | { kind:'chalk' }), so its cards draw the same one later.
+      ...(sharedPictureField(s.picture) ? { picture: sharedPictureField(s.picture) } : {}),
     });
   }
   return out;

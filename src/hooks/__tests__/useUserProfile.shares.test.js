@@ -33,6 +33,15 @@ describe('profile.shares', () => {
     expect(second.result.current.profile.shares).toEqual([ENTRY]);
   });
 
+  it('keeps the picture a link was published with (a drawing or the chalk marker) across a reload, and drops anything else', () => {
+    const icon = { ...ENTRY, picture: { kind: 'icon', icon: 'glass:coupe' } };
+    const chalk = { ...ENTRY, id: 'bcdefghjkm', picture: { kind: 'chalk', v: 99, data: 'not kept' } };
+    const bad = { ...ENTRY, id: 'cdefghjkmn', picture: { kind: 'icon', icon: '<script>' } };
+    localStorage.setItem(KEY, JSON.stringify({ shares: [icon, chalk, bad] }));
+    const { result } = renderHook(() => useUserProfile());
+    expect(result.current.profile.shares).toEqual([icon, { ...ENTRY, id: 'bcdefghjkm', picture: { kind: 'chalk' } }, { ...ENTRY, id: 'cdefghjkmn' }]);
+  });
+
   it('drops malformed entries on load (a bad id never reaches Firestore calls)', () => {
     localStorage.setItem(KEY, JSON.stringify({ shares: [ENTRY, { id: '../x' }, null, 'x', { id: 'abcdefghjk', name: 'dup' }] }));
     const { result } = renderHook(() => useUserProfile());

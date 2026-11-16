@@ -864,6 +864,8 @@ export function userRecipeToSeed(recipe, idx) {
     // "shelf" distinct from the cuisine quadrants.
     position3D: [0, 12 + idx * 0.6, idx * 1.3 - 6],
     _userSaved: true,
+    // PICTURE-4: the cook's picture for it (a stored field; a chalk image is read when a card shows it).
+    ...(recipe?.picture && typeof recipe.id === 'string' ? { picture: recipe.picture, _savedId: recipe.id } : {}),
   };
 }
 

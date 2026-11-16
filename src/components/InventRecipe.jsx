@@ -107,6 +107,8 @@ export default function InventRecipe({
   const [openPart, setOpenPart] = useState(null);
   const [hintOff, setHintOff] = useState(null); // the list signature "Not now" was pressed on
   const [saveState, setSaveState] = useState({ status: 'idle', message: '' });
+  // PICTURE-4: undefined = untouched (an edited dish keeps its own); null = none; else the chooser's value.
+  const [picture, setPicture] = useState(undefined);
 
   const [state, setState] = useState(() => {
     if (editItem && Array.isArray(editItem.lines)) {
@@ -273,6 +275,7 @@ export default function InventRecipe({
   const savedInput = {
     kind: 'recipe', ...(editId ? { id: editId } : {}), name, category: typeId || null, lines: savedLines,
     ...(skeleton ? { method: skeleton.method } : {}), ...(cuisine ? { cuisine } : {}),
+    ...(picture !== undefined ? { picture } : {}),
   };
   const check = toSavedItem(savedInput);
   const [lastSaved, setLastSaved] = useState(null);
@@ -281,8 +284,8 @@ export default function InventRecipe({
     setSaveState({ status: 'saving', message: '' });
     try {
       const res = await onSave(savedInput);
-      setSaveState({ status: res?.status || 'saved', message: res?.message || '' });
-      if ((res?.status || 'saved') === 'saved') setLastSaved(savedInput);
+      setSaveState({ status: res?.status || 'saved', message: res?.message || '', pictureReason: res?.pictureReason || '' });
+      if ((res?.status || 'saved') === 'saved') setLastSaved(picture === undefined && editItem?.picture ? { ...savedInput, picture: editItem.picture } : savedInput);
     } catch (e) {
       setSaveState({ status: 'error', message: 'Could not save. Try again.' });
     }
@@ -424,12 +427,13 @@ export default function InventRecipe({
               <InventNameSave testidPrefix="invent-recipe-namesave" name={name} placeholder="Name your dish" saveLabel="Add to my recipes"
                 canSave={check.ok} disabledReason={check.ok ? undefined : check.reason}
                 status={saveState.status} message={saveState.message}
+                pictureField={{ kind: 'dish', value: picture, onChange: setPicture, item: editItem }} pictureNote={saveState.pictureReason}
                 shareItem={lastSaved ? { kind: 'recipe', item: lastSaved } : null}
                 onNameCommit={invent.named} onName={(t) => { setSaveState({ status: 'idle', message: '' }); patch({ name: t }); }} onSave={save} />
             )}
 
             <div className="flex flex-wrap gap-2">
-              <button type="button" onClick={() => { setState(fresh()); reset(); }} data-testid="invent-recipe-restart"
+              <button type="button" onClick={() => { setState(fresh()); setPicture(undefined); reset(); }} data-testid="invent-recipe-restart"
                 className={`px-3 py-2 rounded-lg border min-h-[44px] ${FOCUS}`} style={btn}>
                 Start over
               </button>

@@ -15,6 +15,10 @@
  *   recipe  { kind, name, lines: [{ amount, label?, key, suggested? }], method, glass?, garnish?,
  *             category?, meta?, lineCount? }   lineCount = the real number of ingredients when
  *             `lines` was cut short (the server keeps only the first few)
+ *   picture (PICTURE-4, optional on recipe) { src, w?, h?, kind?: 'chalk'|'icon' }  src = a data: URI (the chalk picture, or a drawing as SVG);
+ *           a recipe without one is laid out exactly as before. Where it goes: link preview, in the right column above the
+ *           tasting note; portrait and tall, in the space a short recipe leaves empty (a small corner picture beside the name
+ *           when there is none); set of three, above the name on card 1 when there is room.
  *   bars    [{ label, color, score 0..1 }] strongest first, or null/[] for "no profile data"
  *           (the chart is then omitted, never drawn empty)
  *   link    the short link as printed text, e.g. "neuralflavor.web.app/r/cocktail/negroni"
@@ -29,6 +33,7 @@
  *   { type: 'text', x, y, w, h, text, size, weight, color, font: 'hand'|'sans', align: 'left'|'center'|'right', runs? }
  *     `runs` (the tasting note only): [{ text, underline?: colour }] pieces of `text`, in order; the renderer draws them
  *     inline and underlines those with a colour. A renderer that ignores `runs` draws `text` plain.
+ *   { type: 'image', x, y, w, h, src, fit: 'cover'|'contain', radius? }   a picture (PICTURE-4); src is a data: URI
  *   { type: 'wedge', cx, cy, r0, r1, a0, a1, fill }   a ring sector, angles in degrees (-90 = top, clockwise)
  *     one line of text per primitive; (x, y, w, h) is its box, h = the line height. Layout has
  *     already wrapped, shrunk and truncated: renderers never measure or wrap.
@@ -303,6 +308,35 @@ function shift(prims, from, dy) {
   }
 }
 
+// ---- the recipe's picture (PICTURE-4) -------------------------------------------------------------------
+/** The picture to draw, or null: a data: URI is required, anything else is ignored. */
+function pictureOf(recipe) {
+  const p = recipe && recipe.picture;
+  if (!p || typeof p.src !== 'string' || !p.src.startsWith('data:')) return null;
+  const w = Number.isFinite(p.w) && p.w > 0 ? p.w : 1;
+  const h = Number.isFinite(p.h) && p.h > 0 ? p.h : 1;
+  return { src: p.src, ratio: Math.min(2, Math.max(0.5, w / h)), icon: p.kind === 'icon' };
+}
+
+/** A picture box inside a maxW x maxH area, keeping the picture's shape. */
+function pictureBox(pic, maxW, maxH) {
+  let w = Math.min(maxW, maxH * pic.ratio);
+  let h = w / pic.ratio;
+  if (h > maxH) { h = maxH; w = h * pic.ratio; }
+  return { w: Math.round(w), h: Math.round(h) };
+}
+
+/**
+ * The picture as primitives: a thin chalk frame, then the image inside it. A chalk picture fills the frame
+ * (the frame IS its edge); a drawing sits inset with room around it.
+ */
+function picturePrims(prims, pic, x, y, w, h) {
+  const inset = pic.icon ? Math.round(Math.min(w, h) * 0.08) : 0;
+  prims.push({ type: 'rect', x, y, w, h, fill: pic.icon ? 'rgba(255,255,255,0.04)' : PALETTE.mid, radius: 14 });
+  prims.push({ type: 'image', x: x + inset, y: y + inset, w: w - 2 * inset, h: h - 2 * inset, src: pic.src, fit: pic.icon ? 'contain' : 'cover', radius: pic.icon ? 0 : 14 });
+  prims.push({ type: 'rect', x, y, w, h, stroke: PALETTE.rail, strokeWidth: 3, radius: 14 });
+}
+
 /** Ingredient rows (amount column + name) into [y, yMax]. Ends with "+N more at the link" when it cannot fit all. */
 function ingredientRows(fr, y, yMax, recipe, { x, w, size, row, amountW }) {
   const lines = cleanLines(recipe);
@@ -405,14 +439,82 @@ function previewNoChart(fr, r, sub, footerTop) {
 }
 
 // ---- the three single cards ------------------------------------------------------------------------
-export function layoutCard({ format = 'portrait', recipe, bars, link = '', page = '' }) {
+/** Link preview with a picture: header and ingredients on the left, the picture above the tasting note on the right. */
+function previewWithPicture(fr, r, bars, sub, footerTop, pic) {
+  const w = fr.x1 - fr.x0;
+  const colW = Math.round(w * 0.52);
+  const left = { ...fr, x1: fr.x0 + colW };
+  let y = header(left, r, { nameSize: 92 });
+  if (sub) y += text(fr.prims, { x: fr.x0, y: y + 2, w: colW, text: ellipsize(sub, 24, {}, colW), size: 24, color: PALETTE.dim }) + 6;
+  y += 10;
+  ingredientRows(fr, y, footerTop - 8, r, { x: fr.x0, w: colW, size: 28, row: 38, amountW: 215 });
+  const cx = fr.x0 + colW + 48;
+  const cw = fr.x1 - cx;
+  const top = fr.top + 14;
+  const avail = footerTop - 8 - top;
+  const GAP = 22;
+  const MIN = 150;
+  let b = null;
+  // The note keeps its size when the picture can still be MIN tall; otherwise it tightens before the picture shrinks.
+  for (const [size, maxLines] of [[40, 4], [34, 3], [30, 3]]) {
+    b = noteBlock(bars, { x: cx, w: cw, size, maxLines, strip: { labelW: 92, h: 14, label: 20, gap: 12 }, caption: 24 });
+    if (!b || b.height + GAP + MIN <= avail) break;
+  }
+  const noteH = b ? b.height + GAP : 0;
+  const box = pictureBox(pic, cw, Math.min(300, avail - noteH));
+  const groupH = box.h + noteH;
+  const gy = Math.max(top, Math.round(top + (avail - groupH) / 2));
+  picturePrims(fr.prims, pic, Math.round(cx + (cw - box.w) / 2), gy, box.w, box.h);
+  if (b) place(fr, b, gy + box.h + GAP);
+  return fr;
+}
+
+/**
+ * Portrait and tall: name, ingredients, chart. With a picture: a short recipe leaves free room, and the picture
+ * takes it (centred above the ingredients); when there is no such room it is a small picture beside the name.
+ * `opt.inflow` { w, h } / `opt.thumb` { size } are what `layoutCard` decided after a dry run with neither.
+ */
+function singleCard(format, r, bars, link, page, opt = {}) {
   const fr = frame(format);
-  const r = recipe || { name: '', lines: [], method: '' };
   const w = fr.x1 - fr.x0;
   const footerTop = footer(fr, link, page);
   const sub = subline(r);
+  const tall = format === 'tall';
+  const thumb = opt.thumb || null;
+  const hr = thumb ? { ...fr, x1: fr.x1 - thumb.size - 28 } : fr;
+  let y = header(hr, r, { nameSize: tall ? 128 : 118 });
+  if (sub) y += text(fr.prims, { x: fr.x0, y: y + 4, w: thumb ? hr.x1 - fr.x0 : w, text: ellipsize(sub, 30, {}, thumb ? hr.x1 - fr.x0 : w), size: 30, color: PALETTE.dim }) + 10;
+  y += 14;
+  if (thumb) {
+    picturePrims(fr.prims, opt.pic, fr.x1 - thumb.size, fr.top + 4, thumb.size, thumb.size);
+    y = Math.max(y, fr.top + 4 + thumb.size + 18);
+  }
+  const blk = noteBlock(bars, { x: fr.x0, w, size: tall ? 56 : 52, maxLines: 3, strip: { labelW: 120, h: tall ? 20 : 18, label: tall ? 26 : 24, gap: 14 }, caption: 30 });
+  const row = tall ? 52 : 46;
+  const gap = blk ? 36 : 0;
+  const from = fr.prims.length;
+  if (opt.inflow) {
+    picturePrims(fr.prims, opt.pic, Math.round(fr.x0 + (w - opt.inflow.w) / 2), y, opt.inflow.w, opt.inflow.h);
+    y += opt.inflow.h + 26;
+  }
+  let end = ingredientRows(fr, y, footerTop - (blk ? blk.height : 0) - gap - 8, r, { x: fr.x0, w, size: tall ? 36 : 34, row, amountW: 260 });
+  if (blk) { place(fr, blk, end + gap); end += gap + blk.height; }
+  // A short recipe leaves a gap: centre the ingredients and chart in the free space instead of hugging the top.
+  const free = footerTop - 8 - end;
+  if (free > 60) shift(fr.prims, from, Math.round(free * 0.4));
+  return { fr, free };
+}
+
+export function layoutCard({ format = 'portrait', recipe, bars, link = '', page = '' }) {
+  const fr = frame(format);
+  const r = recipe || { name: '', lines: [], method: '' };
+  const pic = pictureOf(r);
 
   if (format === 'preview') {
+    const footerTop = footer(fr, link, page);
+    const sub = subline(r);
+    if (pic) return finish(`${format}`, previewWithPicture(fr, r, bars, sub, footerTop, pic));
+    const w = fr.x1 - fr.x0;
     if (!flavorNote(bars).text) return finish(`${format}`, previewNoChart(fr, r, sub, footerTop));
     const colW = Math.round(w * 0.52);
     const left = { ...fr, x1: fr.x0 + colW };
@@ -429,20 +531,16 @@ export function layoutCard({ format = 'portrait', recipe, bars, link = '', page 
   }
 
   // portrait and tall: one card with name, ingredients, chart
-  const tall = format === 'tall';
-  let y = header(fr, r, { nameSize: tall ? 128 : 118 });
-  if (sub) y += text(fr.prims, { x: fr.x0, y: y + 4, w, text: ellipsize(sub, 30, {}, w), size: 30, color: PALETTE.dim }) + 10;
-  y += 14;
-  const blk = noteBlock(bars, { x: fr.x0, w, size: tall ? 56 : 52, maxLines: 3, strip: { labelW: 120, h: tall ? 20 : 18, label: tall ? 26 : 24, gap: 14 }, caption: 30 });
-  const row = tall ? 52 : 46;
-  const gap = blk ? 36 : 0;
-  const from = fr.prims.length;
-  let end = ingredientRows(fr, y, footerTop - (blk ? blk.height : 0) - gap - 8, r, { x: fr.x0, w, size: tall ? 36 : 34, row, amountW: 260 });
-  if (blk) { place(fr, blk, end + gap); end += gap + blk.height; }
-  // A short recipe leaves a gap: centre the ingredients and chart in the free space instead of hugging the top.
-  const free = footerTop - 8 - end;
-  if (free > 60) shift(fr.prims, from, Math.round(free * 0.4));
-  return finish(format, fr);
+  if (!pic) return finish(format, singleCard(format, r, bars, link, page).fr);
+  const dry = singleCard(format, r, bars, link, page).free;
+  const maxH = format === 'tall' ? 520 : 440;
+  const w = FORMATS[format].width - 2 * (format === 'preview' ? 48 : 72);
+  const room = dry - 26 - 8;
+  if (room >= 200) {
+    const box = pictureBox(pic, w, Math.min(maxH, room));
+    return finish(format, singleCard(format, r, bars, link, page, { pic, inflow: box }).fr);
+  }
+  return finish(format, singleCard(format, r, bars, link, page, { pic, thumb: { size: format === 'tall' ? 190 : 170 } }).fr);
 }
 
 // ---- the set of three ---------------------------------------------------------------------------------
@@ -464,9 +562,18 @@ export function layoutSet({ format = 'portrait', recipe, bars, link = '' }) {
   // The wheel takes what the text leaves: its radius shrinks (down to 100) rather than run into the footer.
   const head = labelSize * 1.3 + 8 + nameBlock + (info ? 52 : 0);
   const room = aFoot - a.top - 40 - head - (blk ? blk.height + 44 : 0);
-  const R = blk ? Math.max(100, Math.min(tall ? 210 : 190, Math.floor((room - 146) / 2))) : 0;
-  const blockH = head + (blk ? 14 + blk.height + 30 + 2 * R + 146 : 0);
+  // A picture goes above the label and takes only what the wheel can spare (the wheel keeps a radius of at least 130 with one).
+  const pic = pictureOf(r);
+  const spare = room - (blk ? 146 + 2 * 130 : 0) - 28;
+  const picBox = pic && spare >= 150 ? pictureBox(pic, w, Math.min(tall ? 400 : 330, spare)) : null;
+  const picH = picBox ? picBox.h + 28 : 0;
+  const R = blk ? Math.max(100, Math.min(tall ? 210 : 190, Math.floor((room - picH - 146) / 2))) : 0;
+  const blockH = picH + head + (blk ? 14 + blk.height + 30 + 2 * R + 146 : 0);
   let y = Math.max(a.top + 20, Math.round((a.top + aFoot - blockH) / 2));
+  if (picBox) {
+    picturePrims(a.prims, pic, Math.round(a.x0 + (w - picBox.w) / 2), y, picBox.w, picBox.h);
+    y += picH;
+  }
   y += text(a.prims, { x: a.x0, y, w, text: ellipsize(kindLabel(r).toUpperCase(), labelSize, {}, w), size: labelSize, weight: 600, color: PALETTE.sub, align: 'center', lh: 1.3 }) + 8;
   names.lines.forEach((ln) => { y += text(a.prims, { x: a.x0, y, w, text: ln, size: names.size, weight: 700, font: 'hand', color: PALETTE.cream, align: 'center', lh: 1.05 }); });
   if (info) y += text(a.prims, { x: a.x0, y: y + 10, w, text: ellipsize(info, 30, {}, w), size: 30, color: PALETTE.dim, align: 'center' }) + 42;
@@ -483,6 +590,15 @@ export function layoutSet({ format = 'portrait', recipe, bars, link = '' }) {
   by += text(b.prims, { x: b.x0, y: by, w, text: 'Ingredients', size: 96, weight: 700, font: 'hand', color: PALETTE.cream, lh: 1.05 }) + 16;
   const end = ingredientRows(b, by, bFoot - (r.garnish ? 70 : 12), r, { x: b.x0, w, size: 40, row: 62, amountW: 320 });
   if (r.garnish) text(b.prims, { x: b.x0, y: Math.min(end + 14, bFoot - 56), w, text: ellipsize(`Garnish: ${r.garnish}`, 32, {}, w), size: 32, color: PALETTE.dim });
+  // A picture that had no room on the cover takes what a short ingredient list leaves empty here.
+  if (pic && !picBox) {
+    const below = Math.min(end + (r.garnish ? 70 : 0) + 30, bFoot - 8);
+    const room2 = bFoot - 14 - below;
+    if (room2 >= 220) {
+      const box2 = pictureBox(pic, w, Math.min(tall ? 520 : 440, room2));
+      picturePrims(b.prims, pic, Math.round(b.x0 + (w - box2.w) / 2), below + Math.round((room2 - box2.h) / 2), box2.w, box2.h);
+    }
+  }
 
   // 3: method
   const c = frame(format);

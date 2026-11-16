@@ -75,14 +75,14 @@ export function toCanvas({ data, width, height }) {
 const toBlob = (canvas, type, quality) => new Promise((resolve) => canvas.toBlob(resolve, type, quality));
 
 /**
- * Re-encode a chalk canvas at 600 px on the long side, WebP (JPEG where WebP is not
- * supported), stepping quality down until it is under 150 KB. The picture is redrawn from
+ * Re-encode a chalk canvas at 600 px on the long side as JPEG, stepping quality down until it is
+ * under 150 KB. JPEG, not WebP, because the share-card function draws the picture with resvg, which
+ * does not decode WebP (PICTURE-4); every browser encodes JPEG. The picture is redrawn from
  * pixels, so no metadata from the original photo file can be carried into it.
  * @returns {Promise<{blob: Blob, mime: string, w: number, h: number, bytes: number}>}
  */
 export async function encodeChalk(canvas, { maxBytes = STORE_BYTES, side = STORE_SIDE } = {}) {
-  const probe = await toBlob(canvas, 'image/webp', 0.5);
-  const type = probe && probe.type === 'image/webp' ? 'image/webp' : 'image/jpeg';
+  const type = 'image/jpeg';
   const encodeAt = (w, h, q) => {
     const small = document.createElement('canvas');
     small.width = w; small.height = h;

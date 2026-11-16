@@ -19,6 +19,14 @@ const shared = createSharedLookup(async (id) => {
   if (getApps().length === 0) initializeApp();
   const snap = await getFirestore().collection('shared').doc(id).get();
   return snap.exists ? snap.data() : null;
+}, {
+  // The chalk picture of a share (the card draws it). Only read for a share that is live and declares one; validated in picture.ts.
+  readPicture: async (id) => {
+    if (getApps().length === 0) initializeApp();
+    const snap = await getFirestore().collection('sharedPictures').doc(id).get();
+    return snap.exists ? snap.data() : null;
+  },
+  log: (message, fields) => logger.warn(message, fields),
 });
 
 // /index.html is served statically by Hosting (the rewrite covers only /r/**), so this cannot loop.

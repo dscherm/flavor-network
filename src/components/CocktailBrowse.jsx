@@ -9,6 +9,7 @@ import { subclusterName } from '../data/cocktailSubclusters.js';
 import { deriveFacets, matchesFacetFilter, loadFacetContext, FACET_GROUPS } from '../data/cocktailFacets.js';
 import { glassMark, glassTypeFor } from './cocktailGlasses.jsx';
 import { UNCATEGORISED } from '../data/savedInventions.js';
+import PictureView from './PictureView.jsx';
 
 // The 2D cocktail list IS a bar menu, so it's drawn as colored chalk on
 // slate (shared kitchen-world DNA, see chalkTheme.js). Caveat carries
@@ -457,9 +458,13 @@ export default function CocktailBrowse({
             : `0 0 10px ${fam.color}55, 0 2px 6px rgba(0,0,0,0.35)`,
         }}
       >
-        <svg width="15" height="22" viewBox="0 20 52 88" aria-hidden="true" className="flex-shrink-0">
-          {glassMark(famGlassType, 26, fam.color, fam.color, true)}
-        </svg>
+        {c.mine && c.picture ? (
+          <PictureView picture={c.picture} itemId={c.savedId} size={40} testid="yours-row-picture" />
+        ) : (
+          <svg width="15" height="22" viewBox="0 20 52 88" aria-hidden="true" className="flex-shrink-0">
+            {glassMark(famGlassType, 26, fam.color, fam.color, true)}
+          </svg>
+        )}
         <span className="flex-1 min-w-0">
           <span className="block truncate text-[20px]" style={{ fontFamily: FONT, color: isSelected ? CHALK_CREAM : popColor(fam.color), textShadow: `0 0 6px ${fam.color}66, ${CHALK_SHADOW}` }}>{c.name}</span>
           {searchHits?.get(c.name)?.length > 0 && (

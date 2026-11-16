@@ -83,6 +83,7 @@ export function fromSavedItem(item) {
       ...(it.protein ? { protein: it.protein } : {}),
       ...(it.method ? { method: it.method } : {}),
     },
+    ...(cleanPictureField(it.picture) ? { picture: cleanPictureField(it.picture) } : {}),
     lines: cleanLines(it.lines).map((l) => ({ ...l, source: 'user' })),
   };
 }

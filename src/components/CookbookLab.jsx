@@ -27,6 +27,7 @@ import { mainsOf, categoryLookup } from '../data/recipeMains.js';
 import { resolveIngredientName } from '../data/recipePairingMatch.js';
 import ProfileAxisRadar from './ProfileAxisRadar.jsx';
 import { DishArt, IngredientGlyph, LabArt } from './chalkArt.jsx';
+import PictureView from './PictureView.jsx';
 import { SEED_RECIPES, CUISINE_COLOR, userRecipeToSeed } from '../data/seedRecipes.js';
 import { getRecipeDetails } from '../data/seedRecipeDetails.js';
 import { shareLinkFor, normaliseBuiltIn, fromOwnItem } from '../data/sharedRecipe.js';
@@ -120,7 +121,7 @@ function RecipeCard({ recipe, onClick }) {
         style={{ ...chalkSurfaceStyle(), width: 84, height: 84, border: `1.5px solid ${color}88`, boxShadow: 'inset 0 0 8px rgba(0,0,0,0.6)' }}
         aria-hidden="true"
       >
-        <DishArt kind={kind} accent={color} size={66} />
+        {recipe._userSaved && recipe.picture ? <PictureView picture={recipe.picture} itemId={recipe._savedId} size={66} color={color} testid="yours-row-picture" /> : <DishArt kind={kind} accent={color} size={66} />}
       </span>
       <span className="min-w-0 flex-1">
         <span className="block text-[22px] leading-tight" style={{ fontFamily: FONT, color: CARD_INK }}>{recipe.name}</span>
@@ -232,7 +233,7 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
       >
         {/* 1 — title, dish drawing, meta as icon + number */}
         <div className="flex items-start gap-3 p-4 pb-3" style={{ borderBottom: `1.5px solid ${color}55` }} data-testid="recipe-head">
-          <DishArt kind={kind} accent={color} size={76} />
+          {recipe._userSaved && recipe.picture ? <PictureView picture={recipe.picture} itemId={recipe._savedId} size={96} color={color} testid="yours-detail-picture" /> : <DishArt kind={kind} accent={color} size={76} />}
           <div className="min-w-0 flex-1">
             <h2 className="text-[32px] leading-none mb-1.5" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>{recipe.name}</h2>
             <span

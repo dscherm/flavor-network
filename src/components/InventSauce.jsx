@@ -147,6 +147,8 @@ export default function InventSauce({
   const [dismissedFor, setDismissedFor] = useState(null);
   const [notice, setNotice] = useState(() => (init.build.rejected.length ? init.build.rejected.map((r) => r.reason).join(' ') : null));
   const [save, setSave] = useState({ status: 'idle', message: '' });
+  // PICTURE-4: undefined = untouched (an edited sauce keeps its own); null = none; else the chooser's value.
+  const [picture, setPicture] = useState(undefined);
 
   const keys = buildKeys(build);
   const keysId = keys.join('|');
@@ -245,19 +247,20 @@ export default function InventSauce({
   const startOver = () => {
     setBuild(openBuild({ lab: 'sauce' }));
     setStyleId(null); setProtein(null); setEdits({}); setName(''); setPantryOnly(false);
-    setPickerOpen(false); setOpenPart(null); setDismissedFor(null); setNotice(null); setSave({ status: 'idle', message: '' });
+    setPickerOpen(false); setOpenPart(null); setDismissedFor(null); setNotice(null); setSave({ status: 'idle', message: '' }); setPicture(undefined);
   };
   const [lastSaved, setLastSaved] = useState(null);
   const doSave = async () => {
     const input = {
       kind: 'sauce', ...(editItem?.id ? { id: editItem.id } : {}), name: name.trim(), category: styleId || null, lines: savedLines,
       ...(sauce?.method ? { method: sauce.method } : {}), ...(protein ? { protein } : {}),
+      ...(picture !== undefined ? { picture } : {}),
     };
     setSave({ status: 'saving', message: '' });
     try {
       const res = await onSave(input);
-      setSave({ status: res?.status || 'saved', message: res?.message || '' });
-      if ((res?.status || 'saved') === 'saved') setLastSaved(input);
+      setSave({ status: res?.status || 'saved', message: res?.message || '', pictureReason: res?.pictureReason || '' });
+      if ((res?.status || 'saved') === 'saved') setLastSaved(picture === undefined && editItem?.picture ? { ...input, picture: editItem.picture } : input);
     } catch (err) {
       setSave({ status: 'error', message: err?.message || 'Could not save.' });
     }
@@ -413,6 +416,7 @@ export default function InventSauce({
               <InventNameSave testidPrefix={`${P}-namesave`} name={name} onName={setName} onNameCommit={invent.named} placeholder="Name your sauce"
                 canSave={savePreview.ok} disabledReason={savePreview.ok ? '' : savePreview.reason}
                 saveLabel="Add to my sauces" status={save.status} message={save.message} onSave={doSave}
+                pictureField={{ kind: 'sauce', value: picture, onChange: setPicture, item: editItem }} pictureNote={save.pictureReason}
                 shareItem={lastSaved ? { kind: 'sauce', item: lastSaved } : null} />
             )}
 

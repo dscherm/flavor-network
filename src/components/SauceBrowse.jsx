@@ -6,6 +6,7 @@ import {
 import { parseQuery, matchItem, buildIngredientVocab } from '../data/ingredientSearch.js';
 import { popColor, sauceVesselFor, vesselMark } from './sauceVessels.jsx';
 import { UNCATEGORISED } from '../data/savedInventions.js';
+import PictureView from './PictureView.jsx';
 
 /**
  * SauceBrowse — 2D selection surface for the Sauce Lab, drawn as a bistro
@@ -196,9 +197,13 @@ export default function SauceBrowse({
             : `0 0 10px ${fam.color}55, 0 2px 6px rgba(0,0,0,0.35)`,
         }}
       >
-        <svg width="22" height="18" viewBox="-8 6 80 66" aria-hidden="true" className="flex-shrink-0">
-          {vesselMark(famVessel, 32, 58, fam.color, fam.color, true)}
-        </svg>
+        {s.mine && s.picture ? (
+          <PictureView picture={s.picture} itemId={s.savedId} size={40} testid="yours-row-picture" />
+        ) : (
+          <svg width="22" height="18" viewBox="-8 6 80 66" aria-hidden="true" className="flex-shrink-0">
+            {vesselMark(famVessel, 32, 58, fam.color, fam.color, true)}
+          </svg>
+        )}
         <span className="flex-1 min-w-0">
           <span className="block truncate text-[20px]" style={{ fontFamily: FONT, color: isSelected ? CHALK_CREAM : popColor(fam.color), textShadow: `0 0 6px ${fam.color}66, ${CHALK_SHADOW}` }}>{s.name}</span>
           {searchHits?.get(s.name)?.length > 0 && (

@@ -7,6 +7,7 @@
  *                anything else renders nothing
  *   recipe       optional full normalised recipe ({ kind, name, lines, method, ... }); loaded from `link` when absent
  *   bars         optional ready-made chart bars (a user's published copy stores its own); else worked out from `nodes`
+ *   picture      optional { src, w, h, kind } (PICTURE-4, from useCardPicture): the recipe's picture, drawn on the cards; absent: no picture
  *   nodes        optional Map of flavor values; when absent only an already-cached copy is used (never a new
  *                download), and the cards are drawn without the chart if there is none
  *   origin       defaults to window.location.origin
@@ -45,7 +46,7 @@ function Choice({ legend, options, value, onChange, testid }) {
   );
 }
 
-export default function ShareImages({ link = '', recipe: given = null, bars: givenBars = null, nodes: givenNodes, origin, loadData = defaultLoadData, loadNodes = loadLabelNodes, renderFiles = defaultRenderFiles }) {
+export default function ShareImages({ link = '', recipe: given = null, bars: givenBars = null, picture = null, nodes: givenNodes, origin, loadData = defaultLoadData, loadNodes = loadLabelNodes, renderFiles = defaultRenderFiles }) {
   const route = useMemo(() => parseSharePath(link), [link]);
   const builtIn = route && route.kind && route.slug ? route : null;
   // A user's own published copy (/r/<id>) is drawn from the recipe passed in; there is nothing to load for it.
@@ -92,11 +93,11 @@ export default function ShareImages({ link = '', recipe: given = null, bars: giv
     let live = true;
     setFiles(null); setError(''); setNote('');
     Promise.resolve()
-      .then(() => renderFiles({ recipe, bars: !SHARE_CHARTS_ENABLED ? [] : Array.isArray(givenBars) ? givenBars : barsFor(recipe, nodes), link: printed, count, format, slug: target.slug }))
+      .then(() => renderFiles({ recipe: picture ? { ...recipe, picture } : recipe, bars: !SHARE_CHARTS_ENABLED ? [] : Array.isArray(givenBars) ? givenBars : barsFor(recipe, nodes), link: printed, count, format, slug: target.slug }))
       .then((f) => { if (live) setFiles(f); })
       .catch(() => { if (live) setError('Could not draw the pictures. The link still works.'); });
     return () => { live = false; };
-  }, [recipe, nodes, givenBars, printed, count, format, target, renderFiles]);
+  }, [recipe, picture, nodes, givenBars, printed, count, format, target, renderFiles]);
 
   useEffect(() => () => { urlsRef.current.forEach((u) => URL.revokeObjectURL(u)); urlsRef.current = []; }, []);
 

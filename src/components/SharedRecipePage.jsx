@@ -24,6 +24,7 @@ import InventFlavorProfile from './InventFlavorProfile.jsx';
 import InventSaveOverlay from './InventSaveOverlay.jsx';
 import { ShareButton } from './ShareSheet.jsx';
 import ShareImages from './ShareImages.jsx';
+import PictureView, { useCardPicture } from './PictureView.jsx';
 import ShareReport from './ShareReport.jsx';
 import FeedbackButton from './FeedbackButton.jsx';
 import useAuth from '../hooks/useAuth.js';
@@ -64,6 +65,7 @@ function RecipeActions({ recipe, nodes, navigate }) {
     kind: savedKindFor(recipe.kind), userProfile, auth,
     onSaved: () => usage.sharedSaved({ kind: recipe.kind, origin: usageSource }),
   });
+  const cardPicture = useCardPicture({ picture: recipe.picture, shareId: recipe.shareId });
   const sharedFrom = sharedFromFor(recipe);
   const shareLink = recipe.shareId ? `/r/${recipe.shareId}` : `/r/${recipe.kind}/${recipe.slug}`;
   const noun = savedNoun(recipe.kind);
@@ -150,7 +152,7 @@ function RecipeActions({ recipe, nodes, navigate }) {
         Make it your own
       </button>
       <ShareButton recipe={recipe} link={shareLink}
-        imagesSlot={<ShareImages link={shareLink} recipe={recipe} nodes={nodes} />} />
+        imagesSlot={<ShareImages link={shareLink} recipe={recipe} nodes={nodes} picture={cardPicture} />} />
       {note && (
         <p role="status" data-testid="shared-save-note" data-status={note.status} className="basis-full text-[14px]"
           style={{ fontFamily: SANS, color: note.status === 'error' ? '#fda4af' : CHALK_DIM }}>{note.message}</p>
@@ -274,6 +276,11 @@ export default function SharedRecipePage({ route, loadData = defaultLoadData, lo
               {KIND_WORD[recipe.kind]}{recipe.category ? ` · ${recipe.category}` : ''}
             </p>
             <h1 data-testid="shared-name" className="break-words" style={{ fontFamily: FONT, fontSize: 40, lineHeight: 1.1, color: CHALK_CREAM }}>{recipe.name}</h1>
+            {recipe.picture ? (
+              <div className="mt-3" data-testid="shared-picture">
+                <PictureView picture={recipe.picture} shareId={recipe.shareId} size={200} alt={`A picture of ${recipe.name}`} testid="shared-picture-view" />
+              </div>
+            ) : null}
             {recipe.by ? <p data-testid="shared-by" className="mt-1 text-[14px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>Shared by {recipe.by}</p> : null}
             {recipe.meta ? <p className="mt-1 text-[14px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>{recipe.meta}</p> : null}
             {recipe.glass ? (

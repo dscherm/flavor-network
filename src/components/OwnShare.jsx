@@ -10,22 +10,30 @@
  *                   Renders nothing while SHARE_OWN_ENABLED is false.
  * The sheet has three states: signed out (sign-in first), review + name choice + Create link, and then the
  * normal share actions for /r/<id>. An item whose content is unchanged since it was shared reuses its link.
- * Test ids: own-share-button, own-signin, own-signin-google, own-signin-apple, own-preview, own-preview-name,
+ * PICTURE-4: the review step carries a picture choice for THIS link (PictureField; starts as the item's own picture, and
+ * nothing about it is public before Create link), and the preview shows it. A link keeps the picture it was published with
+ * (profile.shares[].picture), so its cards draw that one. A picture that could not be stored is one line (own-picture-note);
+ * the link is made without it.
+ * Test ids: own-picture, own-preview-picture, own-picture-note, own-share-button, own-signin, own-signin-google, own-signin-apple, own-preview, own-preview-name,
  *   own-preview-line, own-preview-method, own-by-none, own-by-first, own-by-nick, own-nick-input, own-by-shown,
  *   own-create, own-status, own-live.
  */
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { ShareOwnContext } from './shareOwnContext.js';
 import { ShareSheet } from './ShareSheet.jsx';
 import ShareImages from './ShareImages.jsx';
 import { SHARE_OWN_ENABLED } from '../data/shareTargets.js';
 import { SHARE_LIMITS, firstName, fromSharedDoc, newShareId, shareFingerprint, toSharedDoc } from '../data/sharePublish.js';
-import { publishShare } from '../data/shareStore.js';
+import { publishShare, publishShareWithPicture } from '../data/shareStore.js';
+import PictureField from './PictureField.jsx';
+import PictureView, { blobFromStored, useCardPicture } from './PictureView.jsx';
+import { sharedPictureField } from '../data/pictureField.js';
 import { barsFor } from '../data/shareCardData.js';
 import { loadLabelNodes } from '../data/sharedLoaders.js';
 import { usage } from '../data/usageEvents.js';
 import { SANS, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT, btn, heading, inputStyle } from './inventUi.jsx';
 
-export const ShareOwnContext = createContext(null);
+export { ShareOwnContext };
 
 const tap = { minHeight: 44 };
 const PAGE_KIND = { cocktail: 'cocktail', sauce: 'sauce', recipe: 'dish' };
@@ -65,12 +73,13 @@ function SignIn({ auth }) {
   );
 }
 
-function Preview({ doc }) {
+function Preview({ doc, picture }) {
   return (
     <section data-testid="own-preview" aria-label="What will be public" className="mt-3 rounded-lg p-3 min-w-0"
       style={{ border: `1px solid ${CHALK_RAIL}`, background: 'rgba(255,255,255,0.03)' }}>
       <p className="text-[13px] uppercase tracking-wide" style={{ fontFamily: SANS, color: CHALK_SUB }}>This will be public</p>
       <p data-testid="own-preview-name" className="break-words" style={{ ...heading, fontSize: 24 }}>{doc.name}</p>
+      {picture ? <div className="my-2" data-testid="own-preview-picture">{picture}</div> : null}
       <ul className="mt-1 overflow-y-auto" style={{ maxHeight: 160 }} role="list">
         {doc.lines.map((l, i) => (
           <li key={`${l.key}-${i}`} data-testid="own-preview-line" className="flex gap-2 py-0.5 min-w-0 text-[15px]" style={{ fontFamily: SANS }}>
@@ -112,17 +121,33 @@ function NameChoice({ choice, onChoice, nick, onNick, first }) {
   );
 }
 
+/** The item's own chalk picture as a chooser value: straight from the invention just saved, or read from the account. */
+async function ownChalkValue(item, uid, getDb) {
+  if (item.picture?.blob) return item.picture;
+  if (!item.id || !uid) return null;
+  const [{ loadPicture }, db] = await Promise.all([import('../data/pictureStore.js'), getDb()]);
+  const p = await loadPicture(db, uid, item.id);
+  return p ? { kind: 'chalk', blob: blobFromStored(p), mime: p.mime, w: p.w, h: p.h } : null;
+}
+
 function PublishStep({ kind, item, ctx, onPublished, getDb }) {
   const { auth, userProfile } = ctx;
   const [choice, setChoice] = useState('none');
   const [nick, setNick] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  // undefined = the item's own picture; null = none for this link; else the chooser's value.
+  const [picture, setPicture] = useState(undefined);
   const first = firstName(auth?.user?.displayName);
   const by = choice === 'first' ? first : choice === 'nick' ? nick : '';
   const uid = auth?.user?.uid || '';
-  const doc = useMemo(() => toSharedDoc(item, { kind, uid: uid || 'pending', by, bars: [] }), [item, kind, uid, by]);
+  const doc = useMemo(() => toSharedDoc(item, { kind, uid: uid || 'pending', by, bars: [], picture }), [item, kind, uid, by, picture]);
   const needsNick = choice === 'nick' && !doc?.by;
+  // What the preview shows is what Create link publishes: the choice, else the item's own picture.
+  const shown = picture !== undefined ? picture : (item.picture?.blob ? item.picture : null);
+  const previewPicture = shown
+    ? <PictureView value={shown} size={120} />
+    : (picture === undefined && item.picture ? <PictureView picture={item.picture} itemId={item.id} size={120} /> : null);
 
   const create = async () => {
     if (busy || !doc || needsNick) return;
@@ -131,14 +156,25 @@ function PublishStep({ kind, item, ctx, onPublished, getDb }) {
     setBusy(true); setError('');
     try {
       const bars = await barsForItem(item, kind, ctx.nodes);
-      const finalDoc = toSharedDoc(item, { kind, uid, by, bars });
+      const finalDoc = toSharedDoc(item, { kind, uid, by, bars, picture });
       const id = newShareId();
-      await publishShare(await getDb(), finalDoc, id);
+      let chalk = null;
+      if (finalDoc.picture?.kind === 'chalk') {
+        try { chalk = picture !== undefined ? picture : await ownChalkValue(item, uid, getDb); } catch { chalk = null; }
+      }
+      // Without a chalk picture this is exactly the plain publish; only a chalk picture needs the share-and-picture batch.
+      const db = await getDb();
+      let out;
+      if (finalDoc.picture?.kind === 'chalk') out = await publishShareWithPicture(db, finalDoc, id, { chalk, owner: uid });
+      else { await publishShare(db, finalDoc, id); out = { id, picture: finalDoc.picture?.kind === 'icon' ? 'icon' : null }; }
+      // What the link really carries: a chalk picture only when it was stored with the link, a drawing as chosen.
+      const made = out.picture === 'chalk' ? { kind: 'chalk' } : out.picture === 'icon' ? sharedPictureField(finalDoc.picture) : null;
       userProfile?.addShare?.({
         id, kind, sourceId: String(item.id || ''), fingerprint: shareFingerprint({ ...item, kind }), name: finalDoc.name, createdAt: finalDoc.createdAt,
+        ...(made ? { picture: made } : {}),
       });
       usage.shareLinkCreated(PAGE_KIND[kind]);
-      onPublished({ id, doc: finalDoc });
+      onPublished({ id, doc: finalDoc, picture: made, pictureReason: out.reason || '' });
     } catch {
       setError('Could not create the link. Nothing was shared; try again.');
     } finally {
@@ -153,7 +189,10 @@ function PublishStep({ kind, item, ctx, onPublished, getDb }) {
   }
   return (
     <div className="mt-1" data-testid="own-review">
-      <Preview doc={doc} />
+      <Preview doc={doc} picture={previewPicture} />
+      <div className="mt-3" data-testid="own-picture">
+        <PictureField kind={PAGE_KIND[kind]} value={picture} onChange={setPicture} item={item} testid="own-picture-field" />
+      </div>
       <NameChoice choice={choice} onChoice={setChoice} nick={nick} onNick={setNick} first={first} />
       <p className="mt-3 text-[13px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>
         Anyone with the link can read this. It is a copy: editing your recipe later will not change it.
@@ -188,6 +227,8 @@ export function OwnShareButton({ kind, item, label = 'Share', className = '', st
     else if (seenListed.current === published.id) { seenListed.current = null; setPublished(null); }
   }, [shares, published]);
   const shareId = fresh?.id || existing?.id || null;
+  // The picture this link was published with, for its cards (a chalk one is read from sharedPictures/{id}).
+  const cardPicture = useCardPicture({ picture: fresh ? fresh.picture : existing?.picture, shareId: shareId || undefined });
 
   const recipe = useMemo(() => {
     if (!shareId || !item) return null;
@@ -200,7 +241,7 @@ export function OwnShareButton({ kind, item, label = 'Share', className = '', st
   const link = shareId ? `/r/${shareId}` : '';
   const live = !!ctx.auth?.user;
   const ownSlot = live
-    ? <PublishStep kind={kind} item={item} ctx={ctx} getDb={getDb} onPublished={({ id, doc }) => setPublished({ id, bars: doc.bars, fingerprint })} />
+    ? <PublishStep kind={kind} item={item} ctx={ctx} getDb={getDb} onPublished={({ id, doc, picture, pictureReason }) => setPublished({ id, bars: doc.bars, fingerprint, picture, pictureReason })} />
     : <SignIn auth={ctx.auth} />;
 
   return (
@@ -217,7 +258,10 @@ export function OwnShareButton({ kind, item, label = 'Share', className = '', st
               <p data-testid="own-live" className="text-[14px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
                 Your link is live. Take it down any time from Profile, under Shared links.
               </p>
-              <ShareImages link={link} recipe={recipe} bars={fresh ? fresh.bars : undefined} />
+              {fresh?.pictureReason ? (
+                <p role="status" data-testid="own-picture-note" className="text-[14px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>{fresh.pictureReason}</p>
+              ) : null}
+              <ShareImages link={link} recipe={recipe} bars={fresh ? fresh.bars : undefined} picture={cardPicture} />
             </>
           )} />
       ) : (

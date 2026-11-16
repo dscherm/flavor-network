@@ -30,7 +30,33 @@ function roundedPath(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-export function drawCard(ctx, card) {
+/** Loads the pictures a layout asks for ({ type: 'image' }), by src. One that cannot be loaded is simply not drawn. */
+export async function loadCardImages(card) {
+  const images = new Map();
+  const srcs = [...new Set(card.primitives.filter((p) => p.type === 'image').map((p) => p.src))];
+  await Promise.all(srcs.map((src) => new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => { images.set(src, img); resolve(); };
+    img.onerror = () => resolve();
+    img.src = src;
+  })));
+  return images;
+}
+
+function drawImagePrim(ctx, p, img) {
+  const iw = img.naturalWidth || img.width;
+  const ih = img.naturalHeight || img.height;
+  if (!iw || !ih) return;
+  ctx.save();
+  if (p.radius) { roundedPath(ctx, p.x, p.y, p.w, p.h, p.radius); ctx.clip(); }
+  const k = p.fit === 'contain' ? Math.min(p.w / iw, p.h / ih) : Math.max(p.w / iw, p.h / ih);
+  const dw = iw * k;
+  const dh = ih * k;
+  ctx.drawImage(img, p.x + (p.w - dw) / 2, p.y + (p.h - dh) / 2, dw, dh);
+  ctx.restore();
+}
+
+export function drawCard(ctx, card, images = new Map()) {
   const { width: W, height: H, background: bg } = card;
   // The slate wash: the CSS "radial-gradient(ellipse at center, inner 0%, mid 75%, outer 100%)".
   ctx.save();
@@ -60,6 +86,9 @@ export function drawCard(ctx, card) {
       ctx.moveTo(p.x1, p.y1); ctx.lineTo(p.x2, p.y2);
       ctx.strokeStyle = p.color; ctx.lineWidth = p.width; ctx.stroke();
       ctx.setLineDash([]);
+    } else if (p.type === 'image') {
+      const img = images.get(p.src);
+      if (img) drawImagePrim(ctx, p, img);
     } else if (p.type === 'wedge') {
       const t = (deg) => (deg * Math.PI) / 180;
       ctx.beginPath();
@@ -100,13 +129,14 @@ export function drawCard(ctx, card) {
 }
 
 /** One layout -> a PNG Blob of exactly card.width x card.height. */
-export function cardToBlob(card) {
+export async function cardToBlob(card) {
+  const images = await loadCardImages(card);
   const canvas = document.createElement('canvas');
   canvas.width = card.width;
   canvas.height = card.height;
   const ctx = canvas.getContext('2d');
-  if (!ctx) return Promise.reject(new Error('no canvas'));
-  drawCard(ctx, card);
+  if (!ctx) throw new Error('no canvas');
+  drawCard(ctx, card, images);
   return new Promise((resolve, reject) => {
     canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('could not make the picture'))), 'image/png');
   });
