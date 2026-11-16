@@ -1,0 +1,390 @@
+<title>Chalk Filter Bench</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Figtree:wght@400;500;600&display=swap">
+<style>
+  /* Layout: a slate workbench. Controls in one strip on top, then four equal boards
+     (the photo and three chalk looks) that wrap to one column on a phone.
+     One look on purpose: this page previews art that only exists on a blackboard. */
+  :root {
+    color-scheme: dark;
+    --slate: #0d0d0c;
+    --slate-lift: #191917;
+    --rail: #45443f;
+    --chalk: #f5efde;
+    --chalk-dim: #bdb6a3;
+    --chalk-faint: #8a8475;
+    --gold: #e6c36a;
+    --warn: #f0a08a;
+    --hand: 'Caveat', 'Segoe Print', 'Bradley Hand', cursive;
+    --body: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+  body {
+    background: radial-gradient(ellipse at 50% 0%, #1d1d1b 0%, var(--slate) 70%) var(--slate);
+    background-attachment: fixed;
+    color: var(--chalk);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.5;
+    padding-block: 28px 56px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+  h1 { font-family: var(--hand); font-weight: 700; font-size: clamp(34px, 6vw, 52px); line-height: 1; margin: 0; text-wrap: balance;
+       text-shadow: 0 0 1px rgba(245,239,222,.55), 0 0 4px rgba(245,239,222,.18); }
+  .lede { color: var(--chalk-dim); max-width: 62ch; margin: 8px 0 0; }
+  .bench { border: 2px double var(--rail); border-radius: 14px; background: var(--slate-lift); padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+  .pick { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; }
+  .btn { font: 600 15px var(--body); color: var(--slate); background: var(--chalk); border: 0; border-radius: 999px; padding: 0 20px; min-height: 44px; cursor: pointer; display: inline-flex; align-items: center; }
+  .btn.ghost { background: transparent; color: var(--chalk); border: 1px solid var(--rail); font-weight: 500; }
+  .btn:focus-visible, input[type=range]:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+  .hint { color: var(--chalk-faint); font-size: 13px; }
+  .status { font-size: 13px; color: var(--chalk-dim); min-height: 1.4em; }
+  .status.bad { color: var(--warn); }
+  .sliders { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px 22px; }
+  .sl { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .sl label { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--chalk-dim); }
+  .sl output { color: var(--gold); font-variant-numeric: tabular-nums; }
+  .sl small { color: var(--chalk-faint); font-size: 12px; }
+  input[type=range] { width: 100%; accent-color: var(--gold); height: 28px; }
+  .boards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  figure { margin: 0; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .frame { border: 2px double var(--rail); border-radius: 10px; overflow: hidden; background: #000; line-height: 0; }
+  canvas { width: 100%; height: auto; display: block; max-width: 100%; }
+  figcaption { display: flex; flex-direction: column; gap: 2px; }
+  .name { font-family: var(--hand); font-size: 26px; line-height: 1.05; }
+  .what { color: var(--chalk-dim); font-size: 13px; }
+  .size { color: var(--gold); font-size: 12px; font-variant-numeric: tabular-nums; min-height: 1.4em; }
+  .notes { color: var(--chalk-dim); max-width: 70ch; display: flex; flex-direction: column; gap: 6px; }
+  .notes h2 { font-family: var(--hand); font-size: 28px; margin: 0; color: var(--chalk); font-weight: 700; }
+  .notes ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
+  .drop { outline: 2px dashed var(--gold); outline-offset: 4px; }
+  @media (prefers-reduced-motion: no-preference) { .btn { transition: transform .12s; } .btn:active { transform: scale(.97); } }
+</style>
+
+<div class="wrap" id="page">
+  <header>
+    <h1>Chalk Filter Bench</h1>
+    <p class="lede">Drop in a photo of a dish or a drink and see three ways it could be turned into a chalk drawing for a shared recipe. Nothing is uploaded: the picture is processed in this browser and never leaves it.</p>
+  </header>
+
+  <section class="bench" aria-label="Controls">
+    <div class="pick">
+      <button class="btn" id="choose" type="button">Choose a photo</button>
+      <input id="file" type="file" accept="image/*" hidden>
+      <button class="btn ghost" id="sample" type="button">Use the example</button>
+      <button class="btn ghost" id="reset" type="button">Reset sliders</button>
+      <span class="hint">You can also drag a picture onto the page, or paste one.</span>
+    </div>
+    <div class="status" id="status" role="status">Showing a drawn example, not a real photo. Real photos are busier, so try a few of your own.</div>
+    <div class="sliders">
+      <div class="sl"><label for="weight">Line weight <output id="o-weight"></output></label><input id="weight" type="range" min="0.6" max="10" step="0.1" value="5"><small>How boldly edges are drawn</small></div>
+      <div class="sl"><label for="detail">Fine detail <output id="o-detail"></output></label><input id="detail" type="range" min="0" max="16" step="1" value="13"><small>Above 10 sharpens the photo first</small></div>
+      <div class="sl"><label for="shade">Shading <output id="o-shade"></output></label><input id="shade" type="range" min="0" max="200" step="1" value="110"><small>Chalk rubbed into the light areas</small></div>
+      <div class="sl"><label for="grain">Chalk grain <output id="o-grain"></output></label><input id="grain" type="range" min="0" max="100" step="1" value="5"><small>0 is perfectly clean chalk</small></div>
+      <div class="sl"><label for="colour">Colour <output id="o-colour"></output></label><input id="colour" type="range" min="0" max="300" step="1" value="200"><small>Above 100 also fills in coloured areas</small></div>
+    </div>
+  </section>
+
+  <section class="boards" aria-label="Results">
+    <figure><div class="frame"><canvas id="c-orig" width="720" height="540"></canvas></div>
+      <figcaption><span class="name">Your photo</span><span class="what">As it came in, for comparison.</span><span class="size" id="s-orig"></span></figcaption></figure>
+    <figure><div class="frame"><canvas id="c-col" width="720" height="540"></canvas></div>
+      <figcaption><span class="name">Coloured chalk</span><span class="what">Outlines and shading, coloured from the photo.</span><span class="size" id="s-col"></span></figcaption></figure>
+    <figure><div class="frame"><canvas id="c-soft" width="720" height="540"></canvas></div>
+      <figcaption><span class="name">Soft chalk</span><span class="what">The same drawing in plain white chalk.</span><span class="size" id="s-soft"></span></figcaption></figure>
+    <figure><div class="frame"><canvas id="c-line" width="720" height="540"></canvas></div>
+      <figcaption><span class="name">Line sketch</span><span class="what">Outlines only, like a quick chalk drawing.</span><span class="size" id="s-line"></span></figcaption></figure>
+  </section>
+
+  <section class="notes">
+    <h2>What to look for</h2>
+    <ul>
+      <li>Does the dish or drink stay recognisable, or does it turn into noise? Busy backgrounds are the usual cause.</li>
+      <li>Which look sits best beside the app's hand-drawn icons?</li>
+      <li>The gold figure under each look is its file size at the size a shared recipe would store. Under about 100 KB means it can live in the database beside the recipe, with no separate file storage.</li>
+      <li>Try a dim photo, a top-down plate, a drink against a window, and one with people in the background.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+(() => {
+  const MAX = 1080;           // working size, long side (larger keeps finer detail)
+  const STORE = 600;          // size a shared recipe would store, long side
+  const $ = (id) => document.getElementById(id);
+  const cv = { orig: $('c-orig'), line: $('c-line'), soft: $('c-soft'), col: $('c-col') };
+  const sliders = ['weight', 'detail', 'shade', 'grain', 'colour'];
+  const defaults = Object.fromEntries(sliders.map((s) => [s, $(s).value]));
+  const status = $('status');
+  let src = null;             // { w, h, rgba: Uint8ClampedArray, lum: Float32Array }
+  let noise = null;           // { w, h, fine, coarse }
+  let raf = 0, sizeTimer = 0;
+
+  const say = (text, bad = false) => { status.textContent = text; status.classList.toggle('bad', bad); };
+
+  // ---- image helpers -------------------------------------------------------
+  function boxBlur(a, w, h, r) {
+    if (r < 1) return a;
+    const out = new Float32Array(a.length), tmp = new Float32Array(a.length);
+    const pass = (from, to, len, stride, lines, lineStride) => {
+      for (let l = 0; l < lines; l++) {
+        const base = l * lineStride;
+        let sum = 0;
+        for (let i = -r; i <= r; i++) sum += from[base + Math.min(len - 1, Math.max(0, i)) * stride];
+        for (let i = 0; i < len; i++) {
+          to[base + i * stride] = sum / (2 * r + 1);
+          const add = Math.min(len - 1, i + r + 1), sub = Math.max(0, i - r);
+          sum += from[base + add * stride] - from[base + sub * stride];
+        }
+      }
+    };
+    pass(a, tmp, w, 1, h, w);       // rows
+    pass(tmp, out, h, w, w, 1);     // columns
+    return out;
+  }
+  const blur = (a, w, h, r) => (r < 1 ? a : boxBlur(boxBlur(a, w, h, r), w, h, r));
+
+  function sobel(g, w, h) {
+    const m = new Float32Array(g.length);
+    for (let y = 1; y < h - 1; y++) {
+      for (let x = 1; x < w - 1; x++) {
+        const i = y * w + x;
+        const tl = g[i - w - 1], t = g[i - w], tr = g[i - w + 1];
+        const l = g[i - 1], r = g[i + 1];
+        const bl = g[i + w - 1], b = g[i + w], br = g[i + w + 1];
+        const gx = tr + 2 * r + br - tl - 2 * l - bl;
+        const gy = bl + 2 * b + br - tl - 2 * t - tr;
+        m[i] = Math.sqrt(gx * gx + gy * gy);
+      }
+    }
+    return m;
+  }
+
+  function makeNoise(w, h) {
+    const n = w * h, fine = new Float32Array(n), raw = new Float32Array(n);
+    let s = 1234567;                                  // fixed seed so sliders do not make the grain jump
+    const rnd = () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
+    for (let i = 0; i < n; i++) { fine[i] = rnd(); raw[i] = rnd(); }
+    const coarse = blur(raw, w, h, 6);
+    let lo = 1, hi = 0;
+    for (let i = 0; i < n; i++) { if (coarse[i] < lo) lo = coarse[i]; if (coarse[i] > hi) hi = coarse[i]; }
+    for (let i = 0; i < n; i++) coarse[i] = (coarse[i] - lo) / (hi - lo || 1);
+    return { w, h, fine, coarse };
+  }
+
+  // ---- the three looks -----------------------------------------------------
+  function render() {
+    raf = 0;
+    if (!src) return;
+    const { w, h, rgba, lum } = src;
+    if (!noise || noise.w !== w || noise.h !== h) noise = makeNoise(w, h);
+    const weight = +$('weight').value;
+    const detail = +$('detail').value;                // 0..10, higher = more detail = less blur
+    const shade = +$('shade').value / 100;            // up to 2
+    const grain = +$('grain').value / 100;
+    const colour = +$('colour').value / 100;
+    $('o-weight').textContent = weight.toFixed(1);
+    $('o-detail').textContent = detail;
+    $('o-shade').textContent = Math.round(shade * 100);
+    $('o-grain').textContent = Math.round(grain * 100);
+    $('o-colour').textContent = Math.round(colour * 100);
+
+    const scale = Math.max(w, h) / 720;
+    const pre = Math.round(Math.max(0, 10 - detail) * 0.5 * scale);
+    let g = blur(lum, w, h, pre);
+    if (detail > 10) {                                 // past "no blur": sharpen so small features draw
+      const soften = blur(lum, w, h, Math.max(1, Math.round(2 * scale)));
+      const k = (detail - 10) * 0.6;
+      g = new Float32Array(lum.length);
+      for (let i = 0; i < g.length; i++) { const v = lum[i] + (lum[i] - soften[i]) * k; g[i] = v < 0 ? 0 : v > 1 ? 1 : v; }
+    }
+    const haloR = Math.max(2, Math.round((detail > 10 ? 4 : 7) * scale));   // thinner strokes when detail is high
+
+    // 1. crisp outlines from edge strength
+    const mag = sobel(g, w, h);
+    const line = new Float32Array(w * h);
+    for (let i = 0; i < line.length; i++) {
+      const v = mag[i] * weight * 1.1 - 0.12;
+      line[i] = v <= 0 ? 0 : v >= 1 ? 1 : v * v * (3 - 2 * v);
+    }
+    // 2. soft chalk: a pencil-sketch "dodge" (edges with a soft halo), plus chalk rubbed into light areas
+    const inv = new Float32Array(w * h);
+    for (let i = 0; i < inv.length; i++) inv[i] = 1 - g[i];
+    const halo = blur(inv, w, h, haloR);
+    // coloured look only: past 100, strongly coloured areas get chalked in even where the photo is dark
+    const fill = new Float32Array(w * h);
+    if (colour > 1) {
+      const amt = (colour - 1) * 0.55;
+      for (let i = 0; i < fill.length; i++) {
+        const o = i * 4, mx = Math.max(rgba[o], rgba[o + 1], rgba[o + 2]), mn = Math.min(rgba[o], rgba[o + 1], rgba[o + 2]);
+        fill[i] = mx ? ((mx - mn) / mx) * (0.35 + 0.65 * mx / 255) * amt : 0;
+      }
+    }
+    const soft = new Float32Array(w * h);
+    for (let i = 0; i < soft.length; i++) {
+      const dodge = Math.min(1, g[i] / Math.max(0.04, 1 - halo[i]));
+      const edge = Math.pow(1 - dodge, 0.8) * weight * 0.9;
+      const tone = g[i] * g[i] * shade * 0.75;
+      soft[i] = Math.min(1, Math.max(edge, line[i] * 0.85) + tone);
+    }
+
+    const softCol = new Float32Array(w * h);
+    for (let i = 0; i < softCol.length; i++) softCol[i] = Math.min(1, soft[i] + fill[i]);
+    const tintAmt = Math.min(1, colour);
+    const sat = 1.7 + Math.max(0, colour - 1) * 1.4;   // push toward vivid chalk colours
+    const wash = colour > 1 ? Math.max(20, 70 - (colour - 1) * 35) : 70;   // less pastel wash when colour is high
+    const keep = 1 - wash / 255;
+    const paint = (canvas, intensity, tint) => {
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      const img = ctx.createImageData(w, h), d = img.data;
+      const cx = w / 2, cy = h / 2, far = Math.sqrt(cx * cx + cy * cy);
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          const i = y * w + x, o = i * 4;
+          const dist = Math.sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy)) / far;
+          const board = 26 - 15 * dist + (noise.coarse[i] - 0.5) * 7;       // slate with faint smudges
+          let a = intensity[i];
+          const dust = 1 - grain * 0.55 * noise.fine[i];
+          const gap = noise.fine[i] < grain * 0.22 ? 0.35 : 1;               // dry-chalk dropouts
+          a *= dust * gap * (1 - grain * 0.3 * (1 - noise.coarse[i]));     // grain 0 leaves the stroke untouched
+          let r = 245, gg = 239, b = 222;                                    // chalk cream
+          if (tint) {
+            const pr = rgba[o], pg = rgba[o + 1], pb = rgba[o + 2];
+            const grey = (pr + pg + pb) / 3;
+            const cr = Math.min(255, Math.max(0, grey + (pr - grey) * sat)) * keep + wash;
+            const cg = Math.min(255, Math.max(0, grey + (pg - grey) * sat)) * keep + wash;
+            const cb = Math.min(255, Math.max(0, grey + (pb - grey) * sat)) * keep + wash;
+            r += (Math.min(255, cr) - r) * tint;
+            gg += (Math.min(255, cg) - gg) * tint;
+            b += (Math.min(255, cb) - b) * tint;
+          }
+          d[o] = board + (r - board) * a;
+          d[o + 1] = board + (gg - board) * a;
+          d[o + 2] = (board - 1) + (b - board + 1) * a;
+          d[o + 3] = 255;
+        }
+      }
+      ctx.putImageData(img, 0, 0);
+    };
+
+    paint(cv.line, line, 0);
+    paint(cv.soft, soft, 0);
+    paint(cv.col, softCol, tintAmt);
+    clearTimeout(sizeTimer);
+    sizeTimer = setTimeout(measure, 350);
+  }
+  const schedule = () => { if (!raf) raf = requestAnimationFrame(render); };
+
+  // ---- stored size ---------------------------------------------------------
+  function measure() {
+    for (const [key, canvas] of Object.entries(cv)) {
+      const out = $('s-' + key);
+      const k = Math.min(1, STORE / Math.max(canvas.width, canvas.height));
+      const small = document.createElement('canvas');
+      small.width = Math.round(canvas.width * k); small.height = Math.round(canvas.height * k);
+      small.getContext('2d').drawImage(canvas, 0, 0, small.width, small.height);
+      const done = (blob, kind) => {
+        if (!blob) { out.textContent = ''; return; }
+        out.textContent = `About ${Math.max(1, Math.round(blob.size / 1024))} KB stored (${small.width} × ${small.height}, ${kind})`;
+      };
+      try {
+        small.toBlob((blob) => {
+          if (blob && blob.type === 'image/webp') done(blob, 'WebP');
+          else small.toBlob((b2) => done(b2, 'JPEG'), 'image/jpeg', 0.8);
+        }, 'image/webp', 0.8);
+      } catch { out.textContent = ''; }
+    }
+  }
+
+  // ---- loading a picture ---------------------------------------------------
+  function take(drawable, sw, sh) {
+    const k = Math.min(1, MAX / Math.max(sw, sh));
+    const w = Math.max(8, Math.round(sw * k)), h = Math.max(8, Math.round(sh * k));
+    cv.orig.width = w; cv.orig.height = h;
+    const ctx = cv.orig.getContext('2d', { willReadFrequently: true });
+    ctx.drawImage(drawable, 0, 0, w, h);
+    const rgba = ctx.getImageData(0, 0, w, h).data;
+    const lum = new Float32Array(w * h);
+    for (let i = 0; i < lum.length; i++) lum[i] = (0.299 * rgba[i * 4] + 0.587 * rgba[i * 4 + 1] + 0.114 * rgba[i * 4 + 2]) / 255;
+    // stretch contrast so dim photos still give lines
+    const sorted = Float32Array.from(lum).sort();
+    const lo = sorted[Math.floor(sorted.length * 0.02)], hi = sorted[Math.floor(sorted.length * 0.98)];
+    const span = Math.max(0.08, hi - lo);
+    for (let i = 0; i < lum.length; i++) lum[i] = Math.min(1, Math.max(0, (lum[i] - lo) / span));
+    src = { w, h, rgba, lum };
+    schedule();
+  }
+
+  async function loadFile(file) {
+    if (!file) return;
+    if (!/^image\//.test(file.type) && !/\.(heic|heif|jpe?g|png|webp)$/i.test(file.name || '')) { say('That file is not a picture. Choose a JPEG, PNG or WebP photo.', true); return; }
+    say('Reading the photo…');
+    try {
+      let bmp;
+      try { bmp = await createImageBitmap(file, { imageOrientation: 'from-image' }); }
+      catch { bmp = await createImageBitmap(file); }
+      take(bmp, bmp.width, bmp.height);
+      say(`Showing ${file.name || 'your photo'} (${bmp.width} × ${bmp.height}). It has not left this browser.`);
+      if (bmp.close) bmp.close();
+    } catch {
+      say('This browser could not open that photo. iPhone HEIC photos open in Safari; elsewhere, export it as a JPEG first.', true);
+    }
+  }
+
+  // A drawn still life so the page shows something before a photo is chosen.
+  function drawSample() {
+    const c = document.createElement('canvas'); c.width = 960; c.height = 720;
+    const x = c.getContext('2d');
+    const bg = x.createLinearGradient(0, 0, 0, 720); bg.addColorStop(0, '#d9c7a8'); bg.addColorStop(0.55, '#c9b08a'); bg.addColorStop(0.56, '#7a5a3c'); bg.addColorStop(1, '#5d432b');
+    x.fillStyle = bg; x.fillRect(0, 0, 960, 720);
+    // plate
+    x.fillStyle = 'rgba(40,25,10,.28)'; x.beginPath(); x.ellipse(430, 560, 330, 70, 0, 0, 7); x.fill();
+    const pl = x.createRadialGradient(400, 470, 40, 420, 500, 330); pl.addColorStop(0, '#fbfaf4'); pl.addColorStop(0.8, '#ebe6da'); pl.addColorStop(1, '#cfc8b6');
+    x.fillStyle = pl; x.beginPath(); x.ellipse(420, 510, 320, 120, 0, 0, 7); x.fill();
+    x.strokeStyle = '#bdb49f'; x.lineWidth = 3; x.beginPath(); x.ellipse(420, 505, 235, 82, 0, 0, 7); x.stroke();
+    // pasta nest
+    for (let i = 0; i < 46; i++) {
+      const a = i * 0.71, r = 30 + (i % 9) * 14;
+      x.strokeStyle = i % 3 ? '#e8c36b' : '#d7a94a'; x.lineWidth = 9;
+      x.beginPath(); x.ellipse(410 + Math.cos(a) * 26, 470 + Math.sin(a) * 9, r * 1.5, r * 0.5, a * 0.35, 0.3, 5.2); x.stroke();
+    }
+    // sauce and basil
+    x.fillStyle = '#b8321f'; x.beginPath(); x.ellipse(420, 440, 96, 34, 0.1, 0, 7); x.fill();
+    x.fillStyle = '#d8553a'; x.beginPath(); x.ellipse(400, 432, 46, 14, 0.1, 0, 7); x.fill();
+    x.fillStyle = '#2f7a3a'; for (const [bx, by, br] of [[455, 418, 0.5], [432, 404, -0.4], [478, 436, 1.1]]) { x.beginPath(); x.ellipse(bx, by, 30, 13, br, 0, 7); x.fill(); }
+    // glass of red wine
+    x.fillStyle = 'rgba(40,25,10,.25)'; x.beginPath(); x.ellipse(770, 600, 80, 16, 0, 0, 7); x.fill();
+    x.strokeStyle = 'rgba(255,255,255,.85)'; x.lineWidth = 5;
+    x.beginPath(); x.moveTo(705, 190); x.quadraticCurveTo(690, 360, 770, 390); x.quadraticCurveTo(850, 360, 835, 190); x.stroke();
+    x.fillStyle = '#6f1626'; x.beginPath(); x.moveTo(703, 270); x.quadraticCurveTo(700, 365, 770, 386); x.quadraticCurveTo(840, 365, 837, 270); x.closePath(); x.fill();
+    x.fillStyle = '#8f2236'; x.beginPath(); x.ellipse(770, 270, 67, 13, 0, 0, 7); x.fill();
+    x.beginPath(); x.moveTo(770, 390); x.lineTo(770, 575); x.stroke();
+    x.beginPath(); x.ellipse(770, 585, 62, 12, 0, 0, 7); x.stroke();
+    x.strokeStyle = 'rgba(255,255,255,.5)'; x.lineWidth = 3; x.beginPath(); x.moveTo(722, 210); x.quadraticCurveTo(712, 300, 735, 350); x.stroke();
+    // fork
+    x.strokeStyle = '#9a9a98'; x.lineWidth = 8; x.lineCap = 'round';
+    x.beginPath(); x.moveTo(90, 640); x.lineTo(150, 420); x.stroke();
+    x.lineWidth = 4; for (let i = -1; i <= 1; i++) { x.beginPath(); x.moveTo(150 + i * 10, 420); x.lineTo(162 + i * 11, 350); x.stroke(); }
+    take(c, 960, 720);
+    say('Showing a drawn example, not a real photo. Real photos are busier, so try a few of your own.');
+  }
+
+  // ---- wiring --------------------------------------------------------------
+  $('choose').addEventListener('click', () => $('file').click());
+  $('file').addEventListener('change', (e) => { loadFile(e.target.files[0]); e.target.value = ''; });
+  $('sample').addEventListener('click', drawSample);
+  $('reset').addEventListener('click', () => { sliders.forEach((s) => { $(s).value = defaults[s]; }); schedule(); });
+  sliders.forEach((s) => $(s).addEventListener('input', schedule));
+  const page = $('page');
+  ['dragenter', 'dragover'].forEach((t) => document.addEventListener(t, (e) => { e.preventDefault(); page.classList.add('drop'); }));
+  ['dragleave', 'drop'].forEach((t) => document.addEventListener(t, (e) => { e.preventDefault(); page.classList.remove('drop'); }));
+  document.addEventListener('drop', (e) => { const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if (f) loadFile(f); });
+  document.addEventListener('paste', (e) => {
+    const item = [...(e.clipboardData ? e.clipboardData.items : [])].find((i) => i.type && i.type.startsWith('image/'));
+    if (item) loadFile(item.getAsFile());
+  });
+  drawSample();
+})();
+</script>
