@@ -3244,3 +3244,53 @@ owner's choice among the three options was not clear and has been asked.)
   ]
 }
 ```
+
+## 2026-11-16 — Every card's flavor wheel gets the look of the combined wheel
+
+Owner, 2026-11-16, verbatim: "give the flavor wheels on all cards the same look as the new combined flavor wheel.
+start with the ingredient card". The combined wheel is `FlavorWheel.jsx` (design C of the flavor-graphs spec):
+seventeen wedges in fixed places, six tastes and eleven aromas, each wedge as long as its note is strong and in the
+note's colour, drawn from `flavorWheel()` in `src/data/flavorCharts.js`. Found on 2026-11-16, still drawing another
+kind of wheel or radar on a card: the ingredient card and the Pairing Lab card (`PairingModeCard.jsx`, `MiniRadar`,
+a polygon over `guidedRadarAxes`), the Cookbook recipe card (`ProfileAxisRadar` in `CookbookLab.jsx`), the Wine Lab
+shelf card (`ProfileRadar` in `WineLab.jsx`), and the ingredient picker's radar (`PickerRadar` in
+`IngredientPicker.jsx`). The parked 3D Network panel (`IngredientPanel.jsx`: TasteRadar, FullWheel,
+WedgeGridFlavorWheel, ProfileRadarCarousel) is left alone by the assistant's default, since that view is parked.
+Order: WHEEL-1 then WHEEL-2, before the STANDIN tasks.
+
+```json
+{
+  "id": "WHEEL-1",
+  "title": "The ingredient card draws the combined flavor wheel",
+  "category": "ui",
+  "passes": false,
+  "description": "PairingModeCard.jsx is the chalk single-ingredient card, shown in the Pairing Lab and (since BUILDER-4) as the IngredientCard overlay everywhere an ingredient name is tapped. Its chart is MiniRadar, a polygon radar over guidedRadarAxes with a filterType and a chosenAxis. Replace it with the combined wheel: FlavorWheel fed with that ONE ingredient's seventeen notes from the current flavor tables (the per-ingredient values behind profileForRecipe; src/data/flavorMarks.js already reads them per ingredient for the flavor-map marks; do not use the old model values and do not add a second calculation), so an ingredient's wheel and a one-ingredient recipe's wheel agree. Same wedge positions, colours, labels and scaling rule as everywhere else; a size that fits the card at 375 px without clipping any label (the present radar clips 'pungent'; that must be gone). Where the Pairing Lab passes a chosen filter or axis (filterType, chosenAxis), keep the information without bringing back the polygon: mark the chosen note's wedge (a stated, tested treatment such as an outline and its label always shown) and say in the report what each old filter type maps to and what could not be mapped. When the card shows a PARTNER against the ingredient you came from, state what the wheel shows (the partner's own notes, as the default) and keep the shared-compounds section as it is. An ingredient with no flavor data shows the same plain 'not enough flavor data' line the other surfaces use, not an empty ring. A text equivalent (the ranked list of notes) for screen readers, as FlavorWheel already provides. Remove MiniRadar and any helper only it used, after a grep. Do not change what else the card shows.",
+  "acceptance": [
+    "The card renders FlavorWheel and no polygon radar (test: no pairing-card-radar-polygon; the wheel's wedges are present) in the Pairing Lab and in the IngredientCard overlay",
+    "For three named ingredients (lemon, soy sauce, cinnamon) the wheel's strongest wedges equal the strongest notes the flavor tables give that ingredient, and equal the wheel of a recipe made of only that ingredient where one draws (tests)",
+    "A chosen axis from the Pairing Lab marks its wedge (test); the mapping table for filter types is in the report",
+    "An ingredient with no data shows the plain line (test)",
+    "No label is clipped at 375 px (measured in a browser and described honestly); the card's other sections are unchanged (existing PairingModeCard and IngredientCard tests pass, changed only where they asserted the polygon, each change named)",
+    "MiniRadar is gone from src/ (grep in the report); npm run measure:flavor numbers unchanged (stated); npm run gate green; nothing deployed"
+  ]
+}
+```
+
+```json
+{
+  "id": "WHEEL-2",
+  "title": "The other cards' wheels and radars take the same look",
+  "category": "ui",
+  "passes": false,
+  "description": "After WHEEL-1. Inventory first and put the table in the report: every wheel or radar still drawn on a card or sheet outside the parked 3D Network panel, with what data feeds it. Known: the Cookbook recipe card (ProfileAxisRadar in CookbookLab.jsx, with RecipeFlavorProfile beside it), the Wine Lab shelf card (ProfileRadar in WineLab.jsx), the ingredient picker (PickerRadar in IngredientPicker.jsx; check whether anything still mounts the picker now that the paper Notebook is gone, and delete it with its tests if nothing does), MultiAxisRadarStack (no importer found; delete if confirmed). Then: (1) Cookbook recipe card: draw the combined wheel from the recipe's seventeen notes through profileForRecipe, the same numbers its Flavor profile button shows; the card's own word lists, if any remain, must not contradict the wheel (say what happened to them). (2) Wine Lab: a wine's chart is not the seventeen notes (it has its own axes, such as body, acidity, tannin, sweetness). Do NOT force wine onto the seventeen notes. Give it the same LOOK: wedges in fixed places for its own axes, each as long as its value, chalk colours, same label and scaling treatment, by making the wheel drawing take an axis set (a small generalisation of flavorWheel / FlavorWheel) rather than copying the component. State the axes used. (3) Any other card found by the inventory gets the same treatment by whichever of the two cases fits; anything that does not fit either is left and named with the reason. The share cards and the functions package already draw the combined wheel; if generalising the wheel changes src/data/flavorCharts.js or flavorDisplay.js in a way the generated functions layout picks up, regenerate with scripts/buildShareIndex.mjs (never hand-edit generated files), run the functions tests, and report whether the generated file changed. Left alone on purpose: the parked Network panel's charts. Update docs/flavor-profile.md (Graphs) and BACKLOG (close what this closes; record the Network panel as left out), and add a CLOSEOUT.md UNRELEASED note with deploy targets.",
+  "acceptance": [
+    "The inventory table is in the report: every chart found, its data, and what was done or why it was left",
+    "Cookbook recipe card shows the combined wheel with the same leading notes as its Flavor profile button for three named dishes (tests)",
+    "Wine Lab card shows fixed wedges for wine's own axes with the stated axis list (tests); no wine is charted on the seventeen notes",
+    "ProfileAxisRadar, ProfileRadar, PickerRadar and MultiAxisRadarStack are each deleted or named as still used by the Network panel, with the grep",
+    "Server and browser share cards still match (existing parity tests pass); functions tests green if anything under functions/ changed",
+    "Looked at in a browser at 375 px: a Cookbook card and a wine card; no clipped label; described honestly",
+    "npm run measure:flavor numbers unchanged (stated); npm run gate green; nothing deployed"
+  ]
+}
+```
