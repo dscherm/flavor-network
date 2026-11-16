@@ -4,7 +4,8 @@ import { db } from '../firebase.js';
 import { saveInvention as saveInventionInto, deleteInvention as deleteInventionFrom, PROFILE_FIELD } from '../data/savedInventions.js';
 import { newItemId } from '../data/inventSaved.js';
 import { cleanPictureField, sharedPictureField, prepareItemPicture, dropPicture } from '../data/pictureStore.js';
-import { emptyShopping, cleanShopping, mergeShopping, commitList, loadShopping, saveShopping, sameShopping } from '../data/shoppingStore.js';
+import { emptyShopping, cleanShopping, commitList, loadShopping, saveShopping, sameShopping } from '../data/shoppingStore.js';
+import { TRACKED, canonicalPairing, pairingKey, cleanRemoved, withRemovals, mergeProfiles } from '../data/profileMerge.js';
 
 const STORAGE_KEY = 'flavor-user-profile-v2';
 
@@ -16,24 +17,10 @@ const DEFAULT_PROFILE = {
   sauces: [],
   shares: [], // { id, kind, sourceId, fingerprint, name, createdAt, picture? } of the cook's live public links
   pairings: [], // { a, b } where a < b alphabetically (canonical key)
+  removed: {}, // PROFILE-2: { [list]: { [identity]: removedAtMs } }, kept 30 days (src/data/profileMerge.js)
   quizAnswers: null,
   shopping: emptyShopping(), // SHOP-2: { list, removed } (src/data/shoppingStore.js); its device copy has its own key
 };
-
-/**
- * Canonicalize a pairing so { a:'butter', b:'sage' } and
- * { a:'sage', b:'butter' } collapse to one entry. Lowercased + sorted.
- */
-function canonicalPairing(a, b) {
-  const lo = String(a || '').toLowerCase().trim();
-  const hi = String(b || '').toLowerCase().trim();
-  if (!lo || !hi || lo === hi) return null;
-  return lo < hi ? { a: lo, b: hi } : { a: hi, b: lo };
-}
-
-function pairingKey(p) {
-  return p ? `${p.a}${p.b}` : '';
-}
 
 /**
  * Normalize a recipe ingredient to structured form.
@@ -124,6 +111,7 @@ function loadLocalProfile() {
         ? parsed.pairings.map((p) => canonicalPairing(p?.a, p?.b)).filter(Boolean)
         : [],
       quizAnswers: parsed.quizAnswers || null,
+      removed: cleanRemoved(parsed.removed),
       shopping: loadShopping(),
     };
   } catch {
@@ -138,82 +126,43 @@ function saveLocalProfile(profile) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(rest));
 }
 
-function mergeProfiles(local, cloud) {
-  const mergeArrays = (a, b) => [...new Set([...a, ...b])];
-  const mergeRecipes = (a, b) => {
-    const seen = new Set(a.map((r) => r.name.toLowerCase()));
-    const merged = [...a];
-    for (const r of b) {
-      if (!seen.has(r.name.toLowerCase())) {
-        merged.push(r);
-        seen.add(r.name.toLowerCase());
-      }
-    }
-    return merged;
-  };
-  const mergeCocktails = (a, b) => {
-    const seen = new Set(a.map((c) => c.id));
-    const merged = [...a];
-    for (const c of b) {
-      if (!seen.has(c.id)) {
-        merged.push(c);
-        seen.add(c.id);
-      }
-    }
-    return merged;
-  };
-  const mergeSauces = (a, b) => {
-    const seen = new Set(a.map((s) => s.id));
-    const merged = [...a];
-    for (const s of b) {
-      if (!seen.has(s.id)) {
-        merged.push(s);
-        seen.add(s.id);
-      }
-    }
-    return merged;
-  };
-  // Favourite pairings: the union, each pair in its canonical form (a < b), this device's first. A pair removed
-  // on one side comes back from the other, as for ingredients and cuisines (no removal markers exist for lists).
-  const mergePairings = (a, b) => {
-    const seen = new Set();
-    const out = [];
-    for (const p of [...a, ...b]) {
-      const c = canonicalPairing(p?.a, p?.b);
-      if (!c || seen.has(pairingKey(c))) continue;
-      seen.add(pairingKey(c));
-      out.push(c);
-    }
-    return out;
-  };
-  const mergeShares = (a, b) => {
-    const seen = new Set(a.map((x) => x.id));
-    return [...a, ...b.filter((x) => !seen.has(x.id))];
-  };
+/** An account document -> the profile shape (malformed entries dropped). */
+function parseCloud(cloudData) {
   return {
-    cuisines: mergeArrays(local.cuisines, cloud.cuisines),
-    ingredients: mergeArrays(local.ingredients, cloud.ingredients),
-    recipes: mergeRecipes(local.recipes, cloud.recipes),
-    cocktails: mergeCocktails(local.cocktails || [], cloud.cocktails || []),
-    sauces: mergeSauces(local.sauces || [], cloud.sauces || []),
-    shares: mergeShares(local.shares || [], cloud.shares || []),
-    pairings: mergePairings(local.pairings || [], cloud.pairings || []),
-    quizAnswers: cloud.quizAnswers || local.quizAnswers || null,
-    shopping: mergeShopping(local.shopping, cloud.shopping),
+    cuisines: Array.isArray(cloudData.cuisines) ? cloudData.cuisines : [],
+    ingredients: Array.isArray(cloudData.ingredients) ? cloudData.ingredients : [],
+    recipes: Array.isArray(cloudData.recipes) ? cloudData.recipes.map(normalizeRecipe) : [],
+    cocktails: Array.isArray(cloudData.cocktails) ? cloudData.cocktails : [],
+    sauces: Array.isArray(cloudData.sauces) ? cloudData.sauces : [],
+    shares: cleanShares(cloudData.shares),
+    pairings: Array.isArray(cloudData.pairings)
+      ? cloudData.pairings.map((p) => canonicalPairing(p?.a, p?.b)).filter(Boolean)
+      : [],
+    quizAnswers: cloudData.quizAnswers || null,
+    removed: cleanRemoved(cloudData.removed),
+    shopping: cleanShopping(cloudData.shopping),
   };
 }
+
+/** True when two profiles hold the same tracked lists, markers and shopping list (the quiz answers are not compared). */
+const sameSynced = (a, b) => TRACKED.every((k) => JSON.stringify(a[k] || []) === JSON.stringify(b[k] || []))
+  && JSON.stringify(a.removed || {}) === JSON.stringify(b.removed || {})
+  && sameShopping(a.shopping, b.shopping);
 
 export default function useUserProfile(user) {
   const [profile, setProfile] = useState(loadLocalProfile);
   const [cloudLoaded, setCloudLoaded] = useState(false);
   const skipNextSync = useRef(false);
-  const syncedShopping = useRef(null);
+  const syncedLists = useRef(null);
   const profileRef = useRef(profile);
   profileRef.current = profile;
 
+  // Every change goes through withRemovals, so whatever left a list (a delete, Clear, an import) leaves a marker
+  // and whatever came back loses it (PROFILE-2). A change that touches no tracked list keeps the same markers.
   const update = useCallback((updater) => {
     setProfile((prev) => {
-      const next = typeof updater === 'function' ? updater(prev) : updater;
+      const made = typeof updater === 'function' ? updater(prev) : updater;
+      const next = made === prev ? made : withRemovals(prev, made);
       saveLocalProfile(next);
       return next;
     });
@@ -233,19 +182,7 @@ export default function useUserProfile(user) {
         if (cancelled) return;
         if (snap.exists()) {
           const cloudData = snap.data();
-          const cloud = {
-            cuisines: Array.isArray(cloudData.cuisines) ? cloudData.cuisines : [],
-            ingredients: Array.isArray(cloudData.ingredients) ? cloudData.ingredients : [],
-            recipes: Array.isArray(cloudData.recipes) ? cloudData.recipes.map(normalizeRecipe) : [],
-            cocktails: Array.isArray(cloudData.cocktails) ? cloudData.cocktails : [],
-            sauces: Array.isArray(cloudData.sauces) ? cloudData.sauces : [],
-            shares: cleanShares(cloudData.shares),
-            pairings: Array.isArray(cloudData.pairings)
-              ? cloudData.pairings.map((p) => canonicalPairing(p?.a, p?.b)).filter(Boolean)
-              : [],
-            quizAnswers: cloudData.quizAnswers || null,
-            shopping: cleanShopping(cloudData.shopping),
-          };
+          const cloud = parseCloud(cloudData);
           const local = loadLocalProfile();
           const merged = mergeProfiles(local, cloud);
           // Saved on this device before the cloud copy loaded (an invention saved
@@ -255,6 +192,8 @@ export default function useUserProfile(user) {
             || merged.sauces.length > cloud.sauces.length
             || merged.shares.length > cloud.shares.length
             || merged.pairings.length > cloud.pairings.length
+            || JSON.stringify(merged.removed) !== JSON.stringify(cloud.removed)
+            || TRACKED.some((k) => merged[k].length < cloud[k].length)
             || !sameShopping(merged.shopping, cloud.shopping);
           skipNextSync.current = !localOnly;
           setProfile(merged);
@@ -277,27 +216,34 @@ export default function useUserProfile(user) {
     }
     const ref = doc(db, 'profiles', user.uid);
     const write = () => setDoc(ref, profile).catch((err) => console.error('Failed to save cloud profile:', err));
-    // SHOP-2: a changed shopping list is merged with what the account holds right now, per item, before it is
-    // written, so a tick made on another device since this one loaded is not overwritten by the whole-document save.
-    const shoppingChanged = syncedShopping.current !== profile.shopping;
-    syncedShopping.current = profile.shopping;
-    if (!shoppingChanged) { write(); return undefined; }
+    // A changed list (the shopping list since SHOP-2, every tracked list and the removal markers since PROFILE-2) is
+    // merged with what the account holds right now before it is written, so a tick or a deletion made on another
+    // device since this one loaded is not overwritten by the whole-document save.
+    const signature = [...TRACKED, 'removed', 'shopping'].map((k) => profile[k]);
+    const last = syncedLists.current;
+    const changed = !last || signature.some((v, i) => v !== last[i]);
+    syncedLists.current = signature;
+    if (!changed) { write(); return undefined; }
     let live = true;
     (async () => {
       try {
         const snap = await getDoc(ref);
         if (!live) return;
         if (snap.exists()) {
-          const remote = cleanShopping(snap.data().shopping);
-          const merged = mergeShopping(profile.shopping, remote);
-          if (!sameShopping(merged, profile.shopping)) {
-            // Fold the other device's changes in; this effect runs again for the result and writes it.
-            update((prev) => ({ ...prev, shopping: mergeShopping(prev.shopping, remote) }));
+          const remote = parseCloud(snap.data());
+          const merged = { ...mergeProfiles(profile, remote), quizAnswers: profile.quizAnswers };
+          if (!sameSynced(merged, profile)) {
+            // Fold the other device's changes (and its removal markers) in; this effect runs again for the result and writes it.
+            setProfile((prev) => {
+              const m = { ...mergeProfiles(prev, remote), quizAnswers: prev.quizAnswers };
+              saveLocalProfile(m);
+              return m;
+            });
             return;
           }
         }
       } catch (err) {
-        console.error('Failed to read cloud shopping list:', err);
+        console.error('Failed to read cloud profile before saving:', err);
       }
       if (live) write();
     })();
@@ -450,8 +396,10 @@ export default function useUserProfile(user) {
   // known before this returns. The local write happens first; if it throws
   // (storage full or blocked) nothing changes and the reason comes back.
   const saveInvention = useCallback((input) => {
-    const res = saveInventionInto(profileRef.current, input);
-    if (!res.ok) return res;
+    const made = saveInventionInto(profileRef.current, input);
+    if (!made.ok) return made;
+    // A rename replaces an entry, so an old identity can leave a list here too; withRemovals marks it.
+    const res = { ...made, profile: withRemovals(profileRef.current, made.profile) };
     try {
       saveLocalProfile(res.profile);
     } catch {
@@ -482,7 +430,7 @@ export default function useUserProfile(user) {
   const deleteInvention = useCallback((kind, id) => {
     const list = profileRef.current?.[PROFILE_FIELD[kind]];
     const had = (Array.isArray(list) ? list : []).find((x) => x?.id === id);
-    const next = deleteInventionFrom(profileRef.current, kind, id);
+    const next = withRemovals(profileRef.current, deleteInventionFrom(profileRef.current, kind, id));
     try {
       saveLocalProfile(next);
     } catch {

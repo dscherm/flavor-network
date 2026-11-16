@@ -140,4 +140,3 @@ Known gaps, not decisions:
 - SHOP-SYNC-REAL Signed-in sync was tested with a mocked Firestore and the emulator rules, never on a real account.
 - SHOP-PHONE Looked at in a desktop browser pane at 375 px only; no phone, no iOS clipboard, and the consent banner overlapping the list was not seen.
 - SHOP-REMOVAL-RESURRECT Removing an item from a list on one device and not syncing for more than 30 days lets it come back (removal notes are dropped after 30 days).
-- PROFILE-RESURRECT A cuisine, ingredient, favourite pairing, saved recipe, cocktail or sauce deleted on one device comes back from the other at sign-in: those lists merge as a union and carry no removal markers. Only the shopping list has tombstones. Ambiguous (a rule change), so not changed in SHOP-5.
