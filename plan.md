@@ -2617,7 +2617,7 @@ it shows); PICTURE-5 last.
   "id": "PICTURE-5",
   "title": "Pictures: docs and the final pass",
   "category": "chore",
-  "passes": false,
+  "passes": true,
   "description": "docs/sharing.md gains a section on pictures: what is stored and where, that the original photo never leaves the device, the size cap, that a report can be about the picture, and that removing a share removes its picture. CLOSEOUT.md (unreleased entry), README.md and BACKLOG.md updated (left out on purpose: original photos, an AI image model, cropping tools, more than one picture). Final pass at 375px: invent a drink, add a chalk picture from a photo, adjust it, save; pick a drawing for a sauce; share one and open the link signed out. Anything not exercised for real (a phone camera, real Firestore writes, live previews) is named as not verified.",
   "acceptance": [
     "docs/sharing.md describes exactly what the code stores and sends",
