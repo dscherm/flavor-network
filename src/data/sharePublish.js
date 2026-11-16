@@ -20,7 +20,7 @@ import { SHARE_CHARTS_ENABLED } from './shareTargets.js';
 
 export const SHARE_LIMITS = Object.freeze({
   name: 80, by: 30, lines: 40, key: 60, amount: 30, role: 30, method: 2000,
-  glass: 60, category: 60, protein: 60, bars: 11, barLabel: 20, live: 50,
+  glass: 60, category: 60, protein: 60, bars: 17, barLabel: 20, live: 50,
 });
 
 export const SHARE_DOC_KINDS = Object.freeze(['cocktail', 'sauce', 'recipe']);

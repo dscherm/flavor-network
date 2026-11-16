@@ -113,7 +113,15 @@ export function toSatori(card: LayoutCard) {
           left: p.x, top: p.y, width: p.w, height: p.h, fontFamily: FAMILY[p.font as 'hand' | 'sans'] || 'Inter',
           fontSize: p.size, fontWeight: p.weight, color: p.color, whiteSpace: 'nowrap', overflow: 'hidden',
         },
-        children: p.text,
+        children: Array.isArray(p.runs) && p.runs.length
+          ? p.runs.map((r: { text: string; underline?: string }) => ({
+            type: 'span',
+            props: {
+              style: { whiteSpace: 'pre', ...(r.underline ? { textDecoration: 'underline', textDecorationColor: r.underline } : {}) },
+              children: r.text,
+            },
+          }))
+          : p.text,
       },
     };
   });

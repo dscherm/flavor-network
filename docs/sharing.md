@@ -12,7 +12,7 @@ A shared link is a web address that opens one recipe for anyone, with no account
 1. **A built-in link** looks like `https://neuralflavor.web.app/r/cocktail/negroni` (or `/r/sauce/...`, `/r/dish/...`). It points at a recipe that ships with the app. Nothing a user wrote is involved, so there is nothing to report or remove.
 2. **A user's copy** looks like `https://neuralflavor.web.app/r/k7m2q9x4tz` (ten letters and numbers). It exists only when a signed-in person taps "Create link" on a cocktail, sauce or recipe they made. The app makes a frozen public copy of it; the person's own recipe is not touched, and later edits to it do not change the link. If they edit and share again they get a new link.
 
-Both kinds show the recipe, a flavor chart (labelled a visual guide), and buttons to save it, copy it ("Make it your own") and share it. A visitor who is signed out is invited to create a free account. The chart shows the strongest few bars in two groups headed Taste and Aroma (a link-preview or feed card: 3 tastes and 3 aromas; the cover of a set of three: 4 and 4; the page: 4 and 4 with "show all"), and says "+N fainter notes" when it left some out (`src/data/flavorDisplay.js`; see `docs/flavor-profile.md`, "Aromas, second pass"). Pasting a link into a chat or social post shows a preview card with the recipe's name, its first ingredients and a picture. That preview is made by two small server programs (Cloud Functions), `sharePreview` and `shareCard`.
+Both kinds show the recipe, a flavor chart (labelled a visual guide), and buttons to save it, copy it ("Make it your own") and share it. A visitor who is signed out is invited to create a free account. The chart is a tasting note (CHART-4): one sentence naming the strongest notes, such as "Bitter and sweet, with fruity, green and spice behind", with each note word underlined in its colour, then two thin strips, Taste and Aroma, on one scale with a label under the segments wide enough to read. Nothing is capped or hidden. The first card of a set of three also shows the fixed wheel. The wording and strips come from `src/data/flavorCharts.js`, the same code the page uses. Pasting a link into a chat or social post shows a preview card with the recipe's name, its first ingredients and a picture. That preview is made by two small server programs (Cloud Functions), `sharePreview` and `shareCard`.
 
 ## What becomes public, and what never does
 
@@ -59,7 +59,7 @@ A report records only the link's id, the reason, the note and the time. It does 
 ## Limits
 
 - 50 live shared links per account. The 51st is refused with a plain message asking the person to unshare one in Profile. This is enforced by the app only; the database rules cannot count.
-- Name 80 characters, shown-name 30, ingredient lines 40, each amount 30, method 2,000, glass or category 60, flavor chart 11 bars (the app saves at most 8: the 4 strongest tastes and 4 strongest aromas, because up to 17 axes can fire).
+- Name 80 characters, shown-name 30, ingredient lines 40, each amount 30, method 2,000, glass or category 60, flavor chart 17 bars, one per taste or aroma (CHART-4 raised this from 11; the app now saves every note above the floor, because the sentence and the strips need all of them. Copies made earlier hold 8 bars and still read and draw).
 - Report note 300 characters.
 - Anything not covered by those limits is escaped and shown as plain text on the page, in the preview tags and on the card. The database rules cannot look inside the ingredient list, so that part relies on the app and the server programs treating it as text, which they do and which is tested.
 
@@ -76,7 +76,7 @@ Every card prints the link. On a phone that supports it the button is "Share ima
 
 **The flavor chart on cards was rebuilt (FLAVOR-2 to FLAVOR-6), but check it before you deploy.** The chart is now built from a taste label and aroma notes for each ingredient, weighted by amount, and is labelled "a visual guide". It leads with the right taste on 36 of 41 test recipes and 19 of 20 held-back ones (`docs/flavor-profile.md`, "Where the charts stand"), which means it is still wrong on some. The nine cards looked at in FLAVOR-6 are described there; Margarita, Mojito, Thai green curry and Teriyaki are the ones a cook might wince at. The switch to hide it again is `SHARE_CHARTS_ENABLED`.
 
-**Deploy together.** The hosting site, the two functions and `firestore.rules` depend on each other:
+**Deploy together.** The hosting site, the two functions and `firestore.rules` depend on each other (CHART-4 changed the cards, both functions and the rules, so all of them go out together):
 
 - Hosting sends every `/r/` address to the `sharePreview` function and every `/r-img/` address to `shareCard`. Hosting without the functions makes those addresses error.
 - The functions now read shared recipes from the database. Without the new `firestore.rules` the app cannot write reports or shared copies, and a removed copy would not be refused on a raw read.

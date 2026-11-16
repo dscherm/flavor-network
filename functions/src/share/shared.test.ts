@@ -54,6 +54,11 @@ describe('sanitizeShared', () => {
     expect(c.glass).toBeUndefined();
     expect(c.category).toBeUndefined();
   });
+  it('CHART-4: keeps all 17 stored notes, and still reads an older copy with 8 or 11', () => {
+    const mk = (n: number) => Array.from({ length: n }, (_, i) => ({ label: `n${i}`, color: '#123456', score: 0.5 }));
+    expect(LIMITS.bars).toBe(17);
+    for (const [n, want] of [[17, 17], [30, 17], [11, 11], [8, 8]]) expect(sanitizeShared({ ...GOOD, bars: mk(n) })!.bars).toHaveLength(want);
+  });
   it('strips control characters', () => {
     expect(sanitizeShared({ ...GOOD, name: 'a\u0000b\nc‮d' })!.name).toBe('ab cd');
   });

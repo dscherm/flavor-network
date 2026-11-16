@@ -66,7 +66,7 @@ describe('toSharedDoc', () => {
     expect(toSharedDoc(ITEM, { ...CTX, uid: '' })).toBeNull();
     expect(toSharedDoc(null, CTX)).toBeNull();
   });
-  it('validates bars: at most 11, label 20, #rrggbb colour, score 0..1', () => {
+  it('validates bars: at most 17, label 20, #rrggbb colour, score 0..1', () => {
     const bars = [
       { label: 'Sweet', color: '#FF00AA', score: 0.123456 },
       { label: 'L'.repeat(50), color: '#000000', score: 1 },

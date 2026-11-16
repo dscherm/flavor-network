@@ -104,7 +104,7 @@ describe('shared/{id}: create', () => {
       category: 'c'.repeat(61),
       protein: 'p'.repeat(61),
       lines: Array.from({ length: 41 }, (_, i) => ({ key: `k${i}`, amount: '' })),
-      bars: Array.from({ length: 12 }, () => ({ label: 'x', color: '#000000', score: 0 })),
+      bars: Array.from({ length: 18 }, () => ({ label: 'x', color: '#000000', score: 0 })),
     };
     for (const [k, v] of Object.entries(over)) {
       await assertFails(setDoc(doc(asOwner(), 'shared', ID), good({ [k]: v })));
@@ -114,8 +114,16 @@ describe('shared/{id}: create', () => {
     await assertSucceeds(setDoc(doc(asOwner(), 'shared', ID), good({
       name: 'n'.repeat(80), by: 'b'.repeat(30), method: 'm'.repeat(2000),
       lines: Array.from({ length: 40 }, (_, i) => ({ key: `k${i}`, amount: '' })),
-      bars: Array.from({ length: 11 }, () => ({ label: 'x', color: '#000000', score: 0 })),
+      bars: Array.from({ length: 17 }, () => ({ label: 'x', color: '#000000', score: 0 })),
     })));
+  });
+  it('CHART-4: all 17 notes may be stored, and an older copy with 4 + 4 or 11 bars is still valid', async () => {
+    const bar = (i) => ({ label: `n${i}`, color: '#000000', score: 0.5 });
+    await assertSucceeds(setDoc(doc(asOwner(), 'shared', 'abcdefghjk'), good({ bars: Array.from({ length: 17 }, (_, i) => bar(i)) })));
+    for (const [id, n] of [['abcdefghj1', 8], ['abcdefghj2', 11], ['abcdefghj3', 0]]) {
+      await assertSucceeds(setDoc(doc(asOwner(), 'shared', id), good({ bars: Array.from({ length: n }, (_, i) => bar(i)) })));
+    }
+    await assertFails(setDoc(doc(asOwner(), 'shared', 'abcdefghj4'), good({ bars: Array.from({ length: 18 }, (_, i) => bar(i)) })));
   });
   it('denies wrong types and an empty name or empty lines', async () => {
     for (const over of [{ name: '' }, { name: 5 }, { lines: [] }, { lines: 'x' }, { bars: 'x' }, { by: 5 }, { kind: 'wine' }, { createdAt: 'now' }]) {

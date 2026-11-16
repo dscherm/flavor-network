@@ -60,13 +60,41 @@ export function drawCard(ctx, card) {
       ctx.moveTo(p.x1, p.y1); ctx.lineTo(p.x2, p.y2);
       ctx.strokeStyle = p.color; ctx.lineWidth = p.width; ctx.stroke();
       ctx.setLineDash([]);
+    } else if (p.type === 'wedge') {
+      const t = (deg) => (deg * Math.PI) / 180;
+      ctx.beginPath();
+      ctx.arc(p.cx, p.cy, p.r1, t(p.a0), t(p.a1), false);
+      ctx.arc(p.cx, p.cy, p.r0, t(p.a1), t(p.a0), true);
+      ctx.closePath();
+      ctx.fillStyle = p.fill;
+      ctx.fill();
     } else if (p.type === 'text') {
       ctx.font = `${p.weight} ${p.size}px ${STACK[p.font] || STACK.sans}`;
       ctx.fillStyle = p.color;
       ctx.textBaseline = 'middle';
-      ctx.textAlign = p.align;
-      const x = p.align === 'center' ? p.x + p.w / 2 : p.align === 'right' ? p.x + p.w : p.x;
-      ctx.fillText(p.text, x, p.y + p.h / 2 + p.size * 0.04);
+      const y = p.y + p.h / 2 + p.size * 0.04;
+      if (p.runs && p.runs.length) {
+        // The tasting note: pieces drawn side by side, each note word underlined in its colour.
+        ctx.textAlign = 'left';
+        const widths = p.runs.map((r) => ctx.measureText(r.text).width);
+        const total = widths.reduce((a, b) => a + b, 0);
+        let x = p.align === 'center' ? p.x + (p.w - total) / 2 : p.align === 'right' ? p.x + p.w - total : p.x;
+        p.runs.forEach((r, i) => {
+          ctx.fillStyle = p.color;
+          ctx.fillText(r.text, x, y);
+          if (r.underline) {
+            const uy = y + p.size * 0.36;
+            ctx.beginPath();
+            ctx.moveTo(x, uy); ctx.lineTo(x + widths[i], uy);
+            ctx.strokeStyle = r.underline; ctx.lineWidth = Math.max(2, Math.round(p.size * 0.07)); ctx.stroke();
+          }
+          x += widths[i];
+        });
+      } else {
+        ctx.textAlign = p.align;
+        const x = p.align === 'center' ? p.x + p.w / 2 : p.align === 'right' ? p.x + p.w : p.x;
+        ctx.fillText(p.text, x, y);
+      }
     }
   }
 }

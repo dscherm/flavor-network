@@ -7,7 +7,7 @@
 import type { CardData } from './card';
 import type { SharedLookup } from './handler';
 
-export const LIMITS = { name: 80, key: 60, amount: 30, glass: 60, category: 60, lines: 40, bars: 11, barLabel: 20 } as const;
+export const LIMITS = { name: 80, key: 60, amount: 30, glass: 60, category: 60, lines: 40, bars: 17, barLabel: 20 } as const;
 export const SHARED_TTL_MS = 3 * 60_000;
 const KINDS = ['cocktail', 'sauce', 'recipe'] as const;
 const NOUN: Record<string, string> = { cocktail: 'cocktail', sauce: 'sauce', recipe: 'dish' };

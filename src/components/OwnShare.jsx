@@ -40,7 +40,7 @@ async function barsForItem(item, kind, nodes) {
     const map = nodes instanceof Map && nodes.size ? nodes : await loadLabelNodes();
     const doc = toSharedDoc(item, { kind, uid: 'x', bars: [] });
     if (!doc || !map) return [];
-    return barsFor({ kind: PAGE_KIND[kind], lines: doc.lines.map((l) => ({ key: l.key })) }, map, { stored: true });
+    return barsFor({ kind: PAGE_KIND[kind], lines: doc.lines.map((l) => ({ key: l.key, amount: l.amount })) }, map, { stored: true });
   } catch {
     return [];
   }

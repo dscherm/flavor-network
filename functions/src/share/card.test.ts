@@ -110,15 +110,18 @@ describe('shareCard PNG', () => {
 
 describe('layout sharing', () => {
   it('the layout the function uses is the browser module, copied (generated file matches the source)', () => {
-    // AROMA-4: the layout imports the chart display rule; the generated copy inlines src/data/flavorDisplay.js ahead of it
-    // and drops the import line. Line endings are normalised so the check does not depend on how git checked the files out.
+    // CHART-4: the layout imports the chart pieces (flavorCharts.js, which imports flavorDisplay.js); the generated copy inlines both
+    // ahead of it and drops the import lines. Line endings are normalised so the check does not depend on how git checked the files out.
     const lf = (t: string) => t.replace(/\r\n/g, '\n');
     const root = join(__dirname, '..', '..', '..', 'src', 'data');
-    const layout = lf(readFileSync(join(root, 'shareCardLayout.js'), 'utf8')).split('\n').filter((l) => !l.includes("from './flavorDisplay.js'")).join('\n');
+    const strip = (t: string) => lf(t).split('\n').filter((l) => !l.includes("from './flavorDisplay.js'") && !l.includes("from './flavorCharts.js'")).join('\n');
+    const layout = strip(readFileSync(join(root, 'shareCardLayout.js'), 'utf8'));
     const rule = lf(readFileSync(join(root, 'flavorDisplay.js'), 'utf8'));
+    const charts = strip(readFileSync(join(root, 'flavorCharts.js'), 'utf8'));
     const gen = lf(readFileSync(join(__dirname, 'cardLayout.generated.ts'), 'utf8'));
     expect(gen.endsWith(layout)).toBe(true);
     expect(gen).toContain(rule);
+    expect(gen).toContain(charts);
     expect(gen.startsWith('// @ts-nocheck\n// GENERATED')).toBe(true);
   });
   it('lays out a built-in preview card with the printed link, the site name and the flavor chart', () => {
@@ -138,17 +141,14 @@ describe('layout sharing', () => {
     const text = layoutFor(cards['cocktail/boulevardier'], 'x').primitives.filter((p: any) => p.type === 'text').map((p: any) => p.text).join(' ');
     expect(text).toContain('flavor chart');
   });
-  it('the preview chart keeps to three tastes and three aromas and stays inside the card, even for the busiest recipes', () => {
+  it('CHART-4: the preview draws the tasting note for even the busiest recipes: the sentence is the same as the shared page, nothing is hidden, everything is inside the card', () => {
     const busiest = Object.entries(cards).sort((x, y) => y[1].bars.length - x[1].bars.length).slice(0, 5).map(([k]) => k);
     for (const key of ['cocktail/negroni', 'cocktail/daiquiri', 'dish/beef-bolognese', ...busiest]) {
       const card = layoutFor(cards[key], 'x') as any;
-      // AROMA-4: the chart is the display rule's 'card' selection, at most 3 tastes + 3 aromas.
-      const shown = (generated as any).groupBars(cards[key].bars, 'card').bars;
-      const labels = new Set(shown.map((b: any) => b.label.charAt(0).toUpperCase() + b.label.slice(1)));
-      const drawn = card.primitives.filter((p: any) => p.type === 'text' && [...labels].includes(p.text));
-      expect(drawn.length).toBe(shown.length);
-      expect(shown.length).toBeLessThanOrEqual(6);
-      for (const p of card.primitives.filter((q: any) => q.type !== 'line')) expect(p.y + (p.h || 0)).toBeLessThanOrEqual(card.height);
+      const lines = card.primitives.filter((p: any) => p.type === 'text' && p.runs);
+      expect(lines.map((p: any) => p.text).join(' ')).toBe((generated as any).flavorNote(cards[key].bars).text);
+      expect(card.primitives.filter((p: any) => p.type === 'text').map((p: any) => p.text).join(' ')).not.toContain('fainter');
+      for (const p of card.primitives.filter((q: any) => q.type === 'text')) expect(p.y + p.h).toBeLessThanOrEqual(card.height);
     }
   });
   it('the layout itself still draws the chart when handed bars (what switching it on restores)', () => {
@@ -167,12 +167,36 @@ describe('layout sharing', () => {
     const card = layoutFor(cards['cocktail/negroni'], 'neuralflavor.web.app/r/cocktail/negroni');
     const text = card.primitives.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('\n');
     expect(text).toContain('Negroni');
-    expect(text).toContain('Bitter');
+    expect(text).toContain('Bitter and sweet');
   });
   it('maps every primitive kind to a satori node', () => {
     const tree = toSatori(layoutFor(cards['cocktail/negroni'], 'x') as any) as any;
     expect(tree.props.style.width).toBe(1200);
     expect(tree.props.children.length).toBeGreaterThan(10);
     for (const c of tree.props.children) expect(c.type).toBe('div');
+  });
+  it('CHART-4: the sentence is drawn as inline spans, each note word underlined in its colour', () => {
+    const card = layoutFor(cards['cocktail/negroni'], 'x') as any;
+    const tree = toSatori(card) as any;
+    const withSpans = tree.props.children.filter((c: any) => Array.isArray(c.props.children));
+    expect(withSpans.length).toBeGreaterThan(0);
+    const spans = withSpans.flatMap((c: any) => c.props.children);
+    const underlined = spans.filter((sp: any) => sp.props.style.textDecoration === 'underline');
+    expect(underlined.length).toBe((generated as any).flavorNote(cards['cocktail/negroni'].bars).words.length);
+    for (const sp of underlined) expect(sp.props.style.textDecorationColor).toMatch(/^#[0-9a-f]{6}$/);
+    for (const sp of spans) expect(sp.props.style.whiteSpace).toBe('pre');
+  });
+  it('CHART-4: a user copy with all 17 notes stored draws the same sentence from them', async () => {
+    const axes = ['Sweet', 'Sour', 'Bitter', 'Salty', 'Umami', 'Heat', 'Fruity', 'Floral', 'Green', 'Woody', 'Spice', 'Creamy', 'Toasty', 'Nutty', 'Earthy', 'Smoky', 'Savory'];
+    const bars = axes.map((label, i) => ({ label, color: '#abcdef', score: Math.round((0.9 - i * 0.04) * 1000) / 1000 }));
+    let drawn: any = null;
+    const res = await handleShareCard({ path: '/r-img/ab12cd.png' }, deps({
+      lookupShared: async () => ({ name: 'Grandma soup', kind: 'dish', lines: [{ label: 'carrot', amount: '2' }], bars }),
+      render: async (c: unknown) => { drawn = c; return Buffer.from([1]); },
+    }));
+    expect(res.status).toBe(200);
+    const sentence = drawn.primitives.filter((p: any) => p.runs).map((p: any) => p.text).join(' ');
+    expect(sentence).toBe((generated as any).flavorNote(bars).text);
+    expect(sentence).toBe('Sweet and sour, with bitter, salty and umami behind.');
   });
 });

@@ -167,16 +167,174 @@ export function radarKeys(signal, canonical, max = 8) {
 }
 
 /**
+ * flavorCharts.js — CHART-2. The pure pieces behind four ways of drawing a recipe's flavor profile: the tasting-note
+ * sentence, the two strips, the fixed wheel and the fixed grid. No drawing here, only what to draw.
+ *
+ * Self-contained like flavorDisplay.js (the share card layout is copied into the Cloud Functions package and
+ * scripts/buildShareIndex.mjs inlines display code there): the ONLY import is flavorDisplay.js, on one line so the
+ * inliner can drop it. Ordering, the 0.05 floor, the axis lists and group membership all come from flavorDisplay.js.
+ *
+ * Input everywhere is a list of bars { axis?, label?, color?, score } as profileForRecipe returns them, or as a share
+ * card stores them (label + color + score only). A bar whose axis cannot be read is ignored, so nothing outside the
+ * seventeen axes can ever be placed.
+ *
+ * Labels and colours: a bar carries its own colour. Labels come from AXIS_LABEL below (the chart words of
+ * recipeScoring.AROMA_LABELS and the taste names, capitalised; a test pins it to those), so an axis the recipe does
+ * not have still has a label. Its colour is null unless the caller passes `colors` ({ axis: '#hex' }, e.g. from
+ * axisColor). An absent axis is drawn as an empty track or ring, which needs no colour.
+ */
+
+export const AXIS_LABEL = {
+  sweet: 'Sweet', sour: 'Sour', bitter: 'Bitter', salty: 'Salty', umami: 'Umami', heat: 'Heat',
+  odor_fruity: 'Fruity', odor_floral: 'Floral', odor_green: 'Green', odor_woody: 'Woody', odor_spicy: 'Spice',
+  odor_fatty: 'Creamy', odor_toasty: 'Toasty', odor_nutty: 'Nutty', odor_earthy: 'Earthy', odor_smoky: 'Smoky', odor_savory: 'Savory',
+};
+
+/** A strip segment is labelled when its length (share of the shared scale) is at least this. */
+export const STRIP_LABEL_MIN = 0.17;
+/** A wedge that is on is drawn at least this long (fraction of full radius), so a faint note stays visible. */
+export const WEDGE_MIN_LENGTH = 0.08;
+/** Wedge geometry in degrees (SVG angles: -90 is twelve o'clock, increasing clockwise): the gap at the top and between aromas and tastes, and the gap between wedges. */
+export const WHEEL_GAP = 16;
+export const WHEEL_WEDGE_GAP = 1.2;
+/** How many of the strongest wedges are labelled, by size. Any other size labels every wedge that is on. */
+export const WHEEL_LABELS = { mini: 3, card: 4 };
+/** Fixed grid shape: tastes in one row of six, aromas in rows of six and five. */
+export const GRID_ROWS = [6, 6, 5];
+
+/** The bars that count: readable axis, score at or above the floor, one per axis (the larger wins), strongest first. */
+function liveBars(bars) {
+  const byAxis = new Map();
+  for (const b of Array.isArray(bars) ? bars : []) {
+    const axis = axisOfBar(b);
+    const score = Number(b?.score);
+    if (!axis || !Number.isFinite(score) || score < FLOOR || score <= 0) continue;
+    const prev = byAxis.get(axis);
+    if (!prev || score > prev.score) byAxis.set(axis, { axis, label: AXIS_LABEL[axis], color: b.color || null, score, group: barGroup({ axis }) });
+  }
+  return [...byAxis.values()].sort(compareBars);
+}
+
+const join = (words) => (words.length > 1 ? `${words.slice(0, -1).join(', ')} and ${words[words.length - 1]}` : words[0]);
+
+/**
+ * The tasting note. Lead: the two strongest notes, or the single strongest "above all" when it is at least twice the
+ * second (or the only one). Behind: up to three more. Names notes only. No notes: empty text and arrays.
+ *   { lead: [axis], behind: [axis], text, words: [{ axis, label, color, role: 'lead'|'behind' }] }
+ */
+export function flavorNote(bars) {
+  const all = liveBars(bars);
+  if (!all.length) return { lead: [], behind: [], text: '', words: [] };
+  const solo = all.length < 2 || all[0].score >= 2 * all[1].score;
+  const lead = all.slice(0, solo ? 1 : 2);
+  const behind = all.slice(solo ? 1 : 2, solo ? 4 : 5);
+  const w = (b) => b.label.toLowerCase();
+  const head = solo ? `${w(lead[0])} above all` : `${w(lead[0])} and ${w(lead[1])}`;
+  const tail = behind.length ? `, with ${join(behind.map(w))} behind` : '';
+  const sentence = `${head}${tail}.`;
+  return {
+    lead: lead.map((b) => b.axis),
+    behind: behind.map((b) => b.axis),
+    text: sentence[0].toUpperCase() + sentence.slice(1),
+    words: [
+      ...lead.map((b) => ({ axis: b.axis, label: b.label, color: b.color, role: 'lead' })),
+      ...behind.map((b) => ({ axis: b.axis, label: b.label, color: b.color, role: 'behind' })),
+    ],
+  };
+}
+
+/**
+ * Two strips on ONE scale: a segment's length is its score over the larger of the two group totals, so a recipe with
+ * faint tastes gets a short Taste strip. A segment is `labelled` when length >= STRIP_LABEL_MIN.
+ *   { scale, labelMin, taste: { total, length, segments }, aroma: { ... } }
+ *   segment { axis, label, color, score, length, labelled }; a row's `length` is the sum of its segment lengths.
+ */
+export function flavorStrips(bars) {
+  const all = liveBars(bars);
+  const total = (g) => all.filter((b) => b.group === g).reduce((t, b) => t + b.score, 0);
+  const scale = Math.max(total('taste'), total('aroma')) || 1;
+  const row = (g) => {
+    const segments = all.filter((b) => b.group === g).map((b) => {
+      const length = b.score / scale;
+      return { axis: b.axis, label: b.label, color: b.color, score: b.score, length, labelled: length >= STRIP_LABEL_MIN };
+    });
+    return { total: total(g), length: segments.reduce((t, s) => t + s.length, 0), segments };
+  };
+  return { scale, labelMin: STRIP_LABEL_MIN, taste: row('taste'), aroma: row('aroma') };
+}
+
+const colorOf = (axis, live, colors) => live.get(axis)?.color || colors?.[axis] || null;
+
+/**
+ * The fixed wheel: seventeen wedges, the eleven aromas clockwise from the top, a gap, the six tastes (they land on the
+ * upper left), and a gap at the top. Positions never depend on the recipe. Length is score over the recipe's strongest
+ * note (0..1); `drawn` is that length raised to WEDGE_MIN_LENGTH for a wedge that is on. Only wedges that are on and
+ * among the strongest WHEEL_LABELS[size] are labelled (every wedge that is on for a size not in WHEEL_LABELS).
+ *   { size, peak, gap, wedgeGap, minLength, wedges: [{ index, axis, label, group, color, score, on, length, drawn,
+ *     start, end, mid, labelled }] }
+ */
+export function flavorWheel(bars, size = 'full', { colors } = {}) {
+  const liveList = liveBars(bars);
+  const live = new Map(liveList.map((b) => [b.axis, b]));
+  const peak = liveList.length ? liveList[0].score : 0;
+  const width = (360 - 2 * WHEEL_GAP) / AXES.length;
+  const cap = WHEEL_LABELS[size] ?? Infinity;
+  const labelled = new Set(liveList.slice(0, cap).map((b) => b.axis));
+  const order = [...AROMA_AXES, ...TASTE_AXES];
+  const wedges = order.map((axis, index) => {
+    const start = -90 + WHEEL_GAP / 2 + index * width + (index >= AROMA_AXES.length ? WHEEL_GAP : 0);
+    const end = start + width - WHEEL_WEDGE_GAP;
+    const b = live.get(axis);
+    const on = !!b;
+    const length = on && peak > 0 ? b.score / peak : 0;
+    return {
+      index, axis, label: AXIS_LABEL[axis], group: AROMA_AXES.includes(axis) ? 'aroma' : 'taste', color: colorOf(axis, live, colors),
+      score: on ? b.score : 0, on, length, drawn: on ? Math.max(length, WEDGE_MIN_LENGTH) : 0,
+      start, end, mid: (start + end) / 2, labelled: on && labelled.has(axis),
+    };
+  });
+  return { size, peak, gap: WHEEL_GAP, wedgeGap: WHEEL_WEDGE_GAP, minLength: WEDGE_MIN_LENGTH, wedges };
+}
+
+/**
+ * The fixed grid: seventeen cells, a row of six tastes, then the aromas as a row of six and a row of five. A dot's
+ * AREA follows the score: radius factor = sqrt(score / scale), at most 1; absent cells have radius 0 and on false.
+ * `scale` defaults to the profile's strongest note; pass one value to two grids (before / after) to share a scale.
+ *   { scale, rows: GRID_ROWS, cells: [{ index, axis, label, group, color, row, col, score, on, radius }] }
+ */
+export function flavorGrid(bars, { scale, colors } = {}) {
+  const liveList = liveBars(bars);
+  const live = new Map(liveList.map((b) => [b.axis, b]));
+  const s = Number.isFinite(Number(scale)) && Number(scale) > 0 ? Number(scale) : (liveList.length ? liveList[0].score : 0);
+  const order = [...TASTE_AXES, ...AROMA_AXES];
+  let row = 0;
+  let col = 0;
+  const cells = order.map((axis, index) => {
+    if (col >= GRID_ROWS[row]) { row += 1; col = 0; }
+    const b = live.get(axis);
+    const on = !!b && s > 0;
+    const cell = {
+      index, axis, label: AXIS_LABEL[axis], group: TASTE_AXES.includes(axis) ? 'taste' : 'aroma', color: colorOf(axis, live, colors),
+      row, col, score: b ? b.score : 0, on, radius: on ? Math.min(1, Math.sqrt(b.score / s)) : 0,
+    };
+    col += 1;
+    return cell;
+  });
+  return { scale: s, rows: GRID_ROWS, cells };
+}
+
+/**
  * shareCardLayout.js — SHARE-5. Pure, renderer-agnostic description of the recipe
- * cards people post. No DOM, no canvas, no fetch, and one import (flavorDisplay.js, the chart display rule; scripts/buildShareIndex.mjs
- * inlines it into the generated copy): the browser canvas
+ * cards people post. No DOM, no canvas, no fetch, and one import (flavorCharts.js, the chart pieces, which itself imports
+ * flavorDisplay.js; scripts/buildShareIndex.mjs inlines both into the generated copy): the browser canvas
  * renderer and the Cloud Function (satori) both draw exactly what this returns.
  * scripts/buildShareIndex.mjs copies this file into functions/src/share/ as a
  * generated file, so keep it self-contained.
  *
 
- * The chart shows what flavorDisplay.groupBars picks for 'card' (3 tastes + 3 aromas) or, on a set's cover, 'cover' (4 + 4),
- * under Taste and Aroma headings; the caption adds "+N fainter notes" when bars were left out.
+ * CHART-4: the chart is design D, the tasting note: the sentence flavorNote() words (each note word underlined in its
+ * colour) and two strips, Taste and Aroma, on one scale (flavorStrips). Nothing is capped or hidden. The first card of a set
+ * also draws the fixed wheel (flavorWheel).
  * layoutCard({ format, recipe, bars, link, page })  ->  Card
  *   format  'preview' (1200x630) | 'portrait' (1080x1350) | 'tall' (1080x1920)
  *   recipe  { kind, name, lines: [{ amount, label?, key, suggested? }], method, glass?, garnish?,
@@ -193,7 +351,10 @@ export function radarKeys(signal, canonical, max = 8) {
  * Primitive (all coordinates in card pixels, y grows downward):
  *   { type: 'rect', x, y, w, h, fill?, stroke?, strokeWidth?, radius? }
  *   { type: 'line', x1, y1, x2, y2, color, width, dash? }
- *   { type: 'text', x, y, w, h, text, size, weight, color, font: 'hand'|'sans', align: 'left'|'center'|'right' }
+ *   { type: 'text', x, y, w, h, text, size, weight, color, font: 'hand'|'sans', align: 'left'|'center'|'right', runs? }
+ *     `runs` (the tasting note only): [{ text, underline?: colour }] pieces of `text`, in order; the renderer draws them
+ *     inline and underlines those with a colour. A renderer that ignores `runs` draws `text` plain.
+ *   { type: 'wedge', cx, cy, r0, r1, a0, a1, fill }   a ring sector, angles in degrees (-90 = top, clockwise)
  *     one line of text per primitive; (x, y, w, h) is its box, h = the line height. Layout has
  *     already wrapped, shrunk and truncated: renderers never measure or wrap.
  */
@@ -370,41 +531,92 @@ function footer(fr, link, page) {
   return y - 14;
 }
 
-/** Heights used by the chart so callers can reserve room: the bars, one small heading per group, the caption. */
-const headH = (row) => Math.round(row * 0.6);
-const chartHeight = (shown, { row, caption }) => (shown.bars.length ? shown.bars.length * row + shown.groups.length * headH(row) + caption + (shown.hidden > 0 ? Math.round(caption * 0.8) : 0) + 12 : 0);
+const cap1 = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+
+/** Splits one wrapped line of the sentence into runs, underlining each note word in its colour. */
+function noteRuns(line, colorOf) {
+  const runs = [];
+  for (const piece of line.match(/[A-Za-z]+|[^A-Za-z]+/g) || []) {
+    const color = colorOf.get(piece.toLowerCase());
+    const last = runs[runs.length - 1];
+    if (color) runs.push({ text: piece, underline: color });
+    else if (last && !last.underline) last.text += piece;
+    else runs.push({ text: piece });
+  }
+  return runs;
+}
 
 /**
- * The flavor chart: Taste and Aroma groups under small headings, labelled horizontal bars. Omitted entirely when
- * there are no bars. `shown` is flavorDisplay.groupBars output (the one display rule).
+ * The tasting note (design D) as primitives relative to y = 0, x absolute: the sentence (wrapped, note words underlined), then
+ * the Taste and Aroma strips on one scale, a label under each segment flavorStrips marks, and the caption.
+ * -> { prims, height }, or null when there is nothing to draw.
  */
-function chart(fr, y, shown, { x, w, row, size }) {
-  if (!shown.bars.length) return y;
-  const labelW = Math.round(w * 0.3);
-  const trackX = x + labelW + 16;
-  const trackW = w - labelW - 16;
-  const barH = Math.round(row * 0.46);
-  let ry = y;
-  const drawBar = (b) => {
-    text(fr.prims, { x, y: ry + (row - lineH(size, 1.2)) / 2, w: labelW, text: ellipsize(b.label.charAt(0).toUpperCase() + b.label.slice(1), size, {}, labelW), size, color: PALETTE.dim, align: 'right', lh: 1.2 });
-    const by = ry + Math.round((row - barH) / 2);
-    fr.prims.push({ type: 'rect', x: trackX, y: by, w: trackW, h: barH, fill: 'rgba(255,255,255,0.07)', radius: 6 });
-    const frac = Math.max(0.04, Math.min(1, Number(b.score) || 0));
-    fr.prims.push({ type: 'rect', x: trackX, y: by, w: Math.round(trackW * frac), h: barH, fill: b.color || PALETTE.accent, radius: 6 });
-    ry += row;
-  };
-  const headSize = Math.max(18, size - 6);
-  shown.groups.forEach((g) => {
-    text(fr.prims, { x, y: ry + (headH(row) - lineH(headSize, 1.2)) / 2 + 2, w, text: g.title.toUpperCase(), size: headSize, weight: 600, color: PALETTE.sub, align: 'left', lh: 1.2 });
-    ry += headH(row);
-    g.bars.forEach(drawBar);
+function noteBlock(bars, { x, w, size, maxLines, strip, caption }) {
+  const note = flavorNote(bars);
+  if (!note.text) return null;
+  const strips = flavorStrips(bars);
+  const prims = [];
+  const colorOf = new Map(note.words.map((wd) => [wd.label.toLowerCase(), wd.color || PALETTE.accent]));
+  const o = { font: 'hand', weight: 400 };
+  const lines = wrapText(note.text, size, o, w, maxLines);
+  const lh = lineH(size, 1.2);
+  let y = 0;
+  lines.forEach((ln) => {
+    text(prims, { x, y, w, text: ln, size, weight: 400, font: 'hand', color: PALETTE.cream, lh: 1.2 });
+    prims[prims.length - 1].runs = noteRuns(ln, colorOf);
+    y += lh;
   });
-  const cy = ry + 4;
-  const capSize = Math.max(18, size - 4);
-  let end = cy + text(fr.prims, { x, y: cy, w, text: CHART_CAPTION, size: capSize, color: PALETTE.sub, align: 'left' });
-  // Bars left out: say so on a second line (the caption alone fills the narrow preview column).
-  if (shown.hidden > 0) end += text(fr.prims, { x, y: end, w, text: hiddenLine(shown.hidden), size: capSize, color: PALETTE.sub, align: 'left' });
-  return end;
+  y += Math.round(size * 0.55);
+  const labelW = strip.labelW;
+  const trackX = x + labelW;
+  const trackW = w - labelW;
+  for (const [title, row] of [['Taste', strips.taste], ['Aroma', strips.aroma]]) {
+    if (!row.segments.length) continue;
+    text(prims, { x, y: y + Math.round((strip.h - lineH(strip.label, 1.2)) / 2), w: labelW - 12, text: title.toUpperCase(), size: strip.label, weight: 600, color: PALETTE.sub, lh: 1.2 });
+    prims.push({ type: 'rect', x: trackX, y, w: trackW, h: strip.h, fill: 'rgba(255,255,255,0.07)', radius: 3 });
+    let sx = trackX;
+    row.segments.forEach((sg, i) => {
+      const sw = Math.max(3, Math.round(sg.length * trackW));
+      const gap = i < row.segments.length - 1 ? 2 : 0;
+      prims.push({ type: 'rect', x: sx, y, w: Math.max(2, sw - gap), h: strip.h, fill: sg.color || PALETTE.accent, radius: 3 });
+      if (sg.labelled) text(prims, { x: sx, y: y + strip.h + 4, w: Math.max(2, sw - gap), text: ellipsize(sg.label, strip.label, {}, Math.max(2, sw - gap)), size: strip.label, color: PALETTE.dim, lh: 1.2 });
+      sx += sw;
+    });
+    y += strip.h + 4 + lineH(strip.label, 1.2) + strip.gap;
+  }
+  y += 2;
+  y += text(prims, { x, y, w, text: CHART_CAPTION, size: caption, color: PALETTE.sub, align: 'left' });
+  return { prims, height: y };
+}
+
+/** Puts a block's primitives into the card, dy pixels down. */
+function place(fr, block, dy) {
+  for (const p of block.prims) fr.prims.push(p.type === 'line' ? { ...p, y1: p.y1 + dy, y2: p.y2 + dy } : { ...p, y: p.y + dy });
+}
+
+/** The fixed wheel (seventeen wedges, strongest four labelled) centred on (cx, cy); the labels sit outside the rim. */
+function wheelPrims(fr, bars, cx, cy, R, labelSize) {
+  const wheel = flavorWheel(bars, 'card');
+  const R0 = Math.round(R * 0.2);
+  for (const wg of wheel.wedges) fr.prims.push({ type: 'wedge', cx, cy, r0: R0, r1: R, a0: wg.start, a1: wg.end, fill: 'rgba(255,255,255,0.08)' });
+  for (const wg of wheel.wedges) {
+    if (wg.on) fr.prims.push({ type: 'wedge', cx, cy, r0: R0, r1: Math.round(R0 + (R - R0) * wg.drawn), a0: wg.start, a1: wg.end, fill: wg.color || PALETTE.accent });
+  }
+  const lh = lineH(labelSize, 1.2);
+  const boxW = Math.round(labelSize * 7);
+  for (const wg of wheel.wedges) {
+    if (!wg.labelled) continue;
+    const rad = (wg.mid * Math.PI) / 180;
+    const c = Math.cos(rad);
+    const sn = Math.sin(rad);
+    const rr = R + 16 + (Math.abs(c) < 0.5 && wg.index % 2 ? Math.round(labelSize * 0.9) : 0);
+    const px = cx + c * rr;
+    const py = cy + sn * rr;
+    const align = c > 0.25 ? 'left' : c < -0.25 ? 'right' : 'center';
+    const bx = align === 'left' ? px : align === 'right' ? px - boxW : px - boxW / 2;
+    text(fr.prims, { x: bx, y: py - lh / 2 + (sn > 0.3 ? lh * 0.4 : sn < -0.3 ? -lh * 0.4 : 0), w: boxW, text: wg.label, size: labelSize, color: PALETTE.cream, align, lh: 1.2 });
+  }
+  text(fr.prims, { x: cx - R - 40, y: cy + R + labelSize * 1.9, w: 2 * R + 80, text: 'Left side: tastes. The rest: aromas.', size: Math.max(18, labelSize - 4), color: PALETTE.sub, align: 'center', lh: 1.2 });
 }
 
 /** Moves the primitives from index `from` on down by dy. */
@@ -414,9 +626,6 @@ function shift(prims, from, dy) {
     if (p.type === 'line') { p.y1 += dy; p.y2 += dy; } else p.y += dy;
   }
 }
-
-/** The bars a card shows for `surface` ('card' | 'cover'): flavorDisplay.groupBars over the stored bars (label + score). */
-const shownBars = (bars, surface) => groupBars((Array.isArray(bars) ? bars : []).filter((b) => b && b.label), surface);
 
 /** Ingredient rows (amount column + name) into [y, yMax]. Ends with "+N more at the link" when it cannot fit all. */
 function ingredientRows(fr, y, yMax, recipe, { x, w, size, row, amountW }) {
@@ -528,20 +737,18 @@ export function layoutCard({ format = 'portrait', recipe, bars, link = '', page 
   const sub = subline(r);
 
   if (format === 'preview') {
-    const hasChart = shownBars(bars, 'card').bars.length > 0;
-    if (!hasChart) return finish(`${format}`, previewNoChart(fr, r, sub, footerTop));
-    const colW = Math.round(w * 0.56);
+    if (!flavorNote(bars).text) return finish(`${format}`, previewNoChart(fr, r, sub, footerTop));
+    const colW = Math.round(w * 0.52);
     const left = { ...fr, x1: fr.x0 + colW };
     let y = header(left, r, { nameSize: 92 });
     if (sub) y += text(fr.prims, { x: fr.x0, y: y + 2, w: colW, text: ellipsize(sub, 24, {}, colW), size: 24, color: PALETTE.dim }) + 6;
     y += 10;
     ingredientRows(fr, y, footerTop - 8, r, { x: fr.x0, w: colW, size: 28, row: 38, amountW: 215 });
-    const cx = fr.x0 + colW + 56;
+    const cx = fr.x0 + colW + 48;
     const cw = fr.x1 - cx;
-    const b = shownBars(bars, 'card');
-    const total = chartHeight(b, { row: 44, caption: 30 });
-    const cy = Math.max(fr.top + 40, Math.round((fr.top + footerTop - total) / 2));
-    chart(fr, cy, b, { x: cx, w: cw, row: 44, size: 24 });
+    const b = noteBlock(bars, { x: cx, w: cw, size: 40, maxLines: 4, strip: { labelW: 92, h: 14, label: 20, gap: 12 }, caption: 24 });
+    const cy = Math.max(fr.top + 30, Math.round((fr.top + footerTop - b.height) / 2));
+    place(fr, b, cy);
     return finish(`${format}`, fr);
   }
 
@@ -550,13 +757,12 @@ export function layoutCard({ format = 'portrait', recipe, bars, link = '', page 
   let y = header(fr, r, { nameSize: tall ? 128 : 118 });
   if (sub) y += text(fr.prims, { x: fr.x0, y: y + 4, w, text: ellipsize(sub, 30, {}, w), size: 30, color: PALETTE.dim }) + 10;
   y += 14;
-  const barList = shownBars(bars, 'card');
+  const blk = noteBlock(bars, { x: fr.x0, w, size: tall ? 56 : 52, maxLines: 3, strip: { labelW: 120, h: tall ? 20 : 18, label: tall ? 26 : 24, gap: 14 }, caption: 30 });
   const row = tall ? 52 : 46;
-  const chartH = chartHeight(barList, { row: tall ? 50 : 44, caption: 34 });
-  const gap = barList.bars.length ? 28 : 0;
+  const gap = blk ? 36 : 0;
   const from = fr.prims.length;
-  let end = ingredientRows(fr, y, footerTop - chartH - gap - 8, r, { x: fr.x0, w, size: tall ? 36 : 34, row, amountW: 260 });
-  if (barList.bars.length) end = chart(fr, end + gap, barList, { x: fr.x0, w, row: tall ? 50 : 44, size: 28 });
+  let end = ingredientRows(fr, y, footerTop - (blk ? blk.height : 0) - gap - 8, r, { x: fr.x0, w, size: tall ? 36 : 34, row, amountW: 260 });
+  if (blk) { place(fr, blk, end + gap); end += gap + blk.height; }
   // A short recipe leaves a gap: centre the ingredients and chart in the free space instead of hugging the top.
   const free = footerTop - 8 - end;
   if (free > 60) shift(fr.prims, from, Math.round(free * 0.4));
@@ -573,19 +779,25 @@ export function layoutSet({ format = 'portrait', recipe, bars, link = '' }) {
   const a = frame(format);
   const w = a.x1 - a.x0;
   const aFoot = footer(a, link, '1/3');
-  const barList = shownBars(bars, 'cover');
   const names = fitName(r.name, { size: tall ? 150 : 136, maxW: w });
   const labelSize = 32;
   const nameBlock = names.lines.length * lineH(names.size, 1.05);
   const n = totalLines(r);
   const info = [n ? `${n} ingredient${n === 1 ? '' : 's'}` : '', subline(r)].filter(Boolean).join(' · ');
-  const chartH = chartHeight(barList, { row: 58, caption: 36 });
-  const blockH = labelSize * 1.3 + 8 + nameBlock + (info ? 52 : 0) + (barList.bars.length ? 56 + chartH : 0);
+  const blk = noteBlock(bars, { x: a.x0, w, size: tall ? 60 : 54, maxLines: 3, strip: { labelW: 130, h: 22, label: 28, gap: 14 }, caption: 30 });
+  // The wheel takes what the text leaves: its radius shrinks (down to 100) rather than run into the footer.
+  const head = labelSize * 1.3 + 8 + nameBlock + (info ? 52 : 0);
+  const room = aFoot - a.top - 40 - head - (blk ? blk.height + 44 : 0);
+  const R = blk ? Math.max(100, Math.min(tall ? 210 : 190, Math.floor((room - 146) / 2))) : 0;
+  const blockH = head + (blk ? 14 + blk.height + 30 + 2 * R + 146 : 0);
   let y = Math.max(a.top + 20, Math.round((a.top + aFoot - blockH) / 2));
   y += text(a.prims, { x: a.x0, y, w, text: ellipsize(kindLabel(r).toUpperCase(), labelSize, {}, w), size: labelSize, weight: 600, color: PALETTE.sub, align: 'center', lh: 1.3 }) + 8;
   names.lines.forEach((ln) => { y += text(a.prims, { x: a.x0, y, w, text: ln, size: names.size, weight: 700, font: 'hand', color: PALETTE.cream, align: 'center', lh: 1.05 }); });
   if (info) y += text(a.prims, { x: a.x0, y: y + 10, w, text: ellipsize(info, 30, {}, w), size: 30, color: PALETTE.dim, align: 'center' }) + 42;
-  if (barList.bars.length) chart(a, y + 14, barList, { x: a.x0, w, row: 58, size: 30 });
+  if (blk) {
+    place(a, blk, y + 14);
+    wheelPrims(a, bars, Math.round(a.x0 + w / 2), y + 14 + blk.height + 30 + 36 + R, R, 28);
+  }
 
   // 2: ingredients
   const b = frame(format);

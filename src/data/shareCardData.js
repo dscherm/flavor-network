@@ -3,7 +3,7 @@
  * out with the same code as the shared recipe page. Pure.
  */
 import { buildFlavorProfile } from './inventProfile.js';
-import { groupBars } from './flavorDisplay.js';
+import { FLOOR } from './flavorDisplay.js';
 import { resolveIngredientName } from './recipePairingMatch.js';
 import { SHARE_CHARTS_ENABLED } from './shareTargets.js';
 
@@ -29,15 +29,17 @@ export function profileForRecipe(recipe, nodes) {
 
 /**
  * [{ label, color, score }] strongest first (the display rule's ordering, flavorDisplay.js); [] when there is no flavor
- * data or SHARE_CHARTS_ENABLED is off (the card then has no chart). Every bar above the floor, so a card can say how
- * many fainter notes it left out. `stored: true` is for the bars saved on a user's published copy: only the 4 tastes +
- * 4 aromas the compact surface shows (firestore.rules allows at most 11 bars; 17 axes can fire).
+ * data or SHARE_CHARTS_ENABLED is off (the card then has no chart). Every bar above the floor. `stored: true` is for the
+ * bars saved on a user's published copy (CHART-4): the same list, kept to scores at or above the floor so that rounding to
+ * three decimals cannot let a note in that the shared page leaves out. All of it is stored (firestore.rules allows 17 bars,
+ * one per axis), because the tasting note needs the five strongest notes overall and the strips need every note for their
+ * totals; the old 4 + 4 cut could change both.
  */
 export function barsFor(recipe, nodes, { stored = false } = {}) {
   if (!SHARE_CHARTS_ENABLED || !recipe || !(nodes instanceof Map) || !nodes.size) return [];
   try {
     const bars = profileForRecipe(recipe, nodes).bars;
-    return (stored ? groupBars(bars, 'compact').bars : bars).map((b) => ({ label: b.label, color: b.color, score: b.score }));
+    return (stored ? bars.filter((b) => Number(b.score) >= FLOOR && Number(b.score) > 0) : bars).map((b) => ({ label: b.label, color: b.color, score: b.score }));
   } catch {
     return [];
   }

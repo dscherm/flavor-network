@@ -38,7 +38,7 @@ service cloud.firestore {
           && d.kind in ['cocktail', 'sauce', 'recipe']
           && d.name is string && d.name.size() > 0 && d.name.size() <= 80
           && d.lines is list && d.lines.size() > 0 && d.lines.size() <= 40
-          && d.bars is list && d.bars.size() <= 11
+          && d.bars is list && d.bars.size() <= 17
           && (d.by == null || str(d.by, 30))
           && d.owner == request.auth.uid
           && d.createdAt is number

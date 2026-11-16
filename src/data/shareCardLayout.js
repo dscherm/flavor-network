@@ -1,14 +1,15 @@
 /**
  * shareCardLayout.js — SHARE-5. Pure, renderer-agnostic description of the recipe
- * cards people post. No DOM, no canvas, no fetch, and one import (flavorDisplay.js, the chart display rule; scripts/buildShareIndex.mjs
- * inlines it into the generated copy): the browser canvas
+ * cards people post. No DOM, no canvas, no fetch, and one import (flavorCharts.js, the chart pieces, which itself imports
+ * flavorDisplay.js; scripts/buildShareIndex.mjs inlines both into the generated copy): the browser canvas
  * renderer and the Cloud Function (satori) both draw exactly what this returns.
  * scripts/buildShareIndex.mjs copies this file into functions/src/share/ as a
  * generated file, so keep it self-contained.
  *
 
- * The chart shows what flavorDisplay.groupBars picks for 'card' (3 tastes + 3 aromas) or, on a set's cover, 'cover' (4 + 4),
- * under Taste and Aroma headings; the caption adds "+N fainter notes" when bars were left out.
+ * CHART-4: the chart is design D, the tasting note: the sentence flavorNote() words (each note word underlined in its
+ * colour) and two strips, Taste and Aroma, on one scale (flavorStrips). Nothing is capped or hidden. The first card of a set
+ * also draws the fixed wheel (flavorWheel).
  * layoutCard({ format, recipe, bars, link, page })  ->  Card
  *   format  'preview' (1200x630) | 'portrait' (1080x1350) | 'tall' (1080x1920)
  *   recipe  { kind, name, lines: [{ amount, label?, key, suggested? }], method, glass?, garnish?,
@@ -25,12 +26,15 @@
  * Primitive (all coordinates in card pixels, y grows downward):
  *   { type: 'rect', x, y, w, h, fill?, stroke?, strokeWidth?, radius? }
  *   { type: 'line', x1, y1, x2, y2, color, width, dash? }
- *   { type: 'text', x, y, w, h, text, size, weight, color, font: 'hand'|'sans', align: 'left'|'center'|'right' }
+ *   { type: 'text', x, y, w, h, text, size, weight, color, font: 'hand'|'sans', align: 'left'|'center'|'right', runs? }
+ *     `runs` (the tasting note only): [{ text, underline?: colour }] pieces of `text`, in order; the renderer draws them
+ *     inline and underlines those with a colour. A renderer that ignores `runs` draws `text` plain.
+ *   { type: 'wedge', cx, cy, r0, r1, a0, a1, fill }   a ring sector, angles in degrees (-90 = top, clockwise)
  *     one line of text per primitive; (x, y, w, h) is its box, h = the line height. Layout has
  *     already wrapped, shrunk and truncated: renderers never measure or wrap.
  */
 
-import { groupBars, hiddenLine } from './flavorDisplay.js';
+import { flavorNote, flavorStrips, flavorWheel } from './flavorCharts.js';
 
 export const SITE_NAME = 'Neural Flavor';
 export const CHART_CAPTION = 'flavor chart: a visual guide';
@@ -203,41 +207,92 @@ function footer(fr, link, page) {
   return y - 14;
 }
 
-/** Heights used by the chart so callers can reserve room: the bars, one small heading per group, the caption. */
-const headH = (row) => Math.round(row * 0.6);
-const chartHeight = (shown, { row, caption }) => (shown.bars.length ? shown.bars.length * row + shown.groups.length * headH(row) + caption + (shown.hidden > 0 ? Math.round(caption * 0.8) : 0) + 12 : 0);
+const cap1 = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+
+/** Splits one wrapped line of the sentence into runs, underlining each note word in its colour. */
+function noteRuns(line, colorOf) {
+  const runs = [];
+  for (const piece of line.match(/[A-Za-z]+|[^A-Za-z]+/g) || []) {
+    const color = colorOf.get(piece.toLowerCase());
+    const last = runs[runs.length - 1];
+    if (color) runs.push({ text: piece, underline: color });
+    else if (last && !last.underline) last.text += piece;
+    else runs.push({ text: piece });
+  }
+  return runs;
+}
 
 /**
- * The flavor chart: Taste and Aroma groups under small headings, labelled horizontal bars. Omitted entirely when
- * there are no bars. `shown` is flavorDisplay.groupBars output (the one display rule).
+ * The tasting note (design D) as primitives relative to y = 0, x absolute: the sentence (wrapped, note words underlined), then
+ * the Taste and Aroma strips on one scale, a label under each segment flavorStrips marks, and the caption.
+ * -> { prims, height }, or null when there is nothing to draw.
  */
-function chart(fr, y, shown, { x, w, row, size }) {
-  if (!shown.bars.length) return y;
-  const labelW = Math.round(w * 0.3);
-  const trackX = x + labelW + 16;
-  const trackW = w - labelW - 16;
-  const barH = Math.round(row * 0.46);
-  let ry = y;
-  const drawBar = (b) => {
-    text(fr.prims, { x, y: ry + (row - lineH(size, 1.2)) / 2, w: labelW, text: ellipsize(b.label.charAt(0).toUpperCase() + b.label.slice(1), size, {}, labelW), size, color: PALETTE.dim, align: 'right', lh: 1.2 });
-    const by = ry + Math.round((row - barH) / 2);
-    fr.prims.push({ type: 'rect', x: trackX, y: by, w: trackW, h: barH, fill: 'rgba(255,255,255,0.07)', radius: 6 });
-    const frac = Math.max(0.04, Math.min(1, Number(b.score) || 0));
-    fr.prims.push({ type: 'rect', x: trackX, y: by, w: Math.round(trackW * frac), h: barH, fill: b.color || PALETTE.accent, radius: 6 });
-    ry += row;
-  };
-  const headSize = Math.max(18, size - 6);
-  shown.groups.forEach((g) => {
-    text(fr.prims, { x, y: ry + (headH(row) - lineH(headSize, 1.2)) / 2 + 2, w, text: g.title.toUpperCase(), size: headSize, weight: 600, color: PALETTE.sub, align: 'left', lh: 1.2 });
-    ry += headH(row);
-    g.bars.forEach(drawBar);
+function noteBlock(bars, { x, w, size, maxLines, strip, caption }) {
+  const note = flavorNote(bars);
+  if (!note.text) return null;
+  const strips = flavorStrips(bars);
+  const prims = [];
+  const colorOf = new Map(note.words.map((wd) => [wd.label.toLowerCase(), wd.color || PALETTE.accent]));
+  const o = { font: 'hand', weight: 400 };
+  const lines = wrapText(note.text, size, o, w, maxLines);
+  const lh = lineH(size, 1.2);
+  let y = 0;
+  lines.forEach((ln) => {
+    text(prims, { x, y, w, text: ln, size, weight: 400, font: 'hand', color: PALETTE.cream, lh: 1.2 });
+    prims[prims.length - 1].runs = noteRuns(ln, colorOf);
+    y += lh;
   });
-  const cy = ry + 4;
-  const capSize = Math.max(18, size - 4);
-  let end = cy + text(fr.prims, { x, y: cy, w, text: CHART_CAPTION, size: capSize, color: PALETTE.sub, align: 'left' });
-  // Bars left out: say so on a second line (the caption alone fills the narrow preview column).
-  if (shown.hidden > 0) end += text(fr.prims, { x, y: end, w, text: hiddenLine(shown.hidden), size: capSize, color: PALETTE.sub, align: 'left' });
-  return end;
+  y += Math.round(size * 0.55);
+  const labelW = strip.labelW;
+  const trackX = x + labelW;
+  const trackW = w - labelW;
+  for (const [title, row] of [['Taste', strips.taste], ['Aroma', strips.aroma]]) {
+    if (!row.segments.length) continue;
+    text(prims, { x, y: y + Math.round((strip.h - lineH(strip.label, 1.2)) / 2), w: labelW - 12, text: title.toUpperCase(), size: strip.label, weight: 600, color: PALETTE.sub, lh: 1.2 });
+    prims.push({ type: 'rect', x: trackX, y, w: trackW, h: strip.h, fill: 'rgba(255,255,255,0.07)', radius: 3 });
+    let sx = trackX;
+    row.segments.forEach((sg, i) => {
+      const sw = Math.max(3, Math.round(sg.length * trackW));
+      const gap = i < row.segments.length - 1 ? 2 : 0;
+      prims.push({ type: 'rect', x: sx, y, w: Math.max(2, sw - gap), h: strip.h, fill: sg.color || PALETTE.accent, radius: 3 });
+      if (sg.labelled) text(prims, { x: sx, y: y + strip.h + 4, w: Math.max(2, sw - gap), text: ellipsize(sg.label, strip.label, {}, Math.max(2, sw - gap)), size: strip.label, color: PALETTE.dim, lh: 1.2 });
+      sx += sw;
+    });
+    y += strip.h + 4 + lineH(strip.label, 1.2) + strip.gap;
+  }
+  y += 2;
+  y += text(prims, { x, y, w, text: CHART_CAPTION, size: caption, color: PALETTE.sub, align: 'left' });
+  return { prims, height: y };
+}
+
+/** Puts a block's primitives into the card, dy pixels down. */
+function place(fr, block, dy) {
+  for (const p of block.prims) fr.prims.push(p.type === 'line' ? { ...p, y1: p.y1 + dy, y2: p.y2 + dy } : { ...p, y: p.y + dy });
+}
+
+/** The fixed wheel (seventeen wedges, strongest four labelled) centred on (cx, cy); the labels sit outside the rim. */
+function wheelPrims(fr, bars, cx, cy, R, labelSize) {
+  const wheel = flavorWheel(bars, 'card');
+  const R0 = Math.round(R * 0.2);
+  for (const wg of wheel.wedges) fr.prims.push({ type: 'wedge', cx, cy, r0: R0, r1: R, a0: wg.start, a1: wg.end, fill: 'rgba(255,255,255,0.08)' });
+  for (const wg of wheel.wedges) {
+    if (wg.on) fr.prims.push({ type: 'wedge', cx, cy, r0: R0, r1: Math.round(R0 + (R - R0) * wg.drawn), a0: wg.start, a1: wg.end, fill: wg.color || PALETTE.accent });
+  }
+  const lh = lineH(labelSize, 1.2);
+  const boxW = Math.round(labelSize * 7);
+  for (const wg of wheel.wedges) {
+    if (!wg.labelled) continue;
+    const rad = (wg.mid * Math.PI) / 180;
+    const c = Math.cos(rad);
+    const sn = Math.sin(rad);
+    const rr = R + 16 + (Math.abs(c) < 0.5 && wg.index % 2 ? Math.round(labelSize * 0.9) : 0);
+    const px = cx + c * rr;
+    const py = cy + sn * rr;
+    const align = c > 0.25 ? 'left' : c < -0.25 ? 'right' : 'center';
+    const bx = align === 'left' ? px : align === 'right' ? px - boxW : px - boxW / 2;
+    text(fr.prims, { x: bx, y: py - lh / 2 + (sn > 0.3 ? lh * 0.4 : sn < -0.3 ? -lh * 0.4 : 0), w: boxW, text: wg.label, size: labelSize, color: PALETTE.cream, align, lh: 1.2 });
+  }
+  text(fr.prims, { x: cx - R - 40, y: cy + R + labelSize * 1.9, w: 2 * R + 80, text: 'Left side: tastes. The rest: aromas.', size: Math.max(18, labelSize - 4), color: PALETTE.sub, align: 'center', lh: 1.2 });
 }
 
 /** Moves the primitives from index `from` on down by dy. */
@@ -247,9 +302,6 @@ function shift(prims, from, dy) {
     if (p.type === 'line') { p.y1 += dy; p.y2 += dy; } else p.y += dy;
   }
 }
-
-/** The bars a card shows for `surface` ('card' | 'cover'): flavorDisplay.groupBars over the stored bars (label + score). */
-const shownBars = (bars, surface) => groupBars((Array.isArray(bars) ? bars : []).filter((b) => b && b.label), surface);
 
 /** Ingredient rows (amount column + name) into [y, yMax]. Ends with "+N more at the link" when it cannot fit all. */
 function ingredientRows(fr, y, yMax, recipe, { x, w, size, row, amountW }) {
@@ -361,20 +413,18 @@ export function layoutCard({ format = 'portrait', recipe, bars, link = '', page 
   const sub = subline(r);
 
   if (format === 'preview') {
-    const hasChart = shownBars(bars, 'card').bars.length > 0;
-    if (!hasChart) return finish(`${format}`, previewNoChart(fr, r, sub, footerTop));
-    const colW = Math.round(w * 0.56);
+    if (!flavorNote(bars).text) return finish(`${format}`, previewNoChart(fr, r, sub, footerTop));
+    const colW = Math.round(w * 0.52);
     const left = { ...fr, x1: fr.x0 + colW };
     let y = header(left, r, { nameSize: 92 });
     if (sub) y += text(fr.prims, { x: fr.x0, y: y + 2, w: colW, text: ellipsize(sub, 24, {}, colW), size: 24, color: PALETTE.dim }) + 6;
     y += 10;
     ingredientRows(fr, y, footerTop - 8, r, { x: fr.x0, w: colW, size: 28, row: 38, amountW: 215 });
-    const cx = fr.x0 + colW + 56;
+    const cx = fr.x0 + colW + 48;
     const cw = fr.x1 - cx;
-    const b = shownBars(bars, 'card');
-    const total = chartHeight(b, { row: 44, caption: 30 });
-    const cy = Math.max(fr.top + 40, Math.round((fr.top + footerTop - total) / 2));
-    chart(fr, cy, b, { x: cx, w: cw, row: 44, size: 24 });
+    const b = noteBlock(bars, { x: cx, w: cw, size: 40, maxLines: 4, strip: { labelW: 92, h: 14, label: 20, gap: 12 }, caption: 24 });
+    const cy = Math.max(fr.top + 30, Math.round((fr.top + footerTop - b.height) / 2));
+    place(fr, b, cy);
     return finish(`${format}`, fr);
   }
 
@@ -383,13 +433,12 @@ export function layoutCard({ format = 'portrait', recipe, bars, link = '', page 
   let y = header(fr, r, { nameSize: tall ? 128 : 118 });
   if (sub) y += text(fr.prims, { x: fr.x0, y: y + 4, w, text: ellipsize(sub, 30, {}, w), size: 30, color: PALETTE.dim }) + 10;
   y += 14;
-  const barList = shownBars(bars, 'card');
+  const blk = noteBlock(bars, { x: fr.x0, w, size: tall ? 56 : 52, maxLines: 3, strip: { labelW: 120, h: tall ? 20 : 18, label: tall ? 26 : 24, gap: 14 }, caption: 30 });
   const row = tall ? 52 : 46;
-  const chartH = chartHeight(barList, { row: tall ? 50 : 44, caption: 34 });
-  const gap = barList.bars.length ? 28 : 0;
+  const gap = blk ? 36 : 0;
   const from = fr.prims.length;
-  let end = ingredientRows(fr, y, footerTop - chartH - gap - 8, r, { x: fr.x0, w, size: tall ? 36 : 34, row, amountW: 260 });
-  if (barList.bars.length) end = chart(fr, end + gap, barList, { x: fr.x0, w, row: tall ? 50 : 44, size: 28 });
+  let end = ingredientRows(fr, y, footerTop - (blk ? blk.height : 0) - gap - 8, r, { x: fr.x0, w, size: tall ? 36 : 34, row, amountW: 260 });
+  if (blk) { place(fr, blk, end + gap); end += gap + blk.height; }
   // A short recipe leaves a gap: centre the ingredients and chart in the free space instead of hugging the top.
   const free = footerTop - 8 - end;
   if (free > 60) shift(fr.prims, from, Math.round(free * 0.4));
@@ -406,19 +455,25 @@ export function layoutSet({ format = 'portrait', recipe, bars, link = '' }) {
   const a = frame(format);
   const w = a.x1 - a.x0;
   const aFoot = footer(a, link, '1/3');
-  const barList = shownBars(bars, 'cover');
   const names = fitName(r.name, { size: tall ? 150 : 136, maxW: w });
   const labelSize = 32;
   const nameBlock = names.lines.length * lineH(names.size, 1.05);
   const n = totalLines(r);
   const info = [n ? `${n} ingredient${n === 1 ? '' : 's'}` : '', subline(r)].filter(Boolean).join(' · ');
-  const chartH = chartHeight(barList, { row: 58, caption: 36 });
-  const blockH = labelSize * 1.3 + 8 + nameBlock + (info ? 52 : 0) + (barList.bars.length ? 56 + chartH : 0);
+  const blk = noteBlock(bars, { x: a.x0, w, size: tall ? 60 : 54, maxLines: 3, strip: { labelW: 130, h: 22, label: 28, gap: 14 }, caption: 30 });
+  // The wheel takes what the text leaves: its radius shrinks (down to 100) rather than run into the footer.
+  const head = labelSize * 1.3 + 8 + nameBlock + (info ? 52 : 0);
+  const room = aFoot - a.top - 40 - head - (blk ? blk.height + 44 : 0);
+  const R = blk ? Math.max(100, Math.min(tall ? 210 : 190, Math.floor((room - 146) / 2))) : 0;
+  const blockH = head + (blk ? 14 + blk.height + 30 + 2 * R + 146 : 0);
   let y = Math.max(a.top + 20, Math.round((a.top + aFoot - blockH) / 2));
   y += text(a.prims, { x: a.x0, y, w, text: ellipsize(kindLabel(r).toUpperCase(), labelSize, {}, w), size: labelSize, weight: 600, color: PALETTE.sub, align: 'center', lh: 1.3 }) + 8;
   names.lines.forEach((ln) => { y += text(a.prims, { x: a.x0, y, w, text: ln, size: names.size, weight: 700, font: 'hand', color: PALETTE.cream, align: 'center', lh: 1.05 }); });
   if (info) y += text(a.prims, { x: a.x0, y: y + 10, w, text: ellipsize(info, 30, {}, w), size: 30, color: PALETTE.dim, align: 'center' }) + 42;
-  if (barList.bars.length) chart(a, y + 14, barList, { x: a.x0, w, row: 58, size: 30 });
+  if (blk) {
+    place(a, blk, y + 14);
+    wheelPrims(a, bars, Math.round(a.x0 + w / 2), y + 14 + blk.height + 30 + 36 + R, R, 28);
+  }
 
   // 2: ingredients
   const b = frame(format);
