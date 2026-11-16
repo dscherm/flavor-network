@@ -87,3 +87,31 @@ Events arrive without any of this; the steps only make the params usable in repo
 4. To check events before relying on them, open Admin, DebugView, then on a deployed copy of the
    site answer Yes on the banner. Events appear in DebugView within seconds. (On localhost nothing is
    sent unless `localStorage['nf.usage.debug']` is `1`.)
+
+## Totals from account records
+
+Counts from the records the app already holds, with no visitor tracking involved. `scripts/accountTotals.mjs`
+prints numbers and fixed labels only: accounts, accounts with at least one saved item, saved items by kind
+(cocktails, sauces, recipes) and how many came from a shared link, live and removed shared links by kind,
+reports waiting (total and per reason), and invite-code photo-scan totals (codes, scans). It prints no recipe
+name, ingredient, email, user id or share id, and it only reads (no write or delete call exists in it).
+
+The builder never ran it against the live project. You run it, with your own Google login:
+
+```
+gcloud auth application-default login
+npm run totals -- --live
+npm run totals -- --live --json
+```
+
+Without `--live` it refuses to touch a real project. `npm run totals -- --dry-run` prints made-up numbers
+with no network, to see the layout. Before reading, it prints what it is about to read.
+
+Read cost: saved items live inside each profile document, so every profile is read once (one read per
+account; only the three list fields are fetched). Everything else is about 14 count or sum queries, roughly
+one read each. Firestore's free allowance is 50,000 reads a day, so this is fine until the site has tens of
+thousands of accounts. The last line of the output, "Documents read", is the number it used.
+
+`firebase-admin` is taken from `functions/node_modules` (run `npm install` inside `functions/` once if it is
+missing), so the root project gains no dependency. No key file is used: it reads your login from
+`gcloud auth application-default login`, or from `GOOGLE_APPLICATION_CREDENTIALS` if you set it yourself.

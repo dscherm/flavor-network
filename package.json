@@ -25,6 +25,7 @@
     "bake:flavor-pipeline": "npm run bake:flavor-layout && npm run bake:flavor-graph",
     "test": "vitest run",
     "test:audit": "vitest run chemDataset/validation",
+    "totals": "node scripts/accountTotals.mjs",
     "test:rules": "firebase emulators:exec --only firestore --project demo-neuralflavor \"vitest run --config vitest.rules.config.js\""
   },
   "dependencies": {
