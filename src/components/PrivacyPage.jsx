@@ -1,0 +1,64 @@
+import { useEffect, useState } from 'react';
+import { getConsent, setConsent, subscribeConsent } from '../data/usage.js';
+
+const box = { maxWidth: 640, margin: '0 auto', padding: '24px 16px 48px', boxSizing: 'border-box' };
+const h2 = { fontSize: 17, fontWeight: 600, margin: '22px 0 6px' };
+
+export default function PrivacyPage() {
+  const [answer, setAnswer] = useState(() => getConsent());
+  useEffect(() => subscribeConsent((v) => setAnswer(v)), []);
+  const on = answer === 'yes';
+  return (
+    <main data-testid="privacy-page" style={{ minHeight: '100vh', background: '#16201c', color: '#f1efe6', lineHeight: 1.5, fontSize: 15 }}>
+      <div style={box}>
+        <a href="/" style={{ color: '#9ed8b8', fontSize: 14, display: 'inline-block', minHeight: 44, lineHeight: '44px' }}>&larr; Back to Neural Flavor</a>
+        <h1 style={{ fontSize: 24, fontWeight: 700, margin: '4px 0 8px' }}>Privacy</h1>
+        <p>
+          Neural Flavor can count how the app is used so it can be made better. It is off until you say Yes,
+          for everyone, and you can change your answer at any time.
+        </p>
+
+        <h2 style={h2}>Your choice</h2>
+        <p>
+          Right now: <strong>{on ? 'On' : answer === 'no' ? 'Off' : 'Not asked yet (off)'}</strong>.
+        </p>
+        <button
+          type="button"
+          onClick={() => setConsent(on ? 'no' : 'yes')}
+          style={{ minHeight: 44, padding: '0 18px', borderRadius: 8, border: '1px solid #6b7d74', background: on ? 'transparent' : '#9ed8b8', color: on ? '#f1efe6' : '#06150e', fontWeight: 600 }}
+        >
+          {on ? 'Turn usage data off' : 'Turn usage data on'}
+        </button>
+        <p style={{ opacity: 0.8, fontSize: 14 }}>
+          You can also change this in Profile. Turning it off stops sending straight away. The answer is kept only on
+          this device. To clear what Google already stored in your browser, clear this site&rsquo;s data in your browser settings.
+        </p>
+
+        <h2 style={h2}>Who collects it</h2>
+        <p>
+          Google Analytics, through Firebase, which Google runs. The Google script is only downloaded after you say Yes.
+          It uses cookies or similar storage in your browser and sends usage to Google.
+        </p>
+
+        <h2 style={h2}>What is collected (only after Yes)</h2>
+        <ul style={{ paddingLeft: 20 }}>
+          <li>Which pages and labs are opened, and which buttons are used (for example: invent started, link shared).</li>
+          <li>Whether a recipe was saved or a share link was opened, as counts.</li>
+          <li>Your rough device type, browser and country, which Google works out from the connection.</li>
+          <li>Typed text in two cases only, shortened to 60 characters: a search that found nothing, and an ingredient name the app did not recognise.</li>
+        </ul>
+
+        <h2 style={h2}>What is never sent</h2>
+        <ul style={{ paddingLeft: 20 }}>
+          <li>Your name, email or account id.</li>
+          <li>The names or contents of recipes, drinks or sauces you wrote or saved.</li>
+          <li>Your photos.</li>
+        </ul>
+        <p>No ads are shown and nothing is sold.</p>
+
+        <h2 style={h2}>If you say No, or do not answer</h2>
+        <p>Nothing is sent and no Google analytics script is loaded. The app works the same.</p>
+      </div>
+    </main>
+  );
+}

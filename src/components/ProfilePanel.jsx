@@ -1,3 +1,4 @@
+import UsageSetting from './UsageSetting.jsx';
 import { useState, useMemo, useCallback, useRef } from 'react';
 import Fuse from 'fuse.js';
 import {
@@ -203,6 +204,7 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, onClose, gra
 
       {/* Content area */}
       <div className="flex-1 overflow-y-auto p-2">
+        <UsageSetting />
         {/* Ingredients / Cuisines list */}
         {(tab === 'ingredients' || tab === 'cuisines') && (
           currentItems && currentItems.length > 0 ? (

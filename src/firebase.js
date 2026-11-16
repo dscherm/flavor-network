@@ -40,9 +40,12 @@ const firebaseConfig = {
   storageBucket: "neuralflavor.firebasestorage.app",
   messagingSenderId: "793952773208",
   appId: "1:793952773208:web:9ddc2e11f44a8b7297d62d",
+  // Public Google Analytics id (not a secret). Only used after a visitor says Yes
+  // to the consent banner; see src/data/usage.js.
+  measurementId: "G-W2P3HKD8HQ",
 };
 
-const app = initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
 
 // Web-only since the v1.0.0 closeout. The native (Capacitor) auth init —
 // initializeAuth with pinned IndexedDB persistence for the WKWebView — lives
