@@ -7,6 +7,11 @@ import CookbookLab from '../CookbookLab.jsx';
 import { SEED_RECIPES } from '../../data/seedRecipes.js';
 import { MY_KITCHEN_KEY, SPICE_RACK_KEY } from '../../data/myKitchen.js';
 
+// GATE-1 (same treatment as curation.integration, flavorCharts, suggestable): each test opens a cookbook popup over the full seed list.
+// Measured 2026-11-16: 0.6-1.1 s alone, 1.6-1.9 s inside the full 306-file run.
+// The 5 s default leaves under 3x headroom when the machine is busy; 20 s still fails a real hang.
+vi.setConfig({ testTimeout: 20000 });
+
 vi.mock('../NetworkScene.jsx', () => ({ default: () => null }));
 vi.mock('../MultiAxisRadarStack.jsx', () => ({ default: () => null }));
 

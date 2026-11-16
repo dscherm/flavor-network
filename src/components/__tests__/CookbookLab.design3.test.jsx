@@ -9,6 +9,11 @@ import { SEED_RECIPES } from '../../data/seedRecipes.js';
 import { RECIPE_DETAILS } from '../../data/seedRecipeDetails.js';
 import { dishTypeOf } from '../../data/dishType.js';
 
+// GATE-1 (same treatment as curation.integration, flavorCharts, suggestable): rendering the whole cookbook shelf and its popups.
+// Measured 2026-11-16: slowest test 1.4 s alone (the tiles test), 3.7 s inside the full 306-file run (1.1-1.7 s for the others).
+// The 5 s default leaves under 1.4x headroom when the machine is busy; 20 s still fails a real hang.
+vi.setConfig({ testTimeout: 20000 });
+
 vi.mock('../NetworkScene.jsx', () => ({ default: () => null }));
 
 const bolognese = SEED_RECIPES.find((r) => r.id === 'beef-bolognese');

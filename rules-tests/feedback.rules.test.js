@@ -13,7 +13,7 @@ const good = (over = {}) => ({ note: 'The search is slow.', goal: 'Find a gin dr
 const make = (db, data) => addDoc(collection(db, 'feedback'), data);
 
 beforeAll(async () => {
-  env = await initializeTestEnvironment({ projectId: 'demo-neuralflavor', firestore: { rules: readFileSync('firestore.rules', 'utf8') } });
+  env = await initializeTestEnvironment({ projectId: 'demo-neuralflavor-feedback', firestore: { rules: readFileSync('firestore.rules', 'utf8') } });
 });
 afterAll(async () => { await env?.cleanup(); });
 beforeEach(async () => { await env.clearFirestore(); });
