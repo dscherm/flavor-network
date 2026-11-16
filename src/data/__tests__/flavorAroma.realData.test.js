@@ -5,10 +5,11 @@ import { loadFlavorNodes } from '../../../scripts/lib/flavorNodes.mjs';
 import { SEED_RECIPES } from '../seedRecipes.js';
 import { RECIPE_DETAILS } from '../seedRecipeDetails.js';
 import { scoreAroma, summarizeAroma, summarize } from '../flavorScore.js';
+import { readCuratedCodex } from '../../../scripts/lib/curatedCodex.mjs';
 
 const truth = JSON.parse(readFileSync('data/aroma-truth.json', 'utf8'));
 const mainTruth = JSON.parse(readFileSync('data/flavor-truth.json', 'utf8'));
-const codex = JSON.parse(readFileSync('public/data/cocktail_codex_v2.json', 'utf8'));
+const codex = readCuratedCodex();
 const sauces = JSON.parse(readFileSync('public/data/sauce_augment.json', 'utf8')).sauces;
 const data = { cocktails: codex.cocktails, families: codex.families, sauces, dishes: SEED_RECIPES, dishDetails: RECIPE_DETAILS };
 const nodes = loadFlavorNodes();

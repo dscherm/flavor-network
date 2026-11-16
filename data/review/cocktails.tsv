@@ -1,137 +1,52 @@
 item	rule	confidence	use_count	detail	suggested_action
-Bramble	cocktail-citrus-stirred	LOW		has lemon or lime and is filed under 'Aromatic Stirred'	check the family (a sour?)
-Brandy Crusta	cocktail-citrus-stirred	LOW		has lemon or lime and is filed under 'Aromatic Stirred'	check the family (a sour?)
-Corn n Oil	cocktail-citrus-stirred	LOW		has lemon or lime and is filed under 'Aromatic Stirred'	check the family (a sour?)
-Elderflower Caipirinha	cocktail-citrus-stirred	LOW		has lemon or lime and is filed under 'Boozy Sippers'	check the family (a sour?)
-Gin Sling	cocktail-citrus-stirred	LOW		has lemon or lime and is filed under 'Boozy Sippers'	check the family (a sour?)
-Mojito	cocktail-citrus-stirred	LOW		has lemon or lime and is filed under 'Boozy Sippers'	check the family (a sour?)
-New York Lemonade	cocktail-citrus-stirred	LOW		has lemon or lime and is filed under 'Aromatic Stirred'	check the family (a sour?)
-Peaches and Smoke	cocktail-citrus-stirred	LOW		has lemon or lime and is filed under 'Boozy Sippers'	check the family (a sour?)
-Pure Passion	cocktail-citrus-stirred	LOW		has lemon or lime and is filed under 'Boozy Sippers'	check the family (a sour?)
-Quarter Deck Cocktail	cocktail-citrus-stirred	LOW		has lemon or lime and is filed under 'Aromatic Stirred'	check the family (a sour?)
-Rum Cobbler	cocktail-citrus-stirred	LOW		has lemon or lime and is filed under 'Boozy Sippers'	check the family (a sour?)
-ABC	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Sour Family' (no citrus)	a family for cream and egg drinks (decision 4)
-Ace	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Sour Family' (no citrus)	a family for cream and egg drinks (decision 4)
-Alexander	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Sour Family' (no citrus)	a family for cream and egg drinks (decision 4)
-Avalanche	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Sour Family' (no citrus)	a family for cream and egg drinks (decision 4)
-B-52	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Boozy Sippers' (no citrus)	a family for cream and egg drinks (decision 4)
-Barnaby Jones	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Highballs & Fizzes' (no citrus)	a family for cream and egg drinks (decision 4)
-Brandy Alexander	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Sour Family' (no citrus)	a family for cream and egg drinks (decision 4)
-Brandy Flip	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Highballs & Fizzes' (no citrus)	a family for cream and egg drinks (decision 4)
-Cafe Savoy	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Boozy Sippers' (no citrus)	a family for cream and egg drinks (decision 4)
-Casino Royale	cocktail-cream-egg	LOW		cream or egg drink filed under 'Sour Family' (it also has citrus)	a family for cream and egg drinks (decision 4)
-Cherry Rum	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Sour Family' (no citrus)	a family for cream and egg drinks (decision 4)
-Coffee Cocktail	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Sour Family' (no citrus)	a family for cream and egg drinks (decision 4)
-Eggnog	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Highballs & Fizzes' (no citrus)	a family for cream and egg drinks (decision 4)
-Flip	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Sour Family' (no citrus)	a family for cream and egg drinks (decision 4)
-Frozen Mudslide	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Sour Family' (no citrus)	a family for cream and egg drinks (decision 4)
-Godchild	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Sour Family' (no citrus)	a family for cream and egg drinks (decision 4)
-Golden Cadillac	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Sour Family' (no citrus)	a family for cream and egg drinks (decision 4)
-Grasshopper	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Sour Family' (no citrus)	a family for cream and egg drinks (decision 4)
-H.D.	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Highballs & Fizzes' (no citrus)	a family for cream and egg drinks (decision 4)
-Hans Gruber	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Sour Family' (no citrus)	a family for cream and egg drinks (decision 4)
-Hot Creamy Bush	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Sour Family' (no citrus)	a family for cream and egg drinks (decision 4)
-Irish Coffee	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Highballs & Fizzes' (no citrus)	a family for cream and egg drinks (decision 4)
-Irish Curdling Cow	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Highballs & Fizzes' (no citrus)	a family for cream and egg drinks (decision 4)
-Jamaica Kiss	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Tropical Sours' (no citrus)	a family for cream and egg drinks (decision 4)
-Jamaican Coffee	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Highballs & Fizzes' (no citrus)	a family for cream and egg drinks (decision 4)
-Lady Love Fizz	cocktail-cream-egg	LOW		cream or egg drink filed under 'Sour Family' (it also has citrus)	a family for cream and egg drinks (decision 4)
-New York Flip	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Sour Family' (no citrus)	a family for cream and egg drinks (decision 4)
-Orange Whip	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Highballs & Fizzes' (no citrus)	a family for cream and egg drinks (decision 4)
-Oreo Mudslide	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Tropical Sours' (no citrus)	a family for cream and egg drinks (decision 4)
-Orgasm	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Sour Family' (no citrus)	a family for cream and egg drinks (decision 4)
-Porto flip	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Sour Family' (no citrus)	a family for cream and egg drinks (decision 4)
-Quentin	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Sour Family' (no citrus)	a family for cream and egg drinks (decision 4)
-Ramos Gin Fizz	cocktail-cream-egg	LOW		cream or egg drink filed under 'Highballs & Fizzes' (it also has citrus)	a family for cream and egg drinks (decision 4)
-Royal Fizz	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Highballs & Fizzes' (no citrus)	a family for cream and egg drinks (decision 4)
-Royal Gin Fizz	cocktail-cream-egg	LOW		cream or egg drink filed under 'Highballs & Fizzes' (it also has citrus)	a family for cream and egg drinks (decision 4)
-Rum Milk Punch	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Sour Family' (no citrus)	a family for cream and egg drinks (decision 4)
-Scooter	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Sour Family' (no citrus)	a family for cream and egg drinks (decision 4)
-Sherry Eggnog	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Highballs & Fizzes' (no citrus)	a family for cream and egg drinks (decision 4)
-Sherry Flip	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Sour Family' (no citrus)	a family for cream and egg drinks (decision 4)
-Tennesee Mud	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Sour Family' (no citrus)	a family for cream and egg drinks (decision 4)
-Texas Sling	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Tropical Sours' (no citrus)	a family for cream and egg drinks (decision 4)
-Tom and Jerry	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Sour Family' (no citrus)	a family for cream and egg drinks (decision 4)
-Twist of Menton	cocktail-cream-egg	LOW		cream or egg drink filed under 'Sour Family' (it also has citrus)	a family for cream and egg drinks (decision 4)
-Vodka Fizz	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Tropical Sours' (no citrus)	a family for cream and egg drinks (decision 4)
-White Russian	cocktail-cream-egg	HIGH		cream or egg drink filed under 'Sour Family' (no citrus)	a family for cream and egg drinks (decision 4)
-Corpse Reviver #2	cocktail-duplicate	HIGH		appears 2 times as: Corpse Reviver #2 / Corpse Reviver #2	keep one
-Old-Fashioned	cocktail-duplicate	HIGH		appears 2 times as: Old-Fashioned / Old Fashioned	keep one
-Pina Colada	cocktail-duplicate	HIGH		appears 2 times as: Pina Colada / Pina Colada	keep one
-Southside	cocktail-duplicate	HIGH		appears 2 times as: Southside / South Side	keep one
-espresso martini	cocktail-missing-classic	HIGH		a classic with no matching drink name	add it
-long island iced tea	cocktail-missing-classic	HIGH		a classic with no matching drink name	add it
-sex on the beach	cocktail-missing-classic	HIGH		a classic with no matching drink name	add it
-20th Century	cocktail-no-amounts	HIGH		no amount on any of its 9 ingredient lines (family 'Sour Family')	add amounts
+20th Century	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Sour Family')	add amounts
 Abbot Kinney	cocktail-no-amounts	HIGH		no amount on any of its 6 ingredient lines (family 'Boozy Sippers')	add amounts
 Accidental Guru	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Sour Family')	add amounts
-Almond Orchard	cocktail-no-amounts	HIGH		no amount on any of its 6 ingredient lines (family 'Highballs & Fizzes')	add amounts
 Amaretto Sour	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Sour Family')	add amounts
-Americano	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Aperitivos')	add amounts
 Aperol Spritz	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Aperitivos')	add amounts
 Apple Pop	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Aperitivos')	add amounts
 Autumn Old-Fashioned	cocktail-no-amounts	HIGH		no amount on any of its 7 ingredient lines (family 'Boozy Sippers')	add amounts
 Bad Santa	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Boozy Sippers')	add amounts
 Bamboo	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Aromatic Stirred')	add amounts
 Bananarac	cocktail-no-amounts	HIGH		no amount on any of its 6 ingredient lines (family 'Boozy Sippers')	add amounts
-Barnaby Jones	cocktail-no-amounts	HIGH		no amount on any of its 6 ingredient lines (family 'Highballs & Fizzes')	add amounts
 Beach Bonfire	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Boozy Sippers')	add amounts
 Beausoleil	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Sour Family')	add amounts
 Bee’s Knees	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Sour Family')	add amounts
-Bellini	cocktail-no-amounts	HIGH		no amount on any of its 2 ingredient lines (family 'Aperitivos')	add amounts
 Beth's Going to Town	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Aromatic Stirred')	add amounts
 Between the Sheets (Classic)	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Sour Family')	add amounts
-Between the Sheets (Our Ideal Recipe)	cocktail-no-amounts	HIGH		no amount on any of its 11 ingredient lines (family 'Tropical Sours')	add amounts
+Between the Sheets (Our Ideal Recipe)	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Tropical Sours')	add amounts
 Blood Orange	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Aromatic Stirred')	add amounts
 Bloody Mary (Classic Variation)	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Aperitivos')	add amounts
 Bloody Mary Verde	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Aperitivos')	add amounts
-Boulevardier	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Aromatic Stirred')	add amounts
-Brandy Alexander	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Sour Family')	add amounts
-Brandy Flip	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Highballs & Fizzes')	add amounts
 Brooklyn	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Aromatic Stirred')	add amounts
 Brown Derby	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Sour Family')	add amounts
-Caipirinha	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Boozy Sippers')	add amounts
+Caipirinha	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Sour Family')	add amounts
 Camellia Julep	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Boozy Sippers')	add amounts
 Cat Video	cocktail-no-amounts	HIGH		no amount on any of its 7 ingredient lines (family 'Sour Family')	add amounts
 Celebrate	cocktail-no-amounts	HIGH		no amount on any of its 6 ingredient lines (family 'Boozy Sippers')	add amounts
 Champagne Cocktail	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Boozy Sippers')	add amounts
 Chatham Cocktail	cocktail-no-amounts	HIGH		no amount on any of its 7 ingredient lines (family 'Sour Family')	add amounts
 Chrysanthemum	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Aromatic Stirred')	add amounts
-Coffee Cocktail	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Sour Family')	add amounts
 Cold Girl Fever	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Boozy Sippers')	add amounts
 Crop Top	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Sour Family')	add amounts
-Cuba Libre	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Aperitivos')	add amounts
 Cut and Paste	cocktail-no-amounts	HIGH		no amount on any of its 6 ingredient lines (family 'Boozy Sippers')	add amounts
-Daiquiri	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Sour Family')	add amounts
 Daisy Chain	cocktail-no-amounts	HIGH		no amount on any of its 7 ingredient lines (family 'Aperitivos')	add amounts
 Deadpan	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Boozy Sippers')	add amounts
 Dean Martin	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Aromatic Stirred')	add amounts
-Dirty Martini	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Aromatic Stirred')	add amounts
-Eggnog	cocktail-no-amounts	HIGH		no amount on any of its 6 ingredient lines (family 'Highballs & Fizzes')	add amounts
 European Union	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Boozy Sippers')	add amounts
 Exit Strategy	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Boozy Sippers')	add amounts
 Fancy-Free	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Boozy Sippers')	add amounts
 Fish House Punch	cocktail-no-amounts	HIGH		no amount on any of its 6 ingredient lines (family 'Tropical Sours')	add amounts
-Flip	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Sour Family')	add amounts
-French 75	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Sour Family')	add amounts
 Fresh Gimlet	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Sour Family')	add amounts
-Frozen Mudslide	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Sour Family')	add amounts
 Gin and Tonic	cocktail-no-amounts	HIGH		no amount on any of its 2 ingredient lines (family 'Aperitivos')	add amounts
 Golden Boy	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Boozy Sippers')	add amounts
-Golden Cadillac	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Sour Family')	add amounts
 Grapefruit Collins	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Sour Family')	add amounts
-Grasshopper	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Sour Family')	add amounts
-Hans Gruber	cocktail-no-amounts	HIGH		no amount on any of its 8 ingredient lines (family 'Sour Family')	add amounts
 Harvey Wallbanger	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Aperitivos')	add amounts
 Hemingway Daiquiri	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Sour Family')	add amounts
 Heritage Julep	cocktail-no-amounts	HIGH		no amount on any of its 6 ingredient lines (family 'Boozy Sippers')	add amounts
 High Five	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Sour Family')	add amounts
-Hurricane	cocktail-no-amounts	HIGH		no amount on any of its 7 ingredient lines (family 'Sour Family')	add amounts
 Improved Whiskey Cocktail	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Boozy Sippers')	add amounts
-Indulge	cocktail-no-amounts	HIGH		no amount on any of its 7 ingredient lines (family 'Highballs & Fizzes')	add amounts
-Irish Coffee	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Highballs & Fizzes')	add amounts
 Jack Frost	cocktail-no-amounts	HIGH		no amount on any of its 6 ingredient lines (family 'Sour Family')	add amounts
-Jump in the Line	cocktail-no-amounts	HIGH		no amount on any of its 8 ingredient lines (family 'Sour Family')	add amounts
 Kentucky Maid	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Sour Family')	add amounts
 King’s Landing	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Aperitivos')	add amounts
 Kir Royale	cocktail-no-amounts	HIGH		no amount on any of its 2 ingredient lines (family 'Aperitivos')	add amounts
@@ -141,24 +56,18 @@ Last One Standing	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient
 Little Victory	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Aromatic Stirred')	add amounts
 Lone Tree Cooler	cocktail-no-amounts	HIGH		no amount on any of its 6 ingredient lines (family 'Highballs & Fizzes')	add amounts
 Mai Tai	cocktail-no-amounts	HIGH		no amount on any of its 7 ingredient lines (family 'Sour Family')	add amounts
-Margarita	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Sour Family')	add amounts
-Margarita (Dry)	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Sour Family')	add amounts
 Margarita (Sweet)	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Sour Family')	add amounts
 Martinez	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Aromatic Stirred')	add amounts
-Martini	cocktail-no-amounts	HIGH		no amount on any of its 2 ingredient lines (family 'Aromatic Stirred')	add amounts
 Martini (Our Root Recipe)	cocktail-no-amounts	HIGH		no amount on any of its 2 ingredient lines (family 'Aromatic Stirred')	add amounts
 Martini (Very Dry)	cocktail-no-amounts	HIGH		no amount on any of its 2 ingredient lines (family 'Aromatic Stirred')	add amounts
 Martini (Wet)	cocktail-no-amounts	HIGH		no amount on any of its 2 ingredient lines (family 'Aromatic Stirred')	add amounts
 Mea Culpa	cocktail-no-amounts	HIGH		no amount on any of its 6 ingredient lines (family 'Boozy Sippers')	add amounts
 Meyer Lemon Aperitif	cocktail-no-amounts	HIGH		no amount on any of its 7 ingredient lines (family 'Aromatic Stirred')	add amounts
-Mimosa	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Aperitivos')	add amounts
 Mint Julep	cocktail-no-amounts	HIGH		no amount on any of its 2 ingredient lines (family 'Aromatic Stirred')	add amounts
 Monte Carlo	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Boozy Sippers')	add amounts
 Moscow Mule	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Sour Family')	add amounts
 Ned Ryerson	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Boozy Sippers')	add amounts
-Negroni	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Aromatic Stirred')	add amounts
 Negroni Sbagliato	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Aperitivos')	add amounts
-New York Flip	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Sour Family')	add amounts
 Night Owl	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Boozy Sippers')	add amounts
 Nobody’s Robots	cocktail-no-amounts	HIGH		no amount on any of its 7 ingredient lines (family 'Aperitivos')	add amounts
 Normandie Club Bloody Mary	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Aperitivos')	add amounts
@@ -167,11 +76,9 @@ Normandie Club Old-Fashioned	cocktail-no-amounts	HIGH		no amount on any of its 4
 Normandie Club Spritz #1 & #3	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Aperitivos')	add amounts
 Old Cuban	cocktail-no-amounts	HIGH		no amount on any of its 6 ingredient lines (family 'Sour Family')	add amounts
 Old Pal	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Aromatic Stirred')	add amounts
-Old-Fashioned	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Boozy Sippers')	add amounts
 Paloma	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Aperitivos')	add amounts
-Peaches and Smoke	cocktail-no-amounts	HIGH		no amount on any of its 7 ingredient lines (family 'Boozy Sippers')	add amounts
+Peaches and Smoke	cocktail-no-amounts	HIGH		no amount on any of its 7 ingredient lines (family 'Sour Family')	add amounts
 Perfect Manhattan	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Aromatic Stirred')	add amounts
-Pimm's Cup	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Aperitivos')	add amounts
 Pink Lady	cocktail-no-amounts	HIGH		no amount on any of its 6 ingredient lines (family 'Sour Family')	add amounts
 Pisco Punch	cocktail-no-amounts	HIGH		no amount on any of its 6 ingredient lines (family 'Aperitivos')	add amounts
 Pisco Sour	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Sour Family')	add amounts
@@ -180,48 +87,25 @@ Pompadour	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (
 Pop Quiz	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Boozy Sippers')	add amounts
 Pretty Wings	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Boozy Sippers')	add amounts
 Rational Thought	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Sour Family')	add amounts
-Saturday Morning Cartoons	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Sour Family')	add amounts
 Save Tonight	cocktail-no-amounts	HIGH		no amount on any of its 6 ingredient lines (family 'Boozy Sippers')	add amounts
 Sazerac	cocktail-no-amounts	HIGH		no amount on any of its 6 ingredient lines (family 'Boozy Sippers')	add amounts
 Screwdriver	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Aperitivos')	add amounts
-Sidecar	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Sour Family')	add amounts
 Sidecar (Our Ideal Recipe)	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Sour Family')	add amounts
 Silver Fizz	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Sour Family')	add amounts
-Singapore Sling	cocktail-no-amounts	HIGH		no amount on any of its 9 ingredient lines (family 'Aperitivos')	add amounts
 Smoke and Mirrors	cocktail-no-amounts	HIGH		no amount on any of its 6 ingredient lines (family 'Tropical Sours')	add amounts
 Smokescreen	cocktail-no-amounts	HIGH		no amount on any of its 6 ingredient lines (family 'Tropical Sours')	add amounts
 Snowbird	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Boozy Sippers')	add amounts
 Sonoma	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Boozy Sippers')	add amounts
-Southside	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Sour Family')	add amounts
 St-Germain Cocktail	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Aperitivos')	add amounts
 Stinger	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Boozy Sippers')	add amounts
 Strawberry Negroni	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Boozy Sippers')	add amounts
 Tequila Sunrise	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Aperitivos')	add amounts
 The Field Marshall	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Boozy Sippers')	add amounts
 Ti’ Punch	cocktail-no-amounts	HIGH		no amount on any of its 2 ingredient lines (family 'Aromatic Stirred')	add amounts
-Tom and Jerry	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Sour Family')	add amounts
 Touch and Go	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Sour Family')	add amounts
-Twist of Menton	cocktail-no-amounts	HIGH		no amount on any of its 13 ingredient lines (family 'Sour Family')	add amounts
+Twist of Menton	cocktail-no-amounts	HIGH		no amount on any of its 5 ingredient lines (family 'Sour Family')	add amounts
 Vermouth Cocktail	cocktail-no-amounts	HIGH		no amount on any of its 4 ingredient lines (family 'Boozy Sippers')	add amounts
-Vesper	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Aromatic Stirred')	add amounts
 Watercress	cocktail-no-amounts	HIGH		no amount on any of its 6 ingredient lines (family 'Aromatic Stirred')	add amounts
 Whiskey Sour	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Sour Family')	add amounts
-Whisky Highball	cocktail-no-amounts	HIGH		no amount on any of its 2 ingredient lines (family 'Aperitivos')	add amounts
 White Negroni	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Aromatic Stirred')	add amounts
-White Russian	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Sour Family')	add amounts
 Wine Spritz / Improved Wine Spritz	cocktail-no-amounts	HIGH		no amount on any of its 3 ingredient lines (family 'Aperitivos')	add amounts
-sub-group 0.0	cocktail-subgroup-unnamed	HIGH		no name (family 'Tropical Sours', 9 drinks; e.g. Piña Colada, Jamaica Kiss, Mango Mojito)	give it a name
-sub-group 0.1	cocktail-subgroup-unnamed	HIGH		no name (family 'Tropical Sours', 14 drinks; e.g. New York Sour, Penicillin, Vampiro)	give it a name
-sub-group 1.0	cocktail-subgroup-unnamed	HIGH		no name (family 'Highballs & Fizzes', 7 drinks; e.g. Salty Dog, Greyhound, Rum Screwdriver)	give it a name
-sub-group 1.1	cocktail-subgroup-unnamed	HIGH		no name (family 'Highballs & Fizzes', 46 drinks; e.g. Tom Collins, Cuba Libra, Popped cherry)	give it a name
-sub-group 1.2	cocktail-subgroup-unnamed	HIGH		no name (family 'Highballs & Fizzes', 25 drinks; e.g. John Collins, Gin and Soda, Ruby Tuesday)	give it a name
-sub-group 2.0	cocktail-subgroup-unnamed	HIGH		no name (family 'Sour Family', 14 drinks; e.g. Whiskey Sour, Jungle Bird, Tommy's Margarita)	give it a name
-sub-group 2.1	cocktail-subgroup-unnamed	HIGH		no name (family 'Sour Family', 41 drinks; e.g. Sidecar, Aviation, Casino)	give it a name
-sub-group 2.2	cocktail-subgroup-unnamed	HIGH		no name (family 'Sour Family', 36 drinks; e.g. Grasshopper, Alexander, Barracuda)	give it a name
-sub-group 2.3	cocktail-subgroup-unnamed	HIGH		no name (family 'Sour Family', 58 drinks; e.g. Pisco Sour, Bee’s Knees, Mai Tai)	give it a name
-sub-group 3.0	cocktail-subgroup-unnamed	HIGH		no name (family 'Boozy Sippers', 39 drinks; e.g. Heritage Julep, Celebrate, Mea Culpa)	give it a name
-sub-group 3.1	cocktail-subgroup-unnamed	HIGH		no name (family 'Boozy Sippers', 27 drinks; e.g. Pop Quiz, Snowbird, Cut and Paste)	give it a name
-sub-group 4.0	cocktail-subgroup-unnamed	HIGH		no name (family 'Aromatic Stirred', 16 drinks; e.g. Dirty Martini, Derby, Dry Martini)	give it a name
-sub-group 4.1	cocktail-subgroup-unnamed	HIGH		no name (family 'Aromatic Stirred', 64 drinks; e.g. Mint Julep, Vesper, Martinez)	give it a name
-sub-group 5.0	cocktail-subgroup-unnamed	HIGH		no name (family 'Aperitivos', 14 drinks; e.g. Americano, Bellini, Kir)	give it a name
-sub-group 5.1	cocktail-subgroup-unnamed	HIGH		no name (family 'Aperitivos', 31 drinks; e.g. Paloma, Cuba Libre, Screwdriver)	give it a name

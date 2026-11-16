@@ -11,6 +11,7 @@ import { buildCategoryMap } from '../saucePantry.js';
 import { dishSkeleton, DISH_SKELETON_ORDER } from '../dishSkeletons.js';
 import { seedBuild, buildKeys } from '../inventBuild.js';
 import { SEED_RECIPES } from '../seedRecipes.js';
+import { readCuratedCodex } from '../../../scripts/lib/curatedCodex.mjs';
 
 // Real data throughout: the shipped codex, roles, sauce catalogue and ingredient graph.
 const root = process.cwd();
@@ -18,7 +19,7 @@ const read = (p) => JSON.parse(fs.readFileSync(path.join(root, p), 'utf8'));
 const ingredients = read('public/proDataset/ingredients.json');
 const nodes = new Map(Object.entries(ingredients));
 const roles = read('public/data/cocktail_roles.json').byIngredient;
-const cocktails = read('public/data/cocktail_codex_v2.json').cocktails;
+const cocktails = readCuratedCodex().cocktails;
 const index = buildPairingIndex([], Object.keys(ingredients));
 const names = index.names;
 
@@ -98,9 +99,9 @@ describe('cocktail seed', () => {
     expect(seed.pinned.every((p) => p.source === 'search')).toBe(true);
     expect(summary).toBe('a Negroni');
   });
-  it('a typed name keeps the codex spelling ("an Old-Fashioned"), water and garnish left out', () => {
+  it('a typed name keeps the codex spelling ("an Old Fashioned"), water and garnish left out', () => {
     const { seed, summary } = cocktailSeedFromSearch('old fashioned', cocktailCtx);
-    expect(summary).toBe('an Old-Fashioned');
+    expect(summary).toBe('an Old Fashioned');
     expect(keysOf(seed).some((k) => /water|ice/.test(k))).toBe(false);
     expect(isBaseSpirit(seed.base, roles)).toBe(true);
   });

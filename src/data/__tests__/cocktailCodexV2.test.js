@@ -3,15 +3,16 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { loadCodexV2, topSimilar, crossFamilySimilar, cocktailSimilarity } from '../cocktailCodexV2.js';
 import { SUBCLUSTER_NAMES, subclusterName } from '../cocktailSubclusters.js';
+import { readCuratedCodex } from '../../../scripts/lib/curatedCodex.mjs';
 
-const raw = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'public/data/cocktail_codex_v2.json'), 'utf8'));
+const raw = readCuratedCodex();
 
 describe('cocktail codex v2 — loader', () => {
   const graph = loadCodexV2(raw);
 
   it('loads every cocktail, family and sub-group', () => {
     expect(graph.cocktails).toHaveLength(raw.cocktails.length);
-    expect(graph.families).toHaveLength(6);
+    expect(graph.families).toHaveLength(7);
     expect(graph.byCanonical.size).toBeGreaterThan(400);
     for (const fam of graph.families) {
       expect(graph.byFamily.get(fam.id)?.length, fam.name).toBeGreaterThan(0);

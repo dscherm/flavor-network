@@ -11,10 +11,11 @@ import { summarize } from '../flavorScore.js';
 import { labelWeights } from '../flavorTaste.js';
 import { buildFlavorProfile } from '../inventProfile.js';
 import { resolveIngredientName } from '../recipePairingMatch.js';
+import { readCuratedCodex } from '../../../scripts/lib/curatedCodex.mjs';
 
 const FILE = 'public/proDataset/taste_labels.json';
 const truth = JSON.parse(readFileSync('data/flavor-truth.json', 'utf8'));
-const codex = JSON.parse(readFileSync('public/data/cocktail_codex_v2.json', 'utf8'));
+const codex = readCuratedCodex();
 const sauces = JSON.parse(readFileSync('public/data/sauce_augment.json', 'utf8')).sauces;
 const data = { cocktails: codex.cocktails, families: codex.families, sauces, dishes: SEED_RECIPES, dishDetails: RECIPE_DETAILS };
 

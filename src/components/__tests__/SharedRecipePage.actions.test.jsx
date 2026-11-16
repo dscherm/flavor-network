@@ -23,8 +23,9 @@ import { saveInvention } from '../../data/savedInventions.js';
 import { SEED_RECIPES } from '../../data/seedRecipes.js';
 import { RECIPE_DETAILS } from '../../data/seedRecipeDetails.js';
 import { PENDING_KEY, SEED_KEY } from '../../data/sharedHandoff.js';
+import { readCuratedCodex } from '../../../scripts/lib/curatedCodex.mjs';
 
-const codex = JSON.parse(readFileSync('public/data/cocktail_codex_v2.json', 'utf8'));
+const codex = readCuratedCodex();
 const sauceRaw = JSON.parse(readFileSync('public/data/sauce_augment.json', 'utf8'));
 const loadData = async (kind) => {
   if (kind === 'cocktail') return { cocktails: codex.cocktails, families: codex.families };

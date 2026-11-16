@@ -7,6 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { isFreeLicense, isFoodPage } from '../dishStoryMatch.js';
 import { SEED_RECIPES } from '../seedRecipes.js';
+import { readCuratedCodex } from '../../../scripts/lib/curatedCodex.mjs';
 
 const ROOT = path.resolve(__dirname, '../../..');
 const FILE = path.join(ROOT, 'public/data/dish_stories.json');
@@ -27,7 +28,7 @@ describe('dish_stories.json', () => {
     const ids = {
       recipes: new Set(SEED_RECIPES.map((r) => r.id)),
       sauces: new Set(read('public/data/sauce_augment.json').sauces.map((s) => s.name)),
-      cocktails: new Set(read('public/data/cocktail_codex_v2.json').cocktails.map((c) => c.name)),
+      cocktails: new Set(readCuratedCodex().cocktails.map((c) => c.name)),
       wines: new Set(read('public/data/wine_styles.json').wines.map((w) => w.id)),
     };
     for (const { kind, key } of all) expect(ids[kind].has(key), `${kind}/${key}`).toBe(true);

@@ -25,6 +25,7 @@ import { normalizeIngredient } from './normalizeIngredient.js';
 import { suggestAmounts } from './cocktailAmounts.js';
 import { guessSlot } from './cocktailFacets.js';
 import { dishTypeOf } from './dishType.js';
+import COCKTAIL_OVERRIDES from './curation/cocktailOverrides.json' with { type: 'json' };
 
 export const SHARE_KINDS = Object.freeze(['cocktail', 'sauce', 'dish']);
 
@@ -40,15 +41,16 @@ export function slugify(text) {
     .replace(/^-+|-+$/g, '');
 }
 
-// Two distinct codex recipes slugify alike ('old-fashioned' and 'old fashioned', the IBA
-// one); the second keeps the plain slug, the first is pinned here. The test guards new clashes.
-const SLUG_OVERRIDE = { cocktail: { 'old-fashioned': 'old-fashioned-2' } };
+// Links that worked before a duplicate drink was merged into its better-specified twin (DATA-6) keep working:
+// old slug -> the slug that now holds the drink. The table is src/data/curation/cocktailOverrides.json ("remove").
+export const SLUG_ALIASES = Object.freeze({
+  cocktail: Object.freeze(Object.fromEntries(Object.values(COCKTAIL_OVERRIDES.remove || {}).map((v) => [v.slug, v.slugTo]))),
+});
 
 function baseOf(kind, item) {
   if (!item) return '';
   if (kind === 'cocktail') {
-    const canonical = item.canonical || item.name;
-    return SLUG_OVERRIDE.cocktail[canonical] || canonical;
+    return item.canonical || item.name;
   }
   if (kind === 'sauce') return item.name;
   if (kind === 'dish') return item.id || item.name;
@@ -177,9 +179,9 @@ function resolveDish(d, data) {
  */
 export function resolveBuiltIn(kind, slug, data) {
   if (!SHARE_KINDS.includes(kind) || typeof slug !== 'string' || !slug) return null;
-  const want = slug.toLowerCase();
+  let want = slug.toLowerCase();
   if (kind === 'cocktail') {
-    const c = findBySlug(kind, want, data?.cocktails);
+    const c = findBySlug(kind, want, data?.cocktails) || findBySlug(kind, SLUG_ALIASES.cocktail[want] || '', data?.cocktails);
     return c ? resolveCocktail(c, data) : null;
   }
   if (kind === 'sauce') {

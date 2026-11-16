@@ -3,12 +3,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { buildPairingIndex } from '../recipePairingMatch.js';
 import { riffRows, buildRolePool, swapCandidates, applySwap, nearestCocktails, familyKey } from '../cocktailRiff.js';
+import { readCuratedCodex } from '../../../scripts/lib/curatedCodex.mjs';
 
 const root = process.cwd();
 const read = (p) => JSON.parse(fs.readFileSync(path.join(root, p), 'utf8'));
 const ingredients = read('public/proDataset/ingredients.json');
 const roles = read('public/data/cocktail_roles.json').byIngredient;
-const cocktails = read('public/data/cocktail_codex_v2.json').cocktails;
+const cocktails = readCuratedCodex().cocktails;
 const edges = read('public/proDataset/pairings.json')
   .filter((p) => p.ingredientA in ingredients && p.ingredientB in ingredients)
   .map((p) => ({ source: p.ingredientA, target: p.ingredientB, strength: p.strength, cooccurrence: p.tradition, known: p.known === true }));

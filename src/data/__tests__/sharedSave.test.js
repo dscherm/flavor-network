@@ -15,8 +15,9 @@ import { RECIPE_DETAILS } from '../seedRecipeDetails.js';
 import { FAMILY_SKELETONS } from '../cocktailInvent.js';
 import { INVENT_STYLE_BY_ID } from '../inventSauce.js';
 import { DISH_SKELETONS } from '../dishSkeletons.js';
+import { readCuratedCodex } from '../../../scripts/lib/curatedCodex.mjs';
 
-const codex = JSON.parse(readFileSync('public/data/cocktail_codex_v2.json', 'utf8'));
+const codex = readCuratedCodex();
 const sauceRaw = JSON.parse(readFileSync('public/data/sauce_augment.json', 'utf8'));
 const DATA = { cocktails: codex.cocktails, families: codex.families, sauces: sauceRaw.sauces, dishes: SEED_RECIPES, dishDetails: RECIPE_DETAILS };
 const get = (kind, slug) => resolveBuiltIn(kind, slug, DATA);

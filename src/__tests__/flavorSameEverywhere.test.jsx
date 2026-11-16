@@ -26,8 +26,9 @@ import { loadFlavorNodes } from '../../scripts/lib/flavorNodes.mjs';
 import { buildPairingIndex } from '../data/recipePairingMatch.js';
 import { buildRolePool } from '../data/cocktailRiff.js';
 import serverCards from '../../functions/src/share/share-cards.json';
+import { readCuratedCodex } from '../../scripts/lib/curatedCodex.mjs';
 
-const codex = JSON.parse(readFileSync('public/data/cocktail_codex_v2.json', 'utf8'));
+const codex = readCuratedCodex();
 const data = { cocktails: codex.cocktails, families: codex.families, dishes: SEED_RECIPES, dishDetails: RECIPE_DETAILS };
 const loadData = async (kind) => (kind === 'cocktail' ? { cocktails: data.cocktails, families: data.families } : { dishes: SEED_RECIPES, dishDetails: RECIPE_DETAILS });
 const nodes = loadFlavorNodes();

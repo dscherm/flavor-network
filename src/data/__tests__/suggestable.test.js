@@ -21,6 +21,7 @@ import { DISH_SKELETON_ORDER, dishSkeleton, rankDishSlot } from '../dishSkeleton
 import { findSwap, SWAPS } from '../kitchenSwaps.js';
 import { rankByAxisImpact, buildAxisEnhancements } from '../recipeProfileAnalysis.js';
 import { rankLogits } from '../../ml/recipeRuntime.js';
+import { readCuratedCodex } from '../../../scripts/lib/curatedCodex.mjs';
 
 const PUB = path.resolve(__dirname, '../../../public');
 const readJson = (p) => JSON.parse(fs.readFileSync(path.join(PUB, p), 'utf8'));
@@ -171,7 +172,7 @@ describe('the three invent panels', () => {
 describe('stand-ins', () => {
   it('cocktail swaps never offer a packaged or merged name', () => {
     const roles = readJson('data/cocktail_roles.json').byIngredient;
-    const cocktails = readJson('data/cocktail_codex_v2.json').cocktails;
+    const cocktails = readCuratedCodex().cocktails;
     const index = buildPairingIndex(edges, [...nodes.keys()]);
     const pool = buildRolePool(roles, index.names);
     for (const [, m] of pool) for (const p of PACKAGED) m.set(p, 50);

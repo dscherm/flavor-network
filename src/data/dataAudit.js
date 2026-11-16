@@ -326,6 +326,7 @@ export function findTasteOutliers(ingredients, { minSize = 30, maxShare = 0.03 }
 const CREAM_LINE = /(^|\b)(cream|heavy cream|light cream|whipping cream|single cream|double cream|half and half|half-and-half|milk|ice cream|eggnog|irish cream|baileys|egg yolk|egg yolks|whole egg|egg|eggs)(\b|$)/;
 const CREAM_NOT = /(cream of tartar|cream soda|creme|crème|coconut|cream sherry|egg white|egg whites|almond milk|oat milk|soy milk)/;
 const CITRUS_LINE = /\b(lemon|lime) juice\b|^(fresh )?(lemon|lime)$/;
+export const CREAM_FAMILY = 'Flips & Cream Drinks';
 const STIRRED = new Set(['Boozy Sippers', 'Aromatic Stirred']);
 
 export const CLASSICS = [
@@ -340,7 +341,10 @@ export const CLASSICS = [
 const lines = (c) => c.ingredients_raw || [];
 // Some lines carry only the raw text ("2 oz heavy cream"), so fall back to it, minus a leading amount.
 const lineText = (l) => String(l.name || l.raw || '').toLowerCase().replace(/^[\d\s./¼-¾-]+(oz|ml|cl|dash(es)?|tsp|tbsp|parts?|drops?)?\s+/, '').trim();
-const hasAmount = (l) => l.amount_ml != null || /\d/.test(l.measure || '');
+// A line has an amount when it carries one in its fields OR starts with a quantity of something poured ("1½ ounces vodka",
+// "3/4 oz", "2 dashes", "1 shot"). A bare count of things ("1 egg white", "3 coffee beans") is not an amount of the drink.
+const QUANTITY_LINE = /^\s*(juice of\s+)?[\d½¼¾⅓⅔⅛][\d\s./½¼¾⅓⅔⅛-]*\s*(fl\.?\s*)?(oz|ounces?|ml|cl|dl|l\b|litres?|liters?|dash(es)?|tsp|teaspoons?|tbsp|tblsp|tablespoons?|shots?|parts?|cups?|drops?|scoops?|splash(es)?|glass|bar\s?spoons?|pinch)/i;
+const hasAmount = (l) => l.amount_ml != null || /\d/.test(l.measure || '') || QUANTITY_LINE.test(String(l.raw || ''));
 
 /** Is this a cream or whole-egg drink? (Egg white alone is a sour's foam, so it does not count.) */
 export function isCreamOrEggDrink(cocktail) {
@@ -355,7 +359,7 @@ const hasCitrus = (c) => lines(c).some((l) => CITRUS_LINE.test(lineText(l)));
  * @param {{families: {id:number,name:string}[], subclusters: object[], cocktails: object[]}} codex
  * @returns {{findings: object[], byFamily: Record<string, {total:number, creamEgg:number}>}}
  */
-export function cocktailChecks(codex) {
+export function cocktailChecks(codex, { creamKeep = new Set() } = {}) {
   const fam = Object.fromEntries((codex.families || []).map((f) => [f.id, f.name]));
   const cocktails = codex.cocktails || [];
   const findings = [];
@@ -366,8 +370,8 @@ export function cocktailChecks(codex) {
     const family = fam[c.family_id] ?? `family ${c.family_id}`;
     byFamily[family] = byFamily[family] || { total: 0, creamEgg: 0 };
     byFamily[family].total += 1;
-    if (isCreamOrEggDrink(c)) {
-      byFamily[family].creamEgg += 1;
+    if (isCreamOrEggDrink(c)) byFamily[family].creamEgg += 1;
+    if (isCreamOrEggDrink(c) && family !== CREAM_FAMILY && !creamKeep.has(c.name)) {
       const citrus = hasCitrus(c);
       findings.push(finding(c.name, 'cocktail-cream-egg', citrus ? 'LOW' : 'HIGH',
         `cream or egg drink filed under '${family}'${citrus ? ' (it also has citrus)' : ' (no citrus)'}`,

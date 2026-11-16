@@ -52,7 +52,7 @@ export const COCKTAIL_LAB_STAGES = [
     id: 'cocktail-intro',
     title: 'Cocktail Codex v2',
     copy:
-      "441 cocktails grouped by data-driven family (Sour / Spirit-forward / Bitter / etc.). Each sphere is a cocktail; colors mark families and sub-clusters.",
+      "439 cocktails grouped into seven data-driven families (Sours, Highballs, Stirred drinks, Aperitivos, Flips & Cream, etc.). Each sphere is a cocktail; colors mark families and sub-clusters.",
     gradient: 'linear-gradient(135deg, rgba(167,139,250,0.18), rgba(244,114,182,0.18))',
     accent: '#a78bfa',
     advance: baseAdvance,

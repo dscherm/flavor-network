@@ -44,6 +44,7 @@ import { chefTruthItems } from '../src/data/aromaWordMap.js';
 import { aromaProfile, AROMA_AXES } from '../src/data/flavorAroma.js';
 import { loadCurationTables, applyCuration } from './lib/curationTables.mjs';
 import { loadFlavorNodes } from './lib/flavorNodes.mjs';
+import { readCuratedCodex } from './lib/curatedCodex.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const KINDS = ['cocktail', 'sauce', 'dish'];
@@ -53,7 +54,7 @@ const AROMA_OK = new Set(['fruity', 'floral', 'green', 'woody', 'spicy', 'fatty'
 const readJson = (p) => JSON.parse(readFileSync(p, 'utf8'));
 
 function loadData() {
-  const codex = readJson(resolve(ROOT, 'public/data/cocktail_codex_v2.json'));
+  const codex = readCuratedCodex();
   const sauces = readJson(resolve(ROOT, 'public/data/sauce_augment.json')).sauces || [];
   return { cocktails: codex.cocktails || [], families: codex.families || [], sauces, dishes: SEED_RECIPES, dishDetails: RECIPE_DETAILS };
 }

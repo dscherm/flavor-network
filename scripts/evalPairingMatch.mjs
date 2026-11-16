@@ -21,6 +21,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { readCuratedCodex } from './lib/curatedCodex.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const pub = (p) => path.join(ROOT, 'public', p);
@@ -40,7 +41,7 @@ const ingredients = curated.ingredients;
 const pairings = curated.pairings.filter((p) => p.ingredientA in ingredients && p.ingredientB in ingredients);
 const fb = JSON.parse(readFileSync(path.join(ROOT, 'data/private/flavor_bible_matched.json'), 'utf8')).pairs;
 const fbSet = new Set(fb.map(([a, b]) => (a < b ? `${a}|${b}` : `${b}|${a}`)));
-const cocktails = JSON.parse(readFileSync(pub('data/cocktail_codex_v2.json'), 'utf8')).cocktails
+const cocktails = readCuratedCodex().cocktails
   .map((c) => ({ name: c.name, ingredients: c.ingredients_raw.map((r) => r.raw) }));
 const sauces = JSON.parse(readFileSync(pub('data/sauce_augment.json'), 'utf8')).sauces
   .map((s) => ({ name: s.name, ingredients: s.ingredients.map((i) => i.name) }));

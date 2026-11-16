@@ -10,6 +10,7 @@ import { loadCodexV2 } from '../../data/cocktailCodexV2.js';
 import { loadSauceCodex } from '../../data/sauceCodex.js';
 import { SEED_RECIPES } from '../../data/seedRecipes.js';
 import { RECIPE_DETAILS } from '../../data/seedRecipeDetails.js';
+import { readCuratedCodex } from '../../../scripts/lib/curatedCodex.mjs';
 
 const recipe = { kind: 'cocktail', name: 'Tom & Jerry\'s "Special" \u{1F378}' };
 const base = { open: true, onClose: () => {}, recipe, link: '/r/cocktail/negroni', origin: 'https://neuralflavor.web.app' };
@@ -122,7 +123,7 @@ describe('ShareButton', () => {
 });
 
 describe('links on built-in cards resolve to the same recipe', () => {
-  const codexRaw = JSON.parse(readFileSync('public/data/cocktail_codex_v2.json', 'utf8'));
+  const codexRaw = readCuratedCodex();
   const sauceRaw = JSON.parse(readFileSync('public/data/sauce_augment.json', 'utf8'));
   const data = { cocktails: codexRaw.cocktails, families: codexRaw.families, sauces: sauceRaw.sauces, dishes: SEED_RECIPES, dishDetails: RECIPE_DETAILS };
 

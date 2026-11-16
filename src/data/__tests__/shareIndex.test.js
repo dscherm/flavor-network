@@ -3,22 +3,24 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { buildShareIndex, describe as describeRecipe } from '../../../scripts/buildShareIndex.mjs';
-import { slugFor, uniqueBySlug } from '../sharedRecipe.js';
+import { slugFor, uniqueBySlug, SLUG_ALIASES } from '../sharedRecipe.js';
 import { SEED_RECIPES } from '../seedRecipes.js';
+import { readCuratedCodex } from '../../../scripts/lib/curatedCodex.mjs';
 
 const ROOT = resolve(__dirname, '../../..');
 const json = (p) => JSON.parse(readFileSync(resolve(ROOT, p), 'utf8'));
 
 describe('share index', () => {
   const index = buildShareIndex();
-  const codex = json('public/data/cocktail_codex_v2.json');
+  const codex = readCuratedCodex();
   const sauces = json('public/data/sauce_augment.json').sauces;
 
   it('has an entry for every built-in cocktail, sauce and Cookbook dish', () => {
     for (const [kind, items] of [['cocktail', codex.cocktails], ['sauce', sauces], ['dish', SEED_RECIPES]]) {
       const unique = uniqueBySlug(kind, items);
       const keys = Object.keys(index).filter((k) => k.startsWith(`${kind}/`));
-      expect(keys.length).toBe(unique.length);
+      // plus one entry per merged duplicate's old slug (DATA-6), so old links still preview
+      expect(keys.length).toBe(unique.length + Object.keys(SLUG_ALIASES[kind] || {}).length);
       for (const it of unique) expect(index[`${kind}/${slugFor(kind, it)}`]).toBeTruthy();
     }
   });

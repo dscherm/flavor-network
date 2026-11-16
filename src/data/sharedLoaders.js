@@ -4,11 +4,13 @@
  * or the model's per-ingredient values.
  */
 
+import { curateCodexRaw } from './cocktailCodexV2.js';
+
 export async function defaultLoadData(kind) {
   if (kind === 'cocktail') {
     const res = await fetch('/data/cocktail_codex_v2.json');
     if (!res.ok) throw new Error(`cocktail data ${res.status}`);
-    const raw = await res.json();
+    const raw = curateCodexRaw(await res.json());
     return { cocktails: raw.cocktails || [], families: raw.families || [] };
   }
   if (kind === 'sauce') {

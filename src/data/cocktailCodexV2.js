@@ -3,15 +3,25 @@
  * Cocktail Lab v2 taxonomy.
  *
  * Replaces the legacy `cocktailCodex.js` (which parsed the *Cocktail
- * Codex* book's 7 archetypes) with the 6-family / 12-sub-cluster
- * model from `cocktail_codex_v2.json` (see
- * `docs/cocktail-codex-v2/v2.5-impl-spec.md`).
+ * Codex* book's 7 archetypes) with the family / sub-cluster model from
+ * `cocktail_codex_v2.json` (see `docs/cocktail-codex-v2/v2.5-impl-spec.md`):
+ * six generated families plus the Flips & Cream Drinks family DATA-6 adds in
+ * src/data/curation/cocktailOverrides.json.
  *
  * Core exports:
  *   - loadCodexV2(rawJson) → normalized graph + lookup
  *   - cocktailSimilarity(a, b) → cosine of feature vectors
- *   - placeFamilyOnSphere(idx, total=6) → 3D coords on a Fibonacci lattice
+ *   - curateCodexRaw(rawJson) → the raw codex with the curation table applied (every loader goes through it)
+ *   - placeFamilyOnSphere(idx, total) → 3D coords on a Fibonacci lattice
  */
+
+import { applyCocktailCuration } from './curation/applyCocktailCuration.js';
+import COCKTAIL_OVERRIDES from './curation/cocktailOverrides.json' with { type: 'json' };
+
+/** The raw codex payload with the checked-in corrections applied (DATA-6). Idempotent; a stub without cocktails comes back as is. */
+export function curateCodexRaw(raw) {
+  return applyCocktailCuration(raw, COCKTAIL_OVERRIDES);
+}
 
 const FAMILY_RADIUS = 55; // sphere shell — pulled in from 70 (2026-05-08) so the cocktail families read as a tight constellation; further reductions risk Sour (N=149, baseDisc≈49) overlapping its neighbors so 55 is the floor without also tightening discRadius
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
@@ -72,7 +82,7 @@ export function loadCodexV2(raw) {
  * Stable across re-runs (deterministic in `idx`/`total`), and visually
  * pleasing (no clustering at poles).
  */
-export function placeFamilyOnSphere(idx, total = 6, radius = FAMILY_RADIUS) {
+export function placeFamilyOnSphere(idx, total = 7, radius = FAMILY_RADIUS) {
   const i = idx + 0.5;
   const phi = Math.acos(1 - (2 * i) / total);
   const theta = GOLDEN_ANGLE * idx;

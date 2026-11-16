@@ -84,6 +84,7 @@ import AffinityTriangleOverlay from './components/AffinityTriangleOverlay.jsx';
 import WedgeGridFlavorWheel from './components/WedgeGridFlavorWheel.jsx';
 import InsightDrawer from './components/InsightDrawer.jsx';
 import { rankBridges } from './data/bridgeRanker.js';
+import { curateCodexRaw } from './data/cocktailCodexV2.js';
 import { buildPairingIndex, rankByPairing } from './data/recipePairingMatch.js';
 import { rankWinesForRecipe } from './data/winePairing.js';
 import { loadWineStyles } from './data/wineStyles.js';
@@ -848,7 +849,7 @@ export default function App() {
     if (mode === 'pairing' || mode === 'wine' || mode === 'cookbook' || mode === 'network') {
       setActiveTab(mode);
     } else if (mode === 'cocktail') {
-      // Cocktail model — 6 family taxonomy with cocktails as nodes.
+      // Cocktail model — 7 family taxonomy with cocktails as nodes.
       setCocktailMounted(true);
       setActiveTab('cocktail');
     } else if (mode === 'sauce') {
@@ -1147,7 +1148,7 @@ export default function App() {
     try {
       const res = await fetch(`${import.meta.env.BASE_URL}data/cocktail_codex_v2.json`);
       if (!res.ok) return;
-      const codex = await res.json();
+      const codex = curateCodexRaw(await res.json());
       // Normalize cocktails to have a string[] `ingredients` field so
       // rankByPairing can resolve each one against the pairing graph.
       const items = (codex.cocktails || []).map(c => ({

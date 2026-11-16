@@ -35,5 +35,19 @@
     {"name":"brandy flavoring","reason":"a real baking flavouring; no brandy extract entry exists to merge into"},
     {"name":"butternut flavoring","reason":"a real baking flavouring; no butternut extract entry exists to merge into"},
     {"name":"black walnut flavoring","reason":"a real baking flavouring; no black walnut extract entry exists to merge into"}
+  ],
+  "cocktailCreamKeep": [
+    {"name":"Ramos Gin Fizz","reason":"a fizz (lemon, lime, soda) with cream as texture; the name and the build are a fizz"},
+    {"name":"Royal Fizz","reason":"a fizz with a whole egg for body, topped with soda; fizz first"},
+    {"name":"Royal Gin Fizz","reason":"a gin fizz with a whole egg (the royal), topped with soda; fizz first"},
+    {"name":"Lady Love Fizz","reason":"a gin fizz with two teaspoons of cream and egg white; fizz first"},
+    {"name":"Casino Royale","reason":"a gin sour with an egg yolk for body; sour first"},
+    {"name":"Irish Coffee","reason":"a hot coffee drink; the cream is a float, not the body"},
+    {"name":"Hot Creamy Bush","reason":"a hot coffee drink with a splash of cream liqueur"},
+    {"name":"Jamaican Coffee","reason":"a coffee drink topped with whipped cream"},
+    {"name":"Tennesee Mud","reason":"a hot coffee drink topped with whipped cream"},
+    {"name":"Cafe Savoy","reason":"a hot coffee drink with half an ounce of milk"},
+    {"name":"Irish Curdling Cow","reason":"a long orange juice drink with three-quarters of an ounce of cream liqueur"},
+    {"name":"Twist of Menton","reason":"false positive: 'strawberry cream syrup' is a syrup, not cream"}
   ]
 }

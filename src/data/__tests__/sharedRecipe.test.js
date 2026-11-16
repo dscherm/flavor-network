@@ -5,8 +5,9 @@ import { RECIPE_DETAILS } from '../seedRecipeDetails.js';
 import {
   parseSharePath, slugify, slugFor, shareLinkFor, resolveBuiltIn, uniqueBySlug, SHARE_KINDS,
 } from '../sharedRecipe.js';
+import { readCuratedCodex } from '../../../scripts/lib/curatedCodex.mjs';
 
-const codex = JSON.parse(readFileSync('public/data/cocktail_codex_v2.json', 'utf8'));
+const codex = readCuratedCodex();
 const sauceRaw = JSON.parse(readFileSync('public/data/sauce_augment.json', 'utf8'));
 const DATA = {
   cocktails: codex.cocktails, families: codex.families, sauces: sauceRaw.sauces,
@@ -92,18 +93,27 @@ describe('resolveBuiltIn', () => {
     expect(r.category).toBeTruthy();
   });
   it('suggests an amount, flagged, when the source gives none', () => {
-    const r = resolveBuiltIn('cocktail', 'negroni', DATA);
-    expect(r.lines.every((l) => l.amount)).toBe(true);
+    const r = resolveBuiltIn('cocktail', 'negroni-sbagliato', DATA);
     expect(r.lines.some((l) => l.suggested)).toBe(true);
     expect(r.garnish).toMatch(/orange/);
+    // The Negroni has the IBA amounts since DATA-6: nothing is guessed.
+    expect(resolveBuiltIn('cocktail', 'negroni', DATA).lines.some((l) => l.suggested)).toBe(false);
   });
   it('resolves by slug regardless of case and for a repeated codex row', () => {
     expect(resolveBuiltIn('cocktail', 'PINA-COLADA', DATA).name).toMatch(/Pina Colada/);
     expect(resolveBuiltIn('cocktail', 'corpse-reviver-2', DATA).lines.length).toBeGreaterThan(2);
   });
-  it('keeps the two Old Fashioned recipes apart', () => {
+  it('merged duplicates: the old Old Fashioned link and the other renamed drinks still resolve to the drink that kept them', () => {
     expect(resolveBuiltIn('cocktail', 'old-fashioned', DATA).lines.some((l) => /cube/.test(l.key + l.amount))).toBe(true);
-    expect(resolveBuiltIn('cocktail', 'old-fashioned-2', DATA).name).toBe('Old-Fashioned');
+    expect(resolveBuiltIn('cocktail', 'old-fashioned-2', DATA).name).toBe('Old Fashioned');
+    expect(resolveBuiltIn('cocktail', 'southside', DATA).name).toBe('South Side');
+    expect(resolveBuiltIn('cocktail', 'long-island-tea', DATA).name).toBe('Long Island Iced Tea');
+  });
+  it('every /r/cocktail/<slug> that resolved at v1.16.0 still resolves (fixture of the live slugs)', () => {
+    const { slugs } = JSON.parse(readFileSync('src/data/__tests__/fixtures/cocktailSlugs.v1.16.0.json', 'utf8'));
+    expect(slugs.length).toBe(439);
+    const lost = slugs.filter((s) => !resolveBuiltIn('cocktail', s, DATA));
+    expect(lost).toEqual([]);
   });
   it('resolves a sauce and a dish with amounts and steps', () => {
     const s = resolveBuiltIn('sauce', 'alfredo', DATA);

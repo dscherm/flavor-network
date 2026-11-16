@@ -121,14 +121,15 @@ describe('InventCocktail: the style is opt-in and recommended', () => {
     expect(listKeys().sort()).toEqual(['angostura bitters', 'bourbon', 'rye', 'simple syrup']);
   });
 
-  it('the style picker is collapsed by default and lists the six styles with a no-style choice', () => {
+  it('the style picker is collapsed by default and lists the seven styles with a no-style choice', () => {
     renderInvent();
     startWith('gin');
     expect(screen.queryByTestId('invent-category-option-2')).toBeNull();
     fireEvent.click(byId('invent-category-toggle'));
-    for (const id of [2, 4, 1, 5, 0, 3]) expect(byId(`invent-category-option-${id}`)).toBeTruthy();
+    for (const id of [2, 4, 1, 5, 0, 3, 6]) expect(byId(`invent-category-option-${id}`)).toBeTruthy();
     expect(byId('invent-category-none')).toBeTruthy();
     expect(byId('invent-category-option-2')).toHaveTextContent('bright, shaken, citrus-forward');
+    expect(byId('invent-category-option-6')).toHaveTextContent('rich, shaken, cream or whole egg');
     expect(byId('invent-family-glass-2')).toBeTruthy();
   });
 

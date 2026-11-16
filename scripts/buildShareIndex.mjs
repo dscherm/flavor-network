@@ -6,7 +6,8 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { resolveBuiltIn, slugFor, uniqueBySlug } from '../src/data/sharedRecipe.js';
+import { resolveBuiltIn, slugFor, uniqueBySlug, SLUG_ALIASES } from '../src/data/sharedRecipe.js';
+import { readCuratedCodex } from './lib/curatedCodex.mjs';
 import { SEED_RECIPES } from '../src/data/seedRecipes.js';
 import { RECIPE_DETAILS } from '../src/data/seedRecipeDetails.js';
 import { profileForRecipe } from '../src/data/shareCardData.js';
@@ -45,7 +46,7 @@ export function describe(kind, lines) {
 }
 
 function loadData() {
-  const codex = readJson('public/data/cocktail_codex_v2.json');
+  const codex = readCuratedCodex();
   const sauces = readJson('public/data/sauce_augment.json').sauces || [];
   return {
     cocktails: codex.cocktails || [], families: codex.families || [],
@@ -64,13 +65,21 @@ function eachBuiltIn(data, fn) {
   }
 }
 
+/** A merged duplicate's old slug (DATA-6) gets the same entry as the drink that absorbed it, so old links still preview. */
+function addAliases(out) {
+  for (const [kind, map] of Object.entries(SLUG_ALIASES)) {
+    for (const [from, to] of Object.entries(map)) if (out[`${kind}/${to}`] && !out[`${kind}/${from}`]) out[`${kind}/${from}`] = out[`${kind}/${to}`];
+  }
+  return out;
+}
+
 export function buildShareIndex() {
   const data = loadData();
   const index = {};
   eachBuiltIn(data, (kind, slug, r) => {
     index[`${kind}/${slug}`] = { name: r.name, description: describe(kind, r.lines), kind };
   });
-  return index;
+  return addAliases(index);
 }
 
 /**
@@ -94,6 +103,7 @@ export function buildShareCards() {
     for (const f of ['category', 'glass', 'meta', 'garnish']) if (r[f]) card[f] = r[f];
     out[`${kind}/${slug}`] = card;
   });
+  addAliases(out);
   return Object.fromEntries(Object.keys(out).sort().map((k) => [k, out[k]]));
 }
 

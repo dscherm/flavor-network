@@ -10,10 +10,11 @@ import { RECIPE_DETAILS } from '../seedRecipeDetails.js';
 import { resolveIngredientName } from '../recipePairingMatch.js';
 import { GENERIC_BOTTLE_KEYS, barKey } from '../myBar.js';
 import { EXTRA_BOTTLES } from '../barScan.js';
+import { readCuratedCodex } from '../../../scripts/lib/curatedCodex.mjs';
 
 const raw = JSON.parse(readFileSync('public/proDataset/ingredients.json', 'utf8'));
 const GRAPH = new Set(Object.keys(applyCuration(raw, null, loadCurationTables()).ingredients).filter((k) => !k.startsWith('_')));
-const codex = JSON.parse(readFileSync('public/data/cocktail_codex_v2.json', 'utf8'));
+const codex = readCuratedCodex();
 const sauces = JSON.parse(readFileSync('public/data/sauce_augment.json', 'utf8')).sauces;
 const data = { cocktails: codex.cocktails, families: codex.families, sauces, dishes: SEED_RECIPES, dishDetails: RECIPE_DETAILS };
 const known = (k) => Boolean(strengthFor(k));

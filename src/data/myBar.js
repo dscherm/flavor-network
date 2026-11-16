@@ -133,7 +133,11 @@ const EQUIVALENT = {
   syrup: ['simple syrup', 'sugar syrup'], 'simple syrup': ['syrup', 'sugar syrup'],
   'sugar syrup': ['simple syrup', 'syrup'],
   'powdered sugar': ['simple syrup', 'syrup'],
-  whisky: ['whiskey'], whiskey: ['whisky'],
+  whisky: ['whiskey'], whiskey: ['whisky', 'rye whiskey'],
+  // DATA-5 gave "rye whiskey" and "Peychaud's bitters" names of their own; a bar that holds the plain word still covers them,
+  // as it did when those lines read "whiskey" and "bitters" (a bar of "rye" covers "rye whiskey" outright too).
+  'rye whiskey': ['whiskey', 'whisky', 'rye'], rye: ['rye whiskey'],
+  "peychaud's bitters": ['bitters'],
 };
 
 /** Recipe lines that count toward coverage: { raw, name, key, role }. */

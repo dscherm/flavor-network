@@ -5,6 +5,7 @@ import { shareLinkFor } from '../data/sharedRecipe.js';
 import CocktailBrowse from './CocktailBrowse.jsx';
 import {
   loadCodexV2,
+  curateCodexRaw,
   placeCocktailInFamily,
   topSimilar,
   crossFamilySimilar,
@@ -136,7 +137,7 @@ export default function CocktailLabV2({
         const res = await fetch(`${import.meta.env.BASE_URL}data/cocktail_codex_v2.json`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const raw = await res.json();
-        const g = loadCodexV2(raw);
+        const g = loadCodexV2(curateCodexRaw(raw));
         if (cancelled) return;
         if (!g) throw new Error('Invalid cocktail_codex_v2.json schema');
         setGraph(g);

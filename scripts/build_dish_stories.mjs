@@ -29,6 +29,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { readCuratedCodex } from './lib/curatedCodex.mjs';
 import {
   candidateTitles, acceptSummary, namePlausible, cleanName, firstSentences,
   commonsFileFromUrl, isFreeLicense, cleanArtist, stripHtml, fold,
@@ -113,7 +114,7 @@ async function loadItems() {
   const { SEED_RECIPES } = await import(pathToFileURL(path.join(ROOT, 'src/data/seedRecipes.js')).href);
   const read = (p) => JSON.parse(fs.readFileSync(path.join(ROOT, p), 'utf8'));
   const sauces = read('public/data/sauce_augment.json').sauces;
-  const cocktails = read('public/data/cocktail_codex_v2.json').cocktails;
+  const cocktails = readCuratedCodex().cocktails;
   const wines = read('public/data/wine_styles.json').wines;
   const uniq = (arr) => [...new Map(arr.map((x) => [x.key, x])).values()];
   return [

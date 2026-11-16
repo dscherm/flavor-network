@@ -22,6 +22,7 @@ import { TASTE_WORDS, TASTE_EXAMPLES, TASTE_RULES } from '../tasteScheme.js';
 import { loadCuratedDataset } from '../curation/loadDataset.js';
 import { buildPairingIndex } from '../recipePairingMatch.js';
 import { rankByRecipeCooccurrence } from '../recipeSuggestionEngine.js';
+import { readCuratedCodex } from '../../../scripts/lib/curatedCodex.mjs';
 
 const PUB = resolve(__dirname, '../../../public');
 const readJson = (p) => JSON.parse(readFileSync(resolve(PUB, p), 'utf8'));
@@ -119,7 +120,7 @@ describe('the added bar entries', () => {
   });
   it('rye whiskey and peychaud\'s bitters appear in the My bar typeahead (the keys of the built-in cocktails)', () => {
     const names = new Set(Object.keys(cur));
-    const codex = readJson('data/cocktail_codex_v2.json');
+    const codex = readCuratedCodex();
     const roles = readJson('data/cocktail_roles.json').byIngredient;
     const vocab = new Set(barKeyLists(codex.cocktails, roles, names).flat());
     for (const k of ['rye whiskey', "peychaud's bitters"]) expect(vocab.has(k), k).toBe(true);

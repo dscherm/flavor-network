@@ -3,8 +3,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {
   MY_BAR_KEY, loadBar, saveBar, barKey, addToBar, removeFromBar, coverCocktail, whatCanIMake,
-  substitutionText, commonBarIngredients, countedLines,
+  substitutionText, commonBarIngredients, countedLines, coverLine,
 } from '../myBar.js';
+import { readCuratedCodex } from '../../../scripts/lib/curatedCodex.mjs';
 
 const ing = (raw) => ({ raw });
 const roles = {
@@ -135,7 +136,7 @@ describe('real codex', () => {
   const read = (p) => JSON.parse(fs.readFileSync(path.join(root, p), 'utf8'));
   const realRoles = read('public/data/cocktail_roles.json').byIngredient;
   const realNames = new Set(Object.keys(read('public/proDataset/ingredients.json')));
-  const codex = read('public/data/cocktail_codex_v2.json').cocktails;
+  const codex = readCuratedCodex().cocktails;
 
   it('the brief\'s bar (gin, campari, sweet vermouth, lemon, syrup, soda) makes a Negroni and an Americano', () => {
     let bar = [];
@@ -146,6 +147,26 @@ describe('real codex', () => {
     // A Boulevardier is one bourbon away; vodka drinks never count as covered by gin.
     expect(oneAway.find((m) => m.cocktail.name === 'Boulevardier')?.missing[0].key).toBe('bourbon');
     expect(makeNames.some((n) => /vodka/i.test(n))).toBe(false);
+  });
+
+  // DATA-5 gave "rye whiskey" and "Peychaud's bitters" names of their own; a plain "whiskey" / "bitters" on the shelf must keep
+  // covering them. Before DATA-5 this bar made all of these (computed from v1.15.0's code on the same codex).
+  it('a bar of whiskey, vermouth, bitters and the usual mixers still makes the rye and Peychaud drinks, with no swap noted for rye', () => {
+    const names = new Set([...realNames, 'rye whiskey', "peychaud's bitters"]);
+    let bar = [];
+    for (const x of ['whiskey', 'sweet vermouth', 'cherry brandy', 'absinthe', 'simple syrup', 'lemon juice', 'angostura bitters', 'yellow chartreuse', 'sherry', 'bitters', 'cognac', 'benedictine']) bar = addToBar(bar, x, names);
+    const { make } = whatCanIMake(codex, bar, { roles: realRoles, names });
+    const got = new Map(make.map((m) => [m.cocktail.name, m]));
+    for (const n of ['Remember the Maine', 'Trinidad Sour', 'La Valencia', 'Vieux Carré', 'Sazerac', 'Whiskey Sour', 'Old Fashioned']) expect(got.has(n), n).toBe(true);
+    expect(got.get('Trinidad Sour').substitutions).toEqual([]);
+    expect(make.length).toBeGreaterThanOrEqual(19);
+  });
+  it('rye and whiskey cover each other as the same bottle; Peychaud is covered by plain bitters, not the other way round', () => {
+    const line = (key, role) => ({ key, role });
+    expect(coverLine(line('rye whiskey', 'spirit'), new Set(['whiskey']), realRoles)).toMatchObject({ covered: true, substitution: false });
+    expect(coverLine(line('rye whiskey', 'spirit'), new Set(['rye']), realRoles)).toMatchObject({ covered: true, substitution: false });
+    expect(coverLine(line("peychaud's bitters", 'bitter'), new Set(['bitters']), realRoles)).toMatchObject({ covered: true });
+    expect(coverLine(line("peychaud's bitters", 'bitter'), new Set(['gin']), realRoles).covered).toBe(false);
   });
 
   it('quick-add chips are the 20 most common cocktail ingredients', () => {

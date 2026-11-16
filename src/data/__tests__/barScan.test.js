@@ -7,6 +7,7 @@ import {
   scanBarPhoto, ScanError, toReviewRows, mergeReviewRows, buildPrompt, GEMINI_URL,
   GEMINI_KEY_STORAGE, SCAN_CODE_STORAGE,
 } from '../barScan.js';
+import { readCuratedCodex } from '../../../scripts/lib/curatedCodex.mjs';
 
 const read = (p) => JSON.parse(fs.readFileSync(path.join(process.cwd(), p), 'utf8'));
 
@@ -287,7 +288,7 @@ describe('secrets never leak', () => {
 describe('real data', () => {
   const roles = read('public/data/cocktail_roles.json');
   const names = new Set(Object.keys(read('public/proDataset/ingredients.json')));
-  const cocktails = read('public/data/cocktail_codex_v2.json').cocktails;
+  const cocktails = readCuratedCodex().cocktails;
 
   it('barVocab: booze only, most used first, named bottles included, within the function limits', () => {
     const v = barVocab(cocktails, roles, names);

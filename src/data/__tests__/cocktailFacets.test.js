@@ -4,6 +4,7 @@ import path from 'node:path';
 import {
   normalizeGlass, deriveFacets, matchesFacetFilter, GLASS_TYPES, OCCASIONS, SEASONS,
 } from '../cocktailFacets.js';
+import { readCuratedCodex } from '../../../scripts/lib/curatedCodex.mjs';
 
 const SLOTS = {
   gin: 'spirit', whiskey: 'spirit', rum: 'spirit', vodka: 'spirit', campari: 'amaro_liqueur',
@@ -111,7 +112,7 @@ describe('matchesFacetFilter', () => {
 });
 
 describe('against the shipped codex', () => {
-  const codex = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'public/data/cocktail_codex_v2.json'), 'utf8'));
+  const codex = readCuratedCodex();
   const roles = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'public/data/cocktail_roles.json'), 'utf8')).byIngredient;
   const seasons = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'public/data/season_region.json'), 'utf8'));
   const real = { slotOf: (n) => roles[n]?.role || null, seasonOf: (n) => seasons[n]?.season || null };

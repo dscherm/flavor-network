@@ -18,8 +18,8 @@
    },
    "cocktails": {
     "items": 439,
-    "stories": 177,
-    "photos": 163
+    "stories": 175,
+    "photos": 161
    },
    "wines": {
     "items": 53,
@@ -3432,7 +3432,7 @@
     "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
    }
   },
-  "Long Island Tea": {
+  "Long Island Iced Tea": {
    "title": "Long Island iced tea",
    "desc": "Mixed drink with vodka, gin, tequila, and rum",
    "text": "The Long Island iced tea, or Long Island ice tea, is an IBA official cocktail, typically made with vodka, tequila, white rum, Cointreau, gin, and a splash of cola. Despite its name, the cocktail does not typically contain iced tea, but is named due to having a similar amber hue as iced tea.",
@@ -3811,21 +3811,6 @@
     "artist": "Patrick Truby",
     "license": "CC BY-SA 2.0",
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0"
-   }
-  },
-  "Old-Fashioned": {
-   "title": "Old fashioned (cocktail)",
-   "desc": "Cocktail made with whiskey, bitters and sugar",
-   "text": "The old fashioned is a cocktail made by muddling sugar with bitters and water, adding whiskey or sometimes brandy, and garnishing with an orange slice or zest and a cocktail cherry. It is traditionally served with ice in an old fashioned glass.",
-   "url": "https://en.wikipedia.org/wiki/Old_fashioned_(cocktail)",
-   "photo": {
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Whiskey_Old_Fashioned1.jpg/500px-Whiskey_Old_Fashioned1.jpg",
-    "w": 400,
-    "h": 494,
-    "page": "https://commons.wikimedia.org/wiki/File:Whiskey_Old_Fashioned1.jpg",
-    "artist": "Erich Wagner (www.eventografie.de)",
-    "license": "CC BY-SA 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
    }
   },
   "Orange Whip": {
@@ -4318,21 +4303,6 @@
    "url": "https://en.wikipedia.org/wiki/Sol_y_Sombra"
   },
   "South Side": {
-   "title": "South Side (cocktail)",
-   "desc": "Alcoholic beverage",
-   "text": "A South Side or Southside is an alcoholic beverage made with gin, lemon juice, simple syrup and mint. A variant, the Southside Fizz, adds soda water.",
-   "url": "https://en.wikipedia.org/wiki/South_Side_(cocktail)",
-   "photo": {
-    "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/The_Southside_-_kind_of_a_gin_mojito.jpg/500px-The_Southside_-_kind_of_a_gin_mojito.jpg",
-    "w": 400,
-    "h": 533,
-    "page": "https://commons.wikimedia.org/wiki/File:The_Southside_-_kind_of_a_gin_mojito.jpg",
-    "artist": "davidgiesberg",
-    "license": "CC BY 2.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
-   }
-  },
-  "Southside": {
    "title": "South Side (cocktail)",
    "desc": "Alcoholic beverage",
    "text": "A South Side or Southside is an alcoholic beverage made with gin, lemon juice, simple syrup and mint. A variant, the Southside Fizz, adds soda water.",

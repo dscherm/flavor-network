@@ -9,8 +9,9 @@ vi.mock('../../data/shareTargets.js', async (orig) => ({ ...(await orig()), SHAR
 import SharedRecipePage from '../SharedRecipePage.jsx';
 import { SEED_RECIPES } from '../../data/seedRecipes.js';
 import { RECIPE_DETAILS } from '../../data/seedRecipeDetails.js';
+import { readCuratedCodex } from '../../../scripts/lib/curatedCodex.mjs';
 
-const codex = JSON.parse(readFileSync('public/data/cocktail_codex_v2.json', 'utf8'));
+const codex = readCuratedCodex();
 const sauceRaw = JSON.parse(readFileSync('public/data/sauce_augment.json', 'utf8'));
 const entropy = JSON.parse(readFileSync('public/proDataset/gnn_entropy.json', 'utf8'));
 
@@ -26,7 +27,7 @@ const loadNodes = async () => new Map(Object.entries(entropy).filter(([k, v]) =>
 // hand-tuned strength table is a taste source of its own, so a recipe of ingredients on that table draws one even when
 // the model's values for them are placeholders.
 const CASES = {
-  cocktail: [['negroni', 'Negroni', 'gin', true], ['daiquiri', 'Daiquiri', 'lime juice', true], ['margarita', 'Margarita', 'simple syrup', true]],
+  cocktail: [['negroni', 'Negroni', 'gin', true], ['daiquiri', 'Daiquiri', 'lime juice', true], ['margarita', 'Margarita', 'tequila', true]],
   sauce: [['alfredo', 'Alfredo', 'parmesan', true], ['hollandaise', 'Hollandaise', 'butter', true], ['bearnaise', 'Béarnaise', 'tarragon', true]],
   dish: [['margherita-pizza', 'Margherita Pizza', 'mozzarella', true], ['beef-bolognese', 'Beef Bolognese', 'carrot', true], ['risotto-saffron', 'Saffron Risotto', 'saffron', true]],
 };

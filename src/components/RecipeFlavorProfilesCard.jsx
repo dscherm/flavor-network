@@ -30,6 +30,7 @@ import { computeRecipeAroma, rankByAromaSimilarity } from '../data/recipeAromaSi
 import { buildPairingIndex, rankByPairing } from '../data/recipePairingMatch.js';
 import { recipeTakesSauce } from '../data/sauceRecommendation.js';
 import HelpBubble from './HelpBubble.jsx';
+import { curateCodexRaw } from '../data/cocktailCodexV2.js';
 import { groupBars, selectAxes, radarAxes, hiddenLine } from '../data/flavorDisplay.js';
 // CK-14: fold the duplicated chalkboard palette onto the shared theme.
 import { FONT, CHALK_BG, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL as CHALK_BORDER_OUTER } from '../data/chalkTheme.js';
@@ -66,7 +67,7 @@ function loadCocktailItems() {
   if (!_cocktailItemsPromise) {
     _cocktailItemsPromise = fetch(`${import.meta.env.BASE_URL}data/cocktail_codex_v2.json`)
       .then((r) => { if (!r.ok) throw new Error('cocktail fetch failed'); return r.json(); })
-      .then((j) => (j?.cocktails || []).map((c) => ({
+      .then((j) => (curateCodexRaw(j)?.cocktails || []).map((c) => ({
         ...c,
         ingredients: (c.ingredients_raw || []).map((r) => (typeof r === 'string' ? r : (r?.raw || r?.name || ''))).filter(Boolean),
       })))

@@ -173,7 +173,8 @@ describe('drinkFromBuild', () => {
 
 describe('FAMILY_BLURB', () => {
   it('has one plain line per family', () => {
-    expect(Object.keys(FAMILY_BLURB).sort()).toEqual(['0', '1', '2', '3', '4', '5']);
+    expect(Object.keys(FAMILY_BLURB).sort()).toEqual(['0', '1', '2', '3', '4', '5', '6']);
+    expect(FAMILY_BLURB[6]).toBe('rich, shaken, cream or whole egg');
     expect(FAMILY_BLURB[2]).toBe('bright, shaken, citrus-forward');
     expect(FAMILY_BLURB[5]).toBe('low-proof, bittersweet, bubbly');
   });
@@ -231,5 +232,52 @@ describe('no-slot suggestions leave out the noise', () => {
     for (const k of ['pepper', 'black pepper', 'salt', 'water', 'sugar']) expect(out).not.toContain(k);
     expect(isSuggestionNoise('sugar', ['bourbon'], r2)).toBe(false);
     expect(isSuggestionNoise('sugar', ['simple syrup'], r2)).toBe(true);
+  });
+});
+
+// DATA-6: the seventh style, Flips & Cream Drinks, with the real role table.
+describe('Flips & Cream Drinks style', async () => {
+  const { readFileSync } = await import('node:fs');
+  const { recommendCategory, checklist, applyCategory, buildKeys } = await import('../inventBuild.js');
+  const { INVENT_FAMILY_ORDER } = await import('../cocktailInvent.js');
+  const real = JSON.parse(readFileSync('public/data/cocktail_roles.json', 'utf8')).byIngredient;
+  const skeletons = INVENT_FAMILY_ORDER.map((id) => ({ id, skeleton: cocktailSkeleton(id, { roles: real }) }));
+  const build = (keys) => seedBuild({ slots: [], rules: [] }, { pinned: keys.map((key) => ({ key, source: 'user' })) });
+
+  it('is offered last in the order, with a spirit-or-liqueur base, cream-or-egg and sweetener required', () => {
+    expect(INVENT_FAMILY_ORDER).toContain(6);
+    const req = FAMILY_SKELETONS[6].slots.filter((s) => s.required).map((s) => s.id);
+    expect(req).toEqual(['base', 'body', 'sweet']);
+    expect(FAMILY_SKELETONS[6].slots.some((s) => s.id === 'accent' && !s.required)).toBe(true);
+  });
+
+  it.each([
+    [['cognac', 'white creme de cacao', 'heavy cream']],
+    [['vodka', 'coffee liqueur', 'half-and-half']],
+    [['cognac', 'egg', 'simple syrup']],
+    [['rum', 'cognac', 'whole egg', 'simple syrup']],
+  ])('recommends it for the cream or egg build %j', (keys) => {
+    expect(recommendCategory(keys, skeletons, { order: INVENT_FAMILY_ORDER })?.id).toBe(6);
+  });
+
+  it('does not take over a plain sour or a stirred drink', () => {
+    expect(recommendCategory(['gin', 'lemon juice', 'simple syrup'], skeletons, { order: INVENT_FAMILY_ORDER })?.id).toBe(2);
+    expect(recommendCategory(['gin', 'sweet vermouth', 'campari'], skeletons, { order: INVENT_FAMILY_ORDER })?.id).not.toBe(6);
+  });
+
+  it('ticks base, cream and sweetener for a White Russian and leaves the accent open', () => {
+    const b = applyCategory(build(['vodka', 'coffee liqueur', 'half-and-half']), cocktailSkeleton(6, { roles: real }));
+    const items = checklist(b);
+    expect(items.filter((i) => i.required).every((i) => i.done)).toBe(true);
+    expect(items.find((i) => i.slotId === 'accent').done).toBe(false);
+  });
+
+  it('names a drink for its base, with Flip when an egg is in it, and gives an egg a count not a pour', () => {
+    const b = applyCategory(build(['cognac', 'egg', 'simple syrup']), cocktailSkeleton(6, { roles: real }));
+    const d = drinkFromBuild(b, { familyId: 6, roles: real });
+    expect(d.name).toBe('Cognac Flip');
+    expect(d.lines.find((l) => l.key === 'egg').amount).toBe('1 egg');
+    expect(d.glass).toMatch(/Coupe/);
+    expect(buildKeys(b).length).toBe(3);
   });
 });

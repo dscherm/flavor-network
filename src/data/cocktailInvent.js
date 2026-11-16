@@ -15,6 +15,7 @@
  *   Aperitivos       = amaro / aperitif + bubbles (+ vermouth)
  *   Tropical Sours   = spirit + sour + juice + liqueur or syrup
  *   Boozy Sippers    = spirit + sweet (syrup or liqueur) + bitters
+ *   Flips & Cream    = spirit or liqueur + cream or egg + sweetener (+ nutmeg, chocolate or coffee)   (DATA-6)
  * Build method and glass are each family's most common in the codex.
  *
  * Amounts start from SLOT_DEFAULT_AMOUNT (src/data/cocktailAmounts.js),
@@ -47,6 +48,11 @@ const BUBBLES =/prosecco|champagne|sparkling|cava|soda water|club soda|tonic|sel
 const LENGTHENER = /soda water|club soda|tonic|ginger beer|ginger ale|seltzer|carbonated water|lemonade|cola|sparkling|prosecco|champagne|cider|beer/;
 const TROPICAL_JUICE = /pineapple|coconut|passion fruit|mango|guava|orange juice|cranberry juice|apple juice/;
 const NOT_A_BASE = /sloe|sherry|madeira|caraway|absinthe|port|wine|apricot brandy|cherry brandy|liqueur|cream|schnapp/;
+// What makes a drink a cream or egg drink: cream, milk, ice cream, eggnog, a cream liqueur, a whole egg or yolk (egg white is a sour's foam).
+const CREAMY = /\b(heavy cream|light cream|double cream|single cream|whipping cream|cream|half[- ]and[- ]half|milk|ice cream|eggnog|egg yolks?|whole eggs?|eggs?|irish cream|baileys|condensed milk)\b/;
+const NOT_CREAMY = /coconut|cream sherry|cream of tartar|cream soda|egg white|almond|oat|soy|sour cream|creme|crème/;
+export const isCreamBody = (k) => CREAMY.test(k) && !NOT_CREAMY.test(k);
+const FLIP_ACCENT = /nutmeg|cinnamon|vanilla|chocolate|cocoa|coffee|espresso|mint|clove|allspice|cardamom|salt/;
 const SPIRIT_FAMILIES = new Set(['whiskey', 'rum', 'brandy', 'agave spirit', 'gin', 'vodka']);
 
 /**
@@ -117,6 +123,15 @@ export const FAMILY_SKELETONS = Object.freeze({
       { id: 'sweet', label: 'sweetener', roles: ['sweet', 'amaro_liqueur'], test: (k, r) => r === 'sweet' || (SWEET_LIQUEUR.test(k) && !BITTER_APERITIF.test(k)), required: true, amountRole: 'sweet', parts: 2 / 3 },
     ],
   },
+  6: {
+    word: 'Flip', name: 'Flips & Cream Drinks', volume: [3.5, 5], build: 'Shake hard with ice (dry-shake first when there is an egg), strain', glass: 'Coupe or small wine glass',
+    slots: [
+      { id: 'base', label: 'base spirit or liqueur', roles: ['spirit', 'amaro_liqueur'], test: (k) => !isCreamBody(k) && !FLIP_ACCENT.test(k), required: true, primary: true, amountRole: 'spirit' },
+      { id: 'body', label: 'cream or egg', roles: ['modifier', 'amaro_liqueur'], test: isCreamBody, required: true, amountRole: 'modifier', parts: 0.5, key: true, fixedAmount: (k) => (/yolk/.test(k) ? '1 yolk' : /\begg/.test(k) ? '1 egg' : null) },
+      { id: 'sweet', label: 'sweetener', roles: ['sweet', 'amaro_liqueur'], test: (k, r) => !isCreamBody(k) && (r === 'sweet' || (SWEET_LIQUEUR.test(k) && !BITTER_APERITIF.test(k))), required: true, amountRole: 'sweet', parts: 2 / 3 },
+      { id: 'accent', label: 'nutmeg, chocolate or coffee', roles: ['aromatic', 'modifier'], test: (k) => !isCreamBody(k) && FLIP_ACCENT.test(k), required: false, amountRole: 'aromatic', fixedAmount: (k) => (/nutmeg|cinnamon/.test(k) ? 'a grating' : /coffee|espresso/.test(k) ? '1 oz' : /chocolate|cocoa/.test(k) ? '1 tsp' : null) },
+    ],
+  },
   3: {
     word: 'Sipper', name: 'Boozy Sippers', volume: [2.5, 3], build: 'Stir with ice, strain over a large cube', glass: 'Old-fashioned glass',
     slots: [
@@ -131,7 +146,7 @@ export const FAMILY_SKELETONS = Object.freeze({
  * Family ids in the order the Invent panel shows them (most familiar first).
  * Also the tie-break when a search fits several families equally.
  */
-export const INVENT_FAMILY_ORDER = Object.freeze([2, 4, 1, 5, 0, 3]);
+export const INVENT_FAMILY_ORDER = Object.freeze([2, 4, 1, 5, 0, 3, 6]);
 
 /** "¾ oz" → 0.75; "2 dashes" → null (not a pour). */
 export function ozOf(amount) {
@@ -151,7 +166,9 @@ export function formatOz(x) {
 
 /** Amount strings for the filled slots, scaled into the family's volume range. */
 export function scaleAmounts(filled, volume) {
-  const base = filled.map(({ slot, role }) => {
+  const base = filled.map(({ slot, role, key }) => {
+    const fixed = slot.fixedAmount?.(String(key || '').toLowerCase());
+    if (fixed) return { text: fixed };
     const def = SLOT_DEFAULT_AMOUNT[slot.amountRole];
     const oz = ozOf(def);
     return oz == null ? { text: def } : { oz: oz * (slot.partsByRole?.[role] ?? slot.parts ?? 1) };
@@ -211,7 +228,9 @@ function describeDrink(familyId, skel, filled, pairs) {
   const keyLine = telling.find((f) => f.slot.key) || telling[0] || null;
   let word = skel.word;
   if (familyId === 1 && filled.some((f) => f.slot.id === 'sour')) word = 'Fizz';
-  const name = `${[lead && short(lead.key), keyLine && short(keyLine.key)].filter(Boolean).join(' & ')} ${word}`.trim();
+  let name = `${[lead && short(lead.key), keyLine && short(keyLine.key)].filter(Boolean).join(' & ')} ${word}`.trim();
+  // A cream drink is named for its base: "Brandy Flip" with an egg, "Vodka Cream" without.
+  if (familyId === 6) name = `${lead ? short(lead.key) : ''} ${filled.some((f) => /\begg/.test(f.key)) ? 'Flip' : 'Cream'}`.trim();
   const strong = pairs.filter((p) => p.s > 0).sort((x, y) => y.s - x.s).slice(0, 2);
   const why = strong.length
     ? `Strongest pairings in real recipes: ${strong.map((p) => `${p.a} + ${p.b}`).join(', ')}.`
@@ -228,6 +247,7 @@ export const FAMILY_BLURB = Object.freeze({
   5: 'low-proof, bittersweet, bubbly',
   0: 'fruity, shaken, crushed ice',
   3: 'strong, stirred, slow',
+  6: 'rich, shaken, cream or whole egg',
 });
 
 function slotAccepts(slot, roles) {

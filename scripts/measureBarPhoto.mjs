@@ -38,6 +38,7 @@ import 'dotenv/config';
 import { readFileSync, readdirSync, writeFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { readCuratedCodex } from './lib/curatedCodex.mjs';
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -64,7 +65,7 @@ const { kitchenKey, isBasic, isSpiceRackItem } = await import(src('data/myKitche
 
 const names = new Set(Object.keys(readJson(pub('proDataset/ingredients.json'))));
 const roles = readJson(pub('data/cocktail_roles.json'));
-const codex = readJson(pub('data/cocktail_codex_v2.json'));
+const codex = readCuratedCodex();
 
 // The bottles the cocktail list knows: every booze key any recipe uses,
 // most used first. The model is asked to answer in these words when it can.

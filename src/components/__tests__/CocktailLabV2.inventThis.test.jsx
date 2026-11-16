@@ -7,7 +7,7 @@ import path from 'node:path';
 
 const root = process.cwd();
 const read = (p) => JSON.parse(fs.readFileSync(path.join(root, p), 'utf8'));
-const codex = read('public/data/cocktail_codex_v2.json');
+const codex = readCuratedCodex();
 const ingredients = read('public/proDataset/ingredients.json');
 const roles = read('public/data/cocktail_roles.json').byIngredient;
 
@@ -17,6 +17,7 @@ vi.mock('../ShapeLegend.jsx', () => ({ default: () => null }));
 vi.mock('../../three/AxisLabels.js', () => ({ createClusterLabels: () => ({ add: () => {} }), createGlowSprite: () => ({}) }));
 vi.mock('../../data/cocktailCodexV2.js', () => ({
   loadCodexV2: (raw) => raw,
+  curateCodexRaw: (raw) => raw,
   placeCocktailInFamily: () => ({ x: 0, y: 0, z: 0 }),
   topSimilar: () => [],
   crossFamilySimilar: () => [],
@@ -30,6 +31,7 @@ vi.mock('../../data/ingredientRoles.js', async (orig) => ({
 }));
 
 import CocktailLabV2 from '../CocktailLabV2.jsx';
+import { readCuratedCodex } from '../../../scripts/lib/curatedCodex.mjs';
 
 const keep = new Set(['Negroni', 'Gimlet', 'Old-Fashioned', 'Daiquiri']);
 const picked = codex.cocktails.filter((c) => keep.has(c.name));

@@ -7,9 +7,10 @@ import { RECIPE_DETAILS } from '../seedRecipeDetails.js';
 import { AROMAS } from '../flavorAromas.js';
 import { aromaProfile, AROMA_AXES } from '../flavorAroma.js';
 import { buildFlavorProfile } from '../inventProfile.js';
+import { readCuratedCodex } from '../../../scripts/lib/curatedCodex.mjs';
 
 // AROMA-3: the named checks on the eleven aroma axes, run on the real table and the real built-in recipes.
-const codex = JSON.parse(readFileSync('public/data/cocktail_codex_v2.json', 'utf8'));
+const codex = readCuratedCodex();
 const sauces = JSON.parse(readFileSync('public/data/sauce_augment.json', 'utf8')).sauces;
 const data = { cocktails: codex.cocktails, families: codex.families, sauces, dishes: SEED_RECIPES, dishDetails: RECIPE_DETAILS };
 const nodes = loadFlavorNodes();

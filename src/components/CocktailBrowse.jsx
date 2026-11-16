@@ -18,7 +18,7 @@ import { UNCATEGORISED } from '../data/savedInventions.js';
  * an alternative to the 3D NetworkScene (toggled at the lab header).
  *
  * Three regions, top to bottom:
- *   1. Mini-map — six family bubbles, sized by cocktail count, click
+ *   1. Mini-map — seven family bubbles, sized by cocktail count, click
  *      to filter the list to that family. Hand-tuned 2x3 layout (vibe
  *      only, not a literal projection of 3D centroids).
  *   2. Filter bar — spirit chips (Gin/Whiskey/Rum/etc.), IBA-only
@@ -568,7 +568,7 @@ export default function CocktailBrowse({
                 style={{ opacity: dim ? 0.4 : 1, transition: 'opacity .15s' }}
               >
                 <span
-                  className="text-[14px] sm:text-[18px] leading-[1.05] text-center px-1.5 py-0.5 rounded-sm max-w-full min-h-[2.4em] flex items-center justify-center"
+                  className="text-[13px] sm:text-[18px] leading-[1.05] text-center px-1 py-0.5 rounded-sm max-w-full min-h-[2.4em] flex items-center justify-center"
                   style={{ fontFamily: FONT, color: ink, border: `1px dashed ${ink}99`, background: `${fam.color}1a`, transform: `rotate(${i % 2 ? 5 : -5}deg)`, textShadow: CHALK_SHADOW, boxShadow: `0 0 8px ${fam.color}33` }}
                 >
                   {fam.name}

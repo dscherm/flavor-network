@@ -911,7 +911,7 @@ From AROMA-3 and FLAVOR-6; none was changed in AROMA-4 (table values were out of
 - **BBQ sauce** shows no smoky bar: one teaspoon of smoked paprika against a cup of ketchup.
 - **Thai peanut sauce** ranks nutty third (creamy 0.46 and fruity 0.23 beat nutty 0.17): coconut milk is bulky.
 - **Pho and baklava** show little spice: whole spices perfume a dish far beyond their weight, and the chart weighs by amount.
-- **Margarita, Mojito and Thai green curry** (FLAVOR-6): the leading taste or aroma is not what a cook would say first.
+- **Thai green curry** (FLAVOR-6): the leading taste or aroma is not what a cook would say first. (**Margarita and Mojito** were on this list; DATA-6 fixed their data: the Margarita now has the IBA amounts and leads sour, 0.34 against sweet 0.23; the Mojito has a real mint quantity and leads green, 0.67. No table value was changed.)
 - **Brandy Alexander**: toasty 0.29 beats creamy 0.21. **Beurre noisette**: browning is a cooking-method aroma the chart does not model. **Mole poblano**: savory (stock) still leads toasty.
 - **Umami (taste) and Savory (aroma) repeat each other** on soy, miso and fish-sauce recipes (Miso Soup: umami 0.67, savory 0.59), and heat (taste) sits beside spice (aroma). The group headings keep them apart; the redesign should decide whether they are one idea.
 - Potato, rice, tofu and flour are left "no aroma of their own"; the second source calls them earthy or nutty.
