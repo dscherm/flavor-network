@@ -2752,7 +2752,7 @@ and the swipe, in-app surfaces), then CHART-4 (cards), CHART-5 (Recipe Notebook)
   "id": "CHART-2",
   "title": "The pure pieces: tasting-note sentence, strips, the fixed wheel and the fixed grid",
   "category": "feature",
-  "passes": false,
+  "passes": true,
   "description": "Add to the display-rule family (src/data/, pure, no imports beyond flavorDisplay.js, so the share card layout can be copied into the Cloud Functions package): flavorNote(bars) -> { lead, behind, text } (the two strongest notes, or one 'above all' when the strongest is at least twice the second; up to three more 'behind'; a plain fallback under two notes; names notes only, never an ingredient); flavorStrips(bars) -> taste and aroma rows of segments on ONE shared scale (segment length = score over the larger group total), with a stated width threshold for labelling a segment; flavorWheel(bars, size) -> seventeen wedges in fixed positions (aromas clockwise from the top, tastes on the upper left, two gaps), length scaled to the recipe's strongest note, and which wedges get a label at each size; flavorGrid(bars) -> seventeen fixed cells (six tastes; eleven aromas as six and five) with a dot radius or absent. Ordering, floor, labels and colours come from flavorDisplay.js and recipeScoring.js and are not redefined. Reference drawing code: docs/prototypes/flavor-graph-options.html.",
   "acceptance": [
     "Unit tests on real profiles for Old Fashioned ('Woody and sweet, with bitter, spice and toasty behind.'), Hollandaise ('Creamy above all, with sour, salty and nutty behind.'), Margarita, Thai Green Curry and Tiramisu, computed through profileForRecipe, not typed in",
