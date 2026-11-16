@@ -2819,7 +2819,7 @@ and the swipe, in-app surfaces), then CHART-4 (cards), CHART-5 (Recipe Notebook)
   "id": "CHART-6",
   "title": "Suggestion cards: before and after as two fixed grids",
   "category": "ui",
-  "passes": false,
+  "passes": true,
   "description": "On the add and swap suggestion cards the small before-and-after radar (three and three spokes) is replaced by FlavorGrid.jsx drawn twice, before and after, with the notes that move most marked (a ring or arrow on the cells whose score changes by more than a stated amount). Both grids use ONE scale (the larger of the two profiles' strongest notes) so a dot that grows really is stronger. Labels only where there is room; a text line names the two notes that move most.",
   "acceptance": [
     "For a named recipe and a named added ingredient, the cells that change match the profile difference computed by the existing delta code (test)",
