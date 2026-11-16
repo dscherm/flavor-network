@@ -2721,3 +2721,20 @@ AROMA-1, AROMA-2, AROMA-3, AROMA-4. Taste numbers must not move.
   ]
 }
 ```
+
+```json
+{
+  "id": "PROFILE-1",
+  "title": "A flavor profile for every existing recipe, opened from the recipe card next to Riff",
+  "category": "ui",
+  "passes": false,
+  "description": "Owner, 2026-11-16: 'add a task to create a flavor profile for every existing recipe and make it available in the recipe card next to the riff button'. Every built-in cocktail, sauce and Cookbook dish, and every item the user saved or invented, gets a flavor profile computed by the one shared function (profileForRecipe: taste labels and strengths, the aroma table, amounts, garnish) and shown through the shared display rule (Taste and Aroma groups, strongest first, '+N fainter notes', 'show all'). A 'Flavor profile' button sits next to 'Riff on it' on the recipe card the labs use (LabNodeCard in the Cocktail Lab and Sauce Lab) and in the equivalent action row of the Cookbook's recipe detail; it opens the profile in place (an expanding section or a small sheet in the chalk language), with the line 'Built from taste labels and aroma notes for each ingredient, weighted by amount. A guide, not a taste test.', the ingredients that drive the two strongest bars, and any ingredients not counted. Built-in profiles may come from the precomputed share data where that is already loaded, otherwise they are computed on open; either way the numbers must equal the shared page's for the same recipe. A recipe with too little data says so instead of drawing a chart. This uses the interim chart style; CHART-1's redesign will restyle it with the other charts. Run after DATA-6 (same card component).",
+  "acceptance": [
+    "The button appears next to Riff on built-in and user-made cocktail and sauce cards and in the Cookbook recipe detail, for every recipe; a test over all built-in recipes asserts each one yields a profile or the plain 'not enough data' line, and reports how many of each",
+    "The profile shown on the card equals the shared recipe page's and the share card's for the same recipe (test with a drink, a sauce and a dish)",
+    "Opening and closing works by tap and keyboard; 375px with no horizontal overflow; 44px targets; no extra large download when a card is opened (state what is fetched)",
+    "User-made and invented items show a profile from their own lines and amounts",
+    "npm run gate green; nothing deployed without the owner's go-ahead"
+  ]
+}
+```
