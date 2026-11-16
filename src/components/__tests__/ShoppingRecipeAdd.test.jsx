@@ -2,6 +2,7 @@
 // SHOP-3: "Add from a recipe" inside the shopping list. A small harness holds the state the way useUserProfile does
 // (commitList over the pure functions). Recipes are the REAL built-in ones (codex, sauce file, dish list).
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { saveUnitSystem } from '../../data/shoppingUnits.js';
 import { render, screen, fireEvent, cleanup, within, waitFor } from '@testing-library/react';
 import { useState } from 'react';
 import { readFileSync } from 'node:fs';
@@ -65,7 +66,8 @@ async function openRecipe(name, id) {
   return screen.findByTestId('shopping-recipe-preview');
 }
 
-beforeEach(() => { localStorage.clear(); resetShoppingIngredients(); resetRecipeSources(); loadRecipes.mockClear(); });
+// Amounts here are metric; show metric so these tests stay about adding (SHOP-6 default is US).
+beforeEach(() => { localStorage.clear(); saveUnitSystem('metric'); resetShoppingIngredients(); resetRecipeSources(); loadRecipes.mockClear(); });
 afterEach(cleanup);
 
 describe('finding a recipe by name', () => {

@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 // SHOP-4: "Store doesn't have it?" on the shopping list screen, over the real swap and role tables.
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { saveUnitSystem } from '../../data/shoppingUnits.js';
 import { render, screen, fireEvent, cleanup, within, waitFor } from '@testing-library/react';
 import { useState } from 'react';
 import fs from 'node:fs';
@@ -52,7 +53,8 @@ const open = async (key) => {
 const unchecked = () => latest.list.items.filter((i) => !i.checked).map((i) => i.key);
 const noDupes = () => expect(new Set(unchecked()).size).toBe(unchecked().length);
 
-beforeEach(() => { localStorage.clear(); resetShoppingIngredients(); });
+// These tests are about alternatives, not display units: their amounts are entered in metric, so show metric (SHOP-6 default is US).
+beforeEach(() => { localStorage.clear(); saveUnitSystem('metric'); resetShoppingIngredients(); });
 afterEach(cleanup);
 
 describe('the button', () => {

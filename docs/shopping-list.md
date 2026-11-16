@@ -52,7 +52,7 @@ kitchen (`ShoppingList.jsx`).
 An ingredient already on the list is never listed twice. Two lines are one ingredient when their names agree after the
 curation aliases plus a short list of shopper synonyms (scallion / green onion / spring onion, a few plurals):
 `canonicalKey` and `LIST_SYNONYMS` in `src/data/shoppingList.js`. Quantities are added only when both sides have a specific
-one in a unit whose conversion is exact.
+one in a unit whose conversion is exact. What is STORED follows that rule; what is SHOWN also adds metric to US (next section).
 
 Results below were run through `addLine` / `itemAmountText` on 2026-11-16 (the first amount is already on the list, the
 second is being added):
@@ -67,8 +67,8 @@ second is being added):
 | 100 ml | 2 cl | 12 cl | metric volume ladder (ml, cl, l) |
 | 1 tbsp | 3 tsp | 2 tbsp | |
 | 1 oz | 1 lb | 1 lb 1 oz | US mass ladder (oz, lb) |
-| 200 g | 8 oz | 200 g + 8 oz | metric and US are NOT converted into each other (the conversion is a rounded figure) |
-| 250 ml | 1 cup | 250 ml + 1 cup | same |
+| 200 g | 8 oz | stored as 200 g + 8 oz; shown as one part: about 15 oz (US) or about 425 g (metric) | metric and US are never converted in storage, only in the display |
+| 250 ml | 1 cup | stored as 250 ml + 1 cup; shown as about 2 cups (US) or about 485 ml (metric) | same |
 | 2 cloves | 1 tbsp | 2 cloves + 1 tbsp | a count is never turned into a volume or a weight |
 | 2 cloves | 3 cloves | 5 cloves | any other unit (clove, can, bunch, dash) adds only to the same unit |
 | 1 can | 2 cans | 3 cans | |
@@ -90,6 +90,40 @@ Also:
   "tomato" are one.
 - The list holds up to 200 items, ticked ones included (`MAX_ITEMS`). At the limit a quantity can still merge, a new row is
   refused with a message (`CAP_MESSAGE`).
+
+## US and metric (SHOP-6)
+
+The list shows amounts in US units by default, with a "US | Metric" switch under the count. The choice is kept on this
+device only (localStorage key `fn-shopping-units-v1`); it does not sync with the account. It changes every row, the
+Copy list text and the "now ..." wording of the add summaries (`src/data/shoppingUnits.js`, `formatAmount`).
+
+What is stored never changes: a line's parts stay exactly as entered (200 g and 8 oz are two stored parts). Only the
+shown total is worked out, a weight with a weight and a volume with a volume, across both systems. A weight is never
+turned into a volume; counts (cloves, sprigs, dashes) are untouched; unlike kinds still show as two parts
+("2 cloves + 1 tbsp", "200 g + about 235 ml").
+
+Factors: 1 oz = 28.3495 g; 1 lb = 16 oz; 1 US cup = 236.588 ml; 1 tbsp = 14.787 ml; 1 tsp = 4.929 ml; 1 fl oz = 29.574 ml;
+cl and l as usual.
+
+"about" appears only when the number on screen is not exact: a line whose parts are all in the system shown is written as
+before (no "about"); a line that had to be converted is "about" unless the rounded number equals the true total.
+
+| Shown in | Range | Step |
+|---|---|---|
+| US weight | under 1 oz | quarters, down to 1/8 oz |
+| | 1 to 4 oz | halves |
+| | 4 to 16 oz | whole ounces |
+| | 16 oz and over | "1 lb 3 oz"; from 3 lb, quarter pounds |
+| US volume | under 13 ml | tsp in quarters, down to 1/8 tsp |
+| | 13 to 28 ml | tbsp in halves |
+| | 28 to 57 ml | fl oz in halves (30 ml reads 1 fl oz) |
+| | 57 ml and over | cups in 1/4, 1/3, 1/2, 2/3, 3/4 |
+| Metric g, ml | under 20 | 1 |
+| | 20 up to 1000 | 5 |
+| | 1000 and over | kg or l in steps of 0.05 |
+
+No value rounds to 0, and US text never has more than one fraction or a decimal. Recipe cards elsewhere in the app print
+their own amounts and are not changed by this.
 
 ## Adding a recipe: two doors that differ on purpose today
 
@@ -131,7 +165,7 @@ with no safe stand-in says "No stand-in I'd trust for X."
 ## Limits, stated
 
 - 200 items; 300 removal notes; removal notes forgotten after 30 days.
-- Metric and US amounts are kept side by side, not converted or summed. Weight is never turned into volume.
+- Metric and US amounts are stored side by side and summed only for display. Weight is never turned into volume. An "oz" is always a weight: the amount parser has no "fl oz", so a recipe line such as "2 oz gin" stays a weight and does not add to a volume in ml.
 - No prices, no stores, no aisle order per store, no online ordering, no barcode scanning, no list shared between people.
 - Signed-in sync is covered by tests with a mocked Firestore and the emulator rules; it has not been tried on a real account.
 

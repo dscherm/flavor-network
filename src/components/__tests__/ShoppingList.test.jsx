@@ -34,6 +34,48 @@ const rowsIn = (aisle) => within(screen.getByTestId(`shopping-aisle-${aisle}`)).
 beforeEach(() => { localStorage.clear(); resetShoppingIngredients(); });
 afterEach(cleanup);
 
+describe('US | Metric switch (SHOP-6)', () => {
+  const mixed = () => stateWith([
+    { key: 'cheddar', label: 'cheddar', amount: '200 g' },
+    { key: 'milk', label: 'milk', amount: '2 cups' },
+    { key: 'cumin', label: 'cumin', amount: '1 tbsp' },
+  ]);
+  const qtyOf = (key) => screen.getByTestId(`shopping-row-${key}`).textContent;
+
+  it('shows US by default; the switch changes every row, the copy text and the add note, and is remembered', async () => {
+    const writeText = vi.fn().mockResolvedValue();
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+    const { unmount } = render(<Harness initial={mixed()} />);
+    expect(screen.getByTestId('shopping-units-us').getAttribute('aria-pressed')).toBe('true');
+    expect(qtyOf('cheddar')).toContain('about 7 oz');
+    expect(qtyOf('milk')).toContain('2 cups');
+    expect(qtyOf('milk')).not.toContain('about');
+    fireEvent.click(screen.getByTestId('shopping-copy'));
+    await waitFor(() => expect(writeText).toHaveBeenCalled());
+    expect(writeText.mock.calls[0][0]).toContain('- about 7 oz cheddar');
+
+    fireEvent.click(screen.getByTestId('shopping-units-metric'));
+    expect(screen.getByTestId('shopping-units-metric').getAttribute('aria-pressed')).toBe('true');
+    expect(qtyOf('cheddar')).toContain('200 g');
+    expect(qtyOf('cheddar')).not.toContain('about');
+    expect(qtyOf('milk')).toContain('about 475 ml');
+    expect(qtyOf('cumin')).toContain('about 15 ml');
+    fireEvent.click(screen.getByTestId('shopping-copy'));
+    await waitFor(() => expect(writeText).toHaveBeenCalledTimes(2));
+    expect(writeText.mock.calls[1][0]).toContain('- 200 g cheddar');
+
+    fireEvent.change(screen.getByLabelText('Item to add'), { target: { value: 'cheddar' } });
+    fireEvent.change(screen.getByTestId('shopping-add-amount'), { target: { value: '8 oz' } });
+    fireEvent.click(screen.getByRole('button', { name: /^Add$/ }));
+    expect(screen.getByTestId('shopping-note').textContent).toBe('Added to cheddar: now about 425 g.');
+
+    unmount();
+    render(<Harness initial={mixed()} />); // a reload: the choice comes back from this device
+    expect(screen.getByTestId('shopping-units-metric').getAttribute('aria-pressed')).toBe('true');
+    expect(qtyOf('cheddar')).toContain('200 g');
+  });
+});
+
 describe('empty state and the count', () => {
   it('explains how to fill the list and has nothing to clear', async () => {
     render(<Harness />);
@@ -163,6 +205,7 @@ describe('copy, clear checked, clear all', () => {
     const writeText = vi.fn().mockResolvedValue();
     Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
     render(<Harness initial={stateWith([{ key: 'milk', label: 'milk', amount: '1 l' }, { key: 'garlic', label: 'garlic' }])} />);
+    fireEvent.click(screen.getByTestId('shopping-units-metric'));
     fireEvent.click(screen.getByRole('checkbox', { name: /garlic/ }));
     fireEvent.click(screen.getByTestId('shopping-copy'));
     await waitFor(() => expect(writeText).toHaveBeenCalled());

@@ -28,6 +28,7 @@ import { loadKitchen, saveKitchen, addToKitchen } from '../data/myKitchen.js';
 import { loadBar, saveBar, addToBar, isBooze } from '../data/myBar.js';
 import { loadShoppingIngredients } from '../data/shoppingIngredients.js';
 import { usage } from '../data/usageEvents.js';
+import { loadUnitSystem, saveUnitSystem } from '../data/shoppingUnits.js';
 import ShoppingRecipeAdd from './ShoppingRecipeAdd.jsx';
 import StoreAlternatives from './StoreAlternatives.jsx';
 import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, chalkSurfaceStyle } from '../data/chalkTheme.js';
@@ -47,6 +48,8 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
   const [confirmClear, setConfirmClear] = useState(false);
+  const [system, setSystem] = useState(() => loadUnitSystem()); // US or metric display; kept on this device only
+  const chooseSystem = (s) => { setSystem(s); saveUnitSystem(s); };
   const keepRef = useRef(null);
   const addRef = useRef(null);
   const [sheetId, setSheetId] = useState(null); // the row whose alternatives are open
@@ -84,7 +87,7 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
     if (res.status === 'empty') { setNote('Type what you need first.'); return; }
     if (res.status === 'capped') { setNote(res.message); return; }
     const name = res.item.label;
-    const qty = itemAmountText(res.item);
+    const qty = itemAmountText(res.item, system);
     onChange((cur) => addLine(cur, { ...line, amount: amount.trim() || undefined }, opts).list);
     setNote(res.status === 'merged'
       ? (qty ? `Added to ${name}: now ${qty}.` : `${cap(name)} is already on your list.`)
@@ -98,7 +101,7 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
     const n = open;
     if (!n) { setNote('Nothing left to copy.'); return; }
     try {
-      await navigator.clipboard.writeText(toText(list, { title: '' }));
+      await navigator.clipboard.writeText(toText(list, { title: '', system }));
       setNote(`Copied ${plural(n, 'item', 'items')}.`);
     } catch {
       setNote('Could not copy here. Select the items and copy them by hand.');
@@ -174,7 +177,7 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
     ].join('');
     if (res.status === 'merged') {
       const target = res.list.items.find((i) => i.swappedFrom === item.key && i.key !== item.key);
-      const qty = target ? itemAmountText(target) : '';
+      const qty = target ? itemAmountText(target, system) : '';
       if (addedIds.length) companions.current.set(target?.id || item.id, addedIds);
       setNote((qty ? `Added to ${target.label}: now ${qty}.` : `${cap(alt.label)} is already on your list, so ${item.label} was added to it.`) + extra);
       closeSheet(target?.id || item.id);
@@ -239,6 +242,20 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
         </div>
         <h1 style={{ fontFamily: FONT, fontSize: 36, lineHeight: 1.1, marginTop: 6 }}>Shopping list</h1>
         <p data-testid="shopping-count" role="status" aria-live="polite" style={{ fontFamily: SANS, fontSize: 14, color: CHALK_DIM, minHeight: 20 }}>{countText}</p>
+        <div role="group" aria-label="Amounts shown in" data-testid="shopping-units" className="flex items-center gap-2 mt-1">
+          <span style={{ fontFamily: SANS, fontSize: 14, color: CHALK_DIM }}>Amounts</span>
+          {[['us', 'US'], ['metric', 'Metric']].map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              aria-pressed={system === id}
+              data-testid={`shopping-units-${id}`}
+              onClick={() => chooseSystem(id)}
+              className={`min-h-[44px] px-4 rounded-lg ${FOCUS}`}
+              style={{ ...buttonStyle, ...(system === id ? { background: CHALK_CREAM, color: '#1a1a1a', borderColor: CHALK_CREAM } : {}) }}
+            >{label}</button>
+          ))}
+        </div>
 
         <form
           className="mt-3"
@@ -318,7 +335,7 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
                 <h2 style={{ fontFamily: FONT, fontSize: 24, color: CHALK_DIM, borderBottom: `1px solid ${CHALK_RAIL}` }}>{cap(g.aisle)}</h2>
                 <ul>
                   {g.items.map((item) => {
-                    const qty = itemAmountText(item);
+                    const qty = itemAmountText(item, system);
                     const forNames = item.from.map((id) => recipeName.get(id)).filter(Boolean);
                     return (
                       <li key={item.id} data-testid={`shopping-row-${item.key}`} style={{ borderBottom: `1px solid ${CHALK_RAIL}55` }}>

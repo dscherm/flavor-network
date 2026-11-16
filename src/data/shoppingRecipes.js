@@ -19,6 +19,7 @@ import { parseQuery, matchItem, normalizeText } from './ingredientSearch.js';
 import { addRecipe, canonicalKey, makeHas, recipeIdOf } from './shoppingList.js';
 import { fromOwnItem, resolveBuiltIn, slugFor, uniqueBySlug } from './sharedRecipe.js';
 import { isBasic } from './myKitchen.js';
+import { formatAmount } from './shoppingUnits.js';
 
 export const KIND_LABEL = Object.freeze({ cocktail: 'Cocktail', sauce: 'Sauce', dish: 'Dish' });
 const OWN_KINDS = Object.freeze([['cocktails', 'cocktail'], ['sauces', 'sauce'], ['recipes', 'recipe']]);
@@ -155,17 +156,18 @@ export function shopRecipeUsage(recipe, where, summary) {
 }
 
 const joinList = (xs) => xs.join(', ');
+const amountOf = (line, system) => (line.parts ? formatAmount(line.parts, system) : line.now);
 
 /**
  * One or two plain sentences about what an add did. `left` = how many lines were left off because the cook has them.
  * ("Added 2: onion, carrot. Merged into lines already there: garlic: now 5 cloves.")
  */
-export function summaryText(name, summary, { left = 0 } = {}) {
+export function summaryText(name, summary, { left = 0, system } = {}) {
   const parts = [];
   const { addedLines = [], mergedLines = [] } = summary || {};
   if (addedLines.length) parts.push(`Added ${addedLines.length} for ${name}: ${joinList(addedLines.map((l) => l.label))}.`);
   if (mergedLines.length) {
-    parts.push(`Merged into lines already on your list: ${joinList(mergedLines.map((l) => (l.now ? `${l.label}: now ${l.now}` : `${l.label}: already on the list`)))}.`);
+    parts.push(`Merged into lines already on your list: ${joinList(mergedLines.map((l) => (amountOf(l, system) ? `${l.label}: now ${amountOf(l, system)}` : `${l.label}: already on the list`)))}.`);
   }
   if (!addedLines.length && !mergedLines.length) parts.push(`Nothing was added for ${name}.`);
   if (left > 0) parts.push(`Left off ${left} you already have.`);

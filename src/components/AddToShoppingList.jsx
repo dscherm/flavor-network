@@ -14,6 +14,7 @@
 import { useRef, useState } from 'react';
 import { emptyList } from '../data/shoppingList.js';
 import { usage } from '../data/usageEvents.js';
+import { loadUnitSystem } from '../data/shoppingUnits.js';
 import { addTicked, askAgainText, shopRecipeUsage, summaryText } from '../data/shoppingRecipes.js';
 import { FONT, CHALK_CREAM, CHALK_DIM } from '../data/chalkTheme.js';
 
@@ -35,7 +36,7 @@ export default function AddToShoppingList({ recipe, missing, list, onChange, onO
     setAsk(false);
     const ev = shopRecipeUsage(recipe, 'panel', res.summary);
     if (ev) usage.shopRecipeAdded(ev);
-    setDone(summaryText(recipe.name, res.summary));
+    setDone(summaryText(recipe.name, res.summary, { system: loadUnitSystem() }));
   };
 
   const click = () => {

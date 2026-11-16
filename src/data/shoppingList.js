@@ -18,8 +18,10 @@
  *   quantity + quantity, other units   → one line, both parts ("2 cloves + 1 tbsp"); nothing is converted
  * Addable units are those whose conversion is exact by definition, in four ladders and nothing wider:
  *   metric mass g, kg · metric volume ml, cl, l · US volume tsp, tbsp, cup · US mass oz, lb.
- * Metric is never converted to US (1 oz = 28.35 g is a rounded figure), nor mass to volume, nor a count
- * ("2 cloves") to either; any other unit (clove, can, bunch, dash…) adds only to the very same unit.
+ * Metric and US are never converted in what is STORED (so 200 g + 8 oz is two parts), nor mass to volume,
+ * nor a count ("2 cloves") to either; any other unit (clove, can, bunch, dash…) adds only to the very same
+ * unit. SHOP-6: the DISPLAY (shoppingUnits.formatAmount) adds a weight to a weight and a volume to a volume
+ * across metric and US, in the system the cook chose, and says "about" when the number shown is not exact.
  *
  * DISPLAY of a sum: the units allowed are the units already present on the line plus the incoming one, so
  * a sum never invents a unit nobody wrote: 200 g + 300 g = "500 g" (not ½ kg); 500 g + 1 kg = "1 kg 500 g";
@@ -38,6 +40,7 @@ import { shoppingListText } from './whatDoINeed.js';
 import { resolveIngredient } from './curation/resolveIngredient.js';
 import { curationKey } from './curation/normalize.js';
 import { resolveIngredientName } from './recipePairingMatch.js';
+import { formatAmount } from './shoppingUnits.js';
 
 export const MAX_ITEMS = 200;
 export const CAP_MESSAGE = `The shopping list holds up to ${MAX_ITEMS} items. Remove or check off some items to add more.`;
@@ -267,7 +270,7 @@ export const recipeIdOf = (recipe) => recipe?.id || `${recipe?.kind || 'recipe'}
  * A recipe that is already on the list (some unchecked line lists it) is NOT added again unless `force`;
  * summary.alreadyOnList tells the screen to ask first.
  * @returns {{ list, summary: { added, merged, skippedHave, skippedBasics, alreadyOnList, capped,
- *   message?, addedLines: {key,label}[], mergedLines: {key,label,now}[] } }}
+ *   message?, addedLines: {key,label}[], mergedLines: {key,label,now,parts}[] } }}
  *   `now` on a merged line is the line's quantity text after the merge ("garlic: now 5 cloves"; '' when none).
  */
 export function addRecipe(list, recipe, has = () => false, opts = {}) {
@@ -288,7 +291,7 @@ export function addRecipe(list, recipe, has = () => false, opts = {}) {
     const r = putLine(items, { ...line, key, recipeId: id }, ctx);
     if (r.status === 'capped') summary.capped += 1;
     else if (r.status === 'added') { summary.added += 1; summary.addedLines.push({ key, label: r.item.label }); }
-    else if (r.status === 'merged') { summary.merged += 1; summary.mergedLines.push({ key, label: r.item.label, now: formatParts(r.item.parts) }); }
+    else if (r.status === 'merged') { summary.merged += 1; summary.mergedLines.push({ key, label: r.item.label, now: formatParts(r.item.parts), parts: r.item.parts }); }
   }
   if (summary.capped) summary.message = `${CAP_MESSAGE} ${summary.capped} ${summary.capped === 1 ? 'ingredient was' : 'ingredients were'} left off.`;
   const touched = items.some((i) => i.from.includes(id));
@@ -450,14 +453,17 @@ export function groupByAisle(list, categoryOf = () => null) {
 // ---------------------------------------------------------------------------------------------------------
 // Copy
 
-/** The quantity of a line as text ('' when it has none). */
-export const itemAmountText = (item) => formatParts(item.parts);
+/**
+ * The quantity of a line as text ('' when it has none). `system` 'us' | 'metric' shows it in that system
+ * (shoppingUnits.formatAmount, SHOP-6); left out, the parts are shown as entered.
+ */
+export const itemAmountText = (item, system) => formatAmount(item.parts, system);
 
 /**
  * The "Copy shopping list" text, in the format the What do I need? panels already copy
  * (whatDoINeed.shoppingListText): "Shopping list[ for X]:" then "- <amount> <name>" per UNCHECKED line.
  */
-export function toText(list, { title = '' } = {}) {
-  const missing = list.items.filter((i) => !i.checked).map((i) => ({ name: i.label, amount: itemAmountText(i) }));
+export function toText(list, { title = '', system } = {}) {
+  const missing = list.items.filter((i) => !i.checked).map((i) => ({ name: i.label, amount: itemAmountText(i, system) }));
   return shoppingListText(title, missing);
 }

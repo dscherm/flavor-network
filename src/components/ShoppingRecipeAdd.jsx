@@ -17,6 +17,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { emptyList } from '../data/shoppingList.js';
 import { usage } from '../data/usageEvents.js';
+import { loadUnitSystem } from '../data/shoppingUnits.js';
 import {
   KIND_LABEL, askAgainText, addTicked, shopRecipeUsage, buildEntries, classifyLines, loadRecipeSources, makeLocator, resolveEntry, searchEntries, summaryText,
 } from '../data/shoppingRecipes.js';
@@ -115,7 +116,7 @@ export default function ShoppingRecipeAdd({ list, onChange, own = null, names = 
     onChange((cur) => addTicked(cur || emptyList(), recipe, lines, { force, names }).list);
     const ev = shopRecipeUsage(recipe, 'list', res.summary);
     if (ev) usage.shopRecipeAdded(ev);
-    setSummary(summaryText(recipe.name, res.summary, { left: groups.have.filter((l) => !lines.some((x) => x.id === l.id)).length }));
+    setSummary(summaryText(recipe.name, res.summary, { left: groups.have.filter((l) => !lines.some((x) => x.id === l.id)).length, system: loadUnitSystem() }));
     setPick(null);
     setAsk(false);
     setQuery('');

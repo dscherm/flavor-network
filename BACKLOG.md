@@ -117,15 +117,11 @@ Left out on purpose:
 - SHOP-NO-ORDERING Online ordering or hand-off to a delivery service.
 - SHOP-NO-BARCODE Barcode scanning.
 - SHOP-NO-SHARING Sharing one list between people (the list belongs to one account; there is no link and no live co-editing).
-- SHOP-NO-CONVERSION Converting between weight and volume (a cup of flour is not a fixed weight), and between metric and US (see decision 1).
+- SHOP-NO-CONVERSION Converting between weight and volume (a cup of flour is not a fixed weight), (metric and US: done for display in SHOP-6).
 
 OPEN OWNER DECISIONS (each one defined; the builder did not decide any of them):
 
-- SHOP-OPEN-1 Should metric and US amounts be converted and summed?
-  - What it is: today 200 g plus 8 oz stays "200 g + 8 oz" on one line, and 250 ml plus 1 cup stays "250 ml + 1 cup". The rule only adds units whose conversion is exact by definition (g with kg, ml with cl and l, tsp with tbsp and cup, oz with lb); 1 oz = 28.35 g is a rounded figure, so metric and US are never turned into each other (`src/data/shoppingList.js`, the merge-rule header; SHOP-1 spec said "both weights").
-  - If nothing is decided: the list stays as it is. A cook who adds a cocktail in ml and a dish in oz of the same ingredient sees two parts on one line and has to add them in their head.
-  - Options: (a) keep as is (exact, never wrong, sometimes two numbers); (b) convert US to metric (or the other way) with rounding and show the sum with a "about" marker, which is easier to read and can be off by a few percent; (c) convert only when the recipe itself carries both. Weight to volume stays out whatever is chosen.
-  - Collides with: the earlier ruling that an ingredient is never listed twice (kept in every option, only the number display changes).
+- SHOP-OPEN-1 DECIDED 2026-11-16 (SHOP-6): metric and US amounts are summed for display, shown in US by default, with a US | Metric switch kept on the device. Owner: "add us amounts by default". What is stored stays exactly as entered; "about" shows only when the number on screen is not exact. Weight to volume stays out. See `docs/shopping-list.md`, "US and metric".
 - SHOP-OPEN-2 Should the panel's "Add to shopping list" also add "Even better with" and "Nice to have"?
   - What it is: on a What do I need? panel, "Copy shopping list" copies the missing items and the optional ones, but "Add to shopping list" adds only the "You need" lines (`needs.missing`, `src/components/AddToShoppingList.jsx`), as the task said.
   - If nothing is decided: the two buttons on one panel give different lists.

@@ -409,7 +409,7 @@ describe('addRecipe on real built-in recipes', () => {
     expect(only(r.list, 'pasta')).toHaveLength(1);
     expect(text(r.list, 'pasta')).toBe('600 g');
     expect(only(r.list, 'pasta')[0].from).toEqual(['dish:beef-bolognese', 'dish:spaghetti-carbonara']);
-    expect(r.summary.mergedLines).toEqual([{ key: 'pasta', label: 'pasta', now: '600 g' }]);
+    expect(r.summary.mergedLines).toEqual([{ key: 'pasta', label: 'pasta', now: '600 g', parts: [{ qty: 600, unit: 'g' }] }]);
     expect(r.summary.merged).toBe(1);
     // egg yolk's "3 (+1 whole egg)" is not a specific quantity
     expect(text(r.list, 'egg yolk')).toBe('');
@@ -444,7 +444,7 @@ describe('addRecipe on real built-in recipes', () => {
     expect(only(r.list, 'celery')).toHaveLength(1);
     expect(text(r.list, 'celery')).toBe('3 stalks');
     expect(only(r.list, 'celery')[0].from).toEqual(['dish:beef-bolognese']);
-    expect(r.summary.mergedLines).toEqual([{ key: 'celery', label: 'celery', now: '3 stalks' }]);
+    expect(r.summary.mergedLines).toEqual([{ key: 'celery', label: 'celery', now: '3 stalks', parts: [{ qty: 3, unit: 'stalk' }] }]);
   });
 });
 
