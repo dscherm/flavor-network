@@ -26,7 +26,7 @@ function makeFilter({ failLoad = false } = {}) {
       return { promise: run.promise, cancel: run.cancel };
     }),
     toCanvas: vi.fn(() => document.createElement('canvas')),
-    encodeChalk: vi.fn(async () => ({ blob: new Blob(['x'], { type: 'image/webp' }), mime: 'image/webp', w: 600, h: 600, bytes: 1 })),
+    encodeChalk: vi.fn(async () => ({ blob: new Blob(['x'], { type: 'image/jpeg' }), mime: 'image/jpeg', w: 600, h: 600, bytes: 1 })),
   };
   return f;
 }
@@ -232,7 +232,7 @@ describe('RecipePicture', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Use this picture' }));
     await waitFor(() => expect(onChange).toHaveBeenCalledTimes(1));
     const arg = onChange.mock.calls[0][0];
-    expect(arg).toMatchObject({ kind: 'chalk', mime: 'image/webp', w: 600, h: 600 });
+    expect(arg).toMatchObject({ kind: 'chalk', mime: 'image/jpeg', w: 600, h: 600 });
     expect(arg.blob).toBeInstanceOf(Blob);
     expect(Object.keys(arg).sort()).toEqual(['blob', 'h', 'kind', 'mime', 'w']);
   });
@@ -263,7 +263,7 @@ describe('RecipePicture', () => {
   it('revokes object URLs when the value changes and on unmount, and cancels a running job', async () => {
     const f = makeFilter();
     const blob = new Blob(['a']);
-    const { rerender, unmount } = render(<RecipePicture kind="dish" onChange={() => {}} filter={f} value={{ kind: 'chalk', blob, mime: 'image/webp', w: 1, h: 1 }} />);
+    const { rerender, unmount } = render(<RecipePicture kind="dish" onChange={() => {}} filter={f} value={{ kind: 'chalk', blob, mime: 'image/jpeg', w: 1, h: 1 }} />);
     expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId('picture-current')).toHaveAttribute('src', 'blob:fake');
     rerender(<RecipePicture kind="dish" onChange={() => {}} filter={f} value={null} />);
@@ -271,7 +271,7 @@ describe('RecipePicture', () => {
     unmount();
 
     const f2 = makeFilter();
-    render(<RecipePicture kind="dish" onChange={() => {}} filter={f2} debounceMs={0} value={{ kind: 'chalk', blob, mime: 'image/webp', w: 1, h: 1 }} />);
+    render(<RecipePicture kind="dish" onChange={() => {}} filter={f2} debounceMs={0} value={{ kind: 'chalk', blob, mime: 'image/jpeg', w: 1, h: 1 }} />);
     fireEvent.change(screen.getByLabelText('Photo to turn into chalk'), { target: { files: [photo()] } });
     await waitFor(() => expect(f2.runs.length).toBe(1));
     cleanup();

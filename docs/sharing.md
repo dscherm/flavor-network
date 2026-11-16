@@ -18,7 +18,7 @@ Both kinds show the recipe, a flavor chart (labelled a visual guide), and button
 
 When someone shares a recipe they made, the app shows them exactly what will go public first and only publishes after "Create link".
 
-**Public:** the recipe's name, its ingredient lines (name and amount), the method, the glass or category if there is one, the flavor chart numbers, and a name only if the person chose to show one ("Shared by ..."). The default is no name at all. The choices are no name, their first name, or a nickname they type.
+**Public:** the recipe's name, its ingredient lines (name and amount), the method, the glass or category if there is one, the picture if they added one (a chalk drawing, never their original photo), the flavor chart numbers, and a name only if the person chose to show one ("Shared by ..."). The default is no name at all. The choices are no name, their first name, or a nickname they type.
 
 **Never public:** their email, their account id on the page, the rest of their profile, their other recipes, their cookbook, their bar or pantry, their saved items. The stored copy is built from scratch from only the fields above, so nothing else can leak into it. The copy does hold the owner's account id (the rules need it to let only the owner unshare), but the page and the preview functions never show it. Anyone who knows a link's id can read that one copy; nobody can list or browse the copies.
 
@@ -46,7 +46,7 @@ To restore a removed recipe set `removed` back to `false` in the same place. Del
 
 ## Reports: how people flag a recipe, and how you read them
 
-Every page for a user's copy has a small "Report" link (built-in pages do not, because nobody wrote them). It opens a short form: a reason (Offensive or abusive; Spam or advertising; Private information; Not a recipe; Something else), an optional note of up to 300 characters, and "Send report". After sending it says "Thanks. The report was sent."
+Every page for a user's copy has a small "Report" link (built-in pages do not, because nobody wrote them). It opens a short form: a reason (Offensive or abusive; Spam or advertising; Private information; Not a recipe; The picture; Something else), an optional note of up to 300 characters, and "Send report". After sending it says "Thanks. The report was sent."
 
 A report records only the link's id, the reason, the note and the time. It does **not** record who sent it, even if the reporter was signed in.
 
@@ -72,27 +72,37 @@ A link pasted into a chat shows a preview card, 1200 by 630 pixels, made by the 
 
 Every card prints the link. On a phone that supports it the button is "Share images" (opens the phone's share sheet); otherwise it is "Download images".
 
-## Pictures: what is stored and where (PICTURE-3, storage only; nothing is deployed)
+## Pictures on recipes (PICTURE-1 to 6; nothing here is deployed)
 
-A recipe can carry a picture: either one of the app's chalk drawings, or a photo the person turned into a chalk drawing in their browser. **The original photo never leaves the device.** Only the finished chalk drawing is stored, as a small WebP (or JPEG) image, at most about 150 KB.
+A recipe a person made can carry a picture: either one of the app's chalk drawings (dishes, glasses, sauce vessels), or a photo they turn into a chalk drawing. Full list of changes from the plan is in `docs/pictures.md`.
 
-Where each part lives:
+**The original photo never leaves the device.** The photo is read and redrawn as chalk in the browser (`src/data/chalkFilter.js`, run by `src/data/chalkFilterBrowser.js`), and only the finished drawing is encoded and stored. The picture is made from pixels, so nothing from the photo file (location, camera, time) is carried over; `inspectMetadata` in `chalkFilter.js` is what the tests use to check that.
 
-- **On the saved item** (inside the person's own profile record): `picture`, which is only a label. A drawing is stored as its name (for example `glass:coupe`). A chalk photo is stored as `{ kind: chalk, v }`, where `v` is a number that changes whenever the picture changes. The image itself is NOT in the profile record, because a profile record must stay far below Firestore's 1 MB limit.
-- **Their own chalk picture**: its own document, `profiles/{their account id}/pictures/{item id}`, holding the image as text (base64), its type, width, height and time. Only that person can read or write it.
-- **The picture of a shared copy**: its own document, `sharedPictures/{link id}`, holding the same, plus the owner's account id. The shared recipe record `shared/{link id}` carries only `picture: { kind: chalk }` or `picture: { kind: icon, icon: name }`, never image data.
+**Format and size.** The stored picture is always a JPEG, 600 pixels on the long side, with the quality stepped down until it is at most 150 KB (`encodeChalk` in `src/data/chalkFilterBrowser.js`, `STORE_BYTES` = 153,600 in `chalkFilter.js`). The plan said WebP with a JPEG fallback. That was changed during PICTURE-4: the server program that draws the link-preview card (`shareCard`, using resvg) silently draws nothing for a WebP, so the encoder produces JPEG in every browser, and `firestore.rules` and the app now accept `image/jpeg` only (`functions/src/share/picture.ts` also refuses WebP). The rules cap the stored text at fewer than 210,000 characters (base64 of about 150 KB).
 
-Caps, enforced by `firestore.rules` and again by the app before it writes: the image text must be shorter than 210,000 characters (about 150 KB of image); type `image/webp` or `image/jpeg`; width and height whole numbers from 16 to 2,000; no other fields. Older shared copies have no `picture` and stay valid.
+**Where it is stored.**
 
-Who can read a shared picture: anyone who has the link id, only while the share is live. Nobody can list pictures. Once a share is removed (the owner unshares, or you set `removed` to `true` in the console) everyone except the owner is refused. Unsharing also deletes the picture document; if that clean-up fails, the leftover can be read only by its owner.
+- **On the saved item** (inside the person's own profile record): `picture`, a small label only. A drawing is its name (for example `glass:coupe`); a chalk photo is `{ kind: chalk, v }`, where `v` changes whenever the picture changes. The image is not in the profile record, which has to stay far below Firestore's 1 MB limit.
+- **Their own chalk picture:** `profiles/{account id}/pictures/{item id}`, holding the image as base64 text, its type, width, height and time. Only that person can read or write it (`firestore.rules`, `src/data/pictureStore.js`).
+- **The picture of a shared copy:** `sharedPictures/{link id}`, the same fields plus the owner's account id. The record `shared/{link id}` carries only `picture: { kind: chalk }` or `picture: { kind: icon, icon: name }`, never image data. Width and height must be whole numbers from 16 to 2,000, and no other fields are allowed.
 
-Write order and half-finished states: the rules read the share record as it will be AFTER the write, so the app saves the share and its picture in one batch, and both land or neither does. A share that says it has a chalk picture can therefore not exist without one. If that batch fails (offline, too large), the app publishes the link without the picture and tells the person in one line. For a saved item the picture document is written first and the item second; if the item cannot be saved afterwards the app deletes the picture, and if even that fails the leftover is a document only its owner can read.
+**What a visitor sees and when.** A shared page, the cards the person downloads, and the link-preview card show the picture of the link as it was when the link was created (`src/components/SharedRecipePage.jsx`, `PictureView.jsx`, `functions/src/share/picture.ts`). A link keeps the picture it was published with: to change it, unshare and share again, which makes a new link. "Save to my cookbook" (or my cocktails, my sauces) from a shared page does not copy the picture; the saved copy has none (`sharedSaveInput` in `src/data/sharedSave.js` has no picture field). Pictures are not drawn smaller than 40 pixels (`MIN_PICTURE_SIZE` in `src/components/PictureView.jsx`); a list row that small shows no picture rather than a smudge.
 
-Failure never blocks the main action: a picture that cannot be stored means the item is still saved and the link is still made, without it.
+**The six chalk settings** (`CHALK_DEFAULTS` in `src/data/chalkFilter.js`; the sliders are behind an "Adjust" button in `RecipePicture.jsx`, with Reset): line weight 5 (0.6 to 10), fine detail 13 (0 to 16), shading 110 (0 to 200), colour 200 (0 to 300), chalk grain 5 (0 to 100), and Focus 0 (0 to 100), which fades the background to bare slate in an oval around the middle. Focus at 0 does nothing. The person can also choose a square or a 4:3 landscape centre crop.
 
-**Deploy targets for this part:** `firestore:rules` (new `profiles/{uid}/pictures` and `sharedPictures` rules, and the optional `picture` key on `shared`) and `hosting` (the app code). Not the functions: they do not read pictures yet (the server card is PICTURE-4). Deploy the rules before the hosting that writes pictures, or the writes are refused and every picture is left out with the one-line notice. Test the rules locally with `npm run test:rules` (emulator, `demo-` project).
+**Who can read a shared picture:** anyone who has the link id, only while the share is live. Nobody can list pictures. Once a share is removed (the owner unshares, or you set `removed` to `true` in the console) everyone except the owner is refused. Unsharing also deletes the picture document; if that clean-up fails, the leftover can be read only by its owner.
 
-To see or remove a picture by hand: Firebase console, Firestore Database, Data, collection `sharedPictures` (document name = link id) or `profiles`, a person's document, subcollection `pictures`. Deleting a `sharedPictures` document removes it from every link and card within the caching window above.
+**Reports.** The report form has a reason "The picture" (`src/data/shareReport.js`, id `picture`), next to the others. It arrives in `shareReports` like any other, with the link id.
+
+**Removing a share removes its picture, but not instantly.** The page and the card function refuse to serve a picture once `removed` is `true`. The card function keeps a share, and its picture, in memory for 3 minutes (`SHARED_TTL_MS` in `functions/src/share/shared.ts`), and the card image for a user's recipe is cached 10 minutes in front of that (`USER_CACHE` in `functions/src/share/card.ts`), so a cached card can keep showing the picture for up to about 13 minutes. Chat apps may keep their own copy longer, which cannot be controlled from here.
+
+**Write order and half-finished states.** The rules read the share record as it will be after the write, so the app saves the share and its picture in one batch (`publishShareWithPicture` in `src/data/shareStore.js`); both land or neither does. If the batch fails (offline, too large) the link is published without the picture and the person is told in one line. For a saved item the picture is written first and the item second; if the item cannot be saved the app deletes the picture, and if even that fails the leftover is a document only its owner can read. A picture that cannot be stored never blocks saving or sharing.
+
+**To see or remove a picture by hand:** Firebase console, Firestore Database, Data, collection `sharedPictures` (document name = link id) or `profiles`, a person's document, subcollection `pictures`. Deleting a `sharedPictures` document removes it from every link and card within the caching window above.
+
+**Deploy targets for this part:** `firestore:rules` first (the picture rules, the optional `picture` key on `shared`, the report reason), then `functions` (the card draws the picture; `sharePreview` shares the same bundle), then `hosting` (chooser, lists, cards, JPEG encoder). Hosting before the rules makes picture writes refused, and every picture is left out with the one-line notice. Test the rules locally with `npm run test:rules`.
+
+**Not verified:** anything on the real database, a phone camera, a real phone photo (HEIC), Safari, the card function on the live site, live link previews, and whether a busy photo looks good at 150 KB.
 
 ## Before you deploy
 

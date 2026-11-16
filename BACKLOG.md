@@ -96,3 +96,15 @@ The Cloud Function `scrapeRecipe` exists and works for schema.org recipes. Open:
 - CHART-INVENT-SENTENCE The cocktail Invent panel weighs the amounts it suggests itself, not a built-in recipe's own, so its tasting note can differ from the shared page's in notes beyond the lead. CHART-3 reported this as a risk without a measurement; the CHART-7 test shows Negroni's panel naming the same lead notes as the recipe, and the Beef Bolognese panel is identical when given the recipe's own amounts. Nothing here proves other recipes match
 - CHART-SAUCE-CARD The Sauce suggestion card still draws two radars for one profile (not a before/after), unlike the add and swap cards
 - CHART-PHONE The graphs were looked at in a desktop browser pane at 375 px and as rendered card images, never on a phone or through a live link preview
+
+## Recipe pictures, left out on purpose (2026-11-16, PICTURE-5; on master, not deployed)
+- PICTURE-LEFT-OUT Publishing original photos. Only the chalk drawing is ever stored or public; the original never leaves the device.
+- PICTURE-AI-IMAGE An AI image model, and any paid key, for making the drawing. The filter is a free pixel filter in the browser.
+- PICTURE-CROP Cropping beyond a centred square or 4:3 landscape.
+- PICTURE-MANY More than one picture per recipe.
+- PICTURE-BUILTIN Pictures on built-in recipes (they keep their dish or glass drawing).
+- PICTURE-SMALL-ART Redrawing the chalk drawings so they read below 40 px; today no picture is drawn under 40 px (`MIN_PICTURE_SIZE`).
+- PICTURE-SAVE-COPY Copying the picture when someone saves a recipe from a shared page; the saved copy has none.
+- PICTURE-RELINK Changing the picture of an existing link; today the person unshares and shares again for a new link.
+- PICTURE-CUTOUT Open owner decision: an automatic cut-out of the subject instead of the Focus oval. A trial page exists (https://claude.ai/artifact/D2APE3CRDfPAvHka3jdMz8, source `docs/prototypes/chalk-cutout-bench.html`); the owner has not judged it, and nothing in `src/` uses a model for it. If nothing is decided, Focus is the only background control.
+- PICTURE-PHONE The picture work was looked at in a desktop browser pane at 375 px with a synthetic image, never with a phone camera, a real HEIC photo or Safari, and never against the real database or through a live link preview.

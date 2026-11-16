@@ -30,7 +30,7 @@ export const PICTURE_LIMITS = Object.freeze({
   maxSide: 2000,
   iconChars: 40,
 });
-export const PICTURE_MIMES = Object.freeze(['image/webp', 'image/jpeg']);
+export const PICTURE_MIMES = Object.freeze(['image/jpeg']);
 const SHARE_ID = /^[a-z0-9]{10}$/;
 const ITEM_ID = /^[A-Za-z0-9_-]{1,80}$/;
 

@@ -6,7 +6,7 @@ service cloud.firestore {
 
       // PICTURE-3. A chalk picture for one saved item, in its OWN document so the profile document
       // never carries image data (Firestore's 1 MB limit). Readable and writable by that user only,
-      // in exactly this shape. data is base64 of a WebP/JPEG re-encoded in the browser: under 210,000
+      // in exactly this shape. data is base64 of a JPEG re-encoded in the browser: under 210,000
       // characters (about 150 KB of image). The original photo is never stored.
       match /pictures/{itemId} {
         function validPicture() {
@@ -16,7 +16,7 @@ service cloud.firestore {
             && itemId.size() <= 80
             && itemId.matches('[A-Za-z0-9_-]+')
             && d.data is string && d.data.size() > 0 && d.data.size() < 210000
-            && d.mime in ['image/webp', 'image/jpeg']
+            && d.mime == 'image/jpeg'
             && d.w is int && d.w >= 16 && d.w <= 2000
             && d.h is int && d.h >= 16 && d.h <= 2000
             && d.updatedAt is number;
@@ -115,7 +115,7 @@ service cloud.firestore {
           && s.get('picture', null) != null
           && s.picture.kind == 'chalk'
           && d.data is string && d.data.size() > 0 && d.data.size() < 210000
-          && d.mime in ['image/webp', 'image/jpeg']
+          && d.mime == 'image/jpeg'
           && d.w is int && d.w >= 16 && d.w <= 2000
           && d.h is int && d.h >= 16 && d.h <= 2000
           && d.createdAt is number

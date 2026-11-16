@@ -73,6 +73,14 @@ export default function PrivacyPage() {
           answered above, because you press Send yourself. Please do not put personal details in a note.
         </p>
 
+        <h2 style={h2}>Pictures on recipes you share (separate from usage data)</h2>
+        <p data-testid="privacy-pictures">
+          If you add a picture to a recipe, your photo is turned into a chalk drawing inside your browser and the original
+          photo is never uploaded. Only the drawing is stored, with your saved recipe. If you then create a share link for that
+          recipe, the drawing is public to anyone who has the link, together with the recipe, until you unshare it.
+          Usage counting is not involved.
+        </p>
+
         <h2 style={h2}>If you say No, or do not answer</h2>
         <p>Nothing is sent and no Google analytics script is loaded. The app works the same.</p>
       </div>

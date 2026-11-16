@@ -28,8 +28,8 @@ const { publishShareWithPicture, unshare } = await import('../shareStore.js');
 const { toSharedDoc, fromSharedDoc } = await import('../sharePublish.js');
 
 const DB = { name: 'db' };
-const blob = (n = 300, type = 'image/webp') => new Blob([new Uint8Array(n).fill(65)], { type });
-const chalk = (over = {}) => ({ kind: 'chalk', blob: blob(), mime: 'image/webp', w: 600, h: 450, ...over });
+const blob = (n = 300, type = 'image/jpeg') => new Blob([new Uint8Array(n).fill(65)], { type });
+const chalk = (over = {}) => ({ kind: 'chalk', blob: blob(), mime: 'image/jpeg', w: 600, h: 450, ...over });
 const A300 = btoa('A'.repeat(300));
 
 beforeEach(() => { writes.length = 0; failOn = null; store = {}; });
@@ -52,9 +52,10 @@ describe('pure helpers', () => {
   });
   it('encodeChalk returns base64 under the cap and refuses what the rules would refuse', async () => {
     const enc = await ps.encodeChalk(chalk());
-    expect(enc).toEqual({ data: A300, mime: 'image/webp', w: 600, h: 450 });
+    expect(enc).toEqual({ data: A300, mime: 'image/jpeg', w: 600, h: 450 });
     await expect(ps.encodeChalk(chalk({ blob: blob(160000) }))).rejects.toThrow(ps.PICTURE_TOO_BIG);
     await expect(ps.encodeChalk(chalk({ mime: 'image/png', blob: blob(10, 'image/png') }))).rejects.toThrow();
+    await expect(ps.encodeChalk(chalk({ mime: 'image/webp', blob: blob(10, 'image/webp') }))).rejects.toThrow();
     await expect(ps.encodeChalk(chalk({ w: 8 }))).rejects.toThrow();
     await expect(ps.encodeChalk(chalk({ w: 600.5 }))).rejects.toThrow();
     await expect(ps.encodeChalk({ kind: 'icon', icon: 'glass:coupe' })).rejects.toThrow();
@@ -70,7 +71,7 @@ describe('prepareItemPicture', () => {
   it('chalk: writes profiles/{uid}/pictures/{itemId} with exactly the encoded data', async () => {
     const r = await ps.prepareItemPicture({ ...base, value: chalk(), prev: null, now: 99 });
     expect(r).toEqual({ field: { kind: 'chalk', v: 99 }, obsolete: false });
-    expect(writes).toEqual([['set', 'profiles/u1/pictures/inv-1', { data: A300, mime: 'image/webp', w: 600, h: 450, updatedAt: 99 }]]);
+    expect(writes).toEqual([['set', 'profiles/u1/pictures/inv-1', { data: A300, mime: 'image/jpeg', w: 600, h: 450, updatedAt: 99 }]]);
   });
   it('a failed write gives one reason and keeps the previous picture field', async () => {
     failOn = 'set';
@@ -105,8 +106,8 @@ describe('prepareItemPicture', () => {
 
 describe('own pictures: load and delete', () => {
   it('loadPicture reads one document lazily and returns a data URL; missing or malformed is null', async () => {
-    store['profiles/u1/pictures/inv-1'] = { data: 'QUJD', mime: 'image/webp', w: 600, h: 450, updatedAt: 1 };
-    expect(await ps.loadPicture(DB, 'u1', 'inv-1')).toMatchObject({ data: 'QUJD', dataUrl: 'data:image/webp;base64,QUJD', w: 600 });
+    store['profiles/u1/pictures/inv-1'] = { data: 'QUJD', mime: 'image/jpeg', w: 600, h: 450, updatedAt: 1 };
+    expect(await ps.loadPicture(DB, 'u1', 'inv-1')).toMatchObject({ data: 'QUJD', dataUrl: 'data:image/jpeg;base64,QUJD', w: 600 });
     expect(await ps.loadPicture(DB, 'u1', 'inv-2')).toBeNull();
     store['profiles/u1/pictures/inv-3'] = { data: 'QUJD', mime: 'text/html', w: 600, h: 450 };
     expect(await ps.loadPicture(DB, 'u1', 'inv-3')).toBeNull();
@@ -142,7 +143,7 @@ describe('publishShareWithPicture and unshare', () => {
     expect(r).toEqual({ id: ID, picture: 'chalk' });
     expect(writes.map((w) => w.slice(0, 3))).toEqual([['batch', 'set', `shared/${ID}`], ['batch', 'set', `sharedPictures/${ID}`]]);
     expect(JSON.stringify(writes[0][3])).not.toContain(A300);
-    expect(writes[1][3]).toEqual({ data: A300, mime: 'image/webp', w: 600, h: 450, owner: 'u1', createdAt: 5 });
+    expect(writes[1][3]).toEqual({ data: A300, mime: 'image/jpeg', w: 600, h: 450, owner: 'u1', createdAt: 5 });
   });
   it('a failed picture write still creates the link, without the picture key, with one reason', async () => {
     failOn = 'batch';

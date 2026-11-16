@@ -24,8 +24,8 @@ const useSaveInvention = (await import('../useSaveInvention.js')).default;
 
 const KEY = 'flavor-user-profile-v2';
 const USER = { uid: 'u1' };
-const blob = (n = 300) => new Blob([new Uint8Array(n).fill(66)], { type: 'image/webp' });
-const chalk = (n = 300) => ({ kind: 'chalk', blob: blob(n), mime: 'image/webp', w: 600, h: 450 });
+const blob = (n = 300) => new Blob([new Uint8Array(n).fill(66)], { type: 'image/jpeg' });
+const chalk = (n = 300) => ({ kind: 'chalk', blob: blob(n), mime: 'image/jpeg', w: 600, h: 450 });
 const lines = [{ key: 'bourbon', amount: '2 oz' }, { key: 'lemon juice', amount: '1 oz' }];
 const input = (over = {}) => ({ kind: 'cocktail', name: 'Grandma Sour', lines, ...over });
 const picDocs = () => writes.filter((w) => w[1].includes('/pictures/'));

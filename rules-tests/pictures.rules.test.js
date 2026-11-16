@@ -17,8 +17,8 @@ const asOwner = () => env.authenticatedContext(OWNER).firestore();
 const asOther = () => env.authenticatedContext(OTHER).firestore();
 const anon = () => env.unauthenticatedContext().firestore();
 
-const pic = (over = {}) => ({ data: 'QUJD'.repeat(100), mime: 'image/webp', w: 600, h: 450, updatedAt: Date.now(), ...over });
-const sharePic = (over = {}) => ({ data: 'QUJD'.repeat(100), mime: 'image/webp', w: 600, h: 450, owner: OWNER, createdAt: Date.now(), ...over });
+const pic = (over = {}) => ({ data: 'QUJD'.repeat(100), mime: 'image/jpeg', w: 600, h: 450, updatedAt: Date.now(), ...over });
+const sharePic = (over = {}) => ({ data: 'QUJD'.repeat(100), mime: 'image/jpeg', w: 600, h: 450, owner: OWNER, createdAt: Date.now(), ...over });
 const share = (over = {}) => ({
   kind: 'cocktail',
   name: 'Grandma Sour',
@@ -55,7 +55,7 @@ describe('profiles/{uid}/pictures/{itemId}', () => {
     const ref = doc(asOwner(), 'profiles', OWNER, 'pictures', ITEM);
     await assertSucceeds(setDoc(ref, pic()));
     await assertSucceeds(getDoc(ref));
-    await assertSucceeds(setDoc(ref, pic({ mime: 'image/jpeg' })));
+    await assertFails(setDoc(ref, pic({ mime: 'image/webp' })));
     await assertSucceeds(deleteDoc(ref));
   });
   it('denies another user reading, writing or deleting it', async () => {
@@ -174,7 +174,7 @@ describe('sharedPictures/{id}: create', () => {
     await seedShare();
     const ref = doc(asOwner(), 'sharedPictures', ID);
     await assertFails(setDoc(ref, sharePic({ data: 'A'.repeat(210000) })));
-    for (const bad of [{ mime: 'image/gif' }, { w: 8 }, { h: 2500 }, { data: '' }, { extra: 1 }]) {
+    for (const bad of [{ mime: 'image/gif' }, { mime: 'image/webp' }, { w: 8 }, { h: 2500 }, { data: '' }, { extra: 1 }]) {
       await assertFails(setDoc(ref, sharePic(bad)));
     }
     const d = sharePic();

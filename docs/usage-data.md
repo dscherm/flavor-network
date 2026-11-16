@@ -9,7 +9,7 @@ test fails if this table and the code disagree.
 
 Never sent: an account id, email or name; the name, ingredients or text of any
 recipe, drink or sauce a person made; a nickname chosen for a shared recipe; the
-id of a link a person made; photos. Two events carry typed text (below); text
+id of a link a person made; photos. Recipe pictures are not usage data at all: no picture event exists, and the privacy page says where a shared recipe's picture is public (see `docs/sharing.md`, "Pictures on recipes"). Two events carry typed text (below); text
 containing an `@` or a web address is dropped, not sent.
 
 Rules every event follows: the name is lowercase `snake_case`, at most 40

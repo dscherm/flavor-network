@@ -64,4 +64,10 @@ describe('PrivacyPage', () => {
     expect(screen.getByText(/What is never sent/)).toBeTruthy();
     expect(screen.getByText(/Not asked yet/)).toBeTruthy();
   });
+  it('says a shared picture is public and the original photo is never uploaded', () => {
+    render(<PrivacyPage />);
+    const t = screen.getByTestId('privacy-pictures').textContent;
+    expect(t).toMatch(/original\s+photo is never uploaded/);
+    expect(t).toMatch(/public to anyone who has the link/);
+  });
 });
