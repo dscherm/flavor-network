@@ -1,0 +1,452 @@
+<title>Chalk Cut-out Bench</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Figtree:wght@400;500;600&display=swap">
+<style>
+  /* Layout: a slate workbench. Background controls first (the question this page answers), the chalk
+     sliders folded below, then three boards: the photo, what the model kept, and the chalk picture.
+     One look on purpose: this page previews art that only exists on a blackboard. */
+  :root {
+    color-scheme: dark;
+    --slate: #0d0d0c; --slate-lift: #191917; --rail: #45443f;
+    --chalk: #f5efde; --chalk-dim: #bdb6a3; --chalk-faint: #8a8475;
+    --gold: #e6c36a; --warn: #f0a08a;
+    --hand: 'Caveat', 'Segoe Print', 'Bradley Hand', cursive;
+    --body: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+  body {
+    background: radial-gradient(ellipse at 50% 0%, #1d1d1b 0%, var(--slate) 70%) var(--slate);
+    background-attachment: fixed; color: var(--chalk); font-family: var(--body); font-size: 15px; line-height: 1.5;
+    padding-block: 28px 56px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+  h1 { font-family: var(--hand); font-weight: 700; font-size: clamp(34px, 6vw, 52px); line-height: 1; margin: 0; text-wrap: balance;
+       text-shadow: 0 0 1px rgba(245,239,222,.55), 0 0 4px rgba(245,239,222,.18); }
+  h2 { font-family: var(--hand); font-size: 28px; margin: 0; font-weight: 700; }
+  .lede { color: var(--chalk-dim); max-width: 62ch; margin: 8px 0 0; }
+  .bench { border: 2px double var(--rail); border-radius: 14px; background: var(--slate-lift); padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+  .pick { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; }
+  .btn { font: 600 15px var(--body); color: var(--slate); background: var(--chalk); border: 0; border-radius: 999px; padding: 0 20px; min-height: 44px; cursor: pointer; display: inline-flex; align-items: center; }
+  .btn.ghost { background: transparent; color: var(--chalk); border: 1px solid var(--rail); font-weight: 500; }
+  .btn:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+  .hint { color: var(--chalk-faint); font-size: 13px; }
+  .status { font-size: 13px; color: var(--chalk-dim); min-height: 1.4em; }
+  .status.bad { color: var(--warn); }
+  .sliders { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px 22px; }
+  .sl { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .sl label { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--chalk-dim); }
+  .sl output { color: var(--gold); font-variant-numeric: tabular-nums; }
+  .sl small { color: var(--chalk-faint); font-size: 12px; }
+  input[type=range] { width: 100%; accent-color: var(--gold); height: 28px; }
+  .switch { display: flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; font-weight: 600; }
+  .switch input { width: 22px; height: 22px; accent-color: var(--gold); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px 28px; }
+  .group { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  details summary { cursor: pointer; color: var(--chalk-dim); min-height: 44px; display: flex; align-items: center; }
+  .boards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  figure { margin: 0; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .frame { border: 2px double var(--rail); border-radius: 10px; overflow: hidden; background: #000; line-height: 0; }
+  canvas { width: 100%; height: auto; display: block; max-width: 100%; }
+  figcaption { display: flex; flex-direction: column; gap: 2px; }
+  .name { font-family: var(--hand); font-size: 26px; line-height: 1.05; }
+  .what { color: var(--chalk-dim); font-size: 13px; }
+  .size { color: var(--gold); font-size: 12px; font-variant-numeric: tabular-nums; min-height: 1.4em; }
+  .notes { color: var(--chalk-dim); max-width: 70ch; display: flex; flex-direction: column; gap: 6px; }
+  .notes h2 { color: var(--chalk); }
+  .notes ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
+  .drop { outline: 2px dashed var(--gold); outline-offset: 4px; }
+</style>
+
+<div class="wrap" id="page">
+  <header>
+    <h1>Chalk Cut-out Bench</h1>
+    <p class="lede">Two ways to lose the background of a chalk picture. Focus fades everything outside a centred oval. The automatic cut-out asks a small model, running in this browser, which part of the photo is the subject, and draws chalk only there. Nothing is uploaded: the photo never leaves this browser.</p>
+  </header>
+
+  <section class="bench" aria-label="Controls">
+    <div class="pick">
+      <button class="btn" id="choose" type="button">Choose a photo</button>
+      <input id="file" type="file" accept="image/*" hidden>
+      <button class="btn ghost" id="sample" type="button">Use the example</button>
+      <button class="btn ghost" id="reset" type="button">Reset sliders</button>
+      <span class="hint">You can also drag a picture onto the page, or paste one.</span>
+    </div>
+    <div class="status" id="status" role="status"></div>
+
+    <div class="two">
+      <div class="group">
+        <h2>Focus</h2>
+        <div class="sl"><label for="focus">Focus <output id="o-focus"></output></label><input id="focus" type="range" min="0" max="100" step="1" value="0"><small>0 keeps the whole photo. Higher keeps a tighter centred oval.</small></div>
+      </div>
+      <div class="group">
+        <h2>Automatic cut-out</h2>
+        <label class="switch"><input id="cut" type="checkbox"> Cut out the subject automatically</label>
+        <div class="sl"><label for="soft">Edge softness <output id="o-soft"></output></label><input id="soft" type="range" min="0" max="20" step="1" value="6"><small>How gradually the chalk stops at the subject's edge</small></div>
+        <div class="status" id="cut-status" role="status">Off. Turning it on downloads the model once: U2-Net small (u2netp), 4.6 MB, Apache-2.0 licence.</div>
+      </div>
+    </div>
+
+    <details>
+      <summary>Chalk settings (the five you already chose)</summary>
+      <div class="sliders">
+        <div class="sl"><label for="weight">Line weight <output id="o-weight"></output></label><input id="weight" type="range" min="0.6" max="10" step="0.1" value="5"></div>
+        <div class="sl"><label for="detail">Fine detail <output id="o-detail"></output></label><input id="detail" type="range" min="0" max="16" step="1" value="13"></div>
+        <div class="sl"><label for="shade">Shading <output id="o-shade"></output></label><input id="shade" type="range" min="0" max="200" step="1" value="110"></div>
+        <div class="sl"><label for="grain">Chalk grain <output id="o-grain"></output></label><input id="grain" type="range" min="0" max="100" step="1" value="5"></div>
+        <div class="sl"><label for="colour">Colour <output id="o-colour"></output></label><input id="colour" type="range" min="0" max="300" step="1" value="200"></div>
+      </div>
+    </details>
+  </section>
+
+  <section class="boards" aria-label="Results">
+    <figure><div class="frame"><canvas id="c-orig" width="720" height="540"></canvas></div>
+      <figcaption><span class="name">Your photo</span><span class="what">As it came in.</span></figcaption></figure>
+    <figure><div class="frame"><canvas id="c-mask" width="720" height="540"></canvas></div>
+      <figcaption><span class="name">What is kept</span><span class="what">White is drawn, black is left as bare slate. Focus and the cut-out combine.</span></figcaption></figure>
+    <figure><div class="frame"><canvas id="c-col" width="720" height="540"></canvas></div>
+      <figcaption><span class="name">Chalk picture</span><span class="what">Coloured chalk, with the background handled as set above.</span><span class="size" id="s-col"></span></figcaption></figure>
+  </section>
+
+  <section class="notes">
+    <h2>What to try</h2>
+    <ul>
+      <li>A plated dish on a table, shot from above and from the side.</li>
+      <li>A drink in a clear glass. Clear glass is the hard case: the model may keep only the liquid, or lose the stem.</li>
+      <li>A busy background: a bar shelf, a kitchen counter, people behind the plate.</li>
+      <li>Two things in one photo. The model picks what it thinks is the main subject and may not agree with you.</li>
+      <li>The time under the switch is how long the cut-out took on this device. A phone will be slower than a laptop.</li>
+    </ul>
+  </section>
+</div>
+
+<script src="ort.wasm.min.js"></script>
+<script>
+(() => {
+  const MAX = 1080, STORE = 600, NET = 320;
+  const $ = (id) => document.getElementById(id);
+  const cv = { orig: $('c-orig'), mask: $('c-mask'), col: $('c-col') };
+  const sliders = ['weight', 'detail', 'shade', 'grain', 'colour', 'focus', 'soft'];
+  const defaults = Object.fromEntries(sliders.map((s) => [s, $(s).value]));
+  const status = $('status'), cutStatus = $('cut-status');
+  let src = null, noise = null, raf = 0, sizeTimer = 0;
+  let session = null, sessionPromise = null;
+  let rawCut = null;          // Float32Array w*h in 0..1 from the model, for the current photo
+  let cutToken = 0;
+
+  const say = (text, bad = false) => { status.textContent = text; status.classList.toggle('bad', bad); };
+  const sayCut = (text, bad = false) => { cutStatus.textContent = text; cutStatus.classList.toggle('bad', bad); };
+
+  // ---- image helpers (unchanged from the chalk filter) -----------------------
+  function boxBlur(a, w, h, r) {
+    if (r < 1) return a;
+    const out = new Float32Array(a.length), tmp = new Float32Array(a.length);
+    const pass = (from, to, len, stride, lines, lineStride) => {
+      for (let l = 0; l < lines; l++) {
+        const base = l * lineStride;
+        let sum = 0;
+        for (let i = -r; i <= r; i++) sum += from[base + Math.min(len - 1, Math.max(0, i)) * stride];
+        for (let i = 0; i < len; i++) {
+          to[base + i * stride] = sum / (2 * r + 1);
+          const add = Math.min(len - 1, i + r + 1), sub = Math.max(0, i - r);
+          sum += from[base + add * stride] - from[base + sub * stride];
+        }
+      }
+    };
+    pass(a, tmp, w, 1, h, w);
+    pass(tmp, out, h, w, w, 1);
+    return out;
+  }
+  const blur = (a, w, h, r) => (r < 1 ? a : boxBlur(boxBlur(a, w, h, r), w, h, r));
+  function sobel(g, w, h) {
+    const m = new Float32Array(g.length);
+    for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) {
+      const i = y * w + x;
+      const tl = g[i - w - 1], t = g[i - w], tr = g[i - w + 1], l = g[i - 1], r = g[i + 1], bl = g[i + w - 1], b = g[i + w], br = g[i + w + 1];
+      const gx = tr + 2 * r + br - tl - 2 * l - bl, gy = bl + 2 * b + br - tl - 2 * t - tr;
+      m[i] = Math.sqrt(gx * gx + gy * gy);
+    }
+    return m;
+  }
+  function makeNoise(w, h) {
+    const n = w * h, fine = new Float32Array(n), raw = new Float32Array(n);
+    let s = 1234567;
+    const rnd = () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
+    for (let i = 0; i < n; i++) { fine[i] = rnd(); raw[i] = rnd(); }
+    const coarse = blur(raw, w, h, 6);
+    let lo = 1, hi = 0;
+    for (let i = 0; i < n; i++) { if (coarse[i] < lo) lo = coarse[i]; if (coarse[i] > hi) hi = coarse[i]; }
+    for (let i = 0; i < n; i++) coarse[i] = (coarse[i] - lo) / (hi - lo || 1);
+    return { w, h, fine, coarse };
+  }
+  const smooth = (e0, e1, x) => { const t = Math.min(1, Math.max(0, (x - e0) / (e1 - e0))); return t * t * (3 - 2 * t); };
+
+  // ---- what is kept: Focus oval times the model's cut-out ----------------------
+  function keepMask(w, h) {
+    const focus = +$('focus').value / 100, soft = +$('soft').value;
+    const useCut = $('cut').checked && rawCut && rawCut.length === w * h;
+    if (!focus && !useCut) return null;
+    const m = new Float32Array(w * h).fill(1);
+    if (useCut) {
+      const k = Math.max(w, h) / 720;
+      const edge = blur(rawCut, w, h, Math.round(soft * k));
+      for (let i = 0; i < m.length; i++) m[i] = smooth(0.25, 0.75, edge[i]);
+    }
+    if (focus) {                                       // the app's Focus fade (PICTURE-6), same formula
+      const inner = 1.5 - 1.15 * focus, outer = inner + 0.6, cx = w / 2, cy = h / 2;
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+        const dx = (x - cx) / cx, dy = (y - cy) / cy;
+        m[y * w + x] *= 1 - smooth(inner, outer, Math.sqrt(dx * dx + dy * dy));
+      }
+    }
+    return m;
+  }
+
+  // ---- the chalk picture -------------------------------------------------------
+  function render() {
+    raf = 0;
+    if (!src) return;
+    const { w, h, rgba, lum } = src;
+    if (!noise || noise.w !== w || noise.h !== h) noise = makeNoise(w, h);
+    const weight = +$('weight').value, detail = +$('detail').value;
+    const shade = +$('shade').value / 100, grain = +$('grain').value / 100, colour = +$('colour').value / 100;
+    $('o-weight').textContent = weight.toFixed(1); $('o-detail').textContent = detail;
+    $('o-shade').textContent = Math.round(shade * 100); $('o-grain').textContent = Math.round(grain * 100);
+    $('o-colour').textContent = Math.round(colour * 100);
+    $('o-focus').textContent = $('focus').value; $('o-soft').textContent = $('soft').value;
+
+    const scale = Math.max(w, h) / 720;
+    const pre = Math.round(Math.max(0, 10 - detail) * 0.5 * scale);
+    let g = blur(lum, w, h, pre);
+    if (detail > 10) {
+      const soften = blur(lum, w, h, Math.max(1, Math.round(2 * scale)));
+      const k = (detail - 10) * 0.6;
+      g = new Float32Array(lum.length);
+      for (let i = 0; i < g.length; i++) { const v = lum[i] + (lum[i] - soften[i]) * k; g[i] = v < 0 ? 0 : v > 1 ? 1 : v; }
+    }
+    const haloR = Math.max(2, Math.round((detail > 10 ? 4 : 7) * scale));
+    const mag = sobel(g, w, h);
+    const line = new Float32Array(w * h);
+    for (let i = 0; i < line.length; i++) { const v = mag[i] * weight * 1.1 - 0.12; line[i] = v <= 0 ? 0 : v >= 1 ? 1 : v * v * (3 - 2 * v); }
+    const inv = new Float32Array(w * h);
+    for (let i = 0; i < inv.length; i++) inv[i] = 1 - g[i];
+    const halo = blur(inv, w, h, haloR);
+    const fill = new Float32Array(w * h);
+    if (colour > 1) {
+      const amt = (colour - 1) * 0.55;
+      for (let i = 0; i < fill.length; i++) {
+        const o = i * 4, mx = Math.max(rgba[o], rgba[o + 1], rgba[o + 2]), mn = Math.min(rgba[o], rgba[o + 1], rgba[o + 2]);
+        fill[i] = mx ? ((mx - mn) / mx) * (0.35 + 0.65 * mx / 255) * amt : 0;
+      }
+    }
+    const softCol = new Float32Array(w * h);
+    for (let i = 0; i < softCol.length; i++) {
+      const dodge = Math.min(1, g[i] / Math.max(0.04, 1 - halo[i]));
+      const edge = Math.pow(1 - dodge, 0.8) * weight * 0.9;
+      const tone = g[i] * g[i] * shade * 0.75;
+      softCol[i] = Math.min(1, Math.min(1, Math.max(edge, line[i] * 0.85) + tone) + fill[i]);
+    }
+    const tint = Math.min(1, colour);
+    const sat = 1.7 + Math.max(0, colour - 1) * 1.4;
+    const wash = colour > 1 ? Math.max(20, 70 - (colour - 1) * 35) : 70;
+    const keepC = 1 - wash / 255;
+    const keep = keepMask(w, h);
+
+    // the "what is kept" board
+    cv.mask.width = w; cv.mask.height = h;
+    const mctx = cv.mask.getContext('2d'), mimg = mctx.createImageData(w, h);
+    for (let i = 0; i < w * h; i++) { const v = keep ? keep[i] * 255 : 255; mimg.data[i * 4] = mimg.data[i * 4 + 1] = mimg.data[i * 4 + 2] = v; mimg.data[i * 4 + 3] = 255; }
+    mctx.putImageData(mimg, 0, 0);
+
+    cv.col.width = w; cv.col.height = h;
+    const ctx = cv.col.getContext('2d'), img = ctx.createImageData(w, h), d = img.data;
+    const cx = w / 2, cy = h / 2, far = Math.sqrt(cx * cx + cy * cy);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const i = y * w + x, o = i * 4;
+      const dist = Math.sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy)) / far;
+      const board = 26 - 15 * dist + (noise.coarse[i] - 0.5) * 7;
+      let a = softCol[i];
+      if (keep) a *= keep[i];
+      const dust = 1 - grain * 0.55 * noise.fine[i];
+      const gap = noise.fine[i] < grain * 0.22 ? 0.35 : 1;
+      a *= dust * gap * (1 - grain * 0.3 * (1 - noise.coarse[i]));
+      let r = 245, gg = 239, b = 222;
+      const pr = rgba[o], pg = rgba[o + 1], pb = rgba[o + 2], grey = (pr + pg + pb) / 3;
+      const cr = Math.min(255, Math.max(0, grey + (pr - grey) * sat)) * keepC + wash;
+      const cg = Math.min(255, Math.max(0, grey + (pg - grey) * sat)) * keepC + wash;
+      const cb = Math.min(255, Math.max(0, grey + (pb - grey) * sat)) * keepC + wash;
+      r += (Math.min(255, cr) - r) * tint; gg += (Math.min(255, cg) - gg) * tint; b += (Math.min(255, cb) - b) * tint;
+      d[o] = board + (r - board) * a; d[o + 1] = board + (gg - board) * a; d[o + 2] = (board - 1) + (b - board + 1) * a; d[o + 3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+    clearTimeout(sizeTimer);
+    sizeTimer = setTimeout(measure, 350);
+  }
+  const schedule = () => { if (!raf) raf = requestAnimationFrame(render); };
+
+  function measure() {
+    const canvas = cv.col, out = $('s-col');
+    const k = Math.min(1, STORE / Math.max(canvas.width, canvas.height));
+    const small = document.createElement('canvas');
+    small.width = Math.round(canvas.width * k); small.height = Math.round(canvas.height * k);
+    small.getContext('2d').drawImage(canvas, 0, 0, small.width, small.height);
+    const done = (blob, kind) => { out.textContent = blob ? `About ${Math.max(1, Math.round(blob.size / 1024))} KB stored (${small.width} × ${small.height}, ${kind})` : ''; };
+    try {
+      small.toBlob((blob) => {
+        if (blob && blob.type === 'image/webp') done(blob, 'WebP');
+        else small.toBlob((b2) => done(b2, 'JPEG'), 'image/jpeg', 0.8);
+      }, 'image/webp', 0.8);
+    } catch { out.textContent = ''; }
+  }
+
+  // ---- the automatic cut-out ---------------------------------------------------
+  function loadModel() {
+    if (sessionPromise) return sessionPromise;
+    sessionPromise = (async () => {
+      if (!window.ort) throw new Error('The model runtime did not load.');
+      const base = new URL('./', document.baseURI).href;
+      ort.env.wasm.numThreads = 1;
+      ort.env.wasm.wasmPaths = base;
+      // The model is published beside the page as base64 text (the host serves text, not .onnx files).
+      const res = await fetch(base + 'u2netp.b64.txt');
+      if (!res.ok) throw new Error('The model file could not be fetched.');
+      const bin = atob((await res.text()).trim());
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      session = await ort.InferenceSession.create(bytes, { executionProviders: ['wasm'] });
+      return session;
+    })();
+    sessionPromise.catch(() => { sessionPromise = null; });
+    return sessionPromise;
+  }
+
+  async function runCut() {
+    if (!src) return;
+    const token = ++cutToken, { w, h } = src;
+    try {
+      if (!session) sayCut('Downloading the cut-out model (4.6 MB, first time only)…');
+      const t0 = performance.now();
+      await loadModel();
+      const tLoad = performance.now() - t0;
+      if (token !== cutToken) return;
+      sayCut('Finding the subject…');
+      await new Promise((r) => setTimeout(r, 30));     // let the message paint
+      const t1 = performance.now();
+      const c = document.createElement('canvas'); c.width = NET; c.height = NET;
+      const x = c.getContext('2d', { willReadFrequently: true });
+      x.drawImage(cv.orig, 0, 0, NET, NET);
+      const px = x.getImageData(0, 0, NET, NET).data, n = NET * NET;
+      let peak = 1;
+      for (let i = 0; i < px.length; i += 4) peak = Math.max(peak, px[i], px[i + 1], px[i + 2]);
+      const input = new Float32Array(3 * n), mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225];
+      for (let i = 0; i < n; i++) for (let ch = 0; ch < 3; ch++) input[ch * n + i] = (px[i * 4 + ch] / peak - mean[ch]) / std[ch];
+      const res = await session.run({ [session.inputNames[0]]: new ort.Tensor('float32', input, [1, 3, NET, NET]) });
+      const out = res[session.outputNames[0]].data;
+      if (token !== cutToken) return;
+      let lo = Infinity, hi = -Infinity;
+      for (let i = 0; i < n; i++) { if (out[i] < lo) lo = out[i]; if (out[i] > hi) hi = out[i]; }
+      const img = x.createImageData(NET, NET);
+      for (let i = 0; i < n; i++) { const v = ((out[i] - lo) / (hi - lo || 1)) * 255; img.data[i * 4] = img.data[i * 4 + 1] = img.data[i * 4 + 2] = v; img.data[i * 4 + 3] = 255; }
+      x.putImageData(img, 0, 0);
+      const big = document.createElement('canvas'); big.width = w; big.height = h;
+      const bx = big.getContext('2d', { willReadFrequently: true });
+      bx.imageSmoothingEnabled = true; bx.imageSmoothingQuality = 'high';
+      bx.drawImage(c, 0, 0, w, h);
+      const up = bx.getImageData(0, 0, w, h).data;
+      rawCut = new Float32Array(w * h);
+      let kept = 0;
+      for (let i = 0; i < rawCut.length; i++) { rawCut[i] = up[i * 4] / 255; if (rawCut[i] > 0.5) kept++; }
+      const ms = Math.round(performance.now() - t1), share = Math.round(kept / rawCut.length * 100);
+      const first = tLoad > 200 ? ` Model download and start-up took ${(tLoad / 1000).toFixed(1)} s, once.` : '';
+      sayCut(`Cut-out took ${ms} ms on this device and kept ${share}% of the picture.${first}` + (share < 3 || share > 97 ? ' That is nearly all or nothing: the model did not find a clear subject.' : ''));
+      schedule();
+    } catch (err) {
+      if (token !== cutToken) return;
+      rawCut = null;
+      sayCut(`The automatic cut-out could not run here (${(err && err.message) || 'unknown error'}). Focus still works.`, true);
+      schedule();
+    }
+  }
+  function cutChanged() {
+    if ($('cut').checked) { if (rawCut && src && rawCut.length === src.w * src.h) schedule(); else runCut(); }
+    else { cutToken++; sayCut('Off. The model stays loaded, so turning it back on is quick.'); schedule(); }
+  }
+
+  // ---- loading a picture -------------------------------------------------------
+  function take(drawable, sw, sh) {
+    const k = Math.min(1, MAX / Math.max(sw, sh));
+    const w = Math.max(8, Math.round(sw * k)), h = Math.max(8, Math.round(sh * k));
+    cv.orig.width = w; cv.orig.height = h;
+    const ctx = cv.orig.getContext('2d', { willReadFrequently: true });
+    ctx.drawImage(drawable, 0, 0, w, h);
+    const rgba = ctx.getImageData(0, 0, w, h).data;
+    const lum = new Float32Array(w * h);
+    for (let i = 0; i < lum.length; i++) lum[i] = (0.299 * rgba[i * 4] + 0.587 * rgba[i * 4 + 1] + 0.114 * rgba[i * 4 + 2]) / 255;
+    const sorted = Float32Array.from(lum).sort();
+    const lo = sorted[Math.floor(sorted.length * 0.02)], hi = sorted[Math.floor(sorted.length * 0.98)];
+    const span = Math.max(0.08, hi - lo);
+    for (let i = 0; i < lum.length; i++) lum[i] = Math.min(1, Math.max(0, (lum[i] - lo) / span));
+    src = { w, h, rgba, lum };
+    rawCut = null; cutToken++;
+    schedule();
+    if ($('cut').checked) runCut();
+  }
+
+  async function loadFile(file) {
+    if (!file) return;
+    if (!/^image\//.test(file.type) && !/\.(heic|heif|jpe?g|png|webp)$/i.test(file.name || '')) { say('That file is not a picture. Choose a JPEG, PNG or WebP photo.', true); return; }
+    say('Reading the photo…');
+    try {
+      let bmp;
+      try { bmp = await createImageBitmap(file, { imageOrientation: 'from-image' }); }
+      catch { bmp = await createImageBitmap(file); }
+      take(bmp, bmp.width, bmp.height);
+      say(`Showing ${file.name || 'your photo'} (${bmp.width} × ${bmp.height}). It has not left this browser.`);
+      if (bmp.close) bmp.close();
+    } catch {
+      say('This browser could not open that photo. iPhone HEIC photos open in Safari; elsewhere, export it as a JPEG first.', true);
+    }
+  }
+
+  // A drawn still life so the page shows something before a photo is chosen.
+  function drawSample() {
+    const c = document.createElement('canvas'); c.width = 960; c.height = 720;
+    const x = c.getContext('2d');
+    const bg = x.createLinearGradient(0, 0, 0, 720); bg.addColorStop(0, '#d9c7a8'); bg.addColorStop(0.55, '#c9b08a'); bg.addColorStop(0.56, '#7a5a3c'); bg.addColorStop(1, '#5d432b');
+    x.fillStyle = bg; x.fillRect(0, 0, 960, 720);
+    // a busy background: shelf lines and jars, so there is something to remove
+    x.strokeStyle = '#8c7350'; x.lineWidth = 6; for (const y of [90, 210]) { x.beginPath(); x.moveTo(0, y); x.lineTo(960, y); x.stroke(); }
+    for (let i = 0; i < 9; i++) { x.fillStyle = ['#7b8f5a', '#a8643c', '#5f7f9a', '#b89a3e'][i % 4]; x.fillRect(40 + i * 104, 100 + (i % 2) * 14, 56, 96 - (i % 2) * 14); x.fillStyle = '#e9dfc7'; x.fillRect(48 + i * 104, 130, 40, 26); }
+    x.fillStyle = 'rgba(40,25,10,.28)'; x.beginPath(); x.ellipse(470, 580, 330, 70, 0, 0, 7); x.fill();
+    const pl = x.createRadialGradient(440, 490, 40, 460, 520, 330); pl.addColorStop(0, '#fbfaf4'); pl.addColorStop(0.8, '#ebe6da'); pl.addColorStop(1, '#cfc8b6');
+    x.fillStyle = pl; x.beginPath(); x.ellipse(460, 530, 320, 120, 0, 0, 7); x.fill();
+    x.strokeStyle = '#bdb49f'; x.lineWidth = 3; x.beginPath(); x.ellipse(460, 525, 235, 82, 0, 0, 7); x.stroke();
+    for (let i = 0; i < 46; i++) {
+      const a = i * 0.71, r = 30 + (i % 9) * 14;
+      x.strokeStyle = i % 3 ? '#e8c36b' : '#d7a94a'; x.lineWidth = 9;
+      x.beginPath(); x.ellipse(450 + Math.cos(a) * 26, 490 + Math.sin(a) * 9, r * 1.5, r * 0.5, a * 0.35, 0.3, 5.2); x.stroke();
+    }
+    x.fillStyle = '#b8321f'; x.beginPath(); x.ellipse(460, 460, 96, 34, 0.1, 0, 7); x.fill();
+    x.fillStyle = '#d8553a'; x.beginPath(); x.ellipse(440, 452, 46, 14, 0.1, 0, 7); x.fill();
+    x.fillStyle = '#2f7a3a'; for (const [bx, by, br] of [[495, 438, 0.5], [472, 424, -0.4], [518, 456, 1.1]]) { x.beginPath(); x.ellipse(bx, by, 30, 13, br, 0, 7); x.fill(); }
+    take(c, 960, 720);
+    say('Showing a drawn example with a shelf behind the plate, not a real photo. Try your own: real photos are where the cut-out is tested.');
+  }
+
+  // ---- wiring ------------------------------------------------------------------
+  $('choose').addEventListener('click', () => $('file').click());
+  $('file').addEventListener('change', (e) => { loadFile(e.target.files[0]); e.target.value = ''; });
+  $('sample').addEventListener('click', drawSample);
+  $('reset').addEventListener('click', () => { sliders.forEach((s) => { $(s).value = defaults[s]; }); schedule(); });
+  sliders.forEach((s) => $(s).addEventListener('input', schedule));
+  $('cut').addEventListener('change', cutChanged);
+  const page = $('page');
+  ['dragenter', 'dragover'].forEach((t) => document.addEventListener(t, (e) => { e.preventDefault(); page.classList.add('drop'); }));
+  ['dragleave', 'drop'].forEach((t) => document.addEventListener(t, (e) => { e.preventDefault(); page.classList.remove('drop'); }));
+  document.addEventListener('drop', (e) => { const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if (f) loadFile(f); });
+  document.addEventListener('paste', (e) => {
+    const item = [...(e.clipboardData ? e.clipboardData.items : [])].find((i) => i.type && i.type.startsWith('image/'));
+    if (item) loadFile(item.getAsFile());
+  });
+  drawSample();
+})();
+</script>
