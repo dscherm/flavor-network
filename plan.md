@@ -3178,7 +3178,7 @@ owner's choice among the three options was not clear and has been asked.)
   "id": "SHOP-7",
   "title": "Shopping list: the panel button adds the optional items too; a dish's flavourings start unticked",
   "category": "feature",
-  "passes": false,
+  "passes": true,
   "description": "Two owner rulings on BACKLOG.md SHOP-OPEN-2 and SHOP-OPEN-3. (1) On a What do I need? panel, 'Add to shopping list' (src/components/AddToShoppingList.jsx) now adds what 'Copy shopping list' copies: the missing 'You need' lines AND the optional ones ('Even better with', 'Nice to have'), by the same merge rule, so the two buttons on one panel agree. The summary says how many were optional. Items the cook already has are still skipped, and basics follow the existing rule. (2) In the list's 'Add from a recipe' preview (ShoppingRecipeAdd.jsx, classifyLines in src/data/shoppingRecipes.js), a dish's flavourings (the Cookbook's split of mains and flavourings) start UNTICKED under their own short heading, so a tap adds them; mains the cook lacks stay ticked. Cocktails and sauces have no such split and are unchanged. State plainly in the report whether the two doors now add the same rows by default for the same dish, and if not, exactly how they differ (the panel adds optional items by ruling 1; the preview leaves flavourings unticked by ruling 2) so the owner can see it. Update docs/shopping-list.md and move both entries in BACKLOG.md to decided with the owner's words.",
   "acceptance": [
     "On each of the three What do I need? panels, the rows added equal the lines Copy shopping list copies (tests on a real cocktail, sauce and dish with a kitchen fixture); the summary counts the optional ones",
