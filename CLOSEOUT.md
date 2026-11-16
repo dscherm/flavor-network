@@ -49,7 +49,8 @@ Tag: `v1.16.0` · Bundle: `assets/index-DGHmDQpB.js` · Deployed: 2026-11-16 UTC
 - **Flavor charts mean something now.** Every chart (Recipe Notebook Flavor Profiles, the three Invent panels, the shared recipe page, the share pictures and link previews) is built from a taste label and aroma notes for each ingredient, weighted by how much of it the recipe uses. It no longer averages the model's per-ingredient numbers, which gave one identical row to half the ingredients (a Negroni used to chart sweet, then sour). On the test recipes it now leads with the right taste on 36 of 41 (up from 20), and on 19 of 20 held-back recipes; the aroma half reads right on 30 of 30 tuned and 9 of 10 held-back. It is a guide, not a taste test, and says so in plain words wherever it is drawn. The labels, strengths and aroma lines are hand-written judgement by an AI assistant, not checked by a professional (`docs/flavor-profile.md`, "Where the charts stand").
 - **Six tastes, with Heat.** The chart has sweet, sour, bitter, salty, umami and heat, plus eleven aromas (fruity, floral, green, woody, spice, creamy, toasty, nutty, earthy, smoky, savory). A dash of bitters no longer weighs as much as two ounces of gin; a salt rim, a twist or a sprig in a drink's garnish counts. Kilograms are read as kilograms.
 - **Public charts are back** on the shared page and the cards (`SHARE_CHARTS_ENABLED`, hidden 2026-11-15 and switched on again here, still a one-line switch). The shared page downloads only the small label file (about 20 KB compressed) for its chart, not the 1.4 MB model file.
-- **Ingredient list cleaned:** 3,891 ingredients in the generated data are now 3,674 as the app loads them (216 spelling and preparation variants merged into their plain name, 29 non-food entries hidden, 28 bar and mixer entries added), with 123 branded or packaged items kept findable by typing but never suggested. Every ingredient has one category from a single scheme (the old `umami` category is now `savory seasoning`), and taste labels have ten words (neutral and rich added; starches, plain fats and spirits no longer read as sweet).
+- **Ingredient list cleaned:** 3,891 ingredients in the generated data are now 3,674 as the app loads them (216 spelling and preparation variants merged into their plain name, 29 non-food entries hidden, 28 bar and mixer entries added; pairings 95,992 in the file, 92,389 as loaded), with 123 branded or packaged items kept findable by typing but never suggested. Every ingredient has one category from a single scheme (the old `umami` category is now `savory seasoning`), and taste labels have ten words (neutral and rich added; starches, plain fats and spirits no longer read as sweet).
+- Not user-visible (DATA-8): the correction tables are mirrored into the dataset pipeline's inputs (`proDataset/data/curation.json`, 186 alias entries added to `synonyms.json`, 12 existing synonym entries re-pointed because they contradicted the tables) and the three blend steps read them, so a future rebuild agrees with the app. The pipeline was not run; a test fails when the tables and the mirror drift. `docs/data-quality.md` has the whole series' before and after and what the mirror does and does not guarantee. The full rebuild is deferred (BACKLOG.md).
 - Not user-visible: the placeholder detection from FLAVOR-2 was removed because nothing reads the model's values for a recipe chart any more; the fallback that matches a recipe to cocktails and sauces by aroma now uses the new aroma profile.
 - To deploy: hosting, plus the `sharePreview` and `shareCard` functions (their share index, card bars and card layout changed; the card layout now shows Taste and Aroma groups). `firestore.rules` unchanged. Not deployed.
 
@@ -57,7 +58,9 @@ Tag: `v1.16.0` · Bundle: `assets/index-DGHmDQpB.js` · Deployed: 2026-11-16 UTC
 
 A browser app for cooks: 3,891 ingredients, 95,992 scored pairings
 (68,417 observed in 2.2 M recipes, 27,575 model-predicted), 441 cocktails in six *Cocktail Codex*
-families, 77 sauces in ten mother families, an on-device set-completion
+families (these are the counts as shipped at v1.0.0, and the raw generated-file counts for ingredients
+and pairings; the app now loads 3,674 ingredients and 92,389 pairings and has 439 cocktails in seven
+families, see the unreleased entry above), 77 sauces in ten mother families, an on-device set-completion
 model that proposes the next ingredient, and a molecular taste/odor model
 that explains *why*. Four labs plus a make-a-recipe flow and a cookbook,
 with optional Google/Apple sign-in to sync it. The README describes the
@@ -123,7 +126,7 @@ tag. No features. In order of consequence:
   numbers and the experiments not to repeat (focal loss, DREAM olfaction,
   SMILES enumeration).
 - **The 3D Network view is parked.** Reachable at `?path=explore`, not
-  linked from the UI. 3,863 of 3,891 ingredients have layout positions;
+  linked from the UI. 3,863 of the 3,891 ingredients in the raw generated file have layout positions;
   ~70 compound foods (mayonnaise, vinaigrette) have no molecular profile.
 - **Salty and spicy heads are never surfaced** — structurally limited
   (ionic / TRPV1 mechanisms, not molecular structure).

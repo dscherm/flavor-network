@@ -54,6 +54,16 @@ The Cloud Function `scrapeRecipe` exists and works for schema.org recipes. Open:
 - Widening the 3D network universe from 3,390 to the 4,311 ingredients in `pairings.json`
 - Do NOT retry: focal loss, DREAM olfaction ingest, SMILES-enumeration augmentation, umamiinfo.com scrape
 
+## Full dataset rebuild with the corrections in its inputs (2026-11-16, DATA-8; deferred option (c) of the data clean-up)
+- DATA-REBUILD Re-run `proDataset` (`npm run all`: 01 to 19) so the generated ingredient and pairing files come out already clean, instead of being corrected on every load. The corrections are already in the pipeline's inputs (`proDataset/data/curation.json`, the alias entries in `synonyms.json`; steps 01, 05 and 07 read them) but nothing has been rebuilt, so the result is unproven.
+  - Needs: the 2.3 GB RecipeNLG file (`proDataset/raw/recipenlg.csv`, ignored by git), FlavorDB / TheMealDB / TheCocktailDB fetched again (steps 02 to 04), about 110 MB of intermediates, and several hours.
+  - Compare before trusting: ingredient count against the 3,674 the app loads today (the rebuild should land near it, not exactly: 01 normalises scores over the recipes left after hiding), pairings against 92,389, and every name in `public/proDataset/ingredients.json` that is not an alias or hidden against the new file.
+  - Then regenerate everything keyed by ingredient name (about 30 files: `flavor_positions*.json`, `gnn_positions*.json`, `gnn_entropy*.json`, `gnn_compounds.json`, `pca_positions.json`, the cluster files, `compound_foods.json`, `everyday_pairs.json`, `pairings.bin`) and retrain or re-export the on-device set-completion and quantity models, whose vocabulary is the ingredient list. This is the part with real risk to suggestions; it also collides with the standing "no new model training" rule.
+  - After it works, the app-side tables can shrink (an alias no longer needs applying on load once its variant is gone) but keep the drift test until they are empty.
+  - Known contradictions already resolved in `synonyms.json` (12 entries re-pointed, listed in `docs/data-quality.md`) were pipeline entries that folded a name the curation keeps as its own ingredient (chicken breast, roma tomato, rye whiskey, pepper).
+- DATA-LOWCOUNT About 140 ingredients are seen in fewer than five source recipes. Kept on purpose; pruning them is part of the rebuild above, not of the load-time layer.
+- DATA-CODEX-PIPELINE The cocktail codex is built by `proDataset/cocktails_v2/scripts/09-emit-codex-v2.cjs` from a corpus that is not in the repository, so its corrections (`cocktailOverrides.json`) stay load-time only.
+
 ## iOS / App Store — ARCHIVED, not backlog
 - IOS-NATIVE-DEPLOY, WEBLINK-12 (native Google + Apple sign-in)
   Archived on branch `archive/ios`. See `CLOSEOUT.md` § "Why web-only".

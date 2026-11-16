@@ -1,0 +1,2871 @@
+{
+  "_comment": "Mirror of src/data/curation/*.json for the pipeline (read by 01-parse-recipenlg.js, 05-blend.js, 07-blend-v2.js). Written by scripts/syncCurationMirror.mjs; do not edit by hand. A test fails when it drifts from the app tables.",
+  "hidden": {
+    "beef flavor": {
+      "reason": "a bare flavour word: the tail of a flavoured mix, no product named"
+    },
+    "butter flavor": {
+      "reason": "a bare flavour word: the tail of \"butter flavor shortening\" or an imitation extract, no product named"
+    },
+    "buttery": {
+      "reason": "a bare adjective, not an ingredient"
+    },
+    "cake paraffin": {
+      "reason": "wax used on the cake pan or board, not food"
+    },
+    "cheesecloth": {
+      "reason": "kitchen equipment, not food"
+    },
+    "chicken flavor": {
+      "reason": "a bare flavour word: the tail of a flavoured mix, no product named"
+    },
+    "chocolate flavor": {
+      "reason": "a bare flavour word: the tail of a flavoured product, no product named"
+    },
+    "cookie cutter": {
+      "reason": "kitchen equipment, not food"
+    },
+    "cookie sheet": {
+      "reason": "baking equipment, not food"
+    },
+    "cream maker": {
+      "reason": "kitchen equipment (an ice cream maker), not food"
+    },
+    "cream-style": {
+      "reason": "a bare adjective (as in cream-style corn), not an ingredient"
+    },
+    "cupcake liner": {
+      "reason": "baking supply, not food"
+    },
+    "epsom salt": {
+      "reason": "bath salt, not food"
+    },
+    "european": {
+      "reason": "a bare adjective (European cucumber, European-style butter), not an ingredient"
+    },
+    "juice from": {
+      "reason": "a bare fragment of \"juice from 1 lemon\", not an ingredient"
+    },
+    "kitchen twine": {
+      "reason": "kitchen supply, not food"
+    },
+    "leaf": {
+      "reason": "a bare word, not an ingredient"
+    },
+    "lemon juice from": {
+      "reason": "a bare fragment of \"lemon juice from 1 lemon\", not an ingredient"
+    },
+    "milky": {
+      "reason": "a bare adjective, not an ingredient"
+    },
+    "nacho cheese flavor": {
+      "reason": "a bare flavour word: the tail of a flavoured snack, no product named"
+    },
+    "orange flavored": {
+      "reason": "a bare adjective fragment, not an ingredient"
+    },
+    "reserved juice": {
+      "reason": "a bare fragment (juice set aside from a can or a step), not an ingredient"
+    },
+    "root": {
+      "reason": "a bare word, not an ingredient"
+    },
+    "salted": {
+      "reason": "a bare adjective, not an ingredient"
+    },
+    "strawberry flavored": {
+      "reason": "a bare adjective fragment of \"strawberry flavored gelatin\", not an ingredient"
+    },
+    "sugar-free": {
+      "reason": "a bare adjective, not an ingredient"
+    },
+    "unsalted": {
+      "reason": "a bare adjective (a butter or nut word), not an ingredient"
+    },
+    "vanilla-flavored": {
+      "reason": "a bare adjective fragment, not an ingredient"
+    },
+    "with juice": {
+      "reason": "a bare fragment (\"with juice\" of a canned fruit), not an ingredient"
+    }
+  },
+  "packaged": {
+    "angel food cake mix": {
+      "reason": "boxed cake mix: a packaged shortcut, searchable, never suggested"
+    },
+    "apricot jello": {
+      "reason": "Jell-O gelatin dessert: a branded product, searchable, never suggested"
+    },
+    "baking mix": {
+      "reason": "boxed baking mix: a packaged shortcut, searchable, never suggested"
+    },
+    "banana instant pudding": {
+      "reason": "boxed instant pudding mix: a packaged shortcut, searchable, never suggested"
+    },
+    "bean soup mix": {
+      "reason": "boxed soup mix: a packaged shortcut, searchable, never suggested"
+    },
+    "biscuit baking mix": {
+      "reason": "boxed biscuit mix: a packaged shortcut, searchable, never suggested"
+    },
+    "biscuit/baking mix": {
+      "reason": "boxed biscuit mix: a packaged shortcut, searchable, never suggested"
+    },
+    "black cherry jello": {
+      "reason": "Jell-O gelatin dessert: a branded product, searchable, never suggested"
+    },
+    "black raspberry jello": {
+      "reason": "Jell-O gelatin dessert: a branded product, searchable, never suggested"
+    },
+    "blackberry jello": {
+      "reason": "Jell-O gelatin dessert: a branded product, searchable, never suggested"
+    },
+    "bread mix": {
+      "reason": "boxed bread mix: a packaged shortcut, searchable, never suggested"
+    },
+    "bread stuffing mix": {
+      "reason": "boxed bread mix: a packaged shortcut, searchable, never suggested"
+    },
+    "butter cake mix": {
+      "reason": "boxed cake mix: a packaged shortcut, searchable, never suggested"
+    },
+    "buttermilk baking mix": {
+      "reason": "boxed baking mix: a packaged shortcut, searchable, never suggested"
+    },
+    "buttermilk biscuit mix": {
+      "reason": "boxed biscuit mix: a packaged shortcut, searchable, never suggested"
+    },
+    "buttermilk pancake mix": {
+      "reason": "boxed pancake mix: a packaged shortcut, searchable, never suggested"
+    },
+    "butterscotch instant pudding": {
+      "reason": "boxed instant pudding mix: a packaged shortcut, searchable, never suggested"
+    },
+    "butterscotch pudding mix": {
+      "reason": "boxed instant pudding mix: a packaged shortcut, searchable, never suggested"
+    },
+    "cake mix": {
+      "reason": "boxed cake mix: a packaged shortcut, searchable, never suggested"
+    },
+    "campbell's cream": {
+      "reason": "Campbell's soup brand: a branded product, searchable, never suggested"
+    },
+    "cherry flavored gelatin": {
+      "reason": "flavoured gelatin dessert mix (Jell-O style): searchable, never suggested"
+    },
+    "cherry jello": {
+      "reason": "Jell-O gelatin dessert: a branded product, searchable, never suggested"
+    },
+    "chicken flavored rice": {
+      "reason": "boxed flavoured rice mix (Rice-A-Roni style): searchable, never suggested"
+    },
+    "chicken gravy mix": {
+      "reason": "boxed gravy mix: a packaged shortcut, searchable, never suggested"
+    },
+    "chicken stuffing mix": {
+      "reason": "boxed stuffing mix: a packaged shortcut, searchable, never suggested"
+    },
+    "chili mix": {
+      "reason": "boxed chili mix: a packaged shortcut, searchable, never suggested"
+    },
+    "chili seasoning mix": {
+      "reason": "boxed chili mix: a packaged shortcut, searchable, never suggested"
+    },
+    "chocolate cake mix": {
+      "reason": "boxed chocolate mix: a packaged shortcut, searchable, never suggested"
+    },
+    "chocolate fudge cake mix": {
+      "reason": "boxed chocolate mix: a packaged shortcut, searchable, never suggested"
+    },
+    "chocolate instant pudding": {
+      "reason": "boxed instant pudding mix: a packaged shortcut, searchable, never suggested"
+    },
+    "chocolate mix": {
+      "reason": "boxed chocolate mix: a packaged shortcut, searchable, never suggested"
+    },
+    "chocolate pudding mix": {
+      "reason": "boxed instant pudding mix: a packaged shortcut, searchable, never suggested"
+    },
+    "coating mix": {
+      "reason": "boxed coating mix: a packaged shortcut, searchable, never suggested"
+    },
+    "coconut instant pudding": {
+      "reason": "boxed instant pudding mix: a packaged shortcut, searchable, never suggested"
+    },
+    "condensed french onion soup": {
+      "reason": "canned condensed soup (condensed french onion): a ready-made sauce base, searchable, never suggested"
+    },
+    "condensed onion soup": {
+      "reason": "canned condensed soup (condensed onion): a ready-made sauce base, searchable, never suggested"
+    },
+    "cool whip": {
+      "reason": "Cool Whip whipped topping: a branded product, searchable, never suggested"
+    },
+    "cool whip lite": {
+      "reason": "Cool Whip whipped topping: a branded product, searchable, never suggested"
+    },
+    "cornbread mix": {
+      "reason": "boxed cornbread mix: a packaged shortcut, searchable, never suggested"
+    },
+    "cornbread stuffing mix": {
+      "reason": "boxed cornbread mix: a packaged shortcut, searchable, never suggested"
+    },
+    "cream of asparagus soup": {
+      "reason": "canned condensed soup (cream of asparagus): a ready-made sauce base, searchable, never suggested"
+    },
+    "cream of broccoli soup": {
+      "reason": "canned condensed soup (cream of broccoli): a ready-made sauce base, searchable, never suggested"
+    },
+    "cream of celery": {
+      "reason": "canned condensed soup (cream of celery): a ready-made sauce base, searchable, never suggested"
+    },
+    "cream of celery soup": {
+      "reason": "canned condensed soup (cream of celery): a ready-made sauce base, searchable, never suggested"
+    },
+    "cream of chicken": {
+      "reason": "canned condensed soup (cream of chicken): a ready-made sauce base, searchable, never suggested"
+    },
+    "cream of chicken soup": {
+      "reason": "canned condensed soup (cream of chicken): a ready-made sauce base, searchable, never suggested"
+    },
+    "cream of mushroom": {
+      "reason": "canned condensed soup (cream of mushroom): a ready-made sauce base, searchable, never suggested"
+    },
+    "cream of mushroom soup": {
+      "reason": "canned condensed soup (cream of mushroom): a ready-made sauce base, searchable, never suggested"
+    },
+    "cream of onion soup": {
+      "reason": "canned condensed soup (cream of onion): a ready-made sauce base, searchable, never suggested"
+    },
+    "cream of potato soup": {
+      "reason": "canned condensed soup (cream of potato): a ready-made sauce base, searchable, never suggested"
+    },
+    "cream of shrimp soup": {
+      "reason": "canned condensed soup (cream of shrimp): a ready-made sauce base, searchable, never suggested"
+    },
+    "cream of tomato soup": {
+      "reason": "canned condensed soup (cream of tomato): a ready-made sauce base, searchable, never suggested"
+    },
+    "crisco oil": {
+      "reason": "Crisco shortening and oil brand: a branded product, searchable, never suggested"
+    },
+    "dream whip": {
+      "reason": "Dream Whip topping mix: a branded product, searchable, never suggested"
+    },
+    "dream whip topping mix": {
+      "reason": "Dream Whip topping mix: a branded product, searchable, never suggested"
+    },
+    "flavored gelatin": {
+      "reason": "flavoured gelatin dessert mix (Jell-O style): searchable, never suggested"
+    },
+    "flavored yogurt": {
+      "reason": "a commercial flavoured yogurt, not a pairing ingredient: searchable, never suggested"
+    },
+    "fritos corn chip": {
+      "reason": "Fritos corn chip: a branded product, searchable, never suggested"
+    },
+    "grape jello": {
+      "reason": "Jell-O gelatin dessert: a branded product, searchable, never suggested"
+    },
+    "hidden valley dressing": {
+      "reason": "Hidden Valley ranch dressing: a branded product, searchable, never suggested"
+    },
+    "instant butterscotch pudding": {
+      "reason": "boxed instant pudding mix: a packaged shortcut, searchable, never suggested"
+    },
+    "instant chocolate pudding": {
+      "reason": "boxed instant pudding mix: a packaged shortcut, searchable, never suggested"
+    },
+    "instant chocolate pudding mix": {
+      "reason": "boxed instant pudding mix: a packaged shortcut, searchable, never suggested"
+    },
+    "instant coconut cream pudding": {
+      "reason": "boxed instant pudding mix: a packaged shortcut, searchable, never suggested"
+    },
+    "instant coconut pudding": {
+      "reason": "boxed instant pudding mix: a packaged shortcut, searchable, never suggested"
+    },
+    "instant lemon pudding": {
+      "reason": "boxed instant pudding mix: a packaged shortcut, searchable, never suggested"
+    },
+    "instant pistachio pudding": {
+      "reason": "boxed instant pudding mix: a packaged shortcut, searchable, never suggested"
+    },
+    "instant pistachio pudding mix": {
+      "reason": "boxed instant pudding mix: a packaged shortcut, searchable, never suggested"
+    },
+    "instant vanilla pudding": {
+      "reason": "boxed instant pudding mix: a packaged shortcut, searchable, never suggested"
+    },
+    "instant vanilla pudding mix": {
+      "reason": "boxed instant pudding mix: a packaged shortcut, searchable, never suggested"
+    },
+    "italian salad dressing mix": {
+      "reason": "boxed dressing mix: a packaged shortcut, searchable, never suggested"
+    },
+    "jalapeno cheez whiz": {
+      "reason": "Cheez Whiz cheese spread: a branded product, searchable, never suggested"
+    },
+    "jello gelatin": {
+      "reason": "Jell-O gelatin dessert: a branded product, searchable, never suggested"
+    },
+    "knorr chicken": {
+      "reason": "Knorr bouillon and seasoning brand: a branded product, searchable, never suggested"
+    },
+    "leek soup mix": {
+      "reason": "boxed soup mix: a packaged shortcut, searchable, never suggested"
+    },
+    "lemon cake mix": {
+      "reason": "boxed cake mix: a packaged shortcut, searchable, never suggested"
+    },
+    "lemon flavored gelatin": {
+      "reason": "flavoured gelatin dessert mix (Jell-O style): searchable, never suggested"
+    },
+    "lemon instant pudding": {
+      "reason": "boxed instant pudding mix: a packaged shortcut, searchable, never suggested"
+    },
+    "lemon instant pudding mix": {
+      "reason": "boxed instant pudding mix: a packaged shortcut, searchable, never suggested"
+    },
+    "lemon jello": {
+      "reason": "Jell-O gelatin dessert: a branded product, searchable, never suggested"
+    },
+    "lemon pudding mix": {
+      "reason": "boxed instant pudding mix: a packaged shortcut, searchable, never suggested"
+    },
+    "lemon supreme cake mix": {
+      "reason": "boxed cake mix: a packaged shortcut, searchable, never suggested"
+    },
+    "lime flavored gelatin": {
+      "reason": "flavoured gelatin dessert mix (Jell-O style): searchable, never suggested"
+    },
+    "lime jello": {
+      "reason": "Jell-O gelatin dessert: a branded product, searchable, never suggested"
+    },
+    "mcbutter": {
+      "reason": "a brand-name butter blend: a branded product, searchable, never suggested"
+    },
+    "mushroom gravy mix": {
+      "reason": "boxed gravy mix: a packaged shortcut, searchable, never suggested"
+    },
+    "nacho cheese dorito": {
+      "reason": "Doritos snack chip: a branded product, searchable, never suggested"
+    },
+    "nilla vanilla wafer": {
+      "reason": "Nilla vanilla wafers: a branded product, searchable, never suggested"
+    },
+    "nutella": {
+      "reason": "Nutella hazelnut spread: a branded product, searchable, never suggested"
+    },
+    "onion gravy mix": {
+      "reason": "boxed gravy mix: a packaged shortcut, searchable, never suggested"
+    },
+    "onion soup mix": {
+      "reason": "boxed soup mix: a packaged shortcut, searchable, never suggested"
+    },
+    "orange cake mix": {
+      "reason": "boxed cake mix: a packaged shortcut, searchable, never suggested"
+    },
+    "orange flavored gelatin": {
+      "reason": "flavoured gelatin dessert mix (Jell-O style): searchable, never suggested"
+    },
+    "orange jello": {
+      "reason": "Jell-O gelatin dessert: a branded product, searchable, never suggested"
+    },
+    "oreo cookie": {
+      "reason": "Oreo cookie product: a branded product, searchable, never suggested"
+    },
+    "oreo cream biscuit": {
+      "reason": "Oreo cookie product: a branded product, searchable, never suggested"
+    },
+    "oreo pie crust": {
+      "reason": "Oreo cookie product: a branded product, searchable, never suggested"
+    },
+    "oscar mayer bacon": {
+      "reason": "Oscar Mayer bacon: a branded product, searchable, never suggested"
+    },
+    "pancake mix": {
+      "reason": "boxed pancake mix: a packaged shortcut, searchable, never suggested"
+    },
+    "peach jello": {
+      "reason": "Jell-O gelatin dessert: a branded product, searchable, never suggested"
+    },
+    "pistachio instant pudding": {
+      "reason": "boxed instant pudding mix: a packaged shortcut, searchable, never suggested"
+    },
+    "pistachio pudding mix": {
+      "reason": "boxed instant pudding mix: a packaged shortcut, searchable, never suggested"
+    },
+    "raspberry jello": {
+      "reason": "Jell-O gelatin dessert: a branded product, searchable, never suggested"
+    },
+    "recipe secrets onion soup mix": {
+      "reason": "boxed soup mix: a packaged shortcut, searchable, never suggested"
+    },
+    "ro-tel tomatoe": {
+      "reason": "Ro-Tel canned tomatoes with chiles: a branded product, searchable, never suggested"
+    },
+    "salad dressing mix": {
+      "reason": "boxed dressing mix: a packaged shortcut, searchable, never suggested"
+    },
+    "stove top dressing": {
+      "reason": "Stove Top stuffing: a branded product, searchable, never suggested"
+    },
+    "strawberry flavored gelatin": {
+      "reason": "flavoured gelatin dessert mix (Jell-O style): searchable, never suggested"
+    },
+    "strawberry jello": {
+      "reason": "Jell-O gelatin dessert: a branded product, searchable, never suggested"
+    },
+    "swiss chocolate cake mix": {
+      "reason": "boxed chocolate mix: a packaged shortcut, searchable, never suggested"
+    },
+    "tabasco pepper sauce": {
+      "reason": "Tabasco hot sauce brand (a cook may also write it as hot sauce): a branded product, searchable, never suggested"
+    },
+    "tabasco sauce": {
+      "reason": "Tabasco hot sauce brand (a cook may also write it as hot sauce): a branded product, searchable, never suggested"
+    },
+    "turkey gravy mix": {
+      "reason": "boxed gravy mix: a packaged shortcut, searchable, never suggested"
+    },
+    "uncle ben's rice": {
+      "reason": "Uncle Ben's rice brand: a branded product, searchable, never suggested"
+    },
+    "vanilla cake mix": {
+      "reason": "boxed cake mix: a packaged shortcut, searchable, never suggested"
+    },
+    "vanilla instant pudding": {
+      "reason": "boxed instant pudding mix: a packaged shortcut, searchable, never suggested"
+    },
+    "vanilla instant pudding mix": {
+      "reason": "boxed instant pudding mix: a packaged shortcut, searchable, never suggested"
+    },
+    "vanilla pudding mix": {
+      "reason": "boxed instant pudding mix: a packaged shortcut, searchable, never suggested"
+    },
+    "vegetable soup mix": {
+      "reason": "boxed soup mix: a packaged shortcut, searchable, never suggested"
+    },
+    "velveeta cheese": {
+      "reason": "Velveeta processed cheese product: a branded product, searchable, never suggested"
+    },
+    "velveeta reduced fat cheese": {
+      "reason": "Velveeta processed cheese product: a branded product, searchable, never suggested"
+    },
+    "white cake mix": {
+      "reason": "boxed cake mix: a packaged shortcut, searchable, never suggested"
+    },
+    "yellow cake mix": {
+      "reason": "boxed cake mix: a packaged shortcut, searchable, never suggested"
+    }
+  },
+  "categoryOverrides": {
+    "apple cider": {
+      "category": "juice",
+      "reason": "apple cider in a recipe is pressed apple juice, not an alcoholic drink; filed under 'liquid', the scheme calls it juice"
+    },
+    "apple juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "apple juice concentrate": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "apricot juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "arrowroot flour": {
+      "category": "grain",
+      "reason": "a flour filed under 'thickener'; every flour is grain (a roux or thickener slot finds flour by its name)"
+    },
+    "beer": {
+      "category": "beer",
+      "reason": "beer or hard cider filed under 'liquid'; the scheme has a beer category"
+    },
+    "beet juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "bilberry wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "blackberry wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "blueberry juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "botrytized wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "burgundy wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "cabernet sauvignon wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "cane juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "carrot juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "champagne": {
+      "category": "wine",
+      "reason": "a sparkling wine filed under 'mixer'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "chardonnay wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "cherry juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "chianti wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "chinese cooking wine": {
+      "category": "wine",
+      "reason": "a cooking wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "chinese rice wine": {
+      "category": "wine",
+      "reason": "a rice wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "chinese wine": {
+      "category": "wine",
+      "reason": "a rice wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "cider": {
+      "category": "beer",
+      "reason": "beer or hard cider filed under 'liquid'; the scheme has a beer category"
+    },
+    "citrus juice": {
+      "category": "citrus",
+      "reason": "a citrus juice filed under 'liquid'; citrus juices stay in citrus because the sour slots read that category"
+    },
+    "clamato juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "cooking wine": {
+      "category": "wine",
+      "reason": "a cooking wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "cranapple juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "cranberry juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "cranberry juice cocktail": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "cranberry juice concentrate": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "cranberry-apple juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "cranberry-raspberry juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "cream sherry": {
+      "category": "wine",
+      "reason": "a fortified wine filed under 'liqueur'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "cucumber juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "dark beer": {
+      "category": "beer",
+      "reason": "beer or hard cider filed under 'liquid'; the scheme has a beer category"
+    },
+    "dessert wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "dry red wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "dry sherry": {
+      "category": "wine",
+      "reason": "a fortified wine filed under 'liqueur'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "dry wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "flat beer": {
+      "category": "beer",
+      "reason": "beer or hard cider filed under 'liquid'; the scheme has a beer category"
+    },
+    "fruit juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "fruity red wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "full-bodied red wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "garlic juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "ginger juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "glass red wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "glass white wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "grape juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "grape juice concentrate": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "guava juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "hazelnut flour": {
+      "category": "grain",
+      "reason": "a flour filed under 'nut'; every flour is grain (a roux or thickener slot finds flour by its name)"
+    },
+    "hearty red wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "jalapeno juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "lager beer": {
+      "category": "beer",
+      "reason": "beer or hard cider filed under 'liquid'; the scheme has a beer category"
+    },
+    "madeira wine": {
+      "category": "wine",
+      "reason": "a fortified wine filed under 'spirit'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "mango juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "maraschino cherry juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "marsala wine": {
+      "category": "wine",
+      "reason": "a fortified wine filed under 'spirit'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "meal flour": {
+      "category": "grain",
+      "reason": "a flour filed under 'thickener'; every flour is grain (a roux or thickener slot finds flour by its name)"
+    },
+    "millet flour": {
+      "category": "grain",
+      "reason": "a flour filed under 'thickener'; every flour is grain (a roux or thickener slot finds flour by its name)"
+    },
+    "mirin": {
+      "category": "wine",
+      "reason": "a rice wine filed under 'condiment'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "onion juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'aromatic'; the scheme has a juice category"
+    },
+    "parmesan": {
+      "category": "dairy",
+      "reason": "a cheese filed under 'savory seasoning'; every cheese is dairy"
+    },
+    "parmesian cheese": {
+      "category": "dairy",
+      "reason": "a cheese filed under 'savory seasoning'; every cheese is dairy"
+    },
+    "parmigiano cheese": {
+      "category": "dairy",
+      "reason": "a cheese filed under 'savory seasoning'; every cheese is dairy"
+    },
+    "parmigiano-reggiano cheese": {
+      "category": "dairy",
+      "reason": "a cheese filed under 'savory seasoning'; every cheese is dairy"
+    },
+    "passion fruit juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "peach juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "pear juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "pecorino cheese": {
+      "category": "dairy",
+      "reason": "a cheese filed under 'savory seasoning'; every cheese is dairy"
+    },
+    "pecorino romano cheese": {
+      "category": "dairy",
+      "reason": "a cheese filed under 'savory seasoning'; every cheese is dairy"
+    },
+    "pineapple juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "pineapple juice concentrate": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "plum wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "pomegranate juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "port": {
+      "category": "wine",
+      "reason": "a fortified wine filed under 'spirit'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "port wine": {
+      "category": "wine",
+      "reason": "a fortified wine filed under 'spirit'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "prosecco": {
+      "category": "wine",
+      "reason": "a sparkling wine filed under 'spirit'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "prune juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "raspberry juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "realemon juice": {
+      "category": "citrus",
+      "reason": "a citrus juice filed under 'liquid'; citrus juices stay in citrus because the sour slots read that category"
+    },
+    "red burgundy wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "red cooking wine": {
+      "category": "wine",
+      "reason": "a cooking wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "red wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "riesling wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "romano cheese": {
+      "category": "dairy",
+      "reason": "a cheese filed under 'savory seasoning'; every cheese is dairy"
+    },
+    "rose wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "sake": {
+      "category": "wine",
+      "reason": "a rice wine filed under 'spirit'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "sauterne wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "shaoxing wine": {
+      "category": "wine",
+      "reason": "a rice wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "sherry": {
+      "category": "wine",
+      "reason": "a fortified wine filed under 'spirit'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "sherry cooking wine": {
+      "category": "wine",
+      "reason": "a fortified wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "sherry wine": {
+      "category": "wine",
+      "reason": "a fortified wine filed under 'spirit'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "sour orange juice": {
+      "category": "citrus",
+      "reason": "a citrus juice filed under 'liquid'; citrus juices stay in citrus because the sour slots read that category"
+    },
+    "sparkling apple cider": {
+      "category": "juice",
+      "reason": "apple cider in a recipe is pressed apple juice, not an alcoholic drink; filed under 'liquid', the scheme calls it juice"
+    },
+    "sparkling white wine": {
+      "category": "wine",
+      "reason": "a sparkling wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "sparkling wine": {
+      "category": "wine",
+      "reason": "a sparkling wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "stout beer": {
+      "category": "beer",
+      "reason": "beer or hard cider filed under 'liquid'; the scheme has a beer category"
+    },
+    "strawberry juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "sweet apple cider": {
+      "category": "juice",
+      "reason": "apple cider in a recipe is pressed apple juice, not an alcoholic drink; filed under 'liquid', the scheme calls it juice"
+    },
+    "sweet marsala wine": {
+      "category": "wine",
+      "reason": "a fortified wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "sweet red wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "sweet rice flour": {
+      "category": "grain",
+      "reason": "a flour filed under 'thickener'; every flour is grain (a roux or thickener slot finds flour by its name)"
+    },
+    "sweet white wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "sweet wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "tamarind juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "tangerine juice": {
+      "category": "citrus",
+      "reason": "a citrus juice filed under 'liquid'; citrus juices stay in citrus because the sour slots read that category"
+    },
+    "tapioca flour": {
+      "category": "grain",
+      "reason": "a flour filed under 'thickener'; every flour is grain (a roux or thickener slot finds flour by its name)"
+    },
+    "tomato juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "tomato-vegetable juice cocktail": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "vegetable juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "vegetable juice cocktail": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "watermelon juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "wheat bread flour": {
+      "category": "grain",
+      "reason": "a flour filed under 'thickener'; every flour is grain (a roux or thickener slot finds flour by its name)"
+    },
+    "wheat flour": {
+      "category": "grain",
+      "reason": "a flour filed under 'thickener'; every flour is grain (a roux or thickener slot finds flour by its name)"
+    },
+    "wheat pastry flour": {
+      "category": "grain",
+      "reason": "a flour filed under 'thickener'; every flour is grain (a roux or thickener slot finds flour by its name)"
+    },
+    "white bread flour": {
+      "category": "grain",
+      "reason": "a flour filed under 'thickener'; every flour is grain (a roux or thickener slot finds flour by its name)"
+    },
+    "white cooking wine": {
+      "category": "wine",
+      "reason": "a cooking wine filed under 'spirit'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "white flour": {
+      "category": "grain",
+      "reason": "a flour filed under 'thickener'; every flour is grain (a roux or thickener slot finds flour by its name)"
+    },
+    "white grape juice": {
+      "category": "juice",
+      "reason": "the juice of a fruit or vegetable, filed under 'liquid'; the scheme has a juice category"
+    },
+    "white rice flour": {
+      "category": "grain",
+      "reason": "a flour filed under 'thickener'; every flour is grain (a roux or thickener slot finds flour by its name)"
+    },
+    "white spelt flour": {
+      "category": "grain",
+      "reason": "a flour filed under 'thickener'; every flour is grain (a roux or thickener slot finds flour by its name)"
+    },
+    "white wheat flour": {
+      "category": "grain",
+      "reason": "a flour filed under 'thickener'; every flour is grain (a roux or thickener slot finds flour by its name)"
+    },
+    "white wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "white zinfandel wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "wholemeal flour": {
+      "category": "grain",
+      "reason": "a flour filed under 'thickener'; every flour is grain (a roux or thickener slot finds flour by its name)"
+    },
+    "wine": {
+      "category": "wine",
+      "reason": "wine filed under 'liquid'; the scheme has a wine category (vermouth alone stays in liqueur)"
+    },
+    "wondra flour": {
+      "category": "grain",
+      "reason": "a flour filed under 'thickener'; every flour is grain (a roux or thickener slot finds flour by its name)"
+    },
+    "yuzu juice": {
+      "category": "citrus",
+      "reason": "a citrus juice filed under 'liquid'; citrus juices stay in citrus because the sour slots read that category"
+    }
+  },
+  "categoryRenames": {
+    "umami": {
+      "to": "savory seasoning",
+      "reason": "'umami' is a taste, not a kind of food; what is filed under it (bouillon, fish sauce, miso, worcestershire, soy) is a savory seasoning"
+    }
+  },
+  "tasteOverrides": {
+    "active dry yeast": {
+      "taste": "bitter umami",
+      "reason": "dry yeast tastes of yeast; it is not a thickener, so its label matches yeast (was 'bitter pungent')"
+    },
+    "all-purpose unbleached flour": {
+      "taste": "neutral",
+      "reason": "all-purpose unbleached flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "allspice": {
+      "taste": "sweet",
+      "reason": "allspice is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet spicy pungent')"
+    },
+    "almond": {
+      "taste": "rich sweet",
+      "reason": "almonds are fatty with mild sweetness (was 'sweet bitter')"
+    },
+    "almond flour": {
+      "taste": "rich",
+      "reason": "almond flour is ground almond: mostly fat (was 'sweet bitter')"
+    },
+    "alphabet pasta": {
+      "taste": "neutral",
+      "reason": "alphabet pasta is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "amaranth flour": {
+      "taste": "neutral",
+      "reason": "amaranth flour is a plain starch and tastes of little on its own; it was labelled 'sweet astringent'"
+    },
+    "angel hair pasta": {
+      "taste": "neutral",
+      "reason": "angel hair pasta is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "anise seed": {
+      "taste": "sweet",
+      "reason": "anise seed is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "aniseed": {
+      "taste": "sweet",
+      "reason": "aniseed is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "apple brandy": {
+      "taste": "sweet",
+      "reason": "apple brandy is fruity and sweet (was 'sweet pungent')"
+    },
+    "apple pie spice": {
+      "taste": "sweet",
+      "reason": "apple pie spice is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet spicy pungent')"
+    },
+    "applejack": {
+      "taste": "sweet",
+      "reason": "applejack is apple brandy, fruity and sweet; pungent would chart heat (was 'sweet pungent')"
+    },
+    "apricot brandy": {
+      "taste": "sweet",
+      "reason": "apricot brandy is a sweet fruit liqueur (was 'sweet pungent')"
+    },
+    "arrowroot flour": {
+      "taste": "neutral",
+      "reason": "arrowroot flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "arrowroot starch": {
+      "taste": "neutral",
+      "reason": "arrowroot starch is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "avocado": {
+      "taste": "rich",
+      "reason": "avocado is creamy fat with almost no sweetness (was 'sweet')"
+    },
+    "bacon dripping": {
+      "taste": "rich salty",
+      "reason": "rendered bacon fat is fat first, with salt and smoke (was 'salty umami')"
+    },
+    "bacon fat": {
+      "taste": "rich salty",
+      "reason": "rendered bacon fat is fat first, with salt and smoke (was 'salty umami')"
+    },
+    "bacon grease": {
+      "taste": "rich salty",
+      "reason": "rendered bacon fat is fat first, with salt and smoke (was 'salty umami')"
+    },
+    "baking flour": {
+      "taste": "neutral",
+      "reason": "baking flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "baking potato": {
+      "taste": "neutral",
+      "reason": "potato is plain starch; neither sweet nor umami (was 'sweet')"
+    },
+    "barley": {
+      "taste": "neutral",
+      "reason": "barley is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "barley flour": {
+      "taste": "neutral",
+      "reason": "barley flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "basil": {
+      "taste": "sweet",
+      "reason": "basil is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "basil chiffonade": {
+      "taste": "sweet",
+      "reason": "basil chiffonade is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "basil freshly": {
+      "taste": "sweet",
+      "reason": "basil freshly is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "basil leaf": {
+      "taste": "sweet",
+      "reason": "basil leaf is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "bay leaf": {
+      "taste": "bitter",
+      "reason": "bay leaf is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'bitter pungent')"
+    },
+    "bay leaf powder": {
+      "taste": "bitter",
+      "reason": "bay leaf powder is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'bitter pungent')"
+    },
+    "beefeater": {
+      "taste": "bitter",
+      "reason": "beefeater is a gin: juniper and botanical dryness; pungent would chart heat (was 'bitter pungent')"
+    },
+    "black cardamom": {
+      "taste": "bitter",
+      "reason": "black cardamom is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "black cardamom pod": {
+      "taste": "bitter",
+      "reason": "black cardamom pod is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "black cumin": {
+      "taste": "bitter",
+      "reason": "black cumin is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "black rice": {
+      "taste": "neutral",
+      "reason": "black rice is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "black sambuca": {
+      "taste": "sweet",
+      "reason": "sambuca is sweet anise; pungent would chart heat (was 'sweet pungent')"
+    },
+    "blanched almond flour": {
+      "taste": "rich",
+      "reason": "almond flour is ground almond: mostly fat (was 'sweet bitter')"
+    },
+    "blended oatmeal": {
+      "taste": "neutral",
+      "reason": "blended oatmeal is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "bourbon": {
+      "taste": "sweet",
+      "reason": "bourbon is sweet from corn and oak; pungent would chart every old fashioned as hot (was 'sweet pungent')"
+    },
+    "bowtie pasta": {
+      "taste": "neutral",
+      "reason": "bowtie pasta is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "brandy": {
+      "taste": "sweet",
+      "reason": "brandy is fruity and sweet; pungent would chart heat for every sidecar (was 'sweet pungent')"
+    },
+    "bread": {
+      "taste": "neutral",
+      "reason": "bread is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "bread baguette": {
+      "taste": "neutral",
+      "reason": "a plain baguette is bread, which is plain starch with no taste of its own (was 'sweet')"
+    },
+    "bread crumb": {
+      "taste": "neutral",
+      "reason": "bread crumbs are plain starch (was 'sweet')"
+    },
+    "broad noodle": {
+      "taste": "neutral",
+      "reason": "broad noodle is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "brown basmati rice": {
+      "taste": "neutral",
+      "reason": "brown basmati rice is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "brown bread": {
+      "taste": "neutral",
+      "reason": "brown bread is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "brown rice": {
+      "taste": "neutral",
+      "reason": "brown rice is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "brown rice flour": {
+      "taste": "neutral",
+      "reason": "brown rice flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "bucatini pasta": {
+      "taste": "neutral",
+      "reason": "bucatini pasta is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "buckwheat flour": {
+      "taste": "neutral",
+      "reason": "buckwheat flour is a plain starch and tastes of little on its own; it was labelled 'bitter sweet'"
+    },
+    "buckwheat noodle": {
+      "taste": "neutral",
+      "reason": "buckwheat noodle is a plain starch and tastes of little on its own; it was labelled 'bitter sweet'"
+    },
+    "bulgur": {
+      "taste": "neutral",
+      "reason": "bulgur is plain cracked wheat (was 'sweet')"
+    },
+    "butter": {
+      "taste": "rich",
+      "reason": "butter is fat; it is not a sweet ingredient (the sweet came from the name \"sweet cream butter\") (was 'sweet')"
+    },
+    "buttered bread": {
+      "taste": "neutral",
+      "reason": "buttered bread is a plain starch and tastes of little on its own; it was labelled 'sweet salty'"
+    },
+    "buttered noodle": {
+      "taste": "neutral",
+      "reason": "buttered noodle is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "camembert cheese": {
+      "taste": "rich umami",
+      "reason": "camembert is a creamy earthy cheese; bitter was an outlier for dairy (was 'bitter sour')"
+    },
+    "campari": {
+      "taste": "bitter sweet",
+      "reason": "campari is bitter first with a sweet back (was 'bitter')"
+    },
+    "caraway": {
+      "taste": "bitter",
+      "reason": "caraway is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "caraway seed": {
+      "taste": "bitter",
+      "reason": "caraway seed is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "cardamom": {
+      "taste": "sweet",
+      "reason": "cardamom is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "cardamom powder": {
+      "taste": "sweet",
+      "reason": "cardamom powder is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "cardamom seed": {
+      "taste": "sweet",
+      "reason": "cardamom seed is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "carnaroli rice": {
+      "taste": "neutral",
+      "reason": "carnaroli rice is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "cashew": {
+      "taste": "rich sweet",
+      "reason": "cashews are fatty with mild sweetness (was 'sweet')"
+    },
+    "cavatappi pasta": {
+      "taste": "neutral",
+      "reason": "cavatappi pasta is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "celery": {
+      "taste": "neutral",
+      "reason": "celery is watery and mild; bitter would chart every mirepoix as bitter (was 'bitter')"
+    },
+    "celery seed": {
+      "taste": "bitter",
+      "reason": "celery seed is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'bitter pungent')"
+    },
+    "chickpea flour": {
+      "taste": "neutral",
+      "reason": "chickpea flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "chili oil": {
+      "taste": "spicy rich",
+      "reason": "chili oil is oil carrying chili heat (was 'spicy pungent')"
+    },
+    "chinese egg noodle": {
+      "taste": "neutral",
+      "reason": "chinese egg noodle is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "chinese five-spice": {
+      "taste": "sweet",
+      "reason": "chinese five-spice is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "chinese noodle": {
+      "taste": "neutral",
+      "reason": "chinese noodle is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "chinese rice": {
+      "taste": "neutral",
+      "reason": "chinese rice is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "cilantro": {
+      "taste": "bitter",
+      "reason": "cilantro is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "cilantro freshly": {
+      "taste": "bitter",
+      "reason": "cilantro freshly is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "cilantro leaf": {
+      "taste": "bitter",
+      "reason": "cilantro leaf is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "cilantro leave": {
+      "taste": "bitter",
+      "reason": "cilantro leave is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "cilantro root": {
+      "taste": "bitter",
+      "reason": "cilantro root is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "cilantro stem": {
+      "taste": "bitter",
+      "reason": "cilantro stem is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "cinnamon": {
+      "taste": "sweet",
+      "reason": "cinnamon is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "cinnamon bark": {
+      "taste": "sweet",
+      "reason": "cinnamon bark is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "cinnamon powder": {
+      "taste": "sweet",
+      "reason": "cinnamon powder is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "cinnamon sugar": {
+      "taste": "sweet",
+      "reason": "cinnamon sugar is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "cinnamon syrup": {
+      "taste": "sweet",
+      "reason": "a sugar syrup with cinnamon (was 'sweet pungent')"
+    },
+    "cinnamon/sugar": {
+      "taste": "sweet",
+      "reason": "cinnamon/sugar is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "clarified butter": {
+      "taste": "rich",
+      "reason": "clarified butter is plain fat: richness, not sweetness; it was labelled 'sweet'"
+    },
+    "coarse cornmeal": {
+      "taste": "neutral",
+      "reason": "coarse cornmeal is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "cocktail rye bread": {
+      "taste": "sour",
+      "reason": "rye bread is tangy (was 'bitter sour')"
+    },
+    "coconut": {
+      "taste": "rich sweet",
+      "reason": "coconut flesh is fatty with mild sweetness (was 'sweet')"
+    },
+    "coconut cream": {
+      "taste": "rich sweet",
+      "reason": "coconut cream is fat and mild sweetness (was 'sweet')"
+    },
+    "coconut flour": {
+      "taste": "rich",
+      "reason": "coconut flour is dried coconut: mild and fatty, not a sweet ingredient (was 'sweet')"
+    },
+    "coconut milk": {
+      "taste": "rich sweet",
+      "reason": "coconut milk is fat and mild sweetness; it was labelled sweet alone (was 'sweet')"
+    },
+    "cognac": {
+      "taste": "sweet",
+      "reason": "cognac is fruity and sweet from the grape (was 'sweet bitter')"
+    },
+    "cointreau": {
+      "taste": "sweet bitter",
+      "reason": "cointreau is an orange liqueur, sweet with bitter peel; sour was a mislabel (was 'sweet sour')"
+    },
+    "condensed milk": {
+      "taste": "sweet rich",
+      "reason": "sweetened condensed milk is mostly sugar, then creamy (was 'sweet')"
+    },
+    "cooking rice": {
+      "taste": "neutral",
+      "reason": "cooking rice is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "coriander": {
+      "taste": "sweet",
+      "reason": "coriander is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'pungent sweet')"
+    },
+    "coriander powder": {
+      "taste": "sweet",
+      "reason": "coriander powder is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'pungent sweet')"
+    },
+    "coriander root": {
+      "taste": "bitter",
+      "reason": "coriander root is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "coriander seed": {
+      "taste": "sweet",
+      "reason": "coriander seed is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'pungent sweet')"
+    },
+    "corn oil": {
+      "taste": "rich",
+      "reason": "corn oil is plain fat: richness, not sweetness; it was labelled 'sweet'"
+    },
+    "corn tortilla": {
+      "taste": "neutral",
+      "reason": "corn tortilla is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "cornmeal": {
+      "taste": "neutral",
+      "reason": "cornmeal is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "cornstarch": {
+      "taste": "neutral",
+      "reason": "cornstarch is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "cottage cheese": {
+      "taste": "rich sour",
+      "reason": "cottage cheese is mild creamy curd with a little tang; not sweet (was 'sour sweet')"
+    },
+    "country bread": {
+      "taste": "neutral",
+      "reason": "country bread is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "country white bread": {
+      "taste": "neutral",
+      "reason": "country white bread is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "country-style bread": {
+      "taste": "neutral",
+      "reason": "country-style bread is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "cream": {
+      "taste": "rich sweet",
+      "reason": "cream is fat first and only faintly sweet (was 'sweet')"
+    },
+    "cream cheese": {
+      "taste": "rich sour",
+      "reason": "cream cheese is mainly rich; the tang is the second note (it was labelled sour alone) (was 'sour')"
+    },
+    "cream of coconut": {
+      "taste": "sweet rich",
+      "reason": "cream of coconut is sweetened coconut cream: mostly sugar, then rich (was 'sweet')"
+    },
+    "crisp rice": {
+      "taste": "neutral",
+      "reason": "crisp rice is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "crusty bread": {
+      "taste": "neutral",
+      "reason": "crusty bread is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "crusty italian bread": {
+      "taste": "neutral",
+      "reason": "crusty italian bread is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "crusty white bread": {
+      "taste": "neutral",
+      "reason": "crusty white bread is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "cucumber": {
+      "taste": "neutral",
+      "reason": "cucumber is watery and fresh with no strong taste (was 'bitter sweet')"
+    },
+    "cumin": {
+      "taste": "bitter",
+      "reason": "cumin is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "cumin powder": {
+      "taste": "bitter",
+      "reason": "cumin powder is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "curly noodle": {
+      "taste": "neutral",
+      "reason": "curly noodle is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "curly parsley": {
+      "taste": "bitter",
+      "reason": "curly parsley is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'bitter pungent')"
+    },
+    "curry leaf": {
+      "taste": "bitter",
+      "reason": "curry leaf is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "dark rye bread": {
+      "taste": "sour",
+      "reason": "rye bread is tangy (was 'bitter sour')"
+    },
+    "dark rye flour": {
+      "taste": "neutral",
+      "reason": "dark rye flour is a plain starch and tastes of little on its own; it was labelled 'bitter sweet'"
+    },
+    "dill": {
+      "taste": "bitter",
+      "reason": "dill is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "dill seed": {
+      "taste": "bitter",
+      "reason": "dill seed is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "ditalini pasta": {
+      "taste": "neutral",
+      "reason": "ditalini pasta is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "dr. pepper": {
+      "taste": "sweet",
+      "reason": "dr pepper is a sweet soda (was 'sweet sour')"
+    },
+    "egg": {
+      "taste": "rich umami",
+      "reason": "a whole egg is rich and mildly savoury; it is not an umami ingredient the way parmesan or soy sauce is, so rich leads and umami follows (was 'umami')"
+    },
+    "egg beater": {
+      "taste": "neutral",
+      "reason": "a liquid egg substitute is mostly egg white; no taste of its own (was 'umami')"
+    },
+    "egg bread": {
+      "taste": "neutral",
+      "reason": "egg bread is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "egg noodle": {
+      "taste": "neutral",
+      "reason": "egg noodle is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "egg pasta": {
+      "taste": "neutral",
+      "reason": "egg pasta is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "egg substitute": {
+      "taste": "neutral",
+      "reason": "a liquid egg substitute is mostly egg white; no taste of its own (was 'umami')"
+    },
+    "egg wash": {
+      "taste": "rich",
+      "reason": "egg wash is beaten egg (or egg and milk) brushed on for gloss; richness, not umami (was 'umami')"
+    },
+    "egg white": {
+      "taste": "neutral",
+      "reason": "egg white is protein and water; it adds body, not taste (was 'umami')"
+    },
+    "egg yolk": {
+      "taste": "rich",
+      "reason": "egg yolk is fat and richness; it has almost no taste of its own (was 'umami')"
+    },
+    "eggnog": {
+      "taste": "rich sweet",
+      "reason": "eggnog is cream, egg and sugar: rich first, then sweet (was 'sweet')"
+    },
+    "elbow noodle": {
+      "taste": "neutral",
+      "reason": "elbow noodle is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "elbow pasta": {
+      "taste": "neutral",
+      "reason": "elbow pasta is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "extra wide egg noodle": {
+      "taste": "neutral",
+      "reason": "extra wide egg noodle is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "extra-virgin olive oil": {
+      "taste": "rich",
+      "reason": "olive oil is fat with a fruity note; bitter would chart every vinaigrette as bitter (was 'bitter')"
+    },
+    "farfalle pasta": {
+      "taste": "neutral",
+      "reason": "farfalle pasta is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "fennel seed": {
+      "taste": "sweet",
+      "reason": "fennel seed is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "fenugreek": {
+      "taste": "bitter",
+      "reason": "fenugreek is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'bitter pungent')"
+    },
+    "fenugreek leave": {
+      "taste": "bitter",
+      "reason": "fenugreek leave is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'bitter pungent')"
+    },
+    "fettucine noodle": {
+      "taste": "neutral",
+      "reason": "fettucine noodle is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "fettucini noodle": {
+      "taste": "neutral",
+      "reason": "fettucini noodle is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "five-spice powder": {
+      "taste": "sweet",
+      "reason": "five-spice powder is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "flat noodle": {
+      "taste": "neutral",
+      "reason": "flat noodle is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "flat-leaf italian parsley": {
+      "taste": "bitter",
+      "reason": "flat-leaf italian parsley is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'bitter pungent')"
+    },
+    "flat-leaf parsley": {
+      "taste": "bitter",
+      "reason": "flat-leaf parsley is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'bitter pungent')"
+    },
+    "flat-leaf parsley leave": {
+      "taste": "bitter",
+      "reason": "flat-leaf parsley leave is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'bitter pungent')"
+    },
+    "flat-leafed parsley": {
+      "taste": "bitter",
+      "reason": "flat-leafed parsley is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'bitter pungent')"
+    },
+    "flour": {
+      "taste": "neutral",
+      "reason": "flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "flour tortilla": {
+      "taste": "neutral",
+      "reason": "flour tortilla is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "fusilli pasta": {
+      "taste": "neutral",
+      "reason": "fusilli pasta is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "garbanzo bean flour": {
+      "taste": "neutral",
+      "reason": "garbanzo bean flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "garbanzo flour": {
+      "taste": "neutral",
+      "reason": "garbanzo flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "garlic bread": {
+      "taste": "neutral",
+      "reason": "garlic bread is a plain starch and tastes of little on its own; it was labelled 'pungent sweet'"
+    },
+    "gelatin": {
+      "taste": "neutral",
+      "reason": "gelatin sets things; it has no taste (was 'sweet')"
+    },
+    "gemelli pasta": {
+      "taste": "neutral",
+      "reason": "gemelli pasta is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "ghee": {
+      "taste": "rich",
+      "reason": "ghee is plain fat: richness, not sweetness; it was labelled 'sweet'"
+    },
+    "gin": {
+      "taste": "bitter",
+      "reason": "gin is juniper and botanical dryness; pungent would chart every martini as hot (was 'bitter pungent')"
+    },
+    "glass noodle": {
+      "taste": "neutral",
+      "reason": "glass noodle is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "gluten flour": {
+      "taste": "neutral",
+      "reason": "gluten flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "gold medal flour": {
+      "taste": "neutral",
+      "reason": "gold medal flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "gold potato": {
+      "taste": "neutral",
+      "reason": "potato is plain starch; neither sweet nor umami (was 'sweet')"
+    },
+    "gold tequila": {
+      "taste": "sweet",
+      "reason": "gold tequila is tequila with caramel colouring and sweetness; pungent would chart heat for every margarita (was 'sweet pungent')"
+    },
+    "graham flour": {
+      "taste": "neutral",
+      "reason": "graham flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "grain bread": {
+      "taste": "neutral",
+      "reason": "grain bread is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "grain rice": {
+      "taste": "neutral",
+      "reason": "grain rice is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "grain white rice": {
+      "taste": "neutral",
+      "reason": "grain white rice is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "grand marnier": {
+      "taste": "sweet bitter",
+      "reason": "grand marnier is an orange liqueur, sweet with bitter peel (was 'sweet sour')"
+    },
+    "grapeseed oil": {
+      "taste": "rich",
+      "reason": "grapeseed oil is plain fat: richness, not sweetness; it was labelled 'sweet'"
+    },
+    "green cardamom pod": {
+      "taste": "sweet",
+      "reason": "green cardamom pod is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "green coriander": {
+      "taste": "bitter",
+      "reason": "green coriander is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "grnd coriander": {
+      "taste": "sweet",
+      "reason": "grnd coriander is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'pungent sweet')"
+    },
+    "grnd cumin": {
+      "taste": "bitter",
+      "reason": "grnd cumin is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "grnd nutmeg": {
+      "taste": "sweet",
+      "reason": "grnd nutmeg is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'pungent sweet')"
+    },
+    "hair pasta": {
+      "taste": "neutral",
+      "reason": "hair pasta is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "half and half": {
+      "taste": "rich sweet",
+      "reason": "half and half is cream and milk: fat first, faintly sweet (was 'sweet')"
+    },
+    "hamburger bun": {
+      "taste": "neutral",
+      "reason": "a plain bun is starch (was 'sweet')"
+    },
+    "hazelnut": {
+      "taste": "rich sweet",
+      "reason": "hazelnuts are fatty with mild sweetness (was 'sweet bitter')"
+    },
+    "hazelnut flour": {
+      "taste": "rich",
+      "reason": "hazelnut flour is ground hazelnut: mostly fat (was 'sweet bitter')"
+    },
+    "hokkien noodle": {
+      "taste": "neutral",
+      "reason": "hokkien noodle is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "hominy": {
+      "taste": "neutral",
+      "reason": "hominy is plain starchy corn (was 'sweet')"
+    },
+    "instant brown rice": {
+      "taste": "neutral",
+      "reason": "instant brown rice is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "instant polenta": {
+      "taste": "neutral",
+      "reason": "instant polenta is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "instant rice": {
+      "taste": "neutral",
+      "reason": "instant rice is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "instant white rice": {
+      "taste": "neutral",
+      "reason": "instant white rice is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "italian bread": {
+      "taste": "neutral",
+      "reason": "italian bread is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "italian parsley leave": {
+      "taste": "bitter",
+      "reason": "italian parsley leave is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'bitter pungent')"
+    },
+    "italian seasoning": {
+      "taste": "bitter",
+      "reason": "italian seasoning is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'pungent')"
+    },
+    "japanese whisky": {
+      "taste": "bitter sweet",
+      "reason": "japanese whisky is delicate and dry-malty; pungent would chart heat (was 'bitter pungent')"
+    },
+    "jumbo pasta": {
+      "taste": "neutral",
+      "reason": "jumbo pasta is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "lard": {
+      "taste": "rich",
+      "reason": "lard is plain fat; umami was a mislabel (was 'umami')"
+    },
+    "lasagna noodle": {
+      "taste": "neutral",
+      "reason": "lasagna noodle is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "laurel": {
+      "taste": "bitter",
+      "reason": "laurel is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'bitter pungent')"
+    },
+    "leaf basil": {
+      "taste": "sweet",
+      "reason": "leaf basil is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'pungent sweet')"
+    },
+    "leaf oregano": {
+      "taste": "bitter",
+      "reason": "leaf oregano is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "leaf thyme": {
+      "taste": "bitter",
+      "reason": "leaf thyme is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "lemon basil": {
+      "taste": "sour",
+      "reason": "lemon basil is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'pungent sour')"
+    },
+    "lemon thyme": {
+      "taste": "sour",
+      "reason": "lemon thyme is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'pungent sour')"
+    },
+    "lettuce": {
+      "taste": "neutral",
+      "reason": "lettuce is watery and mild (was 'bitter sweet')"
+    },
+    "lettuce leave": {
+      "taste": "neutral",
+      "reason": "lettuce is watery and mild (was 'astringent sweet')"
+    },
+    "lime leaf": {
+      "taste": "astringent",
+      "reason": "lime leaf is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'astringent pungent')"
+    },
+    "lime leave": {
+      "taste": "astringent",
+      "reason": "lime leave is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'astringent pungent')"
+    },
+    "linguine pasta": {
+      "taste": "neutral",
+      "reason": "plain pasta is starch (was 'umami')"
+    },
+    "liquid egg substitute": {
+      "taste": "neutral",
+      "reason": "a liquid egg substitute is mostly egg white; no taste of its own (was 'umami')"
+    },
+    "loaves bread": {
+      "taste": "neutral",
+      "reason": "loaves bread is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "loaves white bread": {
+      "taste": "neutral",
+      "reason": "loaves white bread is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "long grain brown rice": {
+      "taste": "neutral",
+      "reason": "long grain brown rice is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "long grain wild rice": {
+      "taste": "neutral",
+      "reason": "long grain wild rice is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "long-grain rice": {
+      "taste": "neutral",
+      "reason": "long-grain rice is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "long-grain white rice": {
+      "taste": "neutral",
+      "reason": "long-grain white rice is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "lovage": {
+      "taste": "bitter",
+      "reason": "lovage is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "macaroni": {
+      "taste": "neutral",
+      "reason": "plain pasta is starch (was 'umami')"
+    },
+    "makrut lime leave": {
+      "taste": "astringent",
+      "reason": "makrut lime leave is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'astringent pungent')"
+    },
+    "margarine": {
+      "taste": "rich",
+      "reason": "margarine is plain fat: richness, not sweetness; it was labelled 'sweet'"
+    },
+    "marjoram": {
+      "taste": "astringent",
+      "reason": "marjoram is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'astringent pungent')"
+    },
+    "mascarpone": {
+      "taste": "rich sweet",
+      "reason": "mascarpone is a very rich cream cheese with faint sweetness (was 'sweet')"
+    },
+    "mascarpone cheese": {
+      "taste": "rich sweet",
+      "reason": "mascarpone is a very rich cream cheese with faint sweetness (was 'sweet')"
+    },
+    "mayo": {
+      "taste": "rich sour",
+      "reason": "mayonnaise is egg and oil first, with vinegar tang; the old sweet was a mislabel (was 'sour sweet')"
+    },
+    "mayonnaise": {
+      "taste": "rich sour",
+      "reason": "mayonnaise is egg and oil first, with vinegar tang; the old sweet was a mislabel (was 'sour sweet')"
+    },
+    "meal flour": {
+      "taste": "neutral",
+      "reason": "meal flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "mezcal": {
+      "taste": "bitter",
+      "reason": "mezcal is smoky and vegetal (was 'spicy bitter')"
+    },
+    "milk": {
+      "taste": "rich sweet",
+      "reason": "milk is creamy with a faint lactose sweetness; rich leads so a bechamel or custard does not chart as a sweet dish (was 'sweet')"
+    },
+    "millet flour": {
+      "taste": "neutral",
+      "reason": "millet flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "mint": {
+      "taste": "astringent",
+      "reason": "mint is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'astringent pungent')"
+    },
+    "mint flake": {
+      "taste": "astringent",
+      "reason": "mint flake is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'astringent pungent')"
+    },
+    "mint leaf": {
+      "taste": "astringent",
+      "reason": "mint leaf is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'astringent pungent')"
+    },
+    "minute rice": {
+      "taste": "neutral",
+      "reason": "minute rice is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "mixed lettuce": {
+      "taste": "neutral",
+      "reason": "salad lettuce is watery and mild (was 'astringent sweet')"
+    },
+    "mozzarella": {
+      "taste": "rich",
+      "reason": "fresh mozzarella is milky and mild; it is not a salty umami cheese like parmesan or cheddar (was 'salty umami')"
+    },
+    "multi-grain bread": {
+      "taste": "neutral",
+      "reason": "multi-grain bread is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "multigrain bread": {
+      "taste": "neutral",
+      "reason": "multigrain bread is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "noodle": {
+      "taste": "neutral",
+      "reason": "a plain noodle is starch (was 'umami')"
+    },
+    "nut": {
+      "taste": "rich sweet",
+      "reason": "a generic nut is mainly fat with mild sweetness (was 'bitter sweet')"
+    },
+    "nutmeg": {
+      "taste": "sweet",
+      "reason": "nutmeg is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "nutmeg freshly": {
+      "taste": "sweet",
+      "reason": "nutmeg freshly is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "nutmeg powder": {
+      "taste": "sweet",
+      "reason": "nutmeg powder is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "oat": {
+      "taste": "neutral",
+      "reason": "oat is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "oat bread": {
+      "taste": "neutral",
+      "reason": "oat bread is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "oatmeal": {
+      "taste": "neutral",
+      "reason": "oatmeal is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "old-fashioned oatmeal": {
+      "taste": "neutral",
+      "reason": "old-fashioned oatmeal is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "olive oil": {
+      "taste": "rich",
+      "reason": "olive oil is fat with a fruity note; bitter would chart every vinaigrette as bitter (was 'bitter')"
+    },
+    "ouzo": {
+      "taste": "sweet",
+      "reason": "ouzo is sweet anise (was 'sweet pungent')"
+    },
+    "panko": {
+      "taste": "neutral",
+      "reason": "panko is plain bread crumb (was 'sweet')"
+    },
+    "paprika": {
+      "taste": "sweet",
+      "reason": "paprika is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "paprika powder": {
+      "taste": "sweet",
+      "reason": "paprika powder is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "parsley": {
+      "taste": "bitter",
+      "reason": "parsley is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'bitter pungent')"
+    },
+    "parsley flake": {
+      "taste": "bitter",
+      "reason": "parsley flake is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'bitter pungent')"
+    },
+    "parsley stem": {
+      "taste": "bitter",
+      "reason": "parsley stem is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'bitter pungent')"
+    },
+    "party rye bread": {
+      "taste": "sour",
+      "reason": "rye bread is tangy (was 'sweet')"
+    },
+    "pasta": {
+      "taste": "neutral",
+      "reason": "pasta is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "pasta noodle": {
+      "taste": "neutral",
+      "reason": "pasta noodle is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "pastry flour": {
+      "taste": "neutral",
+      "reason": "pastry flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "peanut": {
+      "taste": "rich umami",
+      "reason": "peanuts are fatty and savoury (was 'sweet umami')"
+    },
+    "peanut butter": {
+      "taste": "rich sweet",
+      "reason": "peanut butter is fat first, then a little sweet and salt (was 'sweet umami')"
+    },
+    "pearl barley": {
+      "taste": "neutral",
+      "reason": "pearl barley is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "pecan": {
+      "taste": "rich sweet",
+      "reason": "pecans are fatty and sweet; rich leads (was 'sweet')"
+    },
+    "penne pasta": {
+      "taste": "neutral",
+      "reason": "penne pasta is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "pernod": {
+      "taste": "sweet",
+      "reason": "pernod is sweet anise (was 'spicy sweet')"
+    },
+    "phyllo dough": {
+      "taste": "neutral",
+      "reason": "phyllo is plain flour pastry (was 'sweet')"
+    },
+    "pie crust": {
+      "taste": "neutral",
+      "reason": "a plain pie crust is flour and fat, not sweet (was 'sweet')"
+    },
+    "pine nut": {
+      "taste": "rich sweet",
+      "reason": "pine nuts are fatty with mild sweetness (was 'sweet')"
+    },
+    "pistachio": {
+      "taste": "rich sweet",
+      "reason": "pistachios are fatty with mild sweetness (was 'sweet')"
+    },
+    "pita bread": {
+      "taste": "neutral",
+      "reason": "pita bread is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "polenta": {
+      "taste": "neutral",
+      "reason": "polenta is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "potato": {
+      "taste": "neutral",
+      "reason": "potato is plain starch; neither sweet nor umami (was 'sweet umami')"
+    },
+    "potato starch": {
+      "taste": "neutral",
+      "reason": "potato starch is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "poultry seasoning": {
+      "taste": "bitter",
+      "reason": "poultry seasoning is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "prosecco": {
+      "taste": "sour",
+      "reason": "prosecco is dry and bright; sweet was a stretch (was 'sweet sour')"
+    },
+    "puff pastry": {
+      "taste": "rich",
+      "reason": "puff pastry is mostly laminated butter (was 'sweet')"
+    },
+    "puffed rice": {
+      "taste": "neutral",
+      "reason": "puffed rice is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "pumpernickel bread": {
+      "taste": "sour",
+      "reason": "pumpernickel is dark tangy rye bread (was 'bitter sweet')"
+    },
+    "pumpkin pie spice": {
+      "taste": "sweet",
+      "reason": "pumpkin pie spice is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "pumpkin spice": {
+      "taste": "sweet",
+      "reason": "pumpkin spice is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "purple basil": {
+      "taste": "bitter",
+      "reason": "purple basil is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "quick-cooking barley": {
+      "taste": "neutral",
+      "reason": "quick-cooking barley is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "quick-cooking oatmeal": {
+      "taste": "neutral",
+      "reason": "quick-cooking oatmeal is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "quinoa": {
+      "taste": "neutral",
+      "reason": "quinoa is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "quinoa flour": {
+      "taste": "neutral",
+      "reason": "quinoa flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "ramen noodle": {
+      "taste": "neutral",
+      "reason": "ramen noodle is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "red cinnamon": {
+      "taste": "sweet",
+      "reason": "red cinnamon is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "red paprika": {
+      "taste": "sweet",
+      "reason": "red paprika is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "red potato": {
+      "taste": "neutral",
+      "reason": "potato is plain starch; neither sweet nor umami (was 'sweet umami')"
+    },
+    "red quinoa": {
+      "taste": "neutral",
+      "reason": "red quinoa is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "rice": {
+      "taste": "neutral",
+      "reason": "rice is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "rice bran": {
+      "taste": "neutral",
+      "reason": "rice bran is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "rice flour": {
+      "taste": "neutral",
+      "reason": "rice flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "rice noodle": {
+      "taste": "neutral",
+      "reason": "rice noodle is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "rice vermicelli noodle": {
+      "taste": "neutral",
+      "reason": "rice vermicelli noodle is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "ricotta": {
+      "taste": "rich",
+      "reason": "ricotta is a mild creamy fresh cheese; the sweetness is too faint to chart (was 'sweet')"
+    },
+    "rigatoni noodle": {
+      "taste": "neutral",
+      "reason": "rigatoni noodle is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "rigatoni pasta": {
+      "taste": "neutral",
+      "reason": "rigatoni pasta is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "risotto rice": {
+      "taste": "neutral",
+      "reason": "risotto rice is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "romaine lettuce": {
+      "taste": "neutral",
+      "reason": "lettuce is watery and mild (was 'bitter astringent')"
+    },
+    "rosemary": {
+      "taste": "bitter",
+      "reason": "rosemary is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "rosemary leaf": {
+      "taste": "bitter",
+      "reason": "rosemary leaf is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "rosemary needle": {
+      "taste": "bitter",
+      "reason": "rosemary needle is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "rotelle pasta": {
+      "taste": "neutral",
+      "reason": "rotelle pasta is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "rotini noodle": {
+      "taste": "neutral",
+      "reason": "rotini noodle is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "rotini pasta": {
+      "taste": "neutral",
+      "reason": "rotini pasta is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "rye bread": {
+      "taste": "sour",
+      "reason": "rye bread is tangy; sweet was a mislabel (was 'bitter sweet')"
+    },
+    "rye cocktail bread": {
+      "taste": "sour",
+      "reason": "rye bread is tangy (was 'bitter sweet')"
+    },
+    "rye flour": {
+      "taste": "neutral",
+      "reason": "rye flour is a plain starch and tastes of little on its own; it was labelled 'bitter sweet'"
+    },
+    "safflower oil": {
+      "taste": "rich",
+      "reason": "safflower oil is plain fat: richness, not sweetness; it was labelled 'sweet'"
+    },
+    "saffron rice": {
+      "taste": "neutral",
+      "reason": "saffron rice is plain rice coloured and scented with a little saffron (was 'sweet')"
+    },
+    "sage": {
+      "taste": "bitter",
+      "reason": "sage is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "sage leaf": {
+      "taste": "bitter",
+      "reason": "sage leaf is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "salad oil": {
+      "taste": "rich",
+      "reason": "salad oil is plain fat: richness, not sweetness; it was labelled 'sweet'"
+    },
+    "savory": {
+      "taste": "bitter",
+      "reason": "savory is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "scotch": {
+      "taste": "bitter sweet",
+      "reason": "scotch is malty and dry-smoky; the old label was sweet alone (was 'sweet')"
+    },
+    "scotch whiskey": {
+      "taste": "bitter sweet",
+      "reason": "scotch is malty and dry-smoky (was 'sweet')"
+    },
+    "seashell pasta": {
+      "taste": "neutral",
+      "reason": "seashell pasta is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "self rising flour": {
+      "taste": "neutral",
+      "reason": "self rising flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "semolina": {
+      "taste": "neutral",
+      "reason": "semolina is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "sesame": {
+      "taste": "rich bitter",
+      "reason": "sesame seeds are fatty with a faint bitterness (was 'bitter sweet')"
+    },
+    "sesame oil": {
+      "taste": "rich pungent",
+      "reason": "toasted sesame oil is fat with a sharp nutty aroma; sweet was a mislabel (was 'sweet pungent')"
+    },
+    "sesame seed": {
+      "taste": "rich bitter",
+      "reason": "sesame seeds are fatty with a faint bitterness (was 'umami sweet')"
+    },
+    "shell noodle": {
+      "taste": "neutral",
+      "reason": "shell noodle is a plain starch and tastes of little on its own; it was labelled 'sweet umami'"
+    },
+    "shell pasta": {
+      "taste": "neutral",
+      "reason": "shell pasta is a plain starch and tastes of little on its own; it was labelled 'sweet umami'"
+    },
+    "sherry": {
+      "taste": "sweet bitter",
+      "reason": "sherry is nutty, a little sweet and a little bitter; pungent dropped because it feeds heat (was 'sweet bitter pungent')"
+    },
+    "shiso": {
+      "taste": "bitter",
+      "reason": "shiso is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'bitter pungent')"
+    },
+    "short pasta": {
+      "taste": "neutral",
+      "reason": "short pasta is a plain starch and tastes of little on its own; it was labelled 'sweet umami'"
+    },
+    "short-grain brown rice": {
+      "taste": "neutral",
+      "reason": "short-grain brown rice is a plain starch and tastes of little on its own; it was labelled 'sweet umami'"
+    },
+    "short-grain rice": {
+      "taste": "neutral",
+      "reason": "short-grain rice is a plain starch and tastes of little on its own; it was labelled 'sweet umami'"
+    },
+    "short-grain white rice": {
+      "taste": "neutral",
+      "reason": "short-grain white rice is a plain starch and tastes of little on its own; it was labelled 'sweet umami'"
+    },
+    "shortening": {
+      "taste": "rich",
+      "reason": "shortening is plain fat: richness, not sweetness; it was labelled 'sweet'"
+    },
+    "soda water": {
+      "taste": "neutral",
+      "reason": "soda water is carbonated water (was 'sweet')"
+    },
+    "somen noodle": {
+      "taste": "neutral",
+      "reason": "somen noodle is a plain starch and tastes of little on its own; it was labelled 'sweet umami'"
+    },
+    "sorghum flour": {
+      "taste": "neutral",
+      "reason": "sorghum flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "sour cream": {
+      "taste": "sour rich",
+      "reason": "sour cream is tangy and fatty; sour leads, the sweet in the old label is not what a cook tastes (was 'sour sweet')"
+    },
+    "soy flour": {
+      "taste": "neutral",
+      "reason": "soy flour is a plain starch and tastes of little on its own; it was labelled 'umami sweet'"
+    },
+    "soybean oil": {
+      "taste": "rich",
+      "reason": "soybean oil is plain fat: richness, not sweetness; it was labelled 'sweet'"
+    },
+    "spanish rice": {
+      "taste": "umami",
+      "reason": "spanish rice is cooked with tomato and stock, so it is savoury, not plain starch (was 'sweet umami')"
+    },
+    "spelt flour": {
+      "taste": "neutral",
+      "reason": "spelt flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "spiral noodle": {
+      "taste": "neutral",
+      "reason": "spiral noodle is a plain starch and tastes of little on its own; it was labelled 'sweet umami'"
+    },
+    "spiral pasta": {
+      "taste": "neutral",
+      "reason": "spiral pasta is a plain starch and tastes of little on its own; it was labelled 'sweet umami'"
+    },
+    "stale bread": {
+      "taste": "neutral",
+      "reason": "stale bread is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "star anise": {
+      "taste": "sweet",
+      "reason": "star anise is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "steamed rice": {
+      "taste": "neutral",
+      "reason": "steamed rice is a plain starch and tastes of little on its own; it was labelled 'sweet umami'"
+    },
+    "steamed white rice": {
+      "taste": "neutral",
+      "reason": "steamed white rice is a plain starch and tastes of little on its own; it was labelled 'sweet umami'"
+    },
+    "sticky rice": {
+      "taste": "neutral",
+      "reason": "sticky rice is a plain starch and tastes of little on its own; it was labelled 'sweet umami'"
+    },
+    "stone- cornmeal": {
+      "taste": "neutral",
+      "reason": "stone- cornmeal is a plain starch and tastes of little on its own; it was labelled 'sweet umami'"
+    },
+    "stone- yellow cornmeal": {
+      "taste": "neutral",
+      "reason": "stone- yellow cornmeal is a plain starch and tastes of little on its own; it was labelled 'sweet umami'"
+    },
+    "strong white bread flour": {
+      "taste": "neutral",
+      "reason": "strong white bread flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "summer savory": {
+      "taste": "bitter",
+      "reason": "summer savory is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'bitter pungent spicy')"
+    },
+    "sunflower oil": {
+      "taste": "rich",
+      "reason": "sunflower oil is plain fat: richness, not sweetness; it was labelled 'sweet'"
+    },
+    "sunflower seed": {
+      "taste": "rich",
+      "reason": "sunflower seeds are mostly fat (was 'umami sweet')"
+    },
+    "sushi rice": {
+      "taste": "neutral",
+      "reason": "sushi rice is a plain starch and tastes of little on its own; it was labelled 'sweet sour umami'"
+    },
+    "sweet butter": {
+      "taste": "rich",
+      "reason": "sweet butter is plain fat: richness, not sweetness; it was labelled 'sweet'"
+    },
+    "sweet cream butter": {
+      "taste": "rich",
+      "reason": "sweet cream butter is plain fat: richness, not sweetness; it was labelled 'sweet'"
+    },
+    "sweet milk": {
+      "taste": "rich sweet",
+      "reason": "plain whole milk: creamy with a faint lactose sweetness (was 'sweet')"
+    },
+    "sweet unsalted butter": {
+      "taste": "rich",
+      "reason": "sweet unsalted butter is plain fat: richness, not sweetness; it was labelled 'sweet'"
+    },
+    "tahini": {
+      "taste": "rich bitter",
+      "reason": "tahini is a rich sesame paste with a bitter edge (was 'umami bitter sweet')"
+    },
+    "tapioca flour": {
+      "taste": "neutral",
+      "reason": "tapioca flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "tarragon": {
+      "taste": "bitter sweet",
+      "reason": "tarragon is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'bitter pungent sweet')"
+    },
+    "tarragon leaf": {
+      "taste": "bitter sweet",
+      "reason": "tarragon leaf is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'bitter pungent sweet')"
+    },
+    "tarragon leave": {
+      "taste": "bitter sweet",
+      "reason": "tarragon leave is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'bitter pungent sweet')"
+    },
+    "tennessee whiskey": {
+      "taste": "sweet bitter",
+      "reason": "tennessee whiskey is charcoal-mellowed and sweet; pungent would chart heat (was 'sweet bitter pungent')"
+    },
+    "tequila": {
+      "taste": "bitter",
+      "reason": "blanco tequila is vegetal and dry; sweet pungent bitter would chart every margarita as sweet and hot (was 'sweet pungent bitter')"
+    },
+    "thai basil": {
+      "taste": "sweet bitter",
+      "reason": "thai basil is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent bitter')"
+    },
+    "thai basil leave": {
+      "taste": "sweet bitter",
+      "reason": "thai basil leave is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent bitter')"
+    },
+    "thin egg noodle": {
+      "taste": "neutral",
+      "reason": "thin egg noodle is a plain starch and tastes of little on its own; it was labelled 'sweet umami'"
+    },
+    "thin noodle": {
+      "taste": "neutral",
+      "reason": "thin noodle is a plain starch and tastes of little on its own; it was labelled 'sweet umami'"
+    },
+    "thin rice noodle": {
+      "taste": "neutral",
+      "reason": "thin rice noodle is a plain starch and tastes of little on its own; it was labelled 'sweet umami'"
+    },
+    "thin white bread": {
+      "taste": "neutral",
+      "reason": "thin white bread is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "thyme": {
+      "taste": "bitter",
+      "reason": "thyme is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'bitter pungent')"
+    },
+    "tofu": {
+      "taste": "neutral",
+      "reason": "tofu is bland by design; it takes the taste of what it is cooked with (was 'umami sweet')"
+    },
+    "tomato basil": {
+      "taste": "sweet",
+      "reason": "tomato basil is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "torn basil": {
+      "taste": "sweet",
+      "reason": "torn basil is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'sweet pungent')"
+    },
+    "tortilla": {
+      "taste": "neutral",
+      "reason": "tortilla is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "turmeric": {
+      "taste": "bitter",
+      "reason": "turmeric is a warm aromatic spice, not hot: pungent (and spicy) would chart it as heat (was 'bitter pungent')"
+    },
+    "udon noodle": {
+      "taste": "neutral",
+      "reason": "udon noodle is a plain starch and tastes of little on its own; it was labelled 'sweet umami'"
+    },
+    "unbleached bread": {
+      "taste": "neutral",
+      "reason": "unbleached bread is a plain starch and tastes of little on its own; it was labelled 'sweet umami'"
+    },
+    "unbleached flour": {
+      "taste": "neutral",
+      "reason": "unbleached flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "unbleached white flour": {
+      "taste": "neutral",
+      "reason": "unbleached white flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "uncle ben's rice": {
+      "taste": "neutral",
+      "reason": "uncle ben's rice is a plain starch and tastes of little on its own; it was labelled 'sweet umami'"
+    },
+    "unflavored gelatin": {
+      "taste": "neutral",
+      "reason": "unflavored gelatin has no taste (was 'umami')"
+    },
+    "vegetable shortening": {
+      "taste": "rich",
+      "reason": "vegetable shortening is plain fat: richness, not sweetness; it was labelled 'sweet'"
+    },
+    "vermicelli pasta": {
+      "taste": "neutral",
+      "reason": "vermicelli pasta is a plain starch and tastes of little on its own; it was labelled 'sweet umami'"
+    },
+    "vermicelli rice noodle": {
+      "taste": "neutral",
+      "reason": "vermicelli rice noodle is a plain starch and tastes of little on its own; it was labelled 'sweet umami'"
+    },
+    "vodka": {
+      "taste": "neutral",
+      "reason": "vodka is neutral spirit by definition; sweet bitter would chart every vodka drink as sweet (was 'sweet bitter')"
+    },
+    "wagon wheel pasta": {
+      "taste": "neutral",
+      "reason": "wagon wheel pasta is a plain starch and tastes of little on its own; it was labelled 'sweet umami'"
+    },
+    "walnut": {
+      "taste": "rich bitter",
+      "reason": "walnuts are fatty with a bitter skin (was 'bitter sweet')"
+    },
+    "water": {
+      "taste": "neutral",
+      "reason": "plain water has no taste; it was labelled sweet (was 'sweet')"
+    },
+    "wheat bran": {
+      "taste": "neutral",
+      "reason": "wheat bran is a plain starch and tastes of little on its own; it was labelled 'bitter sweet'"
+    },
+    "wheat bread": {
+      "taste": "neutral",
+      "reason": "wheat bread is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "wheat bread flour": {
+      "taste": "neutral",
+      "reason": "wheat bread flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "wheat egg noodle": {
+      "taste": "neutral",
+      "reason": "wheat egg noodle is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "wheat elbow macaroni": {
+      "taste": "neutral",
+      "reason": "wheat elbow macaroni is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "wheat flour": {
+      "taste": "neutral",
+      "reason": "wheat flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "wheat flour tortilla": {
+      "taste": "neutral",
+      "reason": "wheat flour tortilla is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "wheat lasagna noodle": {
+      "taste": "neutral",
+      "reason": "wheat lasagna noodle is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "wheat macaroni": {
+      "taste": "neutral",
+      "reason": "wheat macaroni is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "wheat pasta": {
+      "taste": "neutral",
+      "reason": "wheat pasta is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "wheat pastry flour": {
+      "taste": "neutral",
+      "reason": "wheat pastry flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "wheat penne pasta": {
+      "taste": "neutral",
+      "reason": "wheat penne pasta is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "wheat pita bread": {
+      "taste": "neutral",
+      "reason": "wheat pita bread is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "wheat rotini pasta": {
+      "taste": "neutral",
+      "reason": "wheat rotini pasta is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "wheat spaghetti": {
+      "taste": "neutral",
+      "reason": "wheat spaghetti is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "wheat tortilla": {
+      "taste": "neutral",
+      "reason": "wheat tortilla is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "whipped cream": {
+      "taste": "rich sweet",
+      "reason": "whipped cream is fat first; the sweetness is faint unless sugar is added (was 'sweet')"
+    },
+    "white basmati rice": {
+      "taste": "neutral",
+      "reason": "white basmati rice is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "white bread": {
+      "taste": "neutral",
+      "reason": "white bread is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "white bread flour": {
+      "taste": "neutral",
+      "reason": "white bread flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "white corn tortilla": {
+      "taste": "neutral",
+      "reason": "white corn tortilla is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "white cornmeal": {
+      "taste": "neutral",
+      "reason": "white cornmeal is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "white flour": {
+      "taste": "neutral",
+      "reason": "white flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "white quinoa": {
+      "taste": "neutral",
+      "reason": "white quinoa is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "white rice flour": {
+      "taste": "neutral",
+      "reason": "white rice flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "white sandwich bread": {
+      "taste": "neutral",
+      "reason": "white sandwich bread is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "white spelt flour": {
+      "taste": "neutral",
+      "reason": "white spelt flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "white tequila": {
+      "taste": "bitter",
+      "reason": "blanco tequila is vegetal and dry; pungent would chart heat (was 'bitter pungent')"
+    },
+    "white wheat flour": {
+      "taste": "neutral",
+      "reason": "white wheat flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "wholemeal bread": {
+      "taste": "neutral",
+      "reason": "wholemeal bread is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "wholemeal flour": {
+      "taste": "neutral",
+      "reason": "wholemeal flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "wide egg noodle": {
+      "taste": "neutral",
+      "reason": "wide egg noodle is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "wide noodle": {
+      "taste": "neutral",
+      "reason": "wide noodle is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "wild rice": {
+      "taste": "neutral",
+      "reason": "wild rice is a plain grain (was 'sweet bitter')"
+    },
+    "winter savory": {
+      "taste": "bitter",
+      "reason": "winter savory is an aromatic herb, not hot: pungent (and spicy) would chart it as heat (was 'pungent bitter')"
+    },
+    "wondra flour": {
+      "taste": "neutral",
+      "reason": "wondra flour is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "yellow cornmeal": {
+      "taste": "neutral",
+      "reason": "yellow cornmeal is a plain starch and tastes of little on its own; it was labelled 'sweet'"
+    },
+    "yellow rice": {
+      "taste": "neutral",
+      "reason": "yellow rice is plain rice coloured with turmeric (was 'sweet pungent')"
+    },
+    "zucchini": {
+      "taste": "neutral",
+      "reason": "zucchini is mild and watery; sweet was a stretch (was 'sweet')"
+    }
+  },
+  "additions": {
+    "aquavit": {
+      "category": "spirit",
+      "taste": "bitter",
+      "reason": "aquavit is a caraway and dill spirit: it resolved to caraway seed"
+    },
+    "beef patty": {
+      "category": "protein",
+      "taste": "umami salty",
+      "reason": "a beef patty; the only entry was misspelt (\"pattie\")"
+    },
+    "cherry tomato": {
+      "category": "vegetable",
+      "taste": "sour umami",
+      "reason": "the cherry tomato a cook buys; every entry for it was misspelt (\"tomatoe\"), so no correct name existed"
+    },
+    "chicken breast": {
+      "category": "protein",
+      "taste": "umami",
+      "reason": "chicken breast, the cut itself; only halve/tender/fillet forms existed beside the \"boneless skinless\" form"
+    },
+    "chicken patty": {
+      "category": "protein",
+      "taste": "salty umami",
+      "reason": "a chicken patty; the only entry was misspelt (\"pattie\")"
+    },
+    "clove": {
+      "category": "spice",
+      "taste": "pungent sweet",
+      "reason": "clove, the spice: 5 built-in recipes use cloves and no clove entry existed (the generated data has none)"
+    },
+    "cola": {
+      "category": "mixer",
+      "taste": "sweet",
+      "reason": "cola: 14 built-in cocktails (Cuba Libre, Long Island) call for it and no ingredient entry existed; a sweet soda"
+    },
+    "creme de cassis": {
+      "category": "liqueur",
+      "taste": "sweet",
+      "reason": "creme de cassis, the blackcurrant liqueur (Kir, Kir Royale): resolved to the fruit blackcurrant"
+    },
+    "cynar": {
+      "category": "liqueur",
+      "taste": "bitter sweet",
+      "reason": "Cynar, the artichoke amaro: a built-in cocktail uses it and it resolved to nothing"
+    },
+    "fernet branca": {
+      "category": "liqueur",
+      "taste": "bitter",
+      "reason": "Fernet-Branca (keyed with a space because the bar and kitchen keys read a hyphen as a space), the bitter amaro: built-in cocktails and the My bar scan use it and it resolved to nothing"
+    },
+    "fingerling potato": {
+      "category": "vegetable",
+      "taste": "sweet",
+      "reason": "the fingerling potato; the only entry was misspelt (\"potatoe\")"
+    },
+    "grape tomato": {
+      "category": "vegetable",
+      "taste": "sour umami",
+      "reason": "the grape tomato a cook buys; the only entry was misspelt (\"tomatoe\")"
+    },
+    "hash brown potato": {
+      "category": "vegetable",
+      "taste": "sweet",
+      "reason": "shredded hash brown potatoes (a frozen product, not raw potato); the only entry was misspelt"
+    },
+    "heirloom tomato": {
+      "category": "vegetable",
+      "taste": "sour umami",
+      "reason": "the heirloom tomato; the only entry was misspelt (\"tomatoe\")"
+    },
+    "jagermeister": {
+      "category": "liqueur",
+      "taste": "bitter sweet",
+      "reason": "Jagermeister, the herbal liqueur: it resolved to amaro montenegro, a different drink"
+    },
+    "limoncello": {
+      "category": "liqueur",
+      "taste": "sweet sour",
+      "reason": "limoncello is a sweet lemon liqueur: it resolved to the fruit lemon, which would chart as plain sour"
+    },
+    "peach schnapps": {
+      "category": "liqueur",
+      "taste": "sweet",
+      "reason": "peach schnapps: 5 built-in cocktails use it; it resolved to the fruit peach, which would chart a drink as fresh peach"
+    },
+    "peychaud's bitters": {
+      "category": "bitters",
+      "taste": "bitter",
+      "reason": "Peychaud's bitters: 8 built-in cocktails (Sazerac, Vieux Carre) name them; they resolved to generic bitters, so the bottle could not be added to the bar by name"
+    },
+    "pimm's": {
+      "category": "liqueur",
+      "taste": "sweet bitter",
+      "reason": "Pimm's No. 1, the gin-based fruit cup: a built-in cocktail (Pimm's Cup) uses it and it resolved to nothing"
+    },
+    "purple potato": {
+      "category": "vegetable",
+      "taste": "sweet umami",
+      "reason": "the purple potato; the only entry was misspelt (\"potatoe\")"
+    },
+    "roma tomato": {
+      "category": "fruit",
+      "taste": "sweet sour umami",
+      "reason": "the roma (plum) tomato; the only entries were misspelt (\"tomatoe\")"
+    },
+    "rye whiskey": {
+      "category": "spirit",
+      "taste": "bitter sweet",
+      "reason": "rye whiskey: 16 built-in cocktails (Manhattan, Sazerac, Old Pal) use it; it resolved to plain whiskey, so the bar could not hold it apart from bourbon. Bitter sweet, not pungent, because pungent feeds heat"
+    },
+    "sausage patty": {
+      "category": "protein",
+      "taste": "salty umami",
+      "reason": "a sausage patty; the only entry was misspelt (\"pattie\")"
+    },
+    "sloe gin": {
+      "category": "liqueur",
+      "taste": "sweet sour",
+      "reason": "sloe gin is a sweet-tart fruit liqueur, not gin: it resolved to gin, which would chart as bitter"
+    },
+    "southern comfort": {
+      "category": "liqueur",
+      "taste": "sweet",
+      "reason": "Southern Comfort, a sweet fruit and whiskey liqueur: a built-in cocktail uses it and it resolved to nothing"
+    },
+    "stewed tomato": {
+      "category": "vegetable",
+      "taste": "sour umami",
+      "reason": "canned stewed tomatoes; the only entries were misspelt (\"tomatoe\") and tied to an Italian-style label"
+    },
+    "suze": {
+      "category": "liqueur",
+      "taste": "bitter",
+      "reason": "Suze, the gentian liqueur: 3 built-in cocktails use it; it resolved to gentian bitters"
+    },
+    "tomatillo": {
+      "category": "vegetable",
+      "taste": "sour",
+      "reason": "tomatillo: the base of the built-in salsa verde and verde mix, and no entry existed"
+    }
+  },
+  "vocabulary": {
+    "categories": {
+      "savory seasoning": {
+        "reason": "the renamed 'umami' category: bouillon, fish sauce, miso, worcestershire and similar; a kind of food, where umami is a taste"
+      },
+      "juice": {
+        "reason": "fruit and vegetable juices and nectars (apple, pineapple, tomato, cranberry); citrus juices stay with citrus because the sour slots read that category"
+      },
+      "wine": {
+        "reason": "still, sparkling and fortified wine, sake, mirin and cooking wine; vermouth stays in liqueur"
+      },
+      "beer": {
+        "reason": "beer, ale, stout, lager and cider (ginger beer is a mixer; apple cider is a juice)"
+      }
+    },
+    "tastes": {
+      "neutral": {
+        "reason": "contributes no taste of its own: water, ice, plain starch (flour, rice, bread, pasta), neutral spirit; stands alone in a label and feeds no taste axis"
+      },
+      "rich": {
+        "reason": "a fatty or creamy mouthfeel that is not one of the basic tastes (butter, oil, cream, egg yolk, avocado, nuts); a mouthfeel note, not a taste, so it feeds no taste axis; may lead a label with a taste after it (cream is 'rich sweet')"
+      }
+    }
+  }
+}

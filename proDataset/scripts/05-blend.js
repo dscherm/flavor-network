@@ -6,6 +6,7 @@ import {
 import {
   ensureDir, readJson, writeJson, log,
 } from '../utils.js';
+import { loadCuration, curateMaster } from '../curation.js';
 
 const SOURCE_FILES = {
   recipenlg:  path.join(PROCESSED_DIR, 'recipenlg-cooccurrence.json'),
@@ -167,7 +168,9 @@ async function run() {
     }
   }
 
-  log(`Master ingredient list: ${masterIngredients.size}`);
+  // App curation (data/curation.json): additions, hidden names dropped, packaged flag, category and taste overrides
+  const hiddenRemoved = curateMaster(masterIngredients, loadCuration());
+  log(`Master ingredient list: ${masterIngredients.size} (${hiddenRemoved.size} hidden by curation)`);
 
   // Collect all unique pair keys across all sources
   const allPairKeys = new Set();
@@ -198,6 +201,7 @@ async function run() {
     if (blended < MIN_BLENDED_STRENGTH) continue;
 
     const [a, b] = key.split('|');
+    if (hiddenRemoved.has(a) || hiddenRemoved.has(b)) continue;
     blendedPairs.push({
       key,
       ingredientA: a,
@@ -253,6 +257,7 @@ async function run() {
       taste: info.taste,
       sources: info.sources,
       totalCount: info.totalCount,
+      ...(info.packaged ? { packaged: true } : {}),
     };
   }
 

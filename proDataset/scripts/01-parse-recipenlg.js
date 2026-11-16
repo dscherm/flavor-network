@@ -9,12 +9,15 @@ import {
   canonicalizeIngredient, pairKey, computePMI, computeHybridScore, normalizeMap,
   ensureDir, writeJson, log,
 } from '../utils.js';
+import { loadCuration, hiddenNames } from '../curation.js';
 
 const CSV_PATH = path.join(RAW_DIR, 'recipenlg.csv');
 const OUT_PATH = path.join(PROCESSED_DIR, 'recipenlg-cooccurrence.json');
 
 // Ingredients too generic to form meaningful pairs
 const SKIP_SET = new Set(['salt', 'pepper', 'water', 'oil', 'black pepper']);
+// Names the app's curation hides (not food, fragments): data/curation.json "hidden"
+const HIDDEN_SET = hiddenNames(loadCuration());
 
 // Known food-related words. An ingredient must contain at least one of these
 // (or be in the synonyms/categories tables) to pass the filter.
@@ -118,7 +121,7 @@ async function run() {
       // Canonicalize + dedupe per recipe + filter non-food
       const cleaned = [...new Set(
         ner.map(n => canonicalizeIngredient(n))
-           .filter(n => n && !SKIP_SET.has(n) && looksLikeFood(n))
+           .filter(n => n && !SKIP_SET.has(n) && !HIDDEN_SET.has(n) && looksLikeFood(n))
       )];
 
       // Count ingredient frequency

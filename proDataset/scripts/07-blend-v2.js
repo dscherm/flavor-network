@@ -5,6 +5,7 @@ import {
 import {
   ensureDir, readJson, writeJson, log,
 } from '../utils.js';
+import { loadCuration, curateMaster } from '../curation.js';
 
 // ─────────── Constants ───────────
 
@@ -269,7 +270,9 @@ async function run() {
     }
   }
 
-  log(`  Master ingredient list: ${masterIngredients.size}`);
+  // App curation (data/curation.json): additions, hidden names dropped, packaged flag, category and taste overrides
+  const hiddenRemoved = curateMaster(masterIngredients, loadCuration());
+  log(`  Master ingredient list: ${masterIngredients.size} (${hiddenRemoved.size} hidden by curation)`);
 
   // Helper: get taste for an ingredient
   function getTaste(name) {
@@ -304,6 +307,7 @@ async function run() {
     }
 
     const [a, b] = key.split('|');
+    if (hiddenRemoved.has(a) || hiddenRemoved.has(b)) continue;
     const subScores = computeSubScores(f);
     const tasteA = getTaste(a);
     const tasteB = getTaste(b);
@@ -408,6 +412,7 @@ async function run() {
       taste: info.taste,
       sources: info.sources,
       totalCount: info.totalCount,
+      ...(info.packaged ? { packaged: true } : {}),
     };
   }
 

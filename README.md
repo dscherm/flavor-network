@@ -3,8 +3,10 @@
 **Live: https://neuralflavor.web.app** — frozen at **v1.0.0** (2026-09-01), currently serving **v1.0.4** (fixes and polish only, no features). Web only.
 
 A browser app for cooks who want to know *why* things go together. It puts
-3,891 ingredients and 95,992 scored pairings (68,417 observed across 2.2
-million real recipes, the rest predicted by a molecular model) behind four working
+3,674 ingredients and 92,389 scored pairings as the app loads them (the
+generated files hold 3,891 and 95,992 before the correction tables merge spelling
+variants and hide non-food; of those raw pairings, 68,417 were observed across 2.2
+million real recipes and the rest predicted by a molecular model) behind four working
 surfaces: a cocktail lab, a sauce lab, a pairing explorer, and a
 "make a recipe" flow with a handwritten-notebook cookbook.
 
@@ -30,7 +32,7 @@ Signing in (Google or Apple, via Firebase Auth) is optional; it syncs the
 cookbook and the personal pairing prior to Firestore. Without sign-in
 everything works from `localStorage`.
 
-The original 3D "neural network" view of all 3,891 ingredients still
+The original 3D "neural network" view of the ingredients (3,891 in the raw generated file) still
 exists but is parked — open it with `https://neuralflavor.web.app/?path=explore`.
 
 ## Sharing a recipe

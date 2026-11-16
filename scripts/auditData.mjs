@@ -261,6 +261,81 @@ Hidden names and merged variants are already gone from the curated dataset (DATA
 `;
 }
 
+// "The whole DATA series" and "what the pipeline mirror guarantees": generated, so they cannot go stale.
+const REPOINTED = 'roma tomato, pepper, chicken breast, rye whiskey, udon noodle, candlenut, jalapeno chili (each pinned to itself); capers, kemiri, jalapeno chilie, freshly- black pepper, mashed sweet potatoe (re-pointed at the alias target)';
+
+function wholeSeries(result, baseline) {
+  const first = (baseline.history || []).find((h) => h.label === 'DATA-1') || baseline;
+  const c = result.curated;
+  const rows = [['Check', 'Rule id', `First audit (${first.date})`, 'Now']];
+  for (const [id, [, title]] of Object.entries(RULES)) rows.push([title, `\`${id}\``, String(first.metrics[id] ?? 'n/a'), String(result.rules[id].total)]);
+  const sizes = [
+    ['What', 'First audit', 'Now'],
+    ['Ingredients (generated file; what the app loads)', `${first.totals.ingredients}`, `${c.ingredients.raw} in the file; ${c.ingredients.curated} loaded (${c.merged} merged away, ${c.hidden} hidden, ${c.additions} added)`],
+    ['Pairings (generated file; what the app loads)', c.pairings ? String(c.pairings.raw) : 'n/a', c.pairings ? String(c.pairings.curated) : 'n/a (run without --check)'],
+    ['Ingredients flagged packaged', '0', String(c.packaged)],
+    ['Category and taste overrides', '0', `${c.categoryOverrides} category, ${c.tasteOverrides} taste`],
+    ['Cocktails / families', `${first.totals.cocktails} / 6`, `${result.totals.cocktails} / ${Object.keys(result.details.cocktailsByFamily).length}`],
+    ['Sauces under "Independent"', `${first.metrics['sauce-independent']} of ${first.totals.sauces}`, `${result.details.sauces.independent} of ${result.details.sauces.total}`],
+    ['Cookbook dishes / dish types', `${first.totals.dishes} / 23`, `${result.totals.dishes} / ${Object.keys(result.details.dishes.cookbookTypes).length}`],
+  ];
+  const open = result.findings.filter((f) => f.rule === 'sauce-independent').map((f) => f.item);
+  return `## The whole DATA series, first audit to now
+
+Every number below is printed by the audit. "First audit" is the run before any clean-up (DATA-1); "Now" is this run.
+
+${mdTable(rows)}
+
+${mdTable(sizes)}
+
+### What is still open, by item
+
+* **Taste labels with an unusual first word: ${result.rules['taste-outlier'].total}** (LOW confidence, list in \`data/review/taste.tsv\`). Each is a label a cook may well intend (a sweet vegetable, a bitter fruit); ${result.handled.tasteRead} others were read and decided by a taste override. Not a defect count.
+* **Cocktails with no amount on any line: ${result.rules['cocktail-no-amounts'].total}** (\`data/review/cocktails.tsv\`). Amounts were added only where a published IBA recipe was read; the rest show the app's "~ suggested" amounts.
+* **Sauces still under "Independent": ${result.details.sauces.independent}**${open.length ? ` (${open.join(', ')})` : ''}: no group of three or more shares their kind.
+* **Ingredients seen in fewer than five source recipes** (139 at the first critique): deliberately kept. Pruning them changes the vocabulary under the models, the same reason the full rebuild is deferred.
+* **Cocktails possibly misfiled and not touched** (DATA-6): Mint Julep (in Aromatic Stirred, with no mint line), the Smash and Julep drinks in Boozy Sippers, Paloma, Cuba Libre and Screwdriver in Aperitivos.
+* **The full pipeline rebuild** (option (c) of the clean-up spec's Decision 2) is not done; see the next section and BACKLOG.md.
+
+`;
+}
+
+function mirrorSection() {
+  return `## What the pipeline mirror does and does not guarantee
+
+The corrections live in the app's tables (\`src/data/curation/\`) and are applied every time the data is loaded.
+So that a future rebuild of the dataset (\`proDataset\`, \`npm run all\`) comes out agreeing with the app, the same lists are
+written into the pipeline's inputs by \`node scripts/syncCurationMirror.mjs\`:
+
+| App table | Pipeline input | Read by |
+| --- | --- | --- |
+| \`aliases.json\` (variant to canonical) | entries in \`proDataset/data/synonyms.json\` | \`canonicalizeIngredient\` in \`proDataset/utils.js\`, used by 01-parse-recipenlg.js and the other source steps |
+| \`hidden.json\` | \`hidden\` in \`proDataset/data/curation.json\` | 01-parse-recipenlg.js (skips the name), 05-blend.js and 07-blend-v2.js (drop the ingredient and every pair that touches it) |
+| \`packaged.json\` | \`packaged\` in \`curation.json\` | 05-blend.js and 07-blend-v2.js write \`packaged: true\` on the ingredient |
+| \`categoryRenames.json\`, \`categoryOverrides.json\`, \`tasteOverrides.json\` | the same names in \`curation.json\` | 05-blend.js and 07-blend-v2.js, applied after their own category and taste rules, in the app's order |
+| \`additions.json\` | \`additions\` in \`curation.json\` | 05-blend.js and 07-blend-v2.js add the ingredient with a count of zero and source \`curation\` |
+| \`vocabulary.json\` | \`vocabulary\` in \`curation.json\` | not read; kept so the file is a complete copy |
+| \`cocktailOverrides.json\`, \`sauceGroups.json\` | not mirrored | they correct the generated cocktail codex and the hand-written sauce file; no ingredient step reads either, and the app applies them on every load whatever a rebuild produces |
+
+The shared code is \`proDataset/curation.js\`. Nothing in the pipeline was run to make this.
+
+**What is guaranteed** (tested in \`src/data/curation/__tests__/pipelineMirror.test.js\`, part of \`npm run gate\`):
+
+* the pipeline inputs carry exactly the same entries as the app tables; the test fails when either side changes alone;
+* the pipeline's own apply function (\`curateMaster\`) gives the same ingredient records as the app's \`applyCuration\` when run over the whole of today's generated \`ingredients.json\` (without the aliases, which the pipeline applies earlier through the synonym map);
+* the three pipeline steps still call it, and still parse (\`node --check\`).
+
+**What is not guaranteed:**
+
+* That a rebuild reproduces today's \`ingredients.json\` and \`pairings.json\`. Nobody has rebuilt: the 2.3 GB RecipeNLG file would have to be read again, FlavorDB, TheMealDB and TheCocktailDB re-fetched, and the result is not compared with what is committed. The added ingredients come into a rebuild with no pairings of their own, as they have none today.
+* That the models still match. A rebuild changes the ingredient vocabulary under about 30 derived files (positions, clusters, compound and flavor files, \`pairings.bin\`) and under the on-device set-completion and quantity models, none of which a rebuild regenerates by itself.
+* Twelve entries that were already in \`synonyms.json\` contradicted the curation (for example it folded "chicken breast" into "chicken" while the curation adds "chicken breast" as its own ingredient). They were re-pointed so a rebuild keeps the curation's choice: ${REPOINTED}. This is the one place an existing pipeline input changed value rather than gaining entries.
+* Adding the alias variants to \`synonyms.json\` also adds them to the food filter in 01-parse-recipenlg.js (it accepts any name that is a synonym key or value). Every variant is a name that is in the generated data today, so none was being filtered out; it is noted because the filter is shared.
+* Hiding a name at the parse step also removes it from the recipe counts that the co-occurrence scores are computed from, so scores move very slightly. Dropping it only at the blend step would not; both are done so the stop list is honoured wherever it matters.
+
+`;
+}
+
 function writeDoc(result, baseline) {
   const b = baseline;
   const ruleRows = [['Check', 'Rule id', 'Baseline total', 'Now (this run)']];
@@ -363,7 +438,7 @@ Four decisions that are not obvious from the names:
 
 ## After DATA-6: the cocktail codex
 
-The cocktail codex (public/data/cocktail_codex_v2.json) is generated by proDataset/cocktails_v2/scripts/09-emit-codex-v2.cjs from a K-Means run over a corpus that is not in the repository (raw/ is git-ignored), and regenerating it does not reproduce the committed file byte for byte (the timestamp, and a corpus a fresh clone does not have). So it is not edited. Every correction is one entry, with its reason, in src/data/curation/cocktailOverrides.json and is applied by applyCocktailCuration on every load (the app, the share index, the audit, the measures, the tests). A guard test fails if a source file reads the raw file around it. The pipeline itself is not changed here (DATA-8 mirrors the table into its inputs).
+The cocktail codex (public/data/cocktail_codex_v2.json) is generated by proDataset/cocktails_v2/scripts/09-emit-codex-v2.cjs from a K-Means run over a corpus that is not in the repository (raw/ is git-ignored), and regenerating it does not reproduce the committed file byte for byte (the timestamp, and a corpus a fresh clone does not have). So it is not edited. Every correction is one entry, with its reason, in src/data/curation/cocktailOverrides.json and is applied by applyCocktailCuration on every load (the app, the share index, the audit, the measures, the tests). A guard test fails if a source file reads the raw file around it. This table is not mirrored into the pipeline (see the mirror section below for why).
 
 | What | Before | After |
 | --- | --- | --- |
@@ -378,7 +453,7 @@ The cocktail codex (public/data/cocktail_codex_v2.json) is generated by proDatas
 
 The no-amount rule was wrong for 27 drinks: their lines carry the amount in the text ("1.5 ounces vodka") but not in the measure field, so they counted as having none. The rule now also reads a leading quantity of something poured. Amounts were added only where the IBA official recipe gives them (Negroni, Vesper, Boulevardier, French 75, Margarita and its dry version, Americano, Cuba Libre, Mimosa, Bellini); the rest are left for the app's "~ suggested" amounts. The old Old-Fashioned, Southside and Long Island Tea rows were merged into the better-specified Old Fashioned, South Side and Long Island Iced Tea, and the old links still resolve (slug aliases in src/data/sharedRecipe.js, tested against the list of live slugs).
 
-## Detail from the latest run
+${wholeSeries(result, baseline)}${mirrorSection()}## Detail from the latest run
 
 Sizes now: ${result.totals.ingredients} ingredients, ${result.totals.cocktails} cocktails, ${result.totals.sauces} sauces, ${result.totals.dishes} dishes.
 
