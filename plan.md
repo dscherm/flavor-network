@@ -2863,7 +2863,7 @@ exploration for the owner and builds nothing in the app.
   "id": "PICTURE-6",
   "title": "Focus: a sixth slider that fades the background of a chalk picture to bare slate",
   "category": "feature",
-  "passes": false,
+  "passes": true,
   "description": "Add a `focus` setting to src/data/chalkFilter.js: 0 (the default) draws the whole photo exactly as today; raising it keeps a centred oval of the picture and fades every chalk mark outside it (lines, shading, colour fill and grain) smoothly to the bare slate ground, the oval tightening as the value rises. CHALK_DEFAULTS.focus = 0 and CHALK_RANGES.focus = 0-100. The oval follows the crop (square or landscape) and the fade is smooth, with no visible ring. Pure, deterministic, no DOM, no network, as the rest of the filter. RecipePicture.jsx's Adjust panel gains a sixth labelled slider, 'Focus', with live preview and Reset like the other five. At focus 0 the output must be byte-identical to PICTURE-1's for the same input and settings (the prototype-parity test keeps passing unchanged). Stored pictures need no migration: the setting is not stored, only the finished picture.",
   "acceptance": [
     "focus 0 gives byte-identical output to the filter before this task for the same input and settings (test), and the prototype-parity test still passes untouched",
