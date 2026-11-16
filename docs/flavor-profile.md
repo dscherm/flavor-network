@@ -926,7 +926,7 @@ With six tastes and eleven aromas a full chart has seventeen bars. The owner has
 3. Each group has a maximum that depends on the room. **Superseded by the graph redesign (CHART-3 to CHART-7): only the Recipe Notebook overview ("full") still caps, 6 tastes + 6 aromas with "show all"; the Sauce suggestion card's aroma radar ("radar") plots at most 4 aromas; InventFlavorProfile keeps a ranked list for screen readers ("compact", everything above the floor). The share cards (were 3 + 3 and 4 + 4), the invent panels, the shared page and the Flavor profile button no longer cap anything: see "Graphs" below.**
 4. On the Recipe Notebook overview, when bars are hidden one short line says so ("+3 fainter notes") and "show all" (and "show fewer") is offered. The swipe chart has neither any more.
 5. Ties are broken one way everywhere: scores are compared to three decimals, and a tie goes to the axis that comes first in the canonical order (sweet, sour, bitter, salty, umami, heat, fruity, floral, green, woody, spice, creamy, toasty, nutty, earthy, smoky, savory). The server's stored card bars keep three decimals so they order the same way. A test checks that the Recipe Notebook, an invent panel, the shared page and a server card lead with the same two tastes and the same two aromas for Negroni and Beef Bolognese, with no tolerance for ties.
-6. Radars plot only the axes the rule picks, never seventeen: (CHART-5: the Recipe Notebook flavor map is no longer a radar; it draws the fixed seventeen-wedge wheel, and its old per-ingredient dots were dropped); the Sauce suggestion card's aroma radar at most 4 aromas (the add and swap cards are now fixed grids, CHART-6, not radars); the Cookbook card radar (chef vocabulary, with its own axis switcher) the keys the recipe has a signal on, up to 6 for taste and 8 for aroma, never fewer than 3, in the vocabulary's own order. Season, cuisine and method radars are unchanged.
+6. Radars plot only the axes the rule picks, never seventeen: (CHART-5: the Recipe Notebook flavor map is no longer a radar; it draws the fixed seventeen-wedge wheel, and its old per-ingredient dots were dropped); (the Sauce suggestion card is a fixed grid since BUILDER-1, no longer a radar; the add and swap cards are fixed grids, CHART-6); the Cookbook card radar (chef vocabulary, with its own axis switcher) the keys the recipe has a signal on, up to 6 for taste and 8 for aroma, never fewer than 3, in the vocabulary's own order. Season, cuisine and method radars are unchanged.
 7. The per-axis pages and the Enhance page follow the same selection (6 + 6, or every axis above the floor after "show all"). Every one of the seventeen axes has a page, an insight, a balancing axis and boost and temper candidates (a test covers all seventeen).
 8. A user's published copy stores every note above the floor (up to 17 bars; CHART-4 raised the rules limit from 11, which a 4 + 4 cut had been fitting under). Superseded: it used to store only the compact set (4 + 4 bars). Older copies with 8 bars still read and draw.
 
@@ -966,7 +966,8 @@ The owner's choice, verbatim: "Do d. But then also allow users to swipe to see c
 | Recipe Notebook overview | A, ranked bars, 6 + 6 with "show all" | Owner: A on the recipe notebook |
 | Recipe Notebook flavor map | C, the fixed wheel | Assistant's default (spec Decision 7); see "What the redesign dropped" |
 | Suggestion cards (add and swap) | F, two fixed grids, "Now" and "With ...", on one scale | Owner: F on the suggestion grid |
-| Sauce suggestion card | Unchanged: its own taste and aroma radars | It shows one profile, not before and after, so it is not an add or swap card |
+| Sauce suggestion card (matched sauces) | One fixed grid of the sauce's own profile (BUILDER-1; was two radars) | It shows one profile, not before and after, so it has no Now and With pair or marks |
+| Invent panels' suggestion deck | The add and swap cards (two fixed grids) over every suggestion or stand-in | BUILDER-1: "See how each changes the flavor" under "Goes well with what you have" and under "Don't have it? Try...". The Now grid is `recipeAxisProfileWeighted` over the build's lines with their amounts, the calculation `buildFlavorProfile` uses, so it leads with the panel's notes. A suggestion with no flavor data still gets a card with an unchanged grid. Add and Swap close the deck |
 | Cookbook card radar, ingredient panel | Unchanged, on their own word lists | Out of scope; see BACKLOG.md |
 
 ### The tasting note (D)
@@ -993,7 +994,7 @@ A copy a cook publishes now stores every note at or above the floor, up to seven
 
 ### Code removed in CHART-7
 
-`ProfileDeltaRadar.jsx` (and its test), the unused `card`, `cover` and `mini` entries of `SURFACES`, and the dead `surface` prop of `InventFlavorProfile`. `radarAxes` and `radarKeys` stay (Sauce suggestion card, Cookbook card radar), as do `hiddenLine` (Notebook overview) and `BeforeAfterRadar` (Sauce suggestion card). A test checks that every remaining `SURFACES` entry has a caller.
+`ProfileDeltaRadar.jsx` (and its test), the unused `card`, `cover` and `mini` entries of `SURFACES`, and the dead `surface` prop of `InventFlavorProfile`. `radarAxes` and `radarKeys` stay, as does `hiddenLine` (Notebook overview). BUILDER-1 later deleted `BeforeAfterRadar` and the Sauce suggestion card's radars (the card draws the fixed grid), which left the `radar` entry of `SURFACES` with no component caller: it stays with `radarAxes`, and the caller test skips it by name.
 
 ### Not verified
 

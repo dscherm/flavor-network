@@ -10,6 +10,7 @@
  *   onAmount         (key, text)                 called on every edit
  *   replacementsFor  (key) → [{ key, note? }]    asked when a line's replacements are opened
  *   onReplace        (oldKey, newKey)
+ *   onReplaceDeck    (oldKey, [newKey]) opens the suggestion deck in swap mode over those stand-ins (BUILDER-1)
  *   onAdd            (text) → void | false       typed text, trimmed; false keeps it in the box
  *   vocab            string[] | null             typeahead for the add box
  *   notice           string | null               a refusal reason
@@ -17,7 +18,7 @@
  *   testidPrefix     default 'list'
  * A line with have === false is "missing"; have undefined means unknown (no mark).
  * Test ids: {p} root, {p}-line (row, data-key), {p}-amount-{key}, {p}-remove-{key},
- * {p}-need-{key} (the Don't-have-it button), {p}-replacements-{key}, {p}-replace-option,
+ * {p}-need-{key} (the Don't-have-it button), {p}-replacements-{key}, {p}-replace-option, {p}-replace-deck-{key},
  * {p}-no-replacements-{key}, {p}-add-input, {p}-add, {p}-notice, {p}-empty.
  */
 import { useState } from 'react';
@@ -36,6 +37,7 @@ export const DEFAULTS = {
   noReplacements: "Nothing you have is a good stand-in. Type one below.",
   have: 'have',
   fromSearch: 'from your search',
+  deck: 'See how each changes the flavor',
 };
 
 function AmountBox({ line, p, L, onAmount }) {
@@ -49,7 +51,7 @@ function AmountBox({ line, p, L, onAmount }) {
   );
 }
 
-function Line({ line, p, L, onRemove, onAmount, replacementsFor, onReplace }) {
+function Line({ line, p, L, onRemove, onAmount, replacementsFor, onReplace, onReplaceDeck }) {
   const [open, setOpen] = useState(false);
   const missing = line.have === false;
   const options = open ? (replacementsFor ? replacementsFor(line.key) || [] : []) : [];
@@ -87,6 +89,10 @@ function Line({ line, p, L, onRemove, onAmount, replacementsFor, onReplace }) {
                 ))}
               </div>
             )}
+          {onReplaceDeck && options.length > 0 && (
+            <button type="button" onClick={() => onReplaceDeck(line.key, options.map((o) => o.key))} data-testid={`${p}-replace-deck-${line.key}`}
+              className="mt-2 min-h-[44px] px-3 rounded-lg" style={btn({ fontSize: 16 })}>{L.deck}</button>
+          )}
         </div>
       )}
     </li>
@@ -94,7 +100,7 @@ function Line({ line, p, L, onRemove, onAmount, replacementsFor, onReplace }) {
 }
 
 export default function InventList({
-  lines = [], onRemove, onAmount = () => {}, replacementsFor, onReplace = () => {}, onAdd, vocab = null, notice = null, labels = {}, testidPrefix = 'list',
+  lines = [], onRemove, onAmount = () => {}, replacementsFor, onReplace = () => {}, onReplaceDeck, onAdd, vocab = null, notice = null, labels = {}, testidPrefix = 'list',
 }) {
   const L = { ...DEFAULTS, ...labels };
   const p = testidPrefix;
@@ -106,7 +112,7 @@ export default function InventList({
         : (
           <ul className="flex flex-col gap-1.5 mb-2" data-testid={`${p}-lines`}>
             {lines.map((l) => (
-              <Line key={l.key} line={l} p={p} L={L} onRemove={onRemove} onAmount={onAmount} replacementsFor={replacementsFor} onReplace={onReplace} />
+              <Line key={l.key} line={l} p={p} L={L} onRemove={onRemove} onAmount={onAmount} replacementsFor={replacementsFor} onReplace={onReplace} onReplaceDeck={onReplaceDeck} />
             ))}
           </ul>
         )}

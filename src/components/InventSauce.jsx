@@ -62,6 +62,7 @@ import InventStart from './InventStart.jsx';
 import InventList from './InventList.jsx';
 import InventChecklist from './InventChecklist.jsx';
 import InventSuggestions from './InventSuggestions.jsx';
+import InventDeck from './InventDeck.jsx';
 import InventCategoryHint from './InventCategoryHint.jsx';
 import InventCategoryPicker from './InventCategoryPicker.jsx';
 import InventFlavorProfile from './InventFlavorProfile.jsx';
@@ -145,6 +146,7 @@ export default function InventSauce({
   const [pickerOpen, setPickerOpen] = useState(false);
   const [openPart, setOpenPart] = useState(null);
   const [dismissedFor, setDismissedFor] = useState(null);
+  const [deck, setDeck] = useState(null); // BUILDER-1: null | { mode: 'add' | 'replace', ingredient?, candidates }
   const [notice, setNotice] = useState(() => (init.build.rejected.length ? init.build.rejected.map((r) => r.reason).join(' ') : null));
   const [save, setSave] = useState({ status: 'idle', message: '' });
   // PICTURE-4: undefined = untouched (an edited sauce keeps its own); null = none; else the chooser's value.
@@ -337,7 +339,8 @@ export default function InventSauce({
             <InventList testidPrefix={`${P}-list`} lines={lineViews} vocab={vocab} notice={notice}
               onAdd={add} onRemove={remove}
               onAmount={(k, t) => setEdits((e) => ({ ...e, [k]: t }))}
-              replacementsFor={replacementsFor} onReplace={replace} />
+              replacementsFor={replacementsFor} onReplace={replace}
+              onReplaceDeck={(k, cands) => setDeck({ mode: 'replace', ingredient: k, candidates: cands })} />
 
             {rec && recStyle && (
               <InventCategoryHint testidPrefix={`${P}-hint`} label={recStyle.label} blurb={recStyle.blurb}
@@ -352,7 +355,8 @@ export default function InventSauce({
                 optionsFor={optionsFor} onPick={pickPart} />
             )}
 
-            <InventSuggestions testidPrefix={`${P}-suggest`} title="Goes well with what you have" items={suggestions} onAdd={add} />
+            <InventSuggestions testidPrefix={`${P}-suggest`} title="Goes well with what you have" items={suggestions} onAdd={add}
+              onDeck={() => setDeck({ mode: 'add', candidates: suggestions.map((x) => x.key) })} />
 
             <InventFlavorProfile testidPrefix={`${P}-profile`} title="Flavor profile" profile={profile} />
 
@@ -437,6 +441,10 @@ export default function InventSauce({
           </>
         )}
       </div>
+      {deck && (
+        <InventDeck mode={deck.mode} ingredient={deck.ingredient} keys={keys} amounts={profileAmounts} nodes={nodes} candidates={deck.candidates}
+          onAdd={add} onSwap={replace} onClose={() => setDeck(null)} />
+      )}
     </div>
   );
 }

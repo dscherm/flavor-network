@@ -4,9 +4,8 @@
  *
  * Mirrors SuggestionCardDeck's shell (dark chalkboard container, ← Back +
  * title + ×, Escape-to-close, pointer/touch swipe + ◀▶ prev/next + "N / total",
- * peek-stack). Each card shows that sauce's OWN flavor radar as a SINGLE series
- * (the sauce's profile), not a before→after delta: it reuses the named
- * BeforeAfterRadar export with `delta={}` so only the "before" polygon draws.
+ * peek-stack). Each card shows that sauce's OWN flavor as ONE fixed grid (the
+ * sauce's profile), not a before→after pair: the same FlavorGrid the suggestion deck draws.
  *
  * Props:
  *   items          [{ item:{name,ingredients[]}, similarity, matchedAromas[] }]
@@ -17,9 +16,9 @@
  *   onClose        () => void       exit matches / browse all sauces
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { recipeAxisProfile, TASTE_AXES, AROMA_AXES } from '../data/recipeProfileAnalysis.js';
-import { BeforeAfterRadar } from './IngredientProfileCard.jsx';
-import { radarAxes } from '../data/flavorDisplay.js';
+import { recipeAxisProfile } from '../data/recipeProfileAnalysis.js';
+import { profilePair } from '../data/profileGridPair.js';
+import FlavorGrid from './FlavorGrid.jsx';
 import { formatPairedVia, formatMatchBadge } from '../data/recipePairingMatch.js';
 
 const FONT_HAND = 'Caveat, cursive';
@@ -37,27 +36,16 @@ const CHALK_DIM = '#bdb6a3';
 const CHALK_SUB = '#8a8478';
 const CHALK_TEXT_SHADOW = '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)';
 
-const EMPTY_DELTA = {}; // single-series radar → no "after" polygon
-
 function formatAromaKey(key) {
   return String(key || '').replace(/^odor_/, '').replace(/_/g, ' ');
 }
 
-/** A captioned single-series radar (sauce profile). Responsive/clamped like
- *  IngredientProfileCard's LabeledRadar so both wheels fit side-by-side. */
-function LabeledRadar({ label, profile, axes, testId }) {
+/** The sauce's own flavor as one fixed grid (the same FlavorGrid the suggestion deck draws), nothing marked: it is a single profile, not a change. */
+function SauceGrid({ profile }) {
+  const pair = useMemo(() => profilePair(profile || {}, {}), [profile]);
   return (
-    <div
-      className="flex flex-col items-center gap-0.5"
-      style={{ width: 'min(46%, 44vh)', minWidth: 130 }}
-    >
-      <span
-        className="uppercase tracking-[0.18em]"
-        style={{ color: CHALK_DIM, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW, fontSize: 'clamp(9px, 2.6vw, 11px)' }}
-      >
-        {label}
-      </span>
-      <BeforeAfterRadar before={profile} delta={EMPTY_DELTA} axes={axes} size={186} testId={testId} />
+    <div className="w-full" style={{ maxWidth: 'min(22rem, 100%)' }}>
+      <FlavorGrid grid={pair.before} marks={null} showLabels={pair.labelledAfter} testId="sauce-card-grid" />
     </div>
   );
 }
@@ -101,10 +89,9 @@ function SauceCard({ name, profile, recipeName, similarity, matchedAromas, paire
         matches {recipeName}{badge ? ` · ${badge}` : ''}
       </p>
 
-      {/* Single-series flavor radars — taste + aroma shown separately. */}
-      <div className="w-full flex flex-wrap justify-center items-start gap-x-3 gap-y-2">
-        <LabeledRadar label="Taste" profile={profile} axes={TASTE_AXES} testId="sauce-card-radar-taste" />
-        <LabeledRadar label="Aroma" profile={profile} axes={radarAxes(profile || {}, 'radar', { pool: AROMA_AXES })} testId="sauce-card-radar-aroma" />
+      {/* The sauce's own profile: tastes and aromas in the one fixed grid. */}
+      <div className="w-full flex justify-center">
+        <SauceGrid profile={profile} />
       </div>
 
       {pairedVia.length > 0 && (

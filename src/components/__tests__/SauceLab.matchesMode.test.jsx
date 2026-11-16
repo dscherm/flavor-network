@@ -99,16 +99,13 @@ describe('SauceLab — matchesContext non-null renders the card deck', () => {
     expect(screen.getByText(/matches Chicken Piccata/i)).toBeTruthy();
   });
 
-  it('each card renders single-series taste + aroma radars (empty delta)', () => {
+  it('each card renders its sauce profile as one fixed flavor grid, nothing marked, no radar', () => {
     render(<SauceLab matchesContext={MATCHES_CONTEXT} onExitMatches={() => {}} />);
-    expect(screen.getByTestId('sauce-card-radar-taste')).toBeTruthy();
-    expect(screen.getByTestId('sauce-card-radar-aroma')).toBeTruthy();
-    // Single series: the sauce's own profile is drawn as the "before" polygon.
-    // With delta={} the "after" polygon coincides with it (no separate shift).
-    const before = screen.getByTestId('sauce-card-radar-taste-before');
-    const after = screen.getByTestId('sauce-card-radar-taste-after');
-    expect(before).toBeTruthy();
-    expect(after.getAttribute('points')).toBe(before.getAttribute('points'));
+    const grid = screen.getByTestId('sauce-card-grid');
+    expect(grid).toBeTruthy();
+    expect(grid.querySelectorAll('[data-testid="flavor-grid-cell"]')).toHaveLength(17);
+    expect(grid.querySelectorAll('[data-mark="up"], [data-mark="down"], [data-mark="mark"]')).toHaveLength(0);
+    expect(document.querySelector('svg[data-testid^="sauce-card-radar"]')).toBeNull();
   });
 
   it('▶ advances to the next sauce card', () => {

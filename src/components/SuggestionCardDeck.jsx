@@ -16,13 +16,14 @@
  *    other noodles/rice, not condiments).
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { recipeAxisProfile, profileDelta, topMovers, nodeProbs } from '../data/recipeProfileAnalysis.js';
+import { recipeAxisProfile, recipeAxisProfileWeighted, profileDelta, topMovers } from '../data/recipeProfileAnalysis.js';
 import { deriveBowlCuisine } from '../data/deriveBowlCuisine.js';
 import IngredientProfileCard from './IngredientProfileCard.jsx';
 import { loadQuantityModel, predictAmountFromCtx } from '../ml/quantityRuntime.js';
 
 const ALPHA = 0.3; // popularity-discount strength (mild — high α promotes junk)
 const SWIPE_THRESHOLD = 50; // px — mirror PairingMode
+const NO_NODES = new Map();
 
 let _modelPromise = null;
 function getModel() {
@@ -66,9 +67,17 @@ const WRONG_FOR_NOODLE = /lasagn|macaroni|\bziti\b|rigatoni|\bpenne\b|spaghetti/
 export default function SuggestionCardDeck({
   mode = 'add', ingredient = null, bowlNames = [], nodes, scopeFilter = null,
   candidates = null, qtyPrefill = true, headerLabel = null,
+  amounts = null, includeUnscored = false,
   onAdd, onSwap, onClose,
 }) {
-  const { scores, n, tasteDrawn, aromaDrawn } = useMemo(() => recipeAxisProfile(bowlNames, nodes), [bowlNames, nodes]);
+  // BUILDER-1: with `amounts` ({ name: "2 oz" }) the Now grid is the amount-weighted profile, the same
+  // calculation (recipeAxisProfileWeighted) a builder's own flavor profile uses; without it, equal weights as before.
+  // includeUnscored keeps a candidate that has no flavor data as a card with an unchanged grid, and works without nodes.
+  const nodeMap = nodes || (includeUnscored ? NO_NODES : null);
+  const profileOfNames = (names, amountMap = amounts) => (amountMap
+    ? recipeAxisProfileWeighted(names.map((k) => ({ ingredient: k, amount: amountMap[k] ?? null })), nodeMap)
+    : recipeAxisProfile(names, nodeMap));
+  const { scores, n, tasteDrawn, aromaDrawn } = useMemo(() => profileOfNames(bowlNames), [bowlNames, nodeMap, amounts]); // eslint-disable-line react-hooks/exhaustive-deps
   // Add cards only move a half the recipe actually draws (no chart from placeholder or too-thin data).
   const drawnHalves = { taste: tasteDrawn, aroma: aromaDrawn };
   const [items, setItems] = useState([]);
@@ -94,25 +103,26 @@ export default function SuggestionCardDeck({
     // adding the FIRST ingredient still previews — the "before" profile is just
     // zeros, so the card shows the candidate's own profile as the "after".
     if (Array.isArray(candidates)) {
-      if (!nodes) { setItems([]); setLoading(false); return () => { cancelled = true; }; }
+      if (!nodeMap) { setItems([]); setLoading(false); return () => { cancelled = true; }; }
       const out = [];
       for (const name of candidates) {
         if (bowlSet.has(name) || name === ingredient) continue;
         if (scopeFilter && !scopeFilter.has(name.toLowerCase())) continue;
-        const node = nodes.get(name);
-        if (!node) continue;
+        const node = nodeMap.get(name);
+        if (!node && !includeUnscored) continue;
         let delta;
         if (mode === 'replace') {
-          // Swap delta: profile with the focal removed + this candidate added.
+          // Swap delta: profile with the focal removed + this candidate added (it takes the replaced line's amount).
           const observed = bowlNames.filter((x) => x !== ingredient);
-          const swapped = recipeAxisProfile([...observed, name], nodes).scores;
+          const swapAmounts = amounts ? { ...amounts, [name]: amounts[ingredient] } : null;
+          const swapped = profileOfNames([...observed, name], swapAmounts).scores;
           delta = {};
           for (const a of Object.keys(scores)) delta[a] = (swapped[a] || 0) - (scores[a] || 0);
         } else {
-          delta = profileDelta(name, scores, n, nodes, { drawn: drawnHalves }) || {};
+          delta = profileDelta(name, scores, n, nodeMap, { drawn: drawnHalves }) || {};
         }
         out.push({ name, delta, movers: topMovers(delta, 3) });
-        if (out.length >= 18) break;
+        if (out.length >= (includeUnscored ? 40 : 18)) break;
       }
       setItems(out);
       setLoading(false);
@@ -173,7 +183,7 @@ export default function SuggestionCardDeck({
             if (!node) continue;
             let delta;
             if (mode === 'replace') {
-              const swapped = recipeAxisProfile([...observed, s.name], nodes).scores;
+              const swapped = profileOfNames([...observed, s.name], amounts ? { ...amounts, [s.name]: amounts[ingredient] } : null).scores;
               delta = {};
               for (const a of Object.keys(scores)) delta[a] = (swapped[a] || 0) - (scores[a] || 0);
             } else {
@@ -187,7 +197,7 @@ export default function SuggestionCardDeck({
         });
     }).catch(() => { if (!cancelled) { setItems([]); setLoading(false); } });
     return () => { cancelled = true; };
-  }, [mode, ingredient, bowlNames, nodes, scopeFilter, candidates]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [mode, ingredient, bowlNames, nodes, scopeFilter, candidates, amounts, includeUnscored]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Keep the visible card in range as the ranked deck (re)loads.
   useEffect(() => { setCardIdx(0); }, [items]);

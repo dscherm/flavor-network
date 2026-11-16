@@ -92,7 +92,8 @@ describe('flavorDisplay: every SURFACES entry has a caller', () => {
     }
   };
   walk('src');
-  for (const key of Object.keys(SURFACES)) {
+  // BUILDER-1: the Sauce deck's radars were the only caller of 'radar'; it now draws the fixed grid, so the surface is kept (radarAxes still exists and is tested below) with no component caller.
+  for (const key of Object.keys(SURFACES).filter((k) => k !== 'radar')) {
     it(`'${key}' is passed by a component or data module outside flavorDisplay.js`, () => {
       const callers = sources.filter(([, text]) => new RegExp(`(groupBars|selectAxes|radarAxes)[(][^)]*['"]${key}['"]`).test(text));
       expect(callers.map(([f]) => f)).not.toEqual([]);
@@ -165,10 +166,14 @@ describe('flavorDisplay: every surface uses the rule (source check)', () => {
     'src/components/RecipeFlavorProfilesCard.jsx',
     'src/components/ProfileAxisRadar.jsx',
     'src/data/profileGridPair.js',
-    'src/components/SauceSuggestionDeck.jsx',
     'src/data/shareCardLayout.js',
     'src/data/inventProfile.js',
   ]) it(`${f} imports flavorDisplay`, () => { expect(uses(f)).toBe(true); });
+  it('the Sauce deck draws its chart through profileGridPair (the same grid as the suggestion deck), not its own radar', () => {
+    const src = readFileSync('src/components/SauceSuggestionDeck.jsx', 'utf8');
+    expect(src).toContain('profileGridPair.js');
+    expect(src).toContain('FlavorGrid');
+  });
   it('the shared page draws its chart through InventFlavorProfile', () => {
     expect(readFileSync('src/components/SharedRecipePage.jsx', 'utf8')).toContain('InventFlavorProfile');
   });
