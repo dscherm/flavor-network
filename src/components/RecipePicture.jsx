@@ -9,15 +9,20 @@
  * `value` seeds it with the current choice (same shapes). The original photo is decoded in the
  * browser, held in memory only for re-runs, and released when another photo is picked or this
  * unmounts. `filter` injects the filter functions (tests); the default is the real browser one.
+ *
+ * "Remove background" (PICTURE-8): on a tap it asks filter.findSubject for a subject map (the model
+ * is fetched from this site's own hosting at that moment, never before) and the chalk is drawn only
+ * there. Nothing about it is stored: only the finished picture goes to onChange. Any failure leaves
+ * the picture drawn without a cut-out, with a sentence, and saving still works.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { PictureArt, picturesFor } from './pictureArt.jsx';
 import { CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, FONT } from '../data/chalkTheme.js';
 import { CHALK_DEFAULTS, CHALK_RANGES, ChalkCancelled } from '../data/chalkFilter.js';
-import { loadPhoto, runChalk, toCanvas, encodeChalk } from '../data/chalkFilterBrowser.js';
+import { loadPhoto, runChalk, toCanvas, encodeChalk, findSubject } from '../data/chalkFilterBrowser.js';
 import { cropCentre, CROP_SHAPES } from '../data/pictureCrop.js';
 
-const DEFAULT_FILTER = { loadPhoto, runChalk, toCanvas, encodeChalk };
+const DEFAULT_FILTER = { loadPhoto, runChalk, toCanvas, encodeChalk, findSubject };
 
 const MODES = [
   { id: 'drawing', label: 'A drawing' },
@@ -35,6 +40,16 @@ const SLIDERS = [
 const CROP_LABEL = { square: 'Square', landscape: 'Landscape' };
 const UNREADABLE = "That file can't be opened as a picture here. Try a JPEG or PNG photo.";
 const FAILED = "The drawing didn't work out. Try again, or pick a different photo.";
+const CUT_LIMITS = 'Clear glass and busy backgrounds may cut badly. The first time downloads about 5 MB.';
+const CUT_NOTES = {
+  'no-wasm': "This browser can't run the cut-out, so the whole picture is drawn. You can still save it.",
+  nothing: "I couldn't find a clear subject in this photo, so the whole picture is drawn. You can still save it.",
+  fallback: "The cut-out couldn't run on this device, so the whole picture is drawn. You can still save it.",
+};
+const CUT_STAGES = {
+  loading: 'Getting the cut-out model (about 5 MB, first time only)…',
+  finding: 'Finding the subject…',
+};
 
 const FOCUS = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
 const focusStyle = { outlineColor: CHALK_CREAM };
@@ -57,6 +72,8 @@ export default function RecipePicture({
   const [message, setMessage] = useState('');
   const [hasPhoto, setHasPhoto] = useState(false);
   const [valueUrl, setValueUrl] = useState(null);
+  const [cut, setCut] = useState('off'); // off | finding | on
+  const [cutStage, setCutStage] = useState('finding');
 
   const photoRef = useRef(null);       // decoded original pixels, in memory only
   const runRef = useRef(null);         // { cancel }
@@ -66,10 +83,21 @@ export default function RecipePicture({
   const timerRef = useRef(null);
   const radioRefs = useRef([]);
   const fileRef = useRef(null);
+  const settingsRef = useRef(settings);   // latest settings, for work that finishes later
+  settingsRef.current = settings;
+  const cutRef = useRef(null);            // { cancel } of a running subject search
+  const cutIdRef = useRef(0);
+  const cutOnRef = useRef(false);
+  const masksRef = useRef({});            // crop shape -> subject map for the current photo
 
   const cancelRun = useCallback(() => {
     if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
     if (runRef.current) { runRef.current.cancel(); runRef.current = null; }
+  }, []);
+
+  const cancelCut = useCallback(() => {
+    cutIdRef.current += 1;
+    if (cutRef.current) { cutRef.current.cancel(); cutRef.current = null; }
   }, []);
 
   const start = useCallback((nextSettings, nextCrop) => {
@@ -85,6 +113,7 @@ export default function RecipePicture({
     try {
       handle = filter.runChalk(cropCentre(photo, nextCrop), nextSettings, {
         onProgress: (p) => { if (runIdRef.current === id) setProgress(p); },
+        mask: cutOnRef.current ? masksRef.current[nextCrop] : undefined,
       });
     } catch {
       setStatus('idle');
@@ -125,9 +154,11 @@ export default function RecipePicture({
   useEffect(() => () => {
     runIdRef.current += 1;
     cancelRun();
+    cancelCut();
     photoRef.current = null;
     resultRef.current = null;
-  }, [cancelRun]);
+    masksRef.current = {};
+  }, [cancelRun, cancelCut]);
 
   // A seeded chalk picture is shown from its blob; the object URL is revoked when it changes.
   useEffect(() => {
@@ -149,6 +180,10 @@ export default function RecipePicture({
   async function loadFile(file) {
     if (!file) return;
     cancelRun();
+    cancelCut();
+    cutOnRef.current = false;
+    masksRef.current = {};
+    setCut('off');
     runIdRef.current += 1;
     photoRef.current = null;
     resultRef.current = null;
@@ -189,9 +224,77 @@ export default function RecipePicture({
     schedule(next, crop);
   }
 
+  // Find the subject for this crop, then draw with it. Any failure draws without it and says why.
+  function findAndDraw(shape) {
+    const photo = photoRef.current;
+    if (!photo) return;
+    cancelCut();
+    setMessage('');
+    setCut('finding');
+    setCutStage('finding');
+    const id = cutIdRef.current;
+    const fallBack = (note) => {
+      cutOnRef.current = false;
+      setCut('off');
+      start(settingsRef.current, shape);
+      if (note) setMessage(note);
+    };
+    let handle;
+    try {
+      handle = filter.findSubject(cropCentre(photo, shape), {
+        onStage: (s) => { if (cutIdRef.current === id) setCutStage(s); },
+      });
+    } catch (err) {
+      fallBack(CUT_NOTES[err?.code] || CUT_NOTES.fallback);
+      return;
+    }
+    cutRef.current = handle;
+    handle.promise.then((mask) => {
+      if (cutIdRef.current !== id) return;
+      cutRef.current = null;
+      masksRef.current[shape] = mask;
+      cutOnRef.current = true;
+      setCut('on');
+      start(settingsRef.current, shape);
+    }, (err) => {
+      if (err instanceof ChalkCancelled || err?.name === 'ChalkCancelled') return;
+      if (cutIdRef.current !== id) return;
+      cutRef.current = null;
+      fallBack(CUT_NOTES[err?.code] || CUT_NOTES.fallback);
+    });
+  }
+
+  function toggleCut() {
+    if (cut === 'finding') {
+      cancelCut();
+      setCut('off');
+      cutOnRef.current = false;
+      start(settingsRef.current, crop);
+      return;
+    }
+    if (cut === 'on') {
+      cancelCut();
+      cutOnRef.current = false;
+      setCut('off');
+      start(settings, crop);
+      return;
+    }
+    if (masksRef.current[crop]) {
+      cutOnRef.current = true;
+      setCut('on');
+      start(settings, crop);
+      return;
+    }
+    findAndDraw(crop);
+  }
+
   function changeCrop(shape) {
     setCrop(shape);
-    schedule(settings, shape);
+    if (cut === 'off') { schedule(settings, shape); return; }
+    if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
+    if (masksRef.current[shape]) { cutOnRef.current = true; setCut('on'); schedule(settings, shape); return; }
+    cutOnRef.current = false;
+    findAndDraw(shape);
   }
 
   async function usePicture() {
@@ -366,6 +469,15 @@ export default function RecipePicture({
                 </button>
                 <button
                   type="button"
+                  aria-pressed={cut === 'on'}
+                  onClick={toggleCut}
+                  className={`${button} flex-1`}
+                  style={{ ...focusStyle, borderColor: cut === 'on' ? CHALK_CREAM : CHALK_RAIL, background: cut === 'on' ? 'rgba(245,239,222,0.12)' : 'transparent', color: CHALK_CREAM }}
+                >
+                  {cut === 'finding' ? 'Cancel cut-out' : 'Remove background'}
+                </button>
+                <button
+                  type="button"
                   onClick={usePicture}
                   disabled={status !== 'ready'}
                   className={`${button} flex-1 disabled:opacity-40`}
@@ -374,6 +486,15 @@ export default function RecipePicture({
                   {status === 'saving' ? 'Saving…' : 'Use this picture'}
                 </button>
               </div>
+
+              {cut === 'finding' && (
+                <p role="status" aria-live="polite" data-testid="picture-cutting" style={{ fontSize: 14, color: CHALK_DIM, margin: '8px 0 0' }}>
+                  {CUT_STAGES[cutStage] || CUT_STAGES.finding}
+                </p>
+              )}
+              <p data-testid="picture-cut-limits" style={{ fontSize: 12, color: CHALK_SUB, margin: '6px 0 0' }}>
+                {CUT_LIMITS}
+              </p>
 
               {adjust && (
                 <div data-testid="picture-sliders" style={{ marginTop: 10 }}>

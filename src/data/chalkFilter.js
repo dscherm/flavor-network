@@ -14,6 +14,9 @@ export const CHALK_RANGES = Object.freeze({
   focus: Object.freeze({ min: 0, max: 100, step: 1 }),
 });
 
+/** How soft the edge of a cut-out is, in pixels at 720 px on the long side (scaled with the picture). */
+export const CUTOUT_SOFT = 6;
+
 export const MAX_WORK = 1080; // working size, long side
 export const STORE_SIDE = 600; // stored size, long side
 export const STORE_BYTES = 150 * 1024;
@@ -118,6 +121,22 @@ export function focusMask(d, focus) {
   return 1 - u * u * (3 - 2 * u);
 }
 
+/**
+ * Turn a raw subject map (0..1 per pixel, 1 = subject) into the feathered strength chalk is drawn
+ * with: blurred, then pushed through a smoothstep from 0.25 to 0.75 so the edge fades over a few
+ * pixels instead of stepping. Returns a new array; the input is not modified.
+ */
+export function featherMask(raw, w, h, soft = CUTOUT_SOFT) {
+  const k = Math.max(w, h) / 720;
+  const edge = blur(raw, w, h, Math.round(soft * k));
+  const out = new Float32Array(raw.length);
+  for (let i = 0; i < out.length; i++) {
+    const t = Math.min(1, Math.max(0, (edge[i] - 0.25) / 0.5));
+    out[i] = t * t * (3 - 2 * t);
+  }
+  return out;
+}
+
 /** Fixed-seed grain, so the same size always gives the same noise. */
 export function makeNoise(w, h) {
   const n = w * h;
@@ -138,12 +157,16 @@ export function makeNoise(w, h) {
  * @param {{data: Uint8ClampedArray, width: number, height: number}} image  RGBA, already
  *   scaled to the working size (see fitSize). Not modified.
  * @param {object} settings  weight, detail, shading, colour, grain, focus (clamped to CHALK_RANGES).
- * @param {{onProgress?: (fraction: number) => void, isCancelled?: () => boolean}} [opts]
+ * @param {{onProgress?: (fraction: number) => void, isCancelled?: () => boolean, mask?: Float32Array}} [opts]
+ *   mask: optional subject map, one value 0..1 per pixel (1 = subject). Chalk is drawn only where it
+ *   is high, with a feathered edge (featherMask); everywhere else stays bare slate. Without a mask, or
+ *   with one of the wrong length, the result is exactly what it was before masks existed.
  * @returns {{data: Uint8ClampedArray, width: number, height: number}}
  */
 export function chalkify(image, settings, opts = {}) {
   const { width: w, height: h, data: rgba } = image;
   const { onProgress, isCancelled } = opts;
+  const subject = opts.mask && opts.mask.length === w * h ? opts.mask : null;
   const step = (f) => {
     if (isCancelled && isCancelled()) throw new ChalkCancelled();
     if (onProgress) onProgress(f);
@@ -155,6 +178,7 @@ export function chalkify(image, settings, opts = {}) {
   const grain = s.grain / 100;
   const colour = s.colour / 100;
   const focus = s.focus;
+  const keepMask = subject ? featherMask(subject, w, h) : null;
 
   step(0);
   const lum = stretchContrast(luminance(rgba, w, h));
@@ -223,6 +247,7 @@ export function chalkify(image, settings, opts = {}) {
         const fx = (x + 0.5 - cx) / cx, fy = (y + 0.5 - cy) / cy;
         a *= focusMask(Math.sqrt(fx * fx + fy * fy), focus);
       }
+      if (keepMask) a *= keepMask[i];
       const dust = 1 - grain * 0.55 * noise.fine[i];
       const gap = noise.fine[i] < grain * 0.22 ? 0.35 : 1;
       a *= dust * gap * (1 - grain * 0.3 * (1 - noise.coarse[i]));

@@ -27,18 +27,20 @@ let nextId = 1;
  * Start a conversion in a Web Worker so the page stays responsive (a worker never blocks
  * input, unlike slicing, which would still pause it between yields). The caller's pixel
  * array is copied, so it stays usable for the next slider change.
+ * `mask` (optional, one 0..1 value per pixel) is the subject map from findSubject; it is copied too.
  * Returns { promise, cancel }. cancel() terminates the worker; the promise then rejects
  * with ChalkCancelled. Where Workers are unavailable the filter runs on the main thread.
  */
-export function runChalk(image, settings, { onProgress } = {}) {
+export function runChalk(image, settings, { onProgress, mask } = {}) {
   const { width, height } = image;
   const copy = { data: new Uint8ClampedArray(image.data), width, height };
+  const maskCopy = mask ? new Float32Array(mask) : undefined;
   if (typeof Worker === 'undefined') {
     let cancelled = false;
     const promise = new Promise((resolve, reject) => {
       setTimeout(() => {
         if (cancelled) { reject(new ChalkCancelled()); return; }
-        try { resolve(chalkify(copy, settings, { onProgress, isCancelled: () => cancelled })); } catch (e) { reject(e); }
+        try { resolve(chalkify(copy, settings, { onProgress, isCancelled: () => cancelled, mask: maskCopy })); } catch (e) { reject(e); }
       }, 0);
     });
     return { promise, cancel: () => { cancelled = true; } };
@@ -57,10 +59,29 @@ export function runChalk(image, settings, { onProgress } = {}) {
     };
     worker.onerror = (e) => { worker.terminate(); reject(new Error(e.message || 'chalk worker failed')); };
   });
-  worker.postMessage({ id, image: copy, settings }, [copy.data.buffer]);
+  worker.postMessage({ id, image: copy, settings, mask: maskCopy }, maskCopy ? [copy.data.buffer, maskCopy.buffer] : [copy.data.buffer]);
   return {
     promise,
     cancel: () => { worker.terminate(); settle.reject(new ChalkCancelled()); },
+  };
+}
+
+/**
+ * Find the main subject of a photo, on this device, for the chalk filter's mask. The cut-out module
+ * (and with it the model runtime) is loaded with a dynamic import only when this is called, so none
+ * of it is in the page until someone taps "Remove background". `onStage('loading' | 'finding')` says
+ * where it is. Returns { promise, cancel }; the promise resolves to a Float32Array (one 0..1 value
+ * per pixel of `image`) or rejects with a CutoutError (see chalkCutout.js) or ChalkCancelled.
+ */
+export function findSubject(image, { onStage } = {}) {
+  let cancelled = false;
+  let stop;
+  const gone = new Promise((_, reject) => { stop = () => reject(new ChalkCancelled()); });
+  const work = import('./chalkCutout.js').then((m) => m.findSubjectMask(image, { onStage, isCancelled: () => cancelled }));
+  work.catch(() => {});
+  return {
+    promise: Promise.race([work, gone]),
+    cancel: () => { cancelled = true; stop(); },
   };
 }
 

@@ -21,6 +21,20 @@ The plan is `.schermness/spec.md`, "A picture for a recipe", with the addendum "
 
 Listed in `BACKLOG.md` under PICTURE-LEFT-OUT: publishing original photos, an AI image model, cropping beyond square and landscape, more than one picture per recipe, pictures on built-in recipes, redrawing the small drawings, copying a picture when someone saves from a shared page, and changing the picture of an existing link.
 
-## Open with the owner
+## Remove background: an automatic cut-out (PICTURE-8)
 
-An automatic cut-out of the subject (so no oval is needed). A trial page exists (`docs/prototypes/chalk-cutout-bench.html`, https://claude.ai/artifact/D2APE3CRDfPAvHka3jdMz8). The owner has not judged it. Nothing in `src/` uses a model for it.
+A "Remove background" button in the "A photo as chalk" step, beside Adjust. Tapping it finds the main subject of the photo and draws chalk only there; the rest stays bare slate with a soft edge. Tap it again to turn it off. Focus still works with or without it (the two fade together).
+
+How it works:
+- The model is U2-Net small (`u2netp.onnx`, 4.6 MB, Apache-2.0, see `THIRD_PARTY_NOTICES.md`), run with onnxruntime-web, the runtime the recipe model already uses. It runs on the device, in the runtime's own worker (`ort.env.wasm.proxy`), so the page stays responsive; the picture is shrunk to 320 x 320 for it, and its answer is stretched, enlarged and feathered back to the picture's size.
+- Nothing is loaded until the tap. The tap dynamically imports `src/data/chalkCutout.js` (2.9 KB) and the runtime chunk, then requests one file from this site's own hosting: `/models/u2netp.onnx`, the first time only (the browser caches it). Nothing else is requested; the photo, its pixels and the subject map are not sent anywhere. A test pins the single fetch and that the arithmetic module has no network call.
+- The pure filter takes an optional `mask` (one 0..1 value per pixel). With no mask its output is byte-identical to before (the prototype parity tests are untouched).
+- Only the finished chalk JPEG is stored, as before. No cut-out setting or map is stored or migrated.
+
+When it cannot do it, the picture is drawn without a cut-out, a plain sentence says so, and saving still works:
+- No WebAssembly: "This browser can't run the cut-out, so the whole picture is drawn."
+- No clear subject (the map keeps under 3% or over 97% of the picture): "I couldn't find a clear subject in this photo, so the whole picture is drawn."
+- The model file or runtime would not load, or it failed while working (for example out of memory): "The cut-out couldn't run on this device, so the whole picture is drawn."
+- "Cancel cut-out" while it is working stops waiting for it and draws without one, with no sentence. Because the runtime's worker cannot be interrupted, the work in progress finishes unseen.
+
+Honest limits (also one line under the buttons in the app): clear glass and busy backgrounds may cut badly, and the first use downloads about 5 MB. Measured on the development machine, in the dev server's browser pane, on two drawn pictures (not photographs): about 1.7 s from tap to subject map once the model is loaded, and about 3.3 s the first time (model fetch and start included). The kept shapes were the plate and its food (about 15% of each picture); in the plain scene the chalk lit 98% of the picture without the cut-out and 21% with it, in the shelf-behind-the-plate scene 67% and 19%. A phone's time was not measured.
