@@ -2786,7 +2786,7 @@ and the swipe, in-app surfaces), then CHART-4 (cards), CHART-5 (Recipe Notebook)
   "id": "CHART-4",
   "title": "Share cards show the tasting note with strips",
   "category": "feature",
-  "passes": false,
+  "passes": true,
   "description": "shareCardLayout.js draws design D in place of the capped bars on the link-preview (1200x630), portrait (1080x1350) and tall (1080x1920) cards, in the browser canvas and on the server card (regenerate cardLayout.generated.ts through scripts/buildShareIndex.mjs; never hand-edit generated files). The first card of the set of three shows D and the wheel together. Stored bars on a user's published copy stay within the rules' limit (at most 11 bars): state whether the sentence and strips can be drawn from the stored bars alone, and if not, what is stored instead and the rules change needed (rules tests on the emulator only). share-cards.json regenerated.",
   "acceptance": [
     "Server and browser cards for a drink, a sauce and a dish were rendered to PNG and looked at; each is described honestly, including sentence wrapping beside a long recipe name and whether segment labels are readable",
