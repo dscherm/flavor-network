@@ -2980,7 +2980,7 @@ shopping list". Order: SHOP-1, SHOP-2, SHOP-3, SHOP-4, SHOP-5, one at a time.
   "id": "SHOP-5",
   "title": "Shopping list: usage events, docs and the final pass",
   "category": "chore",
-  "passes": false,
+  "passes": true,
   "description": "Usage events, sent only with the analytics Yes and carrying counts and kinds only, never item text: shop_opened, shop_recipe_added (kind, origin, added and merged counts), shop_alternative_used. Add them to the catalogue (src/data/usageEvents.js), docs/usage-data.md and the privacy page together (the parity test enforces it). docs: a short docs/shopping-list.md (what is stored and where, the merge rule with its table, what 'pantry' means, limits). README, BACKLOG (left out on purpose: prices, stores, sharing a list, weight-volume conversion, per-store aisle order) and a CLOSEOUT.md UNRELEASED note stating the exact deploy targets. Final pass at 375px: add a dish from inside the list with a kitchen that has some of it, add a second recipe that shares an ingredient, check items off, use an alternative, put checked items in the kitchen, reload, and (emulator or stub only) the signed-in sync. Anything not exercised for real is named.",
   "acceptance": [
     "The three events arrive at the test double with only the listed params; item text never appears (tests); catalogue, doc table and privacy page in step",
