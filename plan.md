@@ -2846,3 +2846,48 @@ and the swipe, in-app surfaces), then CHART-4 (cards), CHART-5 (Recipe Notebook)
   ]
 }
 ```
+
+## 2026-11-16 — Chalk picture: fade the background (a sixth slider) and try an automatic cut-out
+
+Owner, 2026-11-16: "would it also be possible for the chalk filter to erase the background of
+the image?" Offered three on-device ways (focus fade; mark it yourself; automatic cut-out by a
+small on-device model) and recommended "focus fade plus a cut-out trial on the try-it page".
+Owner: "approve recommendation". A cloud background-removal service stays ruled out (the
+original photo never leaves the device; no paid key). Spec: `.schermness/spec.md` → "A picture
+for a recipe", addendum "Fading or removing the background". Order: PICTURE-6 after PICTURE-2
+(it adds a slider to the chooser PICTURE-2 builds) and before PICTURE-3. PICTURE-7 is an
+exploration for the owner and builds nothing in the app.
+
+```json
+{
+  "id": "PICTURE-6",
+  "title": "Focus: a sixth slider that fades the background of a chalk picture to bare slate",
+  "category": "feature",
+  "passes": false,
+  "description": "Add a `focus` setting to src/data/chalkFilter.js: 0 (the default) draws the whole photo exactly as today; raising it keeps a centred oval of the picture and fades every chalk mark outside it (lines, shading, colour fill and grain) smoothly to the bare slate ground, the oval tightening as the value rises. CHALK_DEFAULTS.focus = 0 and CHALK_RANGES.focus = 0-100. The oval follows the crop (square or landscape) and the fade is smooth, with no visible ring. Pure, deterministic, no DOM, no network, as the rest of the filter. RecipePicture.jsx's Adjust panel gains a sixth labelled slider, 'Focus', with live preview and Reset like the other five. At focus 0 the output must be byte-identical to PICTURE-1's for the same input and settings (the prototype-parity test keeps passing unchanged). Stored pictures need no migration: the setting is not stored, only the finished picture.",
+  "acceptance": [
+    "focus 0 gives byte-identical output to the filter before this task for the same input and settings (test), and the prototype-parity test still passes untouched",
+    "With focus raised, a synthetic image with marks in the centre and in all four corners keeps the centre marks at full strength and leaves the corners as bare slate (test with stated pixel thresholds); the fade is monotonic from centre to edge (test); focus clamps to 0-100",
+    "The Adjust panel shows six labelled sliders; changing Focus re-runs the filter and cancels the previous run; Reset returns it to 0 (component tests with the stubbed filter)",
+    "Looked at in a browser at 375px through the dev harness on a synthetic photo at focus 0, 50 and 100, described honestly (is the fade smooth, does the subject survive, is there a visible ring)",
+    "Encoded size still under 150 KB for the three sample images at focus 50 (reported); conversion time on the 4000x3000 test image reported and no main-thread block over 100 ms",
+    "npm run gate green; nothing deployed without the owner's go-ahead"
+  ]
+}
+```
+
+```json
+{
+  "id": "PICTURE-7",
+  "title": "Try an automatic cut-out on the try-it page, for the owner to judge",
+  "category": "design",
+  "passes": false,
+  "description": "An exploration, not a build in the app. Extend the chalk try-it page (docs/prototypes/chalk-filter-bench.html, published as the artifact https://claude.ai/artifact/ASj8nzhA61rxqbWLWY4TbV) with: the new Focus slider, and a switch 'Cut out the subject automatically' that runs a small salient-object model in the browser (candidate: u2netp, about 4.7 MB, Apache-2.0, through onnxruntime-web) to make a mask, then draws chalk only where the mask says subject (soft edge). The page must work as a published artifact: the runtime and the model are published beside the page as supporting files (an artifact cannot fetch from other hosts), nothing is uploaded, and the page says so. It reports, per photo, the time taken and the model download size. The owner tries it on their own food and drink photos, including clear glassware and a busy background, and decides: keep focus fade only, add the automatic cut-out to the app (then a spec and tasks follow: model hosting, first-use download, phone timing, a fallback when it fails), or add 'mark it yourself'. Downloading the model file needs the owner's go-ahead first (file name, source and size stated). Nothing in src/ changes in this task.",
+  "acceptance": [
+    "The published try-it page has the Focus slider and the automatic cut-out switch, and both work on a photo chosen in the page (looked at by the builder on at least a plated dish, a drink in a clear glass and a busy background; described honestly, including failures)",
+    "The page states the model's name, size and licence, that nothing leaves the device, and shows the time each cut-out took",
+    "The owner's decision is recorded verbatim; if they choose the automatic cut-out, a spec addendum and tasks are written",
+    "Nothing in src/ changes; nothing is deployed"
+  ]
+}
+```
