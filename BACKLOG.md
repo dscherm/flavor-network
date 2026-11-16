@@ -108,3 +108,40 @@ The Cloud Function `scrapeRecipe` exists and works for schema.org recipes. Open:
 - PICTURE-RELINK Changing the picture of an existing link; today the person unshares and shares again for a new link.
 - PICTURE-CUTOUT Open owner decision: an automatic cut-out of the subject instead of the Focus oval. A trial page exists (https://claude.ai/artifact/D2APE3CRDfPAvHka3jdMz8, source `docs/prototypes/chalk-cutout-bench.html`); the owner has not judged it, and nothing in `src/` uses a model for it. If nothing is decided, Focus is the only background control.
 - PICTURE-PHONE The picture work was looked at in a desktop browser pane at 375 px with a synthetic image, never with a phone camera, a real HEIC photo or Safari, and never against the real database or through a live link preview.
+
+## Shopping list (2026-11-16, SHOP-1 to 5; on master, not deployed). Docs: `docs/shopping-list.md`
+
+Left out on purpose:
+- SHOP-NO-PRICES Prices, totals and budgets.
+- SHOP-NO-STORES Choosing a store, and a per-store aisle order (the aisles are one fixed table, `AISLE_OF_CATEGORY` in `src/data/shoppingList.js`).
+- SHOP-NO-ORDERING Online ordering or hand-off to a delivery service.
+- SHOP-NO-BARCODE Barcode scanning.
+- SHOP-NO-SHARING Sharing one list between people (the list belongs to one account; there is no link and no live co-editing).
+- SHOP-NO-CONVERSION Converting between weight and volume (a cup of flour is not a fixed weight), and between metric and US (see decision 1).
+
+OPEN OWNER DECISIONS (each one defined; the builder did not decide any of them):
+
+- SHOP-OPEN-1 Should metric and US amounts be converted and summed?
+  - What it is: today 200 g plus 8 oz stays "200 g + 8 oz" on one line, and 250 ml plus 1 cup stays "250 ml + 1 cup". The rule only adds units whose conversion is exact by definition (g with kg, ml with cl and l, tsp with tbsp and cup, oz with lb); 1 oz = 28.35 g is a rounded figure, so metric and US are never turned into each other (`src/data/shoppingList.js`, the merge-rule header; SHOP-1 spec said "both weights").
+  - If nothing is decided: the list stays as it is. A cook who adds a cocktail in ml and a dish in oz of the same ingredient sees two parts on one line and has to add them in their head.
+  - Options: (a) keep as is (exact, never wrong, sometimes two numbers); (b) convert US to metric (or the other way) with rounding and show the sum with a "about" marker, which is easier to read and can be off by a few percent; (c) convert only when the recipe itself carries both. Weight to volume stays out whatever is chosen.
+  - Collides with: the earlier ruling that an ingredient is never listed twice (kept in every option, only the number display changes).
+- SHOP-OPEN-2 Should the panel's "Add to shopping list" also add "Even better with" and "Nice to have"?
+  - What it is: on a What do I need? panel, "Copy shopping list" copies the missing items and the optional ones, but "Add to shopping list" adds only the "You need" lines (`needs.missing`, `src/components/AddToShoppingList.jsx`), as the task said.
+  - If nothing is decided: the two buttons on one panel give different lists.
+  - Options: (a) keep the difference (the shopping list holds only what the recipe needs); (b) add the optional items too, as Copy does (the two agree, the list gets longer and the cook may buy extras); (c) add them unticked-by-default in a preview, which needs the panel to show a preview step it does not have today.
+- SHOP-OPEN-3 Should "Add from a recipe" leave a dish's flavourings unticked so it agrees with the panel?
+  - What it is: inside the list, the preview treats every line the cook lacks as needed, including a dish's "flavourings" (the Cookbook splits mains from flavourings); the panel adds only the mains' missing lines. So adding the same dish through the two doors gives different rows.
+  - If nothing is decided: the list's door adds flavourings ticked; the panel's does not.
+  - Options: (a) keep (more complete shopping, a longer list); (b) untick flavourings by default in the preview, so a tap adds them and the two doors agree on the default; (c) hide them behind "Include flavourings", like basics.
+- SHOP-OPEN-4 Extend the stand-in tables.
+  - What it is: only 58 ingredients have an alternative (45 food, 13 spirits). A row with none says "No stand-in I'd trust for X." These have none: garlic, ginger, eggs, flour, basil, cumin, butter, olive oil (their only swaps are for a supporting role, which a list row cannot tell), gin, vodka, every liqueur, vermouth, bitters, soda water; also baking powder and soda, chicken breast and thigh, mint, thyme, saffron, tomatoes, rice, potatoes, soy sauce, fish sauce, mustard, red wine.
+  - If nothing is decided: nothing changes; the sheet is honest and short.
+  - Options: (a) leave it; (b) add hand-written entries to `SWAPS` in `src/data/kitchenSwaps.js`, each one a reviewed line (this also improves the recipe-side swaps; cost: someone has to decide each pair, because a wrong stand-in is worse than none); (c) a numeric ratio on entries ("use three quarters as much"), which the code supports (`ratio`) but no table entry uses today.
+  - Collides with: the rule that no stand-in is inferred from category ("no basil? use mint" passes a category test and is wrong).
+
+Known gaps, not decisions:
+- SHOP-SYNC-REAL Signed-in sync was tested with a mocked Firestore and the emulator rules, never on a real account.
+- SHOP-PHONE Looked at in a desktop browser pane at 375 px only; no phone, no iOS clipboard, and the consent banner overlapping the list was not seen.
+- SHOP-REMOVAL-RESURRECT Removing an item from a list on one device and not syncing for more than 30 days lets it come back (removal notes are dropped after 30 days).
+- PROFILE-RESURRECT A cuisine, ingredient, favourite pairing, saved recipe, cocktail or sauce deleted on one device comes back from the other at sign-in: those lists merge as a union and carry no removal markers. Only the shopping list has tombstones. Ambiguous (a rule change), so not changed in SHOP-5.
