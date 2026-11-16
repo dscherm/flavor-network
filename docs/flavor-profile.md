@@ -923,10 +923,10 @@ With six tastes and eleven aromas a full chart has seventeen bars. The owner has
 
 1. Tastes and aromas are two groups, headed **Taste** and **Aroma**, each ordered strongest first. (So Umami under Taste and Savory under Aroma, or Heat and Spice, read as different things.)
 2. A bar is drawn only at or above a floor of 0.05.
-3. Each group has a maximum that depends on the room: **share cards 3 tastes + 3 aromas; the cover of a set of three 4 + 4; invent panels and the shared page ("compact") 4 + 4 with "show all"; the Recipe Notebook overview ("full") 6 + 6 with "show all".**
-4. When bars are hidden one short line says so ("+3 fainter notes"); compact and full surfaces add "show all" (and "show fewer").
+3. Each group has a maximum that depends on the room. **Superseded by the graph redesign (CHART-3 to CHART-7): only the Recipe Notebook overview ("full") still caps, 6 tastes + 6 aromas with "show all"; the Sauce suggestion card's aroma radar ("radar") plots at most 4 aromas; InventFlavorProfile keeps a ranked list for screen readers ("compact", everything above the floor). The share cards (were 3 + 3 and 4 + 4), the invent panels, the shared page and the Flavor profile button no longer cap anything: see "Graphs" below.**
+4. On the Recipe Notebook overview, when bars are hidden one short line says so ("+3 fainter notes") and "show all" (and "show fewer") is offered. The swipe chart has neither any more.
 5. Ties are broken one way everywhere: scores are compared to three decimals, and a tie goes to the axis that comes first in the canonical order (sweet, sour, bitter, salty, umami, heat, fruity, floral, green, woody, spice, creamy, toasty, nutty, earthy, smoky, savory). The server's stored card bars keep three decimals so they order the same way. A test checks that the Recipe Notebook, an invent panel, the shared page and a server card lead with the same two tastes and the same two aromas for Negroni and Beef Bolognese, with no tolerance for ties.
-6. Radars plot only the axes the rule picks, never seventeen: (CHART-5: the Recipe Notebook flavor map is no longer a radar; it draws the fixed seventeen-wedge wheel, and its old per-ingredient dots were dropped); the aroma wheel on the suggestion cards at most 4 aromas plus the ones the candidate moves (the taste wheel keeps its six); the Cookbook card radar (chef vocabulary, with its own axis switcher) the keys the recipe has a signal on, up to 6 for taste and 8 for aroma, never fewer than 3, in the vocabulary's own order. Season, cuisine and method radars are unchanged.
+6. Radars plot only the axes the rule picks, never seventeen: (CHART-5: the Recipe Notebook flavor map is no longer a radar; it draws the fixed seventeen-wedge wheel, and its old per-ingredient dots were dropped); the Sauce suggestion card's aroma radar at most 4 aromas (the add and swap cards are now fixed grids, CHART-6, not radars); the Cookbook card radar (chef vocabulary, with its own axis switcher) the keys the recipe has a signal on, up to 6 for taste and 8 for aroma, never fewer than 3, in the vocabulary's own order. Season, cuisine and method radars are unchanged.
 7. The per-axis pages and the Enhance page follow the same selection (6 + 6, or every axis above the floor after "show all"). Every one of the seventeen axes has a page, an insight, a balancing axis and boost and temper candidates (a test covers all seventeen).
 8. A user's published copy stores every note above the floor (up to 17 bars; CHART-4 raised the rules limit from 11, which a 4 + 4 cut had been fitting under). Superseded: it used to store only the compact set (4 + 4 bars). Older copies with 8 bars still read and draw.
 
@@ -944,8 +944,57 @@ Every built-in recipe and everything the cook saves now has a **Flavor profile**
 - **Cookbook recipe view** (`RecipeDetail`): the button sits in an actions row with Share, above the profile radar. Built-in dishes and the cook's own recipes. Opens the same expanding section.
 - **Unchanged**: the Recipe Notebook, the invent panels, the shared recipe page and the share cards (all in the list above).
 
-What the section shows: the Taste and Aroma groups under their headings, strongest first, at most 4 + 4 with "+N fainter notes" and "show all" (the `compact` rule); "Driven by" (the ingredients behind the strongest taste and the strongest aroma); "Not counted" for ingredients with no data; the line "Built from taste labels and aroma notes for each ingredient, weighted by amount. A guide, not a taste test."; and, with too little data, only "Not enough flavor data for a chart yet." with no bars.
+What the section shows (as redrawn in CHART-3): the tasting note and strips, swiping to the wheel (see "Graphs" below; it was ranked bars, at most 4 + 4, when PROFILE-1 landed); "Driven by" (the ingredients behind the strongest taste and the strongest aroma); "Not counted" for ingredients with no data; the line "Built from taste labels and aroma notes for each ingredient, weighted by amount. A guide, not a taste test."; and, with too little data, only "Not enough flavor data for a chart yet." with no bars.
 
 How it stays the same chart: the card turns the item it already holds into the shared page's recipe shape with `normaliseBuiltIn` (the same resolvers as `/r/<kind>/<slug>`) or `fromOwnItem` (the shape of a published copy), then calls `profileForRecipe`. A test (`recipeProfileCoverage.test.js`) checks, for every built-in drink, sauce and dish, that the card's recipe and profile equal the shared page's, and for Negroni, Hollandaise and Beef Bolognese that the card's two leading tastes and aromas equal the shared page's and the server share card's. Nothing is fetched when a card is opened: the curated taste labels are already on the ingredient nodes in memory and the aroma table is code. Opening a card calls an optional `onProfileOpen(kind, builtIn)` prop (a no-op by default) so a later usage-data task can count opens.
 
 This used the interim chart style; the chart redesign has since landed (CHART-3 to CHART-5).
+
+## Graphs (CHART-1 to CHART-7, 2026-11-15)
+
+The charts were redesigned for six tastes and eleven aromas. **Nothing about the scores changed**: every taste and aroma table, the floor (0.05), the ordering and `profileForRecipe` are as before, and all measures print the same numbers (CHART-7 re-ran them: taste 36/41 and 19/20, aroma 28/30 and 8/10, blind 106/114 with 34/38 held back, chef 161 of 182 with data, second-opinion check 355/364 with 0 unreviewed). Only how the same seventeen scores are drawn changed. The code is `src/data/flavorCharts.js` (pure; copied into the Cloud Functions package by `scripts/buildShareIndex.mjs`) and `src/data/flavorDisplay.js` (axes, floor, the one ordering).
+
+The owner's choice, verbatim: "Do d. But then also allow users to swipe to see c. A on recipe note book.  F on suggestion grid". On the options page (`docs/prototypes/flavor-graph-options.html`) A was ranked bars, C the one wheel, D the tasting note with strips, F the fixed grid.
+
+### Which design is on which surface
+
+| Surface | What is drawn | Why |
+|---|---|---|
+| Shared recipe page, the three invent panels, the Flavor profile button (Cocktail Lab and Sauce Lab cards, Cookbook recipe view) | D, the tasting note with strips, and a swipe (two dots, arrow keys) to C, the wheel. One component, `FlavorSwipe`, on all of them | Owner: D, swipe to C. Applying it to every interactive chart outside the Notebook is the assistant's reading, not a ruling |
+| Share cards: link preview, portrait 1080x1350, tall 1080x1920 | D only (a card is a still image and cannot be swiped) | Assistant's default (spec Decision 6) |
+| Share cards: first card of a set of three | D and the wheel together | Same; the cover has the room |
+| Recipe Notebook overview | A, ranked bars, 6 + 6 with "show all" | Owner: A on the recipe notebook |
+| Recipe Notebook flavor map | C, the fixed wheel | Assistant's default (spec Decision 7); see "What the redesign dropped" |
+| Suggestion cards (add and swap) | F, two fixed grids, "Now" and "With ...", on one scale | Owner: F on the suggestion grid |
+| Sauce suggestion card | Unchanged: its own taste and aroma radars | It shows one profile, not before and after, so it is not an add or swap card |
+| Cookbook card radar, ingredient panel | Unchanged, on their own word lists | Out of scope; see BACKLOG.md |
+
+### The tasting note (D)
+
+One sentence names notes only, never an ingredient, in the one ordering. **The two strongest notes, or one "above all" when the strongest is at least twice the second; then up to three behind** ("Woody and sweet, with bitter, spice and toasty behind."; "Creamy above all, with sour, salty and nutty behind."). Each note word is underlined in its colour. Fewer than two notes gives a plain fallback line, none gives nothing. Under it are two strips, Taste and Aroma, whose segments are as long as each note is strong, **both on one scale** (the larger of the two groups' totals), so a recipe with faint tastes gets a short Taste strip. A segment is labelled when it is at least **0.17** of that scale. Every note is in the strips and nothing is capped; a visually hidden ranked list (`{prefix}-bar-{axis}`) gives a screen reader every note with its percent.
+
+### The wheel (C)
+
+Seventeen wedges in fixed places: **aromas clockwise from the top, tastes down the left side**, with a gap at the top and between the two groups. A wedge is as long as its note is strong relative to the recipe's strongest note, in the note's colour, with a minimum length so a faint note is still visible; absent notes are not drawn. **Labels go by size:** the four strongest notes on the card-size wheel (three on a mini one). Two different recipes put every note in the same place, so wheels can be compared. Wedges are not tappable.
+
+### The grid (F)
+
+Seventeen cells in fixed places: a row of six tastes, then eleven aromas in rows of six and five. A filled dot in the note's colour grows with the note (its area follows the score); an empty ring means absent. On a suggestion card the "Now" grid and the "With ..." grid share **one scale** (the strongest note in either), so an unchanged note is the same size in both and a bigger dot really is stronger. **Marks** (a cream ring and a caret: solid ring and up for more, dashed ring and down for less, so direction does not rest on colour) are drawn on the "With ..." grid only, on notes whose score changes by more than **0.02**. A text line under the pair says it in words ("More umami and salty", "Hardly changes the flavor"). Labels: the two biggest movers on both grids, plus, on the "With ..." grid, every note that is on and whose label fits inside its own cell (a label is about 5.4 px a character against a cell at least 38 px wide on a 320 px screen, so no label can touch a neighbour's; labels of absent notes stay hidden). A present note is never drawn smaller than a clear dot (radius 4.5 in a 28-unit cell, against 2.5 for the empty ring).
+
+### Published copies
+
+A copy a cook publishes now stores every note at or above the floor, up to seventeen (it used to keep eight), computed from the ingredient keys and amounts exactly as the page does. The rules limit was raised from 11 to 17 to allow it, which is why a deploy has to include the rules (`docs/sharing.md`). Copies made earlier (8 or 11 notes) still read and draw from fewer notes.
+
+### What the redesign dropped
+
+- **The Recipe Notebook flavor map no longer plots each ingredient as a dot at its own flavor position.** It is the fixed wheel, fed the same scores as the overview bars. The per-axis pages still list "Driven by". Replacing the page was the assistant's default (spec Decision 7); the owner has been told and has not ruled on it.
+- **The "show all" toggle and the "+N fainter notes" line are gone from the swipe chart** (shared page, invent panels, Flavor profile button): nothing is capped there, so there is nothing to reveal. They remain on the Recipe Notebook overview, where the owner kept the bars.
+- The share cards' capped bar groups and their "+N fainter notes" line.
+
+### Code removed in CHART-7
+
+`ProfileDeltaRadar.jsx` (and its test), the unused `card`, `cover` and `mini` entries of `SURFACES`, and the dead `surface` prop of `InventFlavorProfile`. `radarAxes` and `radarKeys` stay (Sauce suggestion card, Cookbook card radar), as do `hiddenLine` (Notebook overview) and `BeforeAfterRadar` (Sauce suggestion card). A test checks that every remaining `SURFACES` entry has a caller.
+
+### Not verified
+
+No cook has reviewed the tables. The charts were looked at in a desktop browser pane at 375 px and as rendered card images, not on a phone; link previews and the share sheet were not tried live; nothing in the redesign has been deployed.

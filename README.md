@@ -96,9 +96,12 @@ Three things worth understanding about this shape:
    taste test (`docs/flavor-profile.md`). A chart has up to seventeen axes:
    six tastes (sweet, sour, bitter, salty, umami, heat) and eleven aromas
    (fruity, floral, green, woody, spice, creamy, toasty, nutty, earthy,
-   smoky, savory); every surface shows only the strongest few under
-   Taste and Aroma headings (`src/data/flavorDisplay.js`, an interim
-   rule until the charts are redesigned). The GNN's per-ingredient
+   smoky, savory). The charts draw all seventeen: a tasting note with
+   Taste and Aroma strips that swipes to a fixed wheel (shared page,
+   Invent panels, Flavor profile button, share cards), ranked bars and
+   the wheel on the Recipe Notebook, and before/after grids on the
+   add and swap suggestion cards (`src/data/flavorCharts.js`,
+   `docs/flavor-profile.md` "Graphs"). The GNN's per-ingredient
    taste/odor probabilities only drive single-ingredient wheels and radars
    and the parked 3D views; measured per-ingredient accuracy is too weak
    to rank pairings with (see `.claude/.chemdataset-status.md`).
