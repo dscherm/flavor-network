@@ -14,17 +14,21 @@
  * every item sits in "other" and the add box takes free text only; the list itself works.
  *
  * "Add from a recipe" is ShoppingRecipeAdd (SHOP-3); props own / loadRecipes / recipeStock feed it (the cook's saved
- * items, a test loader, a test stock). Left for a later task (SHOP-4): the per-row "Store doesn't have it?" control, where marked below.
+ * items, a test loader, a test stock). Each unchecked row has "Store doesn't have it?" (SHOP-4, StoreAlternatives): up to three alternatives, replace with Undo,
+ * or "Use what I have". prop loadRoles feeds the bar side (tests).
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   addLine, toggle, clearChecked, emptyList, groupByAisle, toText, itemAmountText, uncheckedCount,
+  replaceItem, undoReplace, remove,
 } from '../data/shoppingList.js';
+import { swappedAmount, restoreRow } from '../data/shoppingAlternatives.js';
 import { kitchenSuggestions } from '../data/kitchenRecipes.js';
 import { loadKitchen, saveKitchen, addToKitchen } from '../data/myKitchen.js';
 import { loadBar, saveBar, addToBar, isBooze } from '../data/myBar.js';
 import { loadShoppingIngredients } from '../data/shoppingIngredients.js';
 import ShoppingRecipeAdd from './ShoppingRecipeAdd.jsx';
+import StoreAlternatives from './StoreAlternatives.jsx';
 import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, chalkSurfaceStyle } from '../data/chalkTheme.js';
 
 const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
@@ -35,7 +39,7 @@ const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 const buttonStyle = { fontFamily: SANS, fontSize: 14, color: CHALK_CREAM, border: `1.5px solid ${CHALK_DIM}`, background: 'transparent', outlineColor: CHALK_CREAM };
 const inputStyle = { fontFamily: SANS, fontSize: 16, color: CHALK_CREAM, background: 'rgba(10,10,10,0.6)', border: `1.5px solid ${CHALK_DIM}`, outlineColor: CHALK_CREAM };
 
-export default function ShoppingList({ shopping, onChange, onClose, loadIngredients = loadShoppingIngredients, own = null, loadRecipes, recipeStock }) {
+export default function ShoppingList({ shopping, onChange, onClose, loadIngredients = loadShoppingIngredients, own = null, loadRecipes, recipeStock, loadRoles }) {
   const list = shopping?.list || emptyList();
   const [ing, setIng] = useState({ status: 'loading', names: new Set(), vocab: [], categories: new Map() });
   const [text, setText] = useState('');
@@ -44,6 +48,9 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
   const [confirmClear, setConfirmClear] = useState(false);
   const keepRef = useRef(null);
   const addRef = useRef(null);
+  const [sheetId, setSheetId] = useState(null); // the row whose alternatives are open
+  const [removed, setRemoved] = useState(null); // { row, at, msg }: "Use what I have" can be undone while its message shows
+  const altButtons = useRef(new Map());
 
   useEffect(() => {
     let live = true;
@@ -109,6 +116,62 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
     if (food.length) parts.push(`${plural(food.length, 'item', 'items')} in My kitchen`);
     if (bar.length) parts.push(`${plural(bar.length, 'item', 'items')} in My bar`);
     setNote(`Put ${parts.join(' and ')}, and took them off the list.`);
+  };
+
+  const stockNow = useMemo(
+    () => recipeStock || (() => ({ kitchen: loadKitchen(), pantry: [], bar: loadBar() })),
+    [recipeStock],
+  );
+  const sheetItem = sheetId ? list.items.find((i) => i.id === sheetId) : null;
+  const sauceRecipe = new Set(list.recipes.filter((r) => r.kind === 'sauce').map((r) => r.id));
+
+  const closeSheet = (returnTo) => {
+    setSheetId(null);
+    const id = returnTo || sheetId;
+    setTimeout(() => {
+      const el = altButtons.current.get(id) || document.querySelector('[data-alt-button]');
+      el?.focus?.();
+    }, 0);
+  };
+
+  const pickAlternative = (item, alt) => {
+    const amount = swappedAmount(item, alt);
+    const alt1 = { key: alt.key, label: alt.label, amount, note: amount ? `${alt.useText} Amount adjusted.` : alt.useText };
+    const res = replaceItem(list, item.id, alt1, opts);
+    if (res.status === 'missing' || res.status === 'empty' || res.status === 'same') { setNote('Nothing changed.'); closeSheet(item.id); return; }
+    onChange((cur) => replaceItem(cur, item.id, alt1, opts).list);
+    setRemoved(null);
+    if (res.status === 'merged') {
+      const target = res.list.items.find((i) => i.swappedFrom === item.key && i.key !== item.key);
+      const qty = target ? itemAmountText(target) : '';
+      setNote(qty ? `Added to ${target.label}: now ${qty}.` : `${cap(alt.label)} is already on your list, so ${item.label} was added to it.`);
+      closeSheet(target?.id || item.id);
+    } else {
+      setNote(`Swapped ${item.label} for ${alt.label}${amount ? ' and adjusted the amount' : ''}. You can undo it on the row.`);
+      closeSheet(item.id);
+    }
+  };
+
+  const useWhatIHave = (item, alt) => {
+    const at = list.items.findIndex((i) => i.id === item.id);
+    const msg = `Took ${item.label} off the list: you have ${alt.label}.`;
+    onChange((cur) => remove(cur, item.id));
+    setRemoved({ row: item, at, msg });
+    setNote(msg);
+    closeSheet();
+  };
+
+  const undoRemoval = () => {
+    if (!removed) return;
+    const { row, at } = removed;
+    onChange((cur) => restoreRow(cur, row, at));
+    setRemoved(null);
+    setNote(`Put ${row.label} back on the list.`);
+  };
+
+  const undoSwap = (item) => {
+    onChange((cur) => undoReplace(cur, item.id));
+    setNote(`Put ${item.was?.row?.label || 'the original'} back.`);
   };
 
   const clearAll = () => {
@@ -192,7 +255,12 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
           {...(recipeStock ? { stock: recipeStock } : {})}
         />
 
-        <p data-testid="shopping-note" role="status" aria-live="polite" style={{ fontFamily: SANS, fontSize: 14, color: CHALK_CREAM, marginTop: 8, minHeight: 20 }}>{note}</p>
+        <p data-testid="shopping-note" role="status" aria-live="polite" style={{ fontFamily: SANS, fontSize: 14, color: CHALK_CREAM, marginTop: 8, minHeight: 20 }}>
+          {note}
+          {removed && note === removed.msg && (
+            <button type="button" data-testid="shopping-undo-removal" onClick={undoRemoval} className={`ml-2 min-h-[44px] px-3 rounded-lg ${FOCUS}`} style={buttonStyle}>Undo</button>
+          )}
+        </p>
 
         {list.items.length === 0 ? (
           <div data-testid="shopping-empty" className="mt-4 rounded-xl p-4" style={{ border: `1.5px dashed ${CHALK_RAIL}` }}>
@@ -230,7 +298,40 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
                             )}
                           </span>
                         </label>
-                        {/* SHOP-4: the "Store doesn't have it?" control for an unchecked row goes here. */}
+                                        {(item.swappedFrom || item.note) && (
+                          <div className="pl-10 pb-1" data-testid={`shopping-swap-${item.key}`} style={{ fontFamily: SANS, fontSize: 13, color: CHALK_DIM }}>
+                            {item.swappedFrom && <span>instead of {item.swappedFrom}</span>}
+                            {item.note && <span className="block break-words">{item.note}</span>}
+                          </div>
+                        )}
+                        <div className="pl-10 pb-2 flex flex-wrap gap-2">
+                          {!item.checked && (
+                            <button
+                              type="button"
+                              ref={(el) => { if (el) altButtons.current.set(item.id, el); else altButtons.current.delete(item.id); }}
+                              data-alt-button
+                              data-testid={`shopping-alt-${item.key}`}
+                              aria-label={`Store doesn't have it? Find an alternative for ${item.label}`}
+                              onClick={() => setSheetId(item.id)}
+                              className={`min-h-[44px] px-3 rounded-lg ${FOCUS}`}
+                              style={buttonStyle}
+                            >
+                              Store doesn&apos;t have it?
+                            </button>
+                          )}
+                          {item.was && (
+                            <button
+                              type="button"
+                              data-testid={`shopping-undo-swap-${item.key}`}
+                              aria-label={`Undo the swap: put ${item.was.row?.label || 'the original'} back`}
+                              onClick={() => undoSwap(item)}
+                              className={`min-h-[44px] px-3 rounded-lg ${FOCUS}`}
+                              style={buttonStyle}
+                            >
+                              Undo
+                            </button>
+                          )}
+                        </div>
                       </li>
                     );
                   })}
@@ -280,6 +381,18 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
           </div>
         )}
       </div>
+      {sheetItem && !sheetItem.checked && (
+        <StoreAlternatives
+          item={sheetItem}
+          sauce={sheetItem.from.some((id) => sauceRecipe.has(id))}
+          names={ing.names.size ? ing.names : null}
+          stock={stockNow}
+          {...(loadRoles ? { loadRoles } : {})}
+          onPick={(alt) => pickAlternative(sheetItem, alt)}
+          onUseHave={(alt) => useWhatIHave(sheetItem, alt)}
+          onClose={() => closeSheet()}
+        />
+      )}
     </div>
   );
 }
