@@ -35,17 +35,24 @@ export const WHEEL_LABELS = { mini: 3, card: 4 };
 /** Fixed grid shape: tastes in one row of six, aromas in rows of six and five. */
 export const GRID_ROWS = [6, 6, 5];
 
-/** The bars that count: readable axis, score at or above the floor, one per axis (the larger wins), strongest first. */
-function liveBars(bars) {
+/**
+ * The bars that count: readable axis, score at or above the floor, one per axis (the larger wins), strongest first.
+ * With an `axisSet` (WHEEL-2: a wheel for axes that are not the seventeen, e.g. a wine's structure) a bar counts when its
+ * `axis` is in axisSet.order; labels come from axisSet.labels and ties go by that order.
+ */
+function liveBars(bars, axisSet = null) {
   const byAxis = new Map();
   for (const b of Array.isArray(bars) ? bars : []) {
-    const axis = axisOfBar(b);
+    const axis = axisSet ? (axisSet.order.includes(b?.axis) ? b.axis : null) : axisOfBar(b);
     const score = Number(b?.score);
     if (!axis || !Number.isFinite(score) || score < FLOOR || score <= 0) continue;
     const prev = byAxis.get(axis);
-    if (!prev || score > prev.score) byAxis.set(axis, { axis, label: AXIS_LABEL[axis], color: b.color || null, score, group: barGroup({ axis }) });
+    if (!prev || score > prev.score) byAxis.set(axis, { axis, label: axisSet ? axisSet.labels[axis] : AXIS_LABEL[axis], color: b.color || null, score, group: axisSet ? 'axis' : barGroup({ axis }) });
   }
-  return [...byAxis.values()].sort(compareBars);
+  const list = [...byAxis.values()];
+  if (!axisSet) return list.sort(compareBars);
+  const r3 = (v) => Math.round(v * 1000);
+  return list.sort((a, b) => (r3(b.score) - r3(a.score)) || (axisSet.order.indexOf(a.axis) - axisSet.order.indexOf(b.axis)));
 }
 
 const join = (words) => (words.length > 1 ? `${words.slice(0, -1).join(', ')} and ${words[words.length - 1]}` : words[0]);
@@ -105,23 +112,30 @@ const colorOf = (axis, live, colors) => live.get(axis)?.color || colors?.[axis] 
  * among the strongest WHEEL_LABELS[size] are labelled (every wedge that is on for a size not in WHEEL_LABELS).
  *   { size, peak, gap, wedgeGap, minLength, wedges: [{ index, axis, label, group, color, score, on, length, drawn,
  *     start, end, mid, labelled }] }
+ *
+ * `axisSet` (WHEEL-2) draws the same wheel for another set of axes, with the same gaps, wedge gap, minimum length,
+ * label rule and wedge shape: { order: [axis], labels: { axis: 'Label' }, breakAt?: index where a second gap goes
+ * (none by default: one gap at the top), absolute?: true when scores are already 0..1 on fixed scales, so a length is the
+ * score itself rather than the share of the strongest note }. Its bars carry `axis` and `color`.
  */
-export function flavorWheel(bars, size = 'full', { colors } = {}) {
-  const liveList = liveBars(bars);
+export function flavorWheel(bars, size = 'full', { colors, axisSet = null } = {}) {
+  const liveList = liveBars(bars, axisSet);
   const live = new Map(liveList.map((b) => [b.axis, b]));
-  const peak = liveList.length ? liveList[0].score : 0;
-  const width = (360 - 2 * WHEEL_GAP) / AXES.length;
+  const peak = axisSet?.absolute ? 1 : (liveList.length ? liveList[0].score : 0);
+  const order = axisSet ? axisSet.order : [...AROMA_AXES, ...TASTE_AXES];
+  const breakAt = axisSet ? (Number.isInteger(axisSet.breakAt) ? axisSet.breakAt : null) : AROMA_AXES.length;
+  const width = (360 - (breakAt === null ? 1 : 2) * WHEEL_GAP) / order.length;
   const cap = WHEEL_LABELS[size] ?? Infinity;
   const labelled = new Set(liveList.slice(0, cap).map((b) => b.axis));
-  const order = [...AROMA_AXES, ...TASTE_AXES];
   const wedges = order.map((axis, index) => {
-    const start = -90 + WHEEL_GAP / 2 + index * width + (index >= AROMA_AXES.length ? WHEEL_GAP : 0);
+    const start = -90 + WHEEL_GAP / 2 + index * width + (breakAt !== null && index >= breakAt ? WHEEL_GAP : 0);
     const end = start + width - WHEEL_WEDGE_GAP;
     const b = live.get(axis);
     const on = !!b;
-    const length = on && peak > 0 ? b.score / peak : 0;
+    const length = on && peak > 0 ? Math.min(1, b.score / peak) : 0;
     return {
-      index, axis, label: AXIS_LABEL[axis], group: AROMA_AXES.includes(axis) ? 'aroma' : 'taste', color: colorOf(axis, live, colors),
+      index, axis, label: axisSet ? axisSet.labels[axis] : AXIS_LABEL[axis],
+      group: axisSet ? 'axis' : (AROMA_AXES.includes(axis) ? 'aroma' : 'taste'), color: colorOf(axis, live, colors),
       score: on ? b.score : 0, on, length, drawn: on ? Math.max(length, WEDGE_MIN_LENGTH) : 0,
       start, end, mid: (start + end) / 2, labelled: on && labelled.has(axis),
     };

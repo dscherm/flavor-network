@@ -16,8 +16,8 @@ import LabNodeCard from './LabNodeCard.jsx';
 import DishStory from './DishStory.jsx';
 import { loadWineStyles, similarWines, wineSearchText, dots, familyColor, fromCountry, countryIndex } from '../data/wineStyles.js';
 import { scaleWord } from '../data/winePairing.js';
-import { wineProfileAxes, wineFoodMapping, reviewHighlights } from '../data/wineProfile.js';
-import ProfileRadar from './ProfileRadar.jsx';
+import { wineProfileAxes, wineFoodMapping, reviewHighlights, wineWheelBars, WINE_AXIS_SET } from '../data/wineProfile.js';
+import FlavorWheel from './FlavorWheel.jsx';
 import { CountryFlag, ChalkLoader } from './chalkArt.jsx';
 import { WineGlass } from './wineGlasses.jsx';
 import { liftColor } from '../data/drinkColor.js';
@@ -64,7 +64,13 @@ export function WineProfileSections({ wine, color, reviewEntry = null }) {
     <div data-testid="wine-profile">
       <ProfileHeading>Flavour profile</ProfileHeading>
       <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
-        <ProfileRadar axes={profile.axes.map((a) => a.key)} values={profile.values} label="structure" color={color} size={170} />
+        <div className="flex-shrink-0 w-[260px] max-w-full" data-testid="wine-structure">
+          <FlavorWheel bars={wineWheelBars(wine)} axisSet={WINE_AXIS_SET} size="full" testidPrefix="wine" maxWidth={260}
+            ariaLabel="Wine structure wheel" keyText="Structure, each axis on its own scale." />
+          <ul className="sr-only" aria-label="Structure">
+            {profile.axes.map((a) => <li key={a.key}>{a.label} {Math.round(a.value * 100)} percent</li>)}
+          </ul>
+        </div>
         <ul className="flex-1 min-w-[180px] max-w-full flex flex-col gap-1.5" data-testid="wine-aroma-families" aria-label="Aroma families">
           {profile.aromaFamilies.map((f) => (
             <li key={f.id} className="flex flex-col">

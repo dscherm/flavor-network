@@ -27,7 +27,6 @@ vi.mock('../NetworkScene.jsx', () => ({
 
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import LandingScreen from '../LandingScreen.jsx';
-import MultiAxisRadarStack from '../MultiAxisRadarStack.jsx';
 import CookbookLab from '../CookbookLab.jsx';
 import TourPopup from '../TourPopup.jsx';
 import { STAGES } from '../../data/guidedTourStages.js';
@@ -141,57 +140,6 @@ describe('§1 — Landing page', () => {
 // §2.A — Guided card mechanic: removed 2026-06-26 with the Guided flow
 // (GuidedDiscoverySwipe + BUBBLE_REGISTRY deleted). The tour-stage tests
 // below (§2.D–§2.I) use guidedTourStages, which is KEPT for the tours.
-
-describe('§2.B–§2.C — Results page', () => {
-  function buildMockNodes() {
-    const nodes = new Map();
-    nodes.set('tomato', { name: 'tomato', taste: 'umami', cuisines: ['italian', 'mexican'] });
-    return nodes;
-  }
-
-  it('2.B.1 MultiAxisRadarStack renders 5 axes', () => {
-    render(
-      <MultiAxisRadarStack
-        ingredients={['tomato']}
-        nodes={buildMockNodes()}
-        focalName="tomato"
-        onAxisSelect={() => {}}
-      />,
-    );
-    expect(screen.getByTestId('multi-radar-taste')).toBeInTheDocument();
-    expect(screen.getByTestId('multi-radar-aroma')).toBeInTheDocument();
-    expect(screen.getByTestId('multi-radar-season')).toBeInTheDocument();
-    expect(screen.getByTestId('multi-radar-cuisine')).toBeInTheDocument();
-    expect(screen.getByTestId('multi-radar-method')).toBeInTheDocument();
-  });
-
-  it('2.C.1 Subheadline "Click one of the Pairing Radars…" present', () => {
-    render(
-      <MultiAxisRadarStack
-        ingredients={['tomato']}
-        nodes={buildMockNodes()}
-        focalName="tomato"
-      />,
-    );
-    expect(
-      screen.getByText(/Click a Pairing Radar to see how the model found these pairings/),
-    ).toBeInTheDocument();
-  });
-
-  it('2.C.1 Radar click invokes onAxisSelect with the picked axis', () => {
-    const onAxisSelect = vi.fn();
-    render(
-      <MultiAxisRadarStack
-        ingredients={['tomato']}
-        nodes={buildMockNodes()}
-        focalName="tomato"
-        onAxisSelect={onAxisSelect}
-      />,
-    );
-    fireEvent.click(screen.getByTestId('multi-radar-aroma'));
-    expect(onAxisSelect).toHaveBeenCalledWith('aroma');
-  });
-});
 
 describe('§2.D–§2.I — Guided tour stage config', () => {
   it('2.D.2 stage 1 (affinity) has the spec popup copy', () => {

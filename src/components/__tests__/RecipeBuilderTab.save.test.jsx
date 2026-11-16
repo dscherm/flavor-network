@@ -11,7 +11,6 @@ vi.mock('../../ml/kitchenRuntime.js', () => ({
   loadInventModel: vi.fn(async () => null),
 }));
 vi.mock('../../ml/quantityRuntime.js', () => ({ predictBowlAmounts: vi.fn(async (names) => names.map((name) => ({ name, amount: null }))) }));
-vi.mock('../ProfileAxisRadar.jsx', () => ({ default: () => null }));
 const panelProps = { current: null };
 vi.mock('../InventRecipe.jsx', () => ({
   default: (props) => {

@@ -13,7 +13,6 @@ import { MY_KITCHEN_KEY, SPICE_RACK_KEY } from '../../data/myKitchen.js';
 vi.setConfig({ testTimeout: 20000 });
 
 vi.mock('../NetworkScene.jsx', () => ({ default: () => null }));
-vi.mock('../MultiAxisRadarStack.jsx', () => ({ default: () => null }));
 
 const CATS = {
   beef: 'protein', tomato: 'vegetable', onion: 'aromatic', carrot: 'vegetable', celery: 'vegetable',

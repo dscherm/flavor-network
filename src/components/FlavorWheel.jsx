@@ -4,7 +4,8 @@
  * neighbours near the top and bottom do not collide), and a one-line key saying which part is taste.
  * Colours: a bar's own, else axisColor() for an absent axis (drawn only as a track, so it never shows).
  *
- * Props   bars   testidPrefix default 'profile'   marks (optional, from ingredientMarks: one dot per ingredient, labelled
+ * Props   bars   testidPrefix default 'profile'   axisSet (WHEEL-2: another set of axes, see flavorWheel; also pass keyText / ariaLabel
+ *         / size 'full' to label every wedge that is on)   marks (optional, from ingredientMarks: one dot per ingredient, labelled
  *         where the text clears its neighbours; every mark is also in the {p}-marks-list for screen readers)
  * Test ids  {p}-wheel (the svg), {p}-wedge-{axis} (on wedges only), {p}-wheel-key, {p}-mark-{n} (dot), {p}-mark-label-{n}, {p}-marks-list
  */
@@ -24,9 +25,9 @@ function sector(r0, r1, a0, a1) {
   return `M${pt(r1, a0)}A${r1} ${r1} 0 0 1 ${pt(r1, a1)}L${pt(r0, a1)}A${r0} ${r0} 0 0 0 ${pt(r0, a0)}Z`;
 }
 
-export default function FlavorWheel({ bars, testidPrefix = 'profile', marks = null, highlight = null, maxWidth = 320 }) {
+export default function FlavorWheel({ bars, testidPrefix = 'profile', marks = null, highlight = null, maxWidth = 320, axisSet = null, keyText = 'Left side: tastes. The rest: aromas.', ariaLabel = 'Flavor wheel', size = 'card' }) {
   const p = testidPrefix;
-  const wheel = flavorWheel(bars, 'card', { colors: COLORS });
+  const wheel = flavorWheel(bars, size, { colors: COLORS, axisSet });
   const placed = (marks || []).map((m, i) => {
     const rad = (m.angle * Math.PI) / 180, rr = R0 + (R - R0) * m.t;
     return { ...m, i, x: Math.cos(rad) * rr, y: Math.sin(rad) * rr };
@@ -34,7 +35,7 @@ export default function FlavorWheel({ bars, testidPrefix = 'profile', marks = nu
   const labelled = thinLabels(placed, { fontSize: FS - 1 });
   return (
     <div className="min-w-0">
-      <svg viewBox={`0 0 ${W} ${H}`} className="block mx-auto w-full" style={{ maxWidth }} role="img" aria-label="Flavor wheel" data-testid={`${p}-wheel`}>
+      <svg viewBox={`0 0 ${W} ${H}`} className="block mx-auto w-full" style={{ maxWidth }} role="img" aria-label={ariaLabel} data-testid={`${p}-wheel`}>
         {wheel.wedges.map((w) => <path key={`t-${w.axis}`} d={sector(R0, R, w.start, w.end)} fill="rgba(255,255,255,0.08)" />)}
         {wheel.wedges.filter((w) => w.on).map((w) => (
           <path key={w.axis} data-testid={`${p}-wedge-${w.axis}`} d={sector(R0, R0 + (R - R0) * w.drawn, w.start, w.end)} fill={w.color || CHALK_SUB} />
@@ -70,7 +71,7 @@ export default function FlavorWheel({ bars, testidPrefix = 'profile', marks = nu
           {placed.map((m) => <li key={`li-${m.i}`} className="inline">{m.i > 0 ? ' · ' : ''}<span style={{ color: CHALK_CREAM }}>{m.name}</span> ({m.notes.join(', ').toLowerCase()})</li>)}
         </ul>
       )}
-      <p className="mt-1 mb-0 text-center text-[12px]" style={{ fontFamily: SANS, color: CHALK_SUB }} data-testid={`${p}-wheel-key`}>Left side: tastes. The rest: aromas.</p>
+      {keyText && <p className="mt-1 mb-0 text-center text-[12px]" style={{ fontFamily: SANS, color: CHALK_SUB }} data-testid={`${p}-wheel-key`}>{keyText}</p>}
     </div>
   );
 }

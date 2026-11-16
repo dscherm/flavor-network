@@ -6,7 +6,6 @@ import { SEED_RECIPES } from '../../data/seedRecipes.js';
 import { RECIPE_DETAILS } from '../../data/seedRecipeDetails.js';
 
 vi.mock('../NetworkScene.jsx', () => ({ default: () => null }));
-vi.mock('../MultiAxisRadarStack.jsx', () => ({ default: () => null }));
 
 const bolognese = SEED_RECIPES.find((r) => r.id === 'beef-bolognese');
 // Every bolognese ingredient resolves in the graph.

@@ -147,7 +147,6 @@ describe('flavorDisplay: every surface uses the rule (source check)', () => {
   for (const f of [
     'src/components/InventFlavorProfile.jsx',
     'src/components/RecipeFlavorProfilesCard.jsx',
-    'src/components/ProfileAxisRadar.jsx',
     'src/data/profileGridPair.js',
     'src/data/shareCardLayout.js',
     'src/data/inventProfile.js',

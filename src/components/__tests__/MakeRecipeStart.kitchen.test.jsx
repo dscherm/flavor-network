@@ -13,7 +13,6 @@ vi.mock('../../ml/kitchenRuntime.js', () => ({
   })),
   loadInventModel: vi.fn(async () => null),
 }));
-vi.mock('../ProfileAxisRadar.jsx', () => ({ default: () => null }));
 
 import MakeRecipeStart from '../MakeRecipeStart.jsx';
 import { MY_KITCHEN_KEY } from '../../data/myKitchen.js';

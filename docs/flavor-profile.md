@@ -969,7 +969,9 @@ The owner's choice, verbatim: "Do d. But then also allow users to swipe to see c
 | Sauce suggestion card (matched sauces) | One fixed grid of the sauce's own profile (BUILDER-1; was two radars) | It shows one profile, not before and after, so it has no Now and With pair or marks |
 | Invent panels' suggestion deck | The add and swap cards (two fixed grids) over every suggestion or stand-in | BUILDER-1: "See how each changes the flavor" under "Goes well with what you have" and under "Don't have it? Try...". The Now grid is `recipeAxisProfileWeighted` over the build's lines with their amounts, the calculation `buildFlavorProfile` uses, so it leads with the panel's notes. A suggestion with no flavor data still gets a card with an unchanged grid. Add and Swap close the deck |
 | Ingredient card (Pairing Lab and the tap-a-name overlay) | C, the fixed wheel, drawn from that one ingredient's notes (WHEEL-1; was a polygon radar) | Owner, 2026-11-16: every card's wheel takes the look of the combined wheel, starting here |
-| Cookbook card radar, ingredient panel | Unchanged, on their own word lists | Out of scope; see BACKLOG.md |
+| Cookbook recipe card | C, the fixed seventeen-note wheel from `profileForRecipe` (WHEEL-2; was `ProfileAxisRadar` with a Taste / Aroma / Season / Cuisine / Method switcher) | Owner, 2026-11-16: every card's wheel takes the look of the combined wheel |
+| Wine card | A wheel of wine's own six structure axes, the same drawing (WHEEL-2; was a `ProfileRadar` polygon) | See "The wine card's wheel (WHEEL-2)" |
+| 3D Network panel (`IngredientPanel`: TasteRadar, FullWheel, WedgeGridFlavorWheel, `ProfileRadarCarousel`) | Unchanged | Parked view; left alone on purpose |
 
 ### The tasting note (D)
 
@@ -1018,3 +1020,18 @@ The mark's colour is its strongest note's colour. Labels are cut to nine charact
 `PairingModeCard` draws `FlavorWheel` for the ingredient the card is about (the partner, when the card shows a partner). The seventeen notes come from `ingredientNoteBars(node)` in `src/data/pairingCardData.js`, a thin shaping layer over `nodeProbs` (the curated taste label and strength table, and the hand-tuned aroma table, the same values `flavorMarks.js` reads) and the one ordering and floor; there is no second profile calculation. `profileForRecipe` does not draw a one-ingredient recipe (the draw rule needs two), so the card's wheel is compared with `nodeProbs` directly in the tests. An ingredient with no note shows the plain line "Not enough flavor data for a chart yet."; a screen-reader list gives the ranked notes.
 
 The Pairing Lab's chosen spoke marks its wedge: an outline round the wedge with its label always shown, plus the "Leaning ..." line. The old radar's spokes map to wedges as follows. Taste: sweet, sour, bitter, salty and umami map to themselves; spicy and pungent map to heat; astringent has no wedge. Aroma: citrus and fruity to fruity; floral to floral; herbal and green to green; creamy to creamy; woody to woody; earthy to earthy; roasted and caramel to toasty; fermented and marine to savory; pungent to spice. Season and cuisine spokes have no wedge, so only the "Leaning ..." line shows. The old radar also drew every cone for categories the ingredient belongs to (season, cuisine, family); the wheel shows flavor notes only.
+
+
+### The other cards' wheels (WHEEL-2)
+
+Inventory of every wheel or radar drawn on a card outside the parked Network panel, and what was done:
+
+| Chart | Where | Data | Done |
+|---|---|---|---|
+| `ProfileAxisRadar` | Cookbook recipe card | Chef vocabulary signals per ingredient (taste, aroma, season, cuisine, method) | Replaced by `FlavorWheel` fed from `profileForRecipe(flavorRecipe, nodes)`, the call the card's Flavor profile button already used. Component deleted. The Season, Cuisine and Method switch positions are gone (they were not flavor notes); the card's ingredient chips and the recipe meta still carry cuisine |
+| `ProfileRadar` | Wine card (and the Network's `ProfileRadarCarousel`) | Six structure values from `wineProfileAxes` | Wine now draws `FlavorWheel` with an axis set. `ProfileRadar.jsx` stays: `ProfileRadarCarousel`, mounted by the Network `IngredientPanel`, still imports it |
+| `PickerRadar` (`IngredientPicker`) | Only the developer preview URLs `?picker=1` and `?make=1` | Categorical axes | Deleted with `IngredientPicker`, `MakeRecipeView` (its only other host) and the two preview gates in `App.jsx`, and their tests. Nothing in the product mounted them since the paper Notebook went |
+| `MultiAxisRadarStack` | No importer outside tests | Five categorical radars | Deleted with its tests |
+| Share cards, invent panels, shared page, Notebook, suggestion cards, ingredient card | | | Already on the combined wheel, bars or grids |
+
+The wine wheel: `flavorWheel(bars, size, { axisSet })` in `src/data/flavorCharts.js` takes `{ order, labels, breakAt, absolute }` and uses the same wedge width rule, gap, wedge gap, minimum length and labelling as the seventeen-note wheel; `FlavorWheel` passes `axisSet`, `keyText`, `ariaLabel` and `size` through. Wine's axes, clockwise from the top, are Body, Acidity, Tannin, Sweetness, Alcohol, Oak (`WINE_AXIS_SET`, `wineWheelBars` in `src/data/wineProfile.js`), each on its own scale (value over the scale's top, the values `wineProfileAxes` always had). Wine's lengths are absolute (a wine with no tannin has no tannin wedge, and Barolo's tannin is the full radius), where the flavor wheel scales to the recipe's strongest note; with six wedges every wedge that is on is labelled. No wine is charted on the seventeen notes. The seventeen-note wheel's output is unchanged: the option is additive and the existing wheel tests pass as they were. `functions/src/share/cardLayout.generated.ts` inlines `flavorCharts.js` and was regenerated; the server card layout behaves the same.

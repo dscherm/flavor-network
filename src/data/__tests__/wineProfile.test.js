@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
-import { wineProfileAxes, wineFoodMapping, aromaFamilyOf, STRUCTURE_AXES, reviewHighlights } from '../wineProfile.js';
+import { wineProfileAxes, wineFoodMapping, aromaFamilyOf, STRUCTURE_AXES, reviewHighlights, WINE_AXIS_SET, WINE_WHEEL_AXES, wineWheelBars } from '../wineProfile.js';
+import { flavorWheel } from '../flavorCharts.js';
+import { AXES } from '../flavorDisplay.js';
 import { dishProfile, scoreWine } from '../winePairing.js';
 
 const WINES = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'public/data/wine_styles.json'), 'utf8')).wines;
@@ -170,5 +172,37 @@ describe('reviewHighlights (Wine Reviews aggregates)', () => {
 
   it('every wine style id has an entry in the review file', () => {
     for (const w of WINES) expect(REVIEWS[w.id], w.id).toBeTruthy();
+  });
+});
+
+describe('wine wheel (WHEEL-2)', () => {
+  it('has six fixed wine axes, none of them one of the seventeen flavor notes', () => {
+    expect(WINE_WHEEL_AXES).toEqual(['body', 'acidity', 'tannin', 'sweetness', 'alcohol', 'oak']);
+    expect(WINE_WHEEL_AXES.some((a) => AXES.includes(a))).toBe(false);
+  });
+  it('puts the wedges for every wine in the same places; a wedge is as long as the wine value on its scale (absolute)', () => {
+    const ref = flavorWheel([], 'full', { axisSet: WINE_AXIS_SET }).wedges.map((w) => [w.axis, w.start, w.end]);
+    expect(ref).toHaveLength(6);
+    for (const w of WINES) {
+      const wheel = flavorWheel(wineWheelBars(w), 'full', { axisSet: WINE_AXIS_SET });
+      expect(wheel.wedges.map((x) => [x.axis, x.start, x.end])).toEqual(ref);
+      expect(wheel.peak).toBe(1);
+      const values = wineProfileAxes(w).values;
+      for (const x of wheel.wedges) { expect(x.length).toBeCloseTo(values[x.axis] >= 0.05 ? values[x.axis] : 0); expect(x.on).toBe(values[x.axis] >= 0.05); }
+    }
+  });
+  it('Barolo is long in tannin and body and a light dry white is short in both (lengths, not shares)', () => {
+    const len = (id) => Object.fromEntries(flavorWheel(wineWheelBars(wine(id)), 'full', { axisSet: WINE_AXIS_SET }).wedges.map((w) => [w.axis, w.length]));
+    expect(len('barolo').tannin).toBe(1);
+    expect(len('muscadet').tannin).toBe(0);
+    expect(len('barolo').body).toBeGreaterThan(len('muscadet').body);
+  });
+  it('one gap at the top, no second gap, and the standard seventeen wheel is unchanged by the option existing', () => {
+    const w = flavorWheel([], 'full', { axisSet: WINE_AXIS_SET }).wedges;
+    expect(w[0].start).toBeCloseTo(-90 + 8);
+    const step = w[1].start - w[0].start;
+    for (let i = 1; i < 6; i += 1) expect(w[i].start - w[i - 1].start).toBeCloseTo(step);
+    expect(w[5].end + 1.2 + 8 - (-90 + 360)).toBeCloseTo(0);
+    expect(flavorWheel([]).wedges).toHaveLength(17);
   });
 });

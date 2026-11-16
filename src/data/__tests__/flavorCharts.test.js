@@ -200,6 +200,25 @@ describe('flavorWheel', () => {
   });
 });
 
+describe('flavorWheel with an axis set (WHEEL-2)', () => {
+  const set = { order: ['a', 'b', 'c'], labels: { a: 'A', b: 'B', c: 'C' }, breakAt: null, absolute: false };
+  it('places the axes of the set in fixed wedges with one gap, scales to the strongest note, and ignores other axes', () => {
+    const w = flavorWheel([{ axis: 'a', score: 0.2 }, { axis: 'c', score: 0.4 }, { axis: 'sweet', score: 0.9 }], 'full', { axisSet: set });
+    expect(w.wedges.map((x) => x.axis)).toEqual(['a', 'b', 'c']);
+    expect(w.wedges.map((x) => x.label)).toEqual(['A', 'B', 'C']);
+    expect(w.peak).toBe(0.4);
+    expect(w.wedges.map((x) => x.on)).toEqual([true, false, true]);
+    expect(w.wedges[2].length).toBe(1);
+    expect(w.wedges[0].length).toBeCloseTo(0.5);
+    expect(w.wedges[0].start).toBeCloseTo(-82);
+  });
+  it('absolute sets take the score itself as the length', () => {
+    const w = flavorWheel([{ axis: 'a', score: 0.2 }], 'full', { axisSet: { ...set, absolute: true } });
+    expect(w.peak).toBe(1);
+    expect(w.wedges[0].length).toBeCloseTo(0.2);
+  });
+});
+
 describe('flavorGrid', () => {
   it('seventeen fixed cells: tastes in one row of six, aromas in rows of six and five', () => {
     const g = flavorGrid(barsOf('dish', 'tiramisu'));

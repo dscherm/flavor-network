@@ -9,7 +9,7 @@ const RECIPE_CHART_FILES = [
   'src/data/recipeAromaSimilarity.js', 'src/components/RecipeFlavorProfilesCard.jsx', 'src/components/InventFlavorProfile.jsx',
   'src/components/InventCocktail.jsx', 'src/components/InventSauce.jsx', 'src/components/InventRecipe.jsx',
   'src/components/SharedRecipePage.jsx', 'src/components/ShareImages.jsx', 'src/components/OwnShare.jsx',
-  'src/components/SuggestionCardDeck.jsx', 'src/components/SauceSuggestionDeck.jsx', 'src/components/ProfileAxisRadar.jsx',
+  'src/components/SuggestionCardDeck.jsx', 'src/components/SauceSuggestionDeck.jsx',
   'scripts/buildShareIndex.mjs', 'scripts/lib/flavorNodes.mjs', 'scripts/measureFlavorProfile.mjs',
 ];
 const code = (p) => readFileSync(p, 'utf8').split('\n').filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l)).join('\n');

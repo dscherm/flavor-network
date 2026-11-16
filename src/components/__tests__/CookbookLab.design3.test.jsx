@@ -1,10 +1,8 @@
 // @vitest-environment jsdom
-// DESIGN-3: picture-led Cookbook tiles + popup, and the nested-button fix
-// in MultiAxisRadarStack.
+// DESIGN-3: picture-led Cookbook tiles + popup (WHEEL-2: its chart is the combined flavor wheel).
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import CookbookLab from '../CookbookLab.jsx';
-import MultiAxisRadarStack from '../MultiAxisRadarStack.jsx';
 import { SEED_RECIPES } from '../../data/seedRecipes.js';
 import { RECIPE_DETAILS } from '../../data/seedRecipeDetails.js';
 import { dishTypeOf } from '../../data/dishType.js';
@@ -68,17 +66,16 @@ describe('Cookbook popup (DESIGN-3)', () => {
   });
   afterEach(() => errSpy.mockRestore());
 
-  it('leads with picture: head (dish art + meta) → radar → ingredients → method → goes well with', () => {
+  it('leads with picture: head (dish art + meta) → wheel → ingredients → method → goes well with', () => {
     const dialog = openBolognese({ onFindCocktail: vi.fn(), onFindSauce: vi.fn(), onFindWine: vi.fn() });
     const order = orderOf(dialog, ['recipe-head', 'dish-art', 'recipe-meta', 'recipe-profile', 'recipe-ingredients', 'recipe-method', 'recipe-goes-well-with']);
     expect(order.every((i) => i >= 0)).toBe(true);
     expect([...order].sort((a, b) => a - b)).toEqual(order);
     expect(within(dialog).getByTestId('dish-art').getAttribute('aria-hidden')).toBe('true');
-    // the radar is a real chart, near the top, with working axis chips
+    // the chart is the combined flavor wheel, near the top (WHEEL-2)
     const profile = within(dialog).getByTestId('recipe-profile');
-    expect(within(profile).getByRole('img', { name: /Taste radar/i })).toBeInTheDocument();
-    fireEvent.click(within(profile).getByRole('button', { name: 'Aroma' }));
-    expect(within(profile).getByRole('img', { name: /Aroma radar/i })).toBeInTheDocument();
+    expect(within(profile).getByRole('img', { name: /Flavor wheel/i })).toBeInTheDocument();
+    expect(within(profile).queryByRole('button', { name: 'Aroma' })).toBeNull();
   });
 
   it('meta reads as accessible text: serves, time and ingredient count', () => {
@@ -143,25 +140,5 @@ describe('Cookbook popup (DESIGN-3)', () => {
     openBolognese({ onFindCocktail: vi.fn() });
     const nesting = errSpy.mock.calls.filter((c) => String(c[0]).includes('validateDOMNesting') || String(c.join(' ')).includes('cannot appear as a descendant'));
     expect(nesting).toEqual([]);
-  });
-});
-
-describe('MultiAxisRadarStack nested-button fix (DESIGN-3)', () => {
-  it('has no <button> inside another <button> and stays keyboard-operable', () => {
-    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const onAxisSelect = vi.fn();
-    const { container } = render(
-      <MultiAxisRadarStack ingredients={['tomato']} nodes={new Map([['tomato', { name: 'tomato', taste: 'umami' }]])} focalName="tomato" onAxisSelect={onAxisSelect} />,
-    );
-    expect(container.querySelectorAll('button button')).toHaveLength(0);
-    expect(container.querySelectorAll('[role="button"] button')).toHaveLength(0);
-    const card = screen.getByTestId('multi-radar-season');
-    expect(card).toHaveAttribute('tabindex', '0');
-    fireEvent.keyDown(card, { key: 'Enter' });
-    fireEvent.keyDown(card, { key: ' ' });
-    expect(onAxisSelect).toHaveBeenCalledTimes(2);
-    expect(onAxisSelect).toHaveBeenCalledWith('season');
-    expect(errSpy.mock.calls.filter((c) => String(c.join(' ')).includes('descendant'))).toEqual([]);
-    errSpy.mockRestore();
   });
 });

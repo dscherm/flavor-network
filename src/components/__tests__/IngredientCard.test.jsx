@@ -21,7 +21,6 @@ import { needsFromKitchen } from '../../data/whatDoINeed.js';
 import { SEED_RECIPES } from '../../data/seedRecipes.js';
 
 vi.mock('../NetworkScene.jsx', () => ({ default: () => null }));
-vi.mock('../MultiAxisRadarStack.jsx', () => ({ default: () => null }));
 
 const NAMES = ['gin', 'garlic', 'tomato', 'lemon', 'mint', 'campari', 'milk', 'cheddar'];
 const makeData = (names = NAMES) => ({

@@ -26,7 +26,9 @@ import { needsFromKitchen } from '../data/whatDoINeed.js';
 import { loadKitchen, saveKitchen, addToKitchen, loadAssumeBasics, loadSpiceRack } from '../data/myKitchen.js';
 import { mainsOf, categoryLookup } from '../data/recipeMains.js';
 import { resolveIngredientName } from '../data/recipePairingMatch.js';
-import ProfileAxisRadar from './ProfileAxisRadar.jsx';
+import FlavorWheel from './FlavorWheel.jsx';
+import { profileForRecipe } from '../data/shareCardData.js';
+import { NO_CHART_LINE } from '../data/recipeProfileAnalysis.js';
 import { DishArt, IngredientGlyph, LabArt } from './chalkArt.jsx';
 import PictureView from './PictureView.jsx';
 import { SEED_RECIPES, CUISINE_COLOR, userRecipeToSeed } from '../data/seedRecipes.js';
@@ -150,7 +152,6 @@ function MetaGlyph({ kind, color = CHALK_DIM }) {
 }
 
 const SECTION_LABEL = { fontFamily: FONT, fontSize: '15px', color: CHALK_DIM, textShadow: CHALK_SHADOW };
-const RADAR_AXES = ['taste', 'aroma', 'season', 'cuisine', 'method'];
 
 // DESIGN-3: the popup leads with pictures — dish drawing, meta as
 // icon+number, the profile radar — then ingredient chips, the method
@@ -186,9 +187,14 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
     setKitchen(next); saveKitchen(next);
   };
   const [methodOpen, setMethodOpen] = useState(false);
-  const [axis, setAxis] = useState('taste');
+  // WHEEL-2: the card's chart is the combined seventeen-note wheel, from the same profileForRecipe call (same recipe
+  // object, same nodes) that the Flavor profile button's section draws, so the two always agree.
+  const flavorProfile = useMemo(
+    () => (flavorRecipe && nodes instanceof Map && nodes.size ? profileForRecipe(flavorRecipe, nodes) : null),
+    [flavorRecipe, nodes],
+  );
   // Match recipe ingredient strings to actual nodes in the ingredient
-  // graph so the radar has real taste/aroma/season/etc. data to plot.
+  // graph so the chips can say which are known.
   // Unmatched ones are still listed (dimmer) so the user sees them.
   const { matched, unmatched } = useMemo(() => {
     if (!nodes) return { matched: [], unmatched: recipe.ingredients };
@@ -202,9 +208,6 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
     return { matched: ok, unmatched: miss };
   }, [recipe.ingredients, nodes]);
 
-  // Focal = first matched ingredient. The radar averages across all
-  // matched ingredients so the chart reflects the whole recipe.
-  const focalName = matched[0] || null;
   const steps = details?.steps || [];
   const hasPairings = (onFindCocktail || onFindSauce || onFindWine) && matched.length > 0;
   const categoryOf = (n) => (nodes ? (nodes.get(n.toLowerCase()) || nodes.get(n))?.category : null);
@@ -291,23 +294,15 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
           {/* 1b — STORIES-1: photo + background from Wikipedia, leading the card */}
           <DishStory kind="recipe" storyKey={recipe.id} name={recipe.name} className="!mt-0" />
 
-          {/* 2 — the profile radar, near the top */}
-          {focalName && nodes ? (
+          {/* 2 — the flavor wheel, near the top (WHEEL-2: the combined wheel, drawn from profileForRecipe) */}
+          {flavorProfile?.drawn ? (
             <div className="flex flex-col items-center" data-testid="recipe-profile">
               <span className="sr-only">Flavor profile</span>
-              <ProfileAxisRadar
-                ingredients={matched}
-                nodes={nodes}
-                axis={axis}
-                onAxisChange={(a) => RADAR_AXES.includes(a) && setAxis(a)}
-                focalName={focalName}
-                width={248}
-                theme="dark"
-              />
+              <FlavorWheel bars={flavorProfile.bars} testidPrefix="recipe-wheel" maxWidth={300} />
             </div>
           ) : (
             <p className="italic text-center" style={{ fontFamily: FONT, fontSize: '16px', color: CHALK_SUB }} data-testid="recipe-profile">
-              No matched ingredients — radar unavailable.
+              {NO_CHART_LINE}
             </p>
           )}
 

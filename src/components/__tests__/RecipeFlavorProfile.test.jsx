@@ -9,7 +9,6 @@ import { fromOwnItem } from '../../data/sharedRecipe.js';
 import { loadFlavorNodes } from '../../../scripts/lib/flavorNodes.mjs';
 
 vi.mock('../NetworkScene.jsx', () => ({ default: () => null }));
-vi.mock('../MultiAxisRadarStack.jsx', () => ({ default: () => null }));
 
 const nodes = loadFlavorNodes();
 const negroni = { kind: 'cocktail', name: 'Negroni', lines: [{ key: 'gin', amount: '1 oz' }, { key: 'campari', amount: '1 oz' }, { key: 'sweet vermouth', amount: '1 oz' }] };

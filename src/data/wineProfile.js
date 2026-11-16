@@ -23,6 +23,19 @@ export const STRUCTURE_AXES = [
   { key: 'oak', label: 'Oak', lo: 0, hi: 2 },
 ];
 
+// WHEEL-2: the wine card's wheel. Wine is not charted on the seventeen flavor notes; its wheel has these six structure
+// axes in fixed places (the order above, clockwise from the top), each wedge as long as the wine's value on its own
+// scale (value over the scale top, so the lengths are absolute and comparable between wines). Same drawing as the flavor
+// wheel (flavorCharts.flavorWheel with this axis set).
+const WINE_AXIS_COLOR = { body: '#d6a46c', acidity: '#86efac', tannin: '#c4b5fd', sweetness: '#f9a8d4', alcohol: '#fb923c', oak: '#fbbf24' };
+export const WINE_WHEEL_AXES = STRUCTURE_AXES.map((a) => a.key);
+export const WINE_AXIS_SET = {
+  order: WINE_WHEEL_AXES,
+  labels: Object.fromEntries(STRUCTURE_AXES.map((a) => [a.key, a.label])),
+  breakAt: null,
+  absolute: true,
+};
+
 // Aroma families, in display order. Every aroma tag in
 // public/data/wine_styles.json belongs to exactly one (checked by test).
 export const AROMA_FAMILIES = [
@@ -212,4 +225,9 @@ export function reviewHighlights(entry, { minShare = 0.1, minLift = 1.3, max = 4
     .sort((a, b) => b.share - a.share)
     .slice(0, max);
   return families.length ? { reviews: entry.reviews, families } : null;
+}
+
+/** The bars for the wine wheel: { axis, label, color, score (0..1) } for each structure axis, in the wheel's fixed order. */
+export function wineWheelBars(wine) {
+  return wineProfileAxes(wine).axes.map((a) => ({ axis: a.key, label: a.label, color: WINE_AXIS_COLOR[a.key], score: a.value }));
 }

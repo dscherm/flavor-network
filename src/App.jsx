@@ -65,9 +65,7 @@ import { IngredientCardProvider } from './components/IngredientCardProvider.jsx'
 import { uncheckedCount as shoppingUncheckedCount } from './data/shoppingList.js';
 import GuidedTour from './components/GuidedTour.jsx';
 import LabTour from './components/LabTour.jsx';
-import IngredientPicker from './components/IngredientPicker.jsx';
 import PairingMode from './components/PairingMode.jsx';
-import MakeRecipeView from './components/MakeRecipeView.jsx';
 import {
   MODE_CYCLE as NETWORK_MODE_CYCLE,
   MODE_LABELS as NETWORK_MODE_LABELS,
@@ -1380,113 +1378,6 @@ export default function App() {
         picked={landingPick}
       />
     );
-  }
-
-  // B-version P4 (interactive bridge): standalone MakeRecipeView preview
-  // gated on ?make=1. Lets the user review the chalkboard cards grid +
-  // dish-type joystick + picker + menu BEFORE landing-card rewire
-  // (P6) makes it the third top-level surface. Tapping a card opens
-  // PairingMode for that ingredient via the App-level focal setter.
-  if (typeof window !== 'undefined') {
-    const _mrParams = new URLSearchParams(window.location.search);
-    if (_mrParams.get('make') === '1' && data?.graph?.nodes) {
-      return (
-        <div data-testid="make-recipe-preview-overlay">
-          <MakeRecipeView
-            data={data}
-            onCardTap={(name) => setPairingModeFocal(name)}
-            onSaveToNotebook={(state) => console.log('[make] save', state)}
-            onExamineInNetwork={(state) => console.log('[make] tour', state)}
-          />
-          {pairingModeFocal && (
-            <PairingMode
-              focal={pairingModeFocal}
-              ctx={{
-                graph: data.graph,
-                cuisineNeighborIndex: data.cuisineNeighborIndex || null,
-                bridgeCompoundIndex: data.bridgeCompoundIndex || null,
-                flavorBibleSet: data.flavorBibleSet || null,
-                flavorBibleNeighbors: data.flavorBibleNeighbors || null,
-              }}
-              odorThresholds={data.odorThresholds || null}
-              onExit={() => setPairingModeFocal(null)}
-            />
-          )}
-        </div>
-      );
-    }
-  }
-
-  // B-version P3 (interactive bridge): standalone PairingMode preview
-  // gated on ?pairing=<focalName>. Mounts the Tinder-stack pairing
-  // browser focused on the given ingredient so the user can review
-  // card visuals + 4-button nav + radar dot positioning before P3
-  // wires it into NetworkScene single-tap handler.
-  if (typeof window !== 'undefined') {
-    const _pmParams = new URLSearchParams(window.location.search);
-    const _pmFocal = _pmParams.get('pairing');
-    if (_pmFocal && data?.graph?.nodes) {
-      return (
-        <div data-testid="pairing-preview-overlay">
-          <PairingMode
-            focal={_pmFocal}
-            ctx={{
-              graph: data.graph,
-              cuisineNeighborIndex: data.cuisineNeighborIndex || null,
-              bridgeCompoundIndex: data.bridgeCompoundIndex || null,
-              flavorBibleSet: data.flavorBibleSet || null,
-              flavorBibleNeighbors: data.flavorBibleNeighbors || null,
-            }}
-            odorThresholds={data.odorThresholds || null}
-            onExit={() => {
-              const url = new URL(window.location.href);
-              url.searchParams.delete('pairing');
-              window.history.replaceState({}, '', url.toString());
-              window.location.reload();
-            }}
-          />
-        </div>
-      );
-    }
-  }
-
-  // B-version P1 (interactive bridge): standalone IngredientPicker
-  // preview gated on ?picker=1[&mode=notebook|guided]&dish=<type>.
-  // Lets the user review the picker shell + radar + filtered list
-  // before P2 wires it into the Notebook Add/Replace chrome.
-  if (typeof window !== 'undefined') {
-    const _ppParams = new URLSearchParams(window.location.search);
-    if (_ppParams.get('picker') === '1' && data?.graph?.nodes) {
-      const _pmode = _ppParams.get('mode') === 'guided' ? 'guided' : 'notebook';
-      const _pdish = _ppParams.get('dish') || null;
-      const _pCtx = {
-        graph: data.graph,
-        gnnEntropy: data.gnnEntropy || null,
-        cuisineMap: data.cuisineMap || null,
-        seasonMap: data.seasonMap || null,
-      };
-      return (
-        <div
-          className="flex items-start justify-center min-h-screen px-4 py-8"
-          style={{ backgroundColor: '#070a14' }}
-          data-testid="picker-preview-overlay"
-        >
-          <IngredientPicker
-            mode={_pmode}
-            ctx={_pCtx}
-            dishType={_pdish}
-            onSelect={(name) => console.log('[picker] select', name)}
-            onIngredientPick={(name) => console.log('[picker] pick', name)}
-            onClose={() => {
-              const url = new URL(window.location.href);
-              url.searchParams.delete('picker');
-              window.history.replaceState({}, '', url.toString());
-              window.location.reload();
-            }}
-          />
-        </div>
-      );
-    }
   }
 
   return (

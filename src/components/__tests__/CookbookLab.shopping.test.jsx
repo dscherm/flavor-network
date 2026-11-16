@@ -11,7 +11,6 @@ import { commitList, emptyShopping } from '../../data/shoppingStore.js';
 
 vi.setConfig({ testTimeout: 20000 });
 vi.mock('../NetworkScene.jsx', () => ({ default: () => null }));
-vi.mock('../MultiAxisRadarStack.jsx', () => ({ default: () => null }));
 
 const CATS = { beef: 'protein', tomato: 'vegetable', onion: 'aromatic', carrot: 'vegetable', celery: 'vegetable', garlic: 'aromatic', 'red wine': 'liquid', pasta: 'grain' };
 const bolognese = SEED_RECIPES.find((r) => r.id === 'beef-bolognese');

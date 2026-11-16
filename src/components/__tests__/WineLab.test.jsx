@@ -94,13 +94,19 @@ describe('WineLab — browse', () => {
     expect(within(card).getByTestId('lab-node-card-pairs-with')).toHaveTextContent('tomato');
   });
 
-  it('the wine card shows the flavour profile radar, aroma families and pairing rules', async () => {
+  it('the wine card shows the structure wheel, aroma families and pairing rules', async () => {
     render(<WineLab />);
     await waitFor(() => screen.getByText('Wine List'));
     fireEvent.click(screen.getByTestId('wine-row-barolo'));
     const card = screen.getByTestId('lab-node-card');
     expect(within(card).getByText('Flavour profile')).toBeInTheDocument();
-    expect(within(card).getByRole('img', { name: /structure radar/i })).toBeInTheDocument();
+    // WHEEL-2: fixed wedges for wine's own six axes (the same drawing as the flavor wheel), no polygon radar, no seventeen notes
+    expect(within(card).getByRole('img', { name: /Wine structure wheel/i })).toBeInTheDocument();
+    for (const axis of ['body', 'acidity', 'tannin', 'sweetness', 'alcohol']) expect(within(card).getByTestId(`wine-wedge-${axis}`)).toBeInTheDocument();
+    expect(within(card).queryByTestId('wine-wedge-oak')).not.toBeNull(); // Barolo is oaked
+    expect(card.querySelectorAll('[data-testid^="wine-wedge-odor_"], [data-testid="wine-wedge-sour"], [data-testid="wine-wedge-umami"]')).toHaveLength(0);
+    expect(within(card).getByRole('list', { name: 'Structure' })).toHaveTextContent('Tannin 100 percent');
+    expect(within(card).queryByRole('img', { name: /structure radar/i })).toBeNull();
     expect(within(card).getByTestId('wine-aroma-families')).toHaveTextContent('Earthy');
     expect(within(card).getByText('Pairs by profile')).toBeInTheDocument();
     expect(within(card).getByTestId('wine-rule-tannin')).toHaveTextContent(/red meat/i);

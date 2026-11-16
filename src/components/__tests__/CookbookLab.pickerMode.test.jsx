@@ -37,9 +37,6 @@ vi.mock('../NetworkScene.jsx', () => ({
   },
 }));
 
-vi.mock('../MultiAxisRadarStack.jsx', () => ({
-  default: () => null,
-}));
 
 describe('CookbookLab — MAKE-COOKBOOK-PICKER (pickerMode="make")', () => {
   beforeEach(() => {

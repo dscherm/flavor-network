@@ -9,7 +9,6 @@ import { RecipeDetail } from '../CookbookLab.jsx';
 import { SEED_RECIPES } from '../../data/seedRecipes.js';
 import { loadDishStories, storyFor, _resetDishStories } from '../../data/dishStories.js';
 
-vi.mock('../MultiAxisRadarStack.jsx', () => ({ default: () => null }));
 
 const PHOTO = {
   src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Paella.jpg/500px-Paella.jpg',

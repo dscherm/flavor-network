@@ -12,7 +12,6 @@ const root = process.cwd();
 const read = (p) => JSON.parse(fs.readFileSync(path.join(root, p), 'utf8'));
 
 vi.mock('../NetworkScene.jsx', () => ({ default: () => null }));
-vi.mock('../MultiAxisRadarStack.jsx', () => ({ default: () => null }));
 
 // ── Cocktail browse ─────────────────────────────────────────────────
 const cocktail = (name, ings) => ({
