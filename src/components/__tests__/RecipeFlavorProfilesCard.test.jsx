@@ -88,14 +88,21 @@ describe('RecipeFlavorProfilesCard', () => {
     expect(screen.getByText(/suggestions appear here/i)).toBeInTheDocument();
   });
 
-  it('renders the Flavor map on page 1 with one dot per ingredient that has gnnProbs', () => {
-    render(<RecipeFlavorProfilesCard bowlNames={['strawberry', 'cranberry', 'coconut cream', 'mystery']} nodes={nodes} />);
-    fireEvent.click(screen.getByLabelText('Next')); // Overview → Flavor map
-    const map = screen.getByTestId('flavor-map-radar');
-    expect(map).toBeInTheDocument();
-    // honey/lemon/butter have probs; mystery has none → 3 plotted ingredients.
-    const ings = screen.getAllByTestId('flavor-map-ingredient');
-    expect(ings.length).toBe(3);
+  it('renders the Flavor map on page 1 as the fixed wheel, with the same wedge positions for two different recipes', () => {
+    const geom = (names) => {
+      const { unmount } = render(<RecipeFlavorProfilesCard bowlNames={names} nodes={nodes} />);
+      fireEvent.click(screen.getByLabelText('Next')); // Overview → Flavor map
+      expect(screen.getByTestId('flavor-map-wheel')).toBeInTheDocument();
+      const wedges = screen.getAllByTestId(/^flavor-map-wedge-/).map((w) => [w.getAttribute('data-testid'), w.getAttribute('d')]);
+      unmount();
+      return Object.fromEntries(wedges);
+    };
+    const a = geom(['strawberry', 'cranberry', 'coconut cream', 'mystery']);
+    const b = geom(['strawberry', 'cranberry']);
+    expect(Object.keys(a).length).toBeGreaterThan(0);
+    // the inner edge of a wedge (after the L) does not depend on its length, only on its fixed angles
+    const start = (d) => d.slice(d.indexOf('L'));
+    for (const k of Object.keys(a)) if (b[k]) expect(start(b[k])).toBe(start(a[k]));
   });
 
   it('shows an empty hint when no ingredient has flavor data', () => {
@@ -110,7 +117,7 @@ describe('RecipeFlavorProfilesCard', () => {
     expect(screen.queryByTestId('profiles-overview')).toBeNull();
     expect(screen.queryAllByTestId('overview-bar')).toHaveLength(0);
     fireEvent.click(screen.getByLabelText('Next'));
-    expect(screen.queryByTestId('flavor-map-radar')).toBeNull();
+    expect(screen.queryByTestId('flavor-map-wheel')).toBeNull();
     expect(screen.getByTestId('profiles-no-chart')).toBeInTheDocument();
   });
 
@@ -238,7 +245,7 @@ describe('RecipeFlavorProfilesCard', () => {
     expect(screen.getByTestId('profiles-overview')).toBeInTheDocument();
     // dot[1] → Flavor map
     fireEvent.click(dots[1]);
-    expect(screen.getByTestId('flavor-map-radar')).toBeInTheDocument();
+    expect(screen.getByTestId('flavor-map-wheel')).toBeInTheDocument();
     // dot[6] → Enhance page
     fireEvent.click(dots[6]);
     expect(screen.getByTestId('profiles-enhance')).toBeInTheDocument();

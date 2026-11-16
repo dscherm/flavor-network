@@ -16,7 +16,7 @@ beforeEach(() => {
 });
 
 describe('Flavor Profiles card with eleven aromas', () => {
-  it('draws the overview under the display rule (6 + 6 at most, "show all" for the rest) and a map of 3 to 8 spokes', () => {
+  it('draws the overview under the display rule (6 + 6 at most, "show all" for the rest) and the fixed wheel on the map page', () => {
     render(<RecipeFlavorProfilesCard bowlNames={MANY} nodes={nodes} />);
     const bars = screen.getAllByTestId('overview-bar');
     expect(bars.length).toBeGreaterThan(5);
@@ -26,10 +26,9 @@ describe('Flavor Profiles card with eleven aromas', () => {
     expect(all.length).toBeGreaterThan(bars.length);
     expect(all.some((b) => AROMA_AXES.slice(6).includes(b.getAttribute('data-axis')))).toBe(true);
     fireEvent.click(screen.getByLabelText('Next'));
-    const map = screen.getByTestId('flavor-map-radar');
-    const labels = AXES.filter((a) => map.textContent.includes(axisLabel(a).toLowerCase()) && !MANY.includes(axisLabel(a).toLowerCase()));
-    expect(labels.length).toBeGreaterThanOrEqual(3);
-    expect(labels.length).toBeLessThanOrEqual(8);
+    const map = screen.getByTestId('flavor-map-wheel');
+    expect(map).toBeInTheDocument();
+    expect(screen.getAllByTestId(/^flavor-map-wedge-/).length).toBeGreaterThanOrEqual(3);
   });
   it('walks every page of the carousel, one per shown axis, without throwing', () => {
     render(<RecipeFlavorProfilesCard bowlNames={MANY} nodes={nodes} />);

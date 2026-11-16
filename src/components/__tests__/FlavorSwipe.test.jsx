@@ -115,7 +115,7 @@ describe('FlavorSwipe', () => {
     expect(screen.getByTestId('s-wedge-sweet')).toBeTruthy();
     expect(screen.queryByTestId('s-wedge-umami')).toBeNull();
     expect([...svg.querySelectorAll('text')].map((t) => t.textContent).sort()).toEqual(['Bitter', 'Sweet', 'Spice', 'Woody'].sort());
-    expect(screen.getByTestId('s-wheel-key')).toHaveTextContent('Upper left: tastes. The rest: aromas.');
+    expect(screen.getByTestId('s-wheel-key')).toHaveTextContent('Left side: tastes. The rest: aromas.');
   });
 });
 

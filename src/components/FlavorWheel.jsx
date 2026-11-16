@@ -42,7 +42,7 @@ export default function FlavorWheel({ bars, testidPrefix = 'profile' }) {
           );
         })}
       </svg>
-      <p className="mt-1 mb-0 text-center text-[12px]" style={{ fontFamily: SANS, color: CHALK_SUB }} data-testid={`${p}-wheel-key`}>Upper left: tastes. The rest: aromas.</p>
+      <p className="mt-1 mb-0 text-center text-[12px]" style={{ fontFamily: SANS, color: CHALK_SUB }} data-testid={`${p}-wheel-key`}>Left side: tastes. The rest: aromas.</p>
     </div>
   );
 }

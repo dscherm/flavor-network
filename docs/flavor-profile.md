@@ -917,20 +917,20 @@ From AROMA-3 and FLAVOR-6; none was changed in AROMA-4 (table values were out of
 - Potato, rice, tofu and flour are left "no aroma of their own"; the second source calls them earthy or nutty.
 - 122 of the 304 chef-key ingredients still have no table line (see BACKLOG.md).
 
-### The interim display rule (AROMA-4)
+### The display rule for the bars (AROMA-4; chosen for the Recipe Notebook overview in CHART-5)
 
-With six tastes and eleven aromas a full chart has seventeen bars. Until the owner chooses a redesign (task CHART-1) every surface follows one rule, written once in `src/data/flavorDisplay.js` and tested in `src/data/flavorDisplay.test.js`:
+With six tastes and eleven aromas a full chart has seventeen bars. The owner has chosen ranked bars as the design for the Recipe Notebook overview (CHART-5), and every bar surface follows one rule, written once in `src/data/flavorDisplay.js` and tested in `src/data/flavorDisplay.test.js`:
 
 1. Tastes and aromas are two groups, headed **Taste** and **Aroma**, each ordered strongest first. (So Umami under Taste and Savory under Aroma, or Heat and Spice, read as different things.)
 2. A bar is drawn only at or above a floor of 0.05.
 3. Each group has a maximum that depends on the room: **share cards 3 tastes + 3 aromas; the cover of a set of three 4 + 4; invent panels and the shared page ("compact") 4 + 4 with "show all"; the Recipe Notebook overview ("full") 6 + 6 with "show all".**
 4. When bars are hidden one short line says so ("+3 fainter notes"); compact and full surfaces add "show all" (and "show fewer").
 5. Ties are broken one way everywhere: scores are compared to three decimals, and a tie goes to the axis that comes first in the canonical order (sweet, sour, bitter, salty, umami, heat, fruity, floral, green, woody, spice, creamy, toasty, nutty, earthy, smoky, savory). The server's stored card bars keep three decimals so they order the same way. A test checks that the Recipe Notebook, an invent panel, the shared page and a server card lead with the same two tastes and the same two aromas for Negroni and Beef Bolognese, with no tolerance for ties.
-6. Radars plot only the axes the rule picks, never seventeen: the Recipe Notebook flavor map 4 tastes + 4 aromas at most (3 to 8 spokes); the aroma wheel on the suggestion cards at most 4 aromas plus the ones the candidate moves (the taste wheel keeps its six); the Cookbook card radar (chef vocabulary, with its own axis switcher) the keys the recipe has a signal on, up to 6 for taste and 8 for aroma, never fewer than 3, in the vocabulary's own order. Season, cuisine and method radars are unchanged.
+6. Radars plot only the axes the rule picks, never seventeen: (CHART-5: the Recipe Notebook flavor map is no longer a radar; it draws the fixed seventeen-wedge wheel, and its old per-ingredient dots were dropped); the aroma wheel on the suggestion cards at most 4 aromas plus the ones the candidate moves (the taste wheel keeps its six); the Cookbook card radar (chef vocabulary, with its own axis switcher) the keys the recipe has a signal on, up to 6 for taste and 8 for aroma, never fewer than 3, in the vocabulary's own order. Season, cuisine and method radars are unchanged.
 7. The per-axis pages and the Enhance page follow the same selection (6 + 6, or every axis above the floor after "show all"). Every one of the seventeen axes has a page, an insight, a balancing axis and boost and temper candidates (a test covers all seventeen).
 8. A user's published copy stores every note above the floor (up to 17 bars; CHART-4 raised the rules limit from 11, which a 4 + 4 cut had been fitting under). Superseded: it used to store only the compact set (4 + 4 bars). Older copies with 8 bars still read and draw.
 
-The redesign (CHART-1) is still to come: it will show candidate graphs with real data for the owner to choose from. This rule only keeps today's charts readable.
+The owner chose the graphs in CHART-1 (see the chart sections above); this rule keeps the bars readable.
 
 ### Not verified
 
@@ -948,4 +948,4 @@ What the section shows: the Taste and Aroma groups under their headings, stronge
 
 How it stays the same chart: the card turns the item it already holds into the shared page's recipe shape with `normaliseBuiltIn` (the same resolvers as `/r/<kind>/<slug>`) or `fromOwnItem` (the shape of a published copy), then calls `profileForRecipe`. A test (`recipeProfileCoverage.test.js`) checks, for every built-in drink, sauce and dish, that the card's recipe and profile equal the shared page's, and for Negroni, Hollandaise and Beef Bolognese that the card's two leading tastes and aromas equal the shared page's and the server share card's. Nothing is fetched when a card is opened: the curated taste labels are already on the ingredient nodes in memory and the aroma table is code. Opening a card calls an optional `onProfileOpen(kind, builtIn)` prop (a no-op by default) so a later usage-data task can count opens.
 
-This uses the interim chart style; CHART-1 will restyle it with the other charts.
+This used the interim chart style; the chart redesign has since landed (CHART-3 to CHART-5).

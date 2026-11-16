@@ -3,8 +3,8 @@
  * layout module is copied into the Cloud Functions package, and scripts/buildShareIndex.mjs inlines this file
  * into that copy, so keep it self-contained).
  *
- * This is an INTERIM rule: with six tastes and eleven aromas a full chart has seventeen bars, so every surface
- * shows only the strongest, until the owner picks a real redesign (plan.md CHART-1).
+ * With six tastes and eleven aromas a full chart has seventeen bars, so the ranked bars show only the strongest.
+ * The owner has chosen this as the design for the Recipe Notebook overview (CHART-5); the wheel is the other chart.
  *
  * The rule, in plain words
  *   1. Tastes and aromas are two groups ("Taste", "Aroma"), each ordered strongest first.

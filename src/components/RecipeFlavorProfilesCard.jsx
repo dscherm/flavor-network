@@ -2,9 +2,8 @@
  * RecipeFlavorProfilesCard — dark chalkboard, swipeable per-axis flavor analysis
  * for a recipe.
  *
- * Page 0 is a Flavor map: a chalkboard radar over the axes flavorDisplay.radarAxes picks (3 to 8 of the 17) that
- * plots each bowl ingredient as a labeled dot positioned by its own flavor
- * (its own taste and aroma values), so a sweet ingredient sits toward the "sweet" axis.
+ * Page 0 is the Overview (ranked bars); the Flavor map page draws the fixed seventeen-wedge FlavorWheel (CHART-5), the
+ * same wedge positions for every recipe, fed with the same scores as the bars.
  * Pages 1..axes.length are one per firing flavor axis (taste + aroma): the
  * recipe's score on that axis, what's driving it, a rule-based insight, and
  * model-ranked Boost/Temper ingredient suggestions (tap to add, quantity-
@@ -20,7 +19,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   recipeAxisProfileWeighted, describeRecipeProfile, axisInsight,
-  axisLabel, axisColor, rankByAxisImpact, buildAxisEnhancements, nodeProbs, AXES, NO_CHART_LINE,
+  axisLabel, axisColor, rankByAxisImpact, buildAxisEnhancements, AXES, NO_CHART_LINE,
 } from '../data/recipeProfileAnalysis.js';
 import { clusterColor } from './MakeRecipeCardsGrid.jsx';
 import { loadDirectionsIndex, retrieveDirections, retrieveCookingMethods } from '../ml/directionsRuntime.js';
@@ -31,7 +30,8 @@ import { buildPairingIndex, rankByPairing } from '../data/recipePairingMatch.js'
 import { recipeTakesSauce } from '../data/sauceRecommendation.js';
 import HelpBubble from './HelpBubble.jsx';
 import { curateCodexRaw } from '../data/cocktailCodexV2.js';
-import { groupBars, selectAxes, radarAxes, hiddenLine } from '../data/flavorDisplay.js';
+import { groupBars, selectAxes, hiddenLine } from '../data/flavorDisplay.js';
+import FlavorWheel from './FlavorWheel.jsx';
 // CK-14: fold the duplicated chalkboard palette onto the shared theme.
 import { FONT, CHALK_BG, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL as CHALK_BORDER_OUTER } from '../data/chalkTheme.js';
 
@@ -88,169 +88,6 @@ function loadSauceItems() {
       .catch(() => { _sauceItemsPromise = null; return null; });
   }
   return _sauceItemsPromise;
-}
-
-function axisAngle(i, n) {
-  return (Math.PI * 2 * i) / n - Math.PI / 2;
-}
-
-/**
- * IngredientFlavorMap — a chalkboard radar over the chosen axes (default all 17; grid rings, spokes,
- * colored axis labels) that plots each bowl ingredient as a labeled dot placed
- * by its own flavor centroid. Strongly single-flavored ingredients sit near
- * their dominant axis edge; balanced ones cluster center.
- *
- *   angle_i = 2π·i/11 − π/2
- *   vx = Σ p[axis_i]·cos(angle_i), vy = Σ p[axis_i]·sin(angle_i), mag = hypot(vx,vy)
- *   place at r = (mag/maxMag)·0.82·R in direction (vx,vy); center if mag≈0.
- */
-function IngredientFlavorMap({ bowlNames = [], nodes, axes: plotted = AXES, size = 320, testId = 'flavor-map-radar' }) {
-  const cx = size / 2;
-  const cy = size / 2;
-  // AROMA-4 (interim display rule): only the axes flavorDisplay.radarAxes picks for this recipe are plotted (3 to 8 spokes).
-  const AXES = plotted;
-  const N = AXES.length;
-  // AROMA-3: seventeen spokes. A slightly smaller disc and label size keep the outermost labels (umami, salty) inside the box.
-  const radius = size * (N > 12 ? 0.27 : 0.30);
-  const labelOffset = size * 0.075;
-  const gridLevels = [0.33, 0.66, 1.0];
-
-  const gridPoints = (level) =>
-    AXES.map((_, i) => {
-      const ang = axisAngle(i, N);
-      const r = level * radius;
-      return `${(cx + r * Math.cos(ang)).toFixed(1)},${(cy + r * Math.sin(ang)).toFixed(1)}`;
-    }).join(' ');
-
-  // Compute each ingredient's flavor-centroid vector, then normalize radii so
-  // the strongest-flavored ingredient sits at 0.82·R.
-  const placed = useMemo(() => {
-    const out = [];
-    let maxMag = 0;
-    for (const name of (Array.isArray(bowlNames) ? bowlNames : [])) {
-      const p = nodeProbs(name, nodes);
-      if (!p) continue;
-      let vx = 0;
-      let vy = 0;
-      let dom = AXES[0];
-      let domV = -Infinity;
-      for (let i = 0; i < N; i += 1) {
-        const a = AXES[i];
-        const v = p[a] || 0;
-        const ang = axisAngle(i, N);
-        vx += v * Math.cos(ang);
-        vy += v * Math.sin(ang);
-        if (v > domV) { domV = v; dom = a; }
-      }
-      const mag = Math.hypot(vx, vy);
-      if (mag > maxMag) maxMag = mag;
-      out.push({ name, vx, vy, mag, dom });
-    }
-    const denom = maxMag > 0 ? maxMag : 1;
-    return out.map((d) => {
-      const r = (d.mag / denom) * 0.82 * radius;
-      const ux = d.mag > 1e-6 ? d.vx / d.mag : 0;
-      const uy = d.mag > 1e-6 ? d.vy / d.mag : 0;
-      return {
-        ...d,
-        x: cx + r * ux,
-        y: cy + r * uy,
-        r,
-        // Push the label radially outward a touch so it doesn't sit on the dot.
-        lx: cx + (r + 9) * ux,
-        ly: cy + (r + 9) * uy,
-        ux,
-        uy,
-      };
-    });
-  }, [bowlNames, nodes, radius, cx, cy, N]);
-
-  const trunc = (s) => (s.length > 12 ? `${s.slice(0, 11)}…` : s);
-  const fontSize = N > 12 ? 11 : N > 8 ? 12 : 14;
-  const sidePad = 24;
-
-  return (
-    <svg
-      width="100%"
-      viewBox={`${-sidePad} 0 ${size + 2 * sidePad} ${size}`}
-      preserveAspectRatio="xMidYMid meet"
-      style={{ display: 'block', height: 'auto', width: '100%' }}
-      role="img"
-      aria-label="Ingredients placed by flavor"
-      data-testid={testId}
-    >
-      {/* grid rings */}
-      {gridLevels.map((level) => (
-        <polygon
-          key={`g-${level}`}
-          points={gridPoints(level)}
-          fill="none"
-          stroke={`${CHALK_BORDER_INNER}88`}
-          strokeWidth={level === 1.0 ? 1 : 0.5}
-        />
-      ))}
-      {/* axis spokes */}
-      {AXES.map((a, i) => {
-        const ang = axisAngle(i, N);
-        return (
-          <line
-            key={`spoke-${a}`}
-            x1={cx}
-            y1={cy}
-            x2={cx + radius * Math.cos(ang)}
-            y2={cy + radius * Math.sin(ang)}
-            stroke={`${CHALK_BORDER_INNER}66`}
-            strokeWidth={0.5}
-          />
-        );
-      })}
-      {/* colored axis labels with dynamic textAnchor (grow outward) */}
-      {AXES.map((a, i) => {
-        const ang = axisAngle(i, N);
-        const cosA = Math.cos(ang);
-        const sinA = Math.sin(ang);
-        const tx = cx + (radius + labelOffset) * cosA;
-        const ty = cy + (radius + labelOffset) * sinA;
-        const textAnchor = cosA > 0.15 ? 'start' : cosA < -0.15 ? 'end' : 'middle';
-        const dominantBaseline = sinA > 0.55 ? 'hanging' : sinA < -0.55 ? 'auto' : 'middle';
-        return (
-          <text
-            key={`lbl-${a}`}
-            x={tx}
-            y={ty}
-            textAnchor={textAnchor}
-            dominantBaseline={dominantBaseline}
-            fontSize={fontSize}
-            fontWeight={600}
-            fill={axisColor(a)}
-            style={{ fontFamily: FONT, letterSpacing: '0.04em' }}
-          >
-            {axisLabel(a).toLowerCase()}
-          </text>
-        );
-      })}
-      {/* ingredient dots + truncated labels */}
-      {placed.map((d) => {
-        const anchor = d.ux > 0.15 ? 'start' : d.ux < -0.15 ? 'end' : 'middle';
-        return (
-          <g key={`ing-${d.name}`} data-testid="flavor-map-ingredient" data-ingredient={d.name}>
-            <circle cx={d.x} cy={d.y} r={4} fill={axisColor(d.dom)} stroke="#0a0a0f" strokeWidth={1} />
-            <text
-              x={d.lx}
-              y={d.ly}
-              textAnchor={anchor}
-              dominantBaseline="middle"
-              fontSize={11}
-              fill={CHALK_CREAM}
-              style={{ fontFamily: FONT, textShadow: CHALK_TEXT_SHADOW }}
-            >
-              {trunc(d.name)}
-            </text>
-          </g>
-        );
-      })}
-    </svg>
-  );
 }
 
 /** Chalk-green pill: a Boost/Temper suggestion chip (tap adds, qty-prefilled). */
@@ -392,7 +229,10 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
   // (up to 6 tastes + 6 aromas, or every axis above the floor after "show all"), strongest first, ties in canonical order.
   const [showAll, setShowAll] = useState(false);
   const axes = useMemo(() => selectAxes(scores, 'full', { all: showAll }).axes, [scores, showAll]);
-  const mapAxes = useMemo(() => radarAxes(scores, 'radar'), [scores]);
+  const wheelBars = useMemo(
+    () => AXES.map((a) => ({ axis: a, label: axisLabel(a), color: axisColor(a), score: Math.max(0, scores[a] || 0) })).filter((b) => b.score > 0),
+    [scores],
+  );
 
   const [candidates, setCandidates] = useState([]); // model pool that fits the recipe
   const [dishes, setDishes] = useState([]);
@@ -595,9 +435,9 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
           <div className="flex flex-col items-center">
             <h3 className="text-2xl self-start mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_TEXT_SHADOW }}>Flavor map</h3>
             <div style={{ width: 'min(100%, 60vh)' }}>
-              <IngredientFlavorMap bowlNames={bowlNames} nodes={nodes} axes={mapAxes} />
+              <FlavorWheel bars={wheelBars} testidPrefix="flavor-map" />
             </div>
-            <p className="text-sm mt-1 text-center" style={{ fontFamily: FONT, color: CHALK_DIM }}>Each ingredient placed by its flavor</p>
+            <p className="text-sm mt-1 text-center" style={{ fontFamily: FONT, color: CHALK_DIM }}>The recipe's flavor on a fixed wheel</p>
           </div>
         )}
 
