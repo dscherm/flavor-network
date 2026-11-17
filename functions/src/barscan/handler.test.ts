@@ -280,6 +280,29 @@ describe('access by code', () => {
     expect(e?.code).toBe('permission-denied');
   });
 
+  it.each([
+    ['missing', undefined, 'missing'],
+    ['malformed', 'has space in it!!', 'malformed'],
+    ['unknown', 'Nobody-Has-This-1', 'unknown'],
+    ['disabled', 'Disabled-Code-1234', 'disabled'],
+  ])('a %s code is logged with its reason and never the code itself', async (_n, c, reason) => {
+    const r = rig();
+    await code(handleScanBar({ ...GOOD, code: c }, r.deps));
+    expect(r.logs).toHaveLength(1);
+    expect(r.logs[0][1]).toMatchObject({ outcome: 'bad-code', reason });
+    if (typeof c === 'string') expect(JSON.stringify(r.logs)).not.toContain(c);
+  });
+
+  it('a refused photo is logged with the reason, not the image', async () => {
+    const r = rig();
+    const e = await code(handleScanBar({ ...GOOD, code: CODE, mimeType: 'text/plain' }, r.deps));
+    expect(e?.code).toBe('invalid-argument');
+    expect(r.logs).toHaveLength(1);
+    expect(r.logs[0][1]).toMatchObject({ outcome: 'bad-request', mimeType: 'text/plain' });
+    expect(JSON.stringify(r.logs)).not.toContain(CODE);
+    expect(JSON.stringify(r.logs)).not.toContain(GOOD.image);
+  });
+
   it('a valid code works with no sign-in, and is trimmed', async () => {
     const r = rig();
     const out = await handleScanBar({ ...GOOD, code: `  ${CODE}  ` }, r.deps);

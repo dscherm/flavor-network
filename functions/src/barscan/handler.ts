@@ -171,18 +171,47 @@ export function capFor(dailyCap: unknown): number {
 export async function handleScanBar(data: unknown, deps: BarScanDeps): Promise<ScanBarResult> {
   // The code is checked first. Missing, malformed, unknown and disabled codes
   // all get the same answer, so a guesser learns nothing.
-  const code = codeShape((data as { code?: unknown } | null | undefined)?.code);
-  if (!code) throw new HttpsError('permission-denied', BAD_CODE);
+  // A refusal is logged with its reason, the code's length and fingerprint,
+  // never the code, so a failing scan is visible in the function log.
+  const raw = (data as { code?: unknown } | null | undefined)?.code;
+  const code = codeShape(raw);
+  const fingerprint = (c: string) => createHash('sha256').update(c).digest('hex').slice(0, 8);
+  if (!code) {
+    deps.log('scanBar', {
+      outcome: 'bad-code',
+      reason: typeof raw === 'string' && raw.trim() ? 'malformed' : 'missing',
+      length: typeof raw === 'string' ? raw.trim().length : 0,
+    });
+    throw new HttpsError('permission-denied', BAD_CODE);
+  }
   const entry = await deps.codes.get(code);
-  if (!entry || entry.enabled !== true) throw new HttpsError('permission-denied', BAD_CODE);
+  if (!entry || entry.enabled !== true) {
+    deps.log('scanBar', { outcome: 'bad-code', reason: entry ? 'disabled' : 'unknown', length: code.length, fp: fingerprint(code) });
+    throw new HttpsError('permission-denied', BAD_CODE);
+  }
 
   // The code itself is never logged: its label and a short one-way fingerprint are.
   const who = {
     code: entry.label,
-    fp: createHash('sha256').update(code).digest('hex').slice(0, 8),
+    fp: fingerprint(code),
   };
 
-  const { image, mimeType, vocab } = validateRequest(data);
+  let request: ReturnType<typeof validateRequest>;
+  try {
+    request = validateRequest(data);
+  } catch (err) {
+    const d = (data ?? {}) as { image?: unknown; mimeType?: unknown; vocab?: unknown };
+    deps.log('scanBar', {
+      ...who,
+      outcome: 'bad-request',
+      detail: (err as Error).message,
+      mimeType: typeof d.mimeType === 'string' ? d.mimeType.slice(0, 40) : typeof d.mimeType,
+      imageChars: typeof d.image === 'string' ? d.image.length : 0,
+      vocab: Array.isArray(d.vocab) ? d.vocab.length : typeof d.vocab,
+    });
+    throw err;
+  }
+  const { image, mimeType, vocab } = request;
   const bytes = approxDecodedBytes(image);
 
   const startedAt = deps.now();
