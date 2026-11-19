@@ -51,7 +51,7 @@
     },
     "blind_tdd": {
       "enabled": true,
-      "enforcement": "warn",
+      "enforcement": "strict",
       "spawner": "manual",
       "preflight": "warn",
       "test_dirs": [
