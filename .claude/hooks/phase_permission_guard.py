@@ -198,6 +198,44 @@ def _is_design_brief(project_dir: Path, target: str) -> bool:
         return False
 
 
+def log_guard_event(state_dir, guard, tool, target, blocked,
+                    phase=None, mode=None, task=None):
+    """Append one line to <state_dir>/guard_events.jsonl; True when written.
+
+    Stores a hash of the target, never its text. Never raises, prints nothing.
+    """
+    try:
+        import hashlib
+        from datetime import datetime, timezone
+
+        d = Path(state_dir)
+        if not d.is_dir():
+            return False
+
+        def _s(v):
+            return v if isinstance(v, str) and len(v) <= 64 else None
+
+        digest = None
+        if isinstance(target, str) and target:
+            digest = hashlib.sha256(target.replace("\\", "/").encode("utf-8")).hexdigest()
+        rec = {
+            "guard": _s(guard),
+            "tool": _s(tool),
+            "target_sha256": digest,
+            "phase": _s(phase),
+            "mode": _s(mode),
+            "blocked": bool(blocked),
+            "task": _s(task),
+            "ts": datetime.now(timezone.utc).isoformat(),
+        }
+        line = json.dumps(rec, ensure_ascii=True) + "\n"
+        with open(d / "guard_events.jsonl", "a", encoding="utf-8") as fh:
+            fh.write(line)
+        return True
+    except Exception:  # noqa: BLE001
+        return False
+
+
 def main() -> int:
     try:
         raw = sys.stdin.read()
@@ -229,7 +267,9 @@ def main() -> int:
     if mode == "off":
         return 0
 
-    tool_input = hook.get("tool_input") or {}
+    tool_input = hook.get("tool_input")
+    if not isinstance(tool_input, dict):
+        tool_input = {}
     target = _file_path_from_input(tool_name, tool_input)
     if phase == "design" and _is_design_brief(project_dir, target):
         return 0
@@ -255,6 +295,14 @@ def main() -> int:
         )
 
     print("\n".join(msg_lines), file=sys.stderr)
+
+    try:
+        tid = phase_rec.get("active_task_id")
+        log_guard_event(_state_dir(project_dir), "phase_permission", tool_name,
+                        tool_input.get("file_path") or tool_input.get("notebook_path"),
+                        mode == "strict", phase, mode, tid if isinstance(tid, str) else None)
+    except Exception:  # noqa: BLE001
+        pass
 
     if mode == "strict":
         return 2

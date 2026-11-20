@@ -32,10 +32,19 @@ import sys
 import sysconfig
 from pathlib import Path
 
+_STATE_DIR_NAMES = (".schermness", ".ralph")
 _CONFIG_NAMES = ("schermness.config.json", "ralph" + ".config.json")
 _GENERIC_INSTALLED = frozenset({"tests", "test", "scripts", "tools", "docs",
                                 "examples", "src", "benchmarks"})
 _MSYS_DRIVE = re.compile(r"^/(?:cygdrive/|mnt/)?([A-Za-z])(?:/|$)")
+
+# Inlined state-dir resolver: this hook is copied into each project and cannot
+# import the harness one. New name first, legacy second, NEW when neither exists.
+def _state_dir(root: Path) -> Path:
+    for name in _STATE_DIR_NAMES:
+        if (root / name).is_dir():
+            return root / name
+    return root / _STATE_DIR_NAMES[0]
 
 
 def normalize_path(raw: str) -> str:
@@ -208,6 +217,44 @@ def decide(payload: dict) -> tuple:
                f"gate.import_shadow_allow in schermness.config.json.\n")
 
 
+def log_guard_event(state_dir, guard, tool, target, blocked,
+                    phase=None, mode=None, task=None):
+    """Append one line to <state_dir>/guard_events.jsonl; True when written.
+
+    Stores a hash of the target, never its text. Never raises, prints nothing.
+    """
+    try:
+        import hashlib
+        from datetime import datetime, timezone
+
+        d = Path(state_dir)
+        if not d.is_dir():
+            return False
+
+        def _s(v):
+            return v if isinstance(v, str) and len(v) <= 64 else None
+
+        digest = None
+        if isinstance(target, str) and target:
+            digest = hashlib.sha256(target.replace("\\", "/").encode("utf-8")).hexdigest()
+        rec = {
+            "guard": _s(guard),
+            "tool": _s(tool),
+            "target_sha256": digest,
+            "phase": _s(phase),
+            "mode": _s(mode),
+            "blocked": bool(blocked),
+            "task": _s(task),
+            "ts": datetime.now(timezone.utc).isoformat(),
+        }
+        line = json.dumps(rec, ensure_ascii=True) + "\n"
+        with open(d / "guard_events.jsonl", "a", encoding="utf-8") as fh:
+            fh.write(line)
+        return True
+    except Exception:  # noqa: BLE001
+        return False
+
+
 def main() -> int:
     try:
         payload = json.loads(sys.stdin.read())
@@ -216,6 +263,14 @@ def main() -> int:
         return 0
     if msg:
         sys.stderr.write(msg)
+        try:
+            cwd = payload.get("cwd") if isinstance(payload.get("cwd"), str) else os.getcwd()
+            root = Path(find_root(cwd))
+            sd = _state_dir(root)
+            log_guard_event(sd, "import_shadow", "Write",
+                            payload["tool_input"].get("file_path"), code == 2)
+        except Exception:  # noqa: BLE001
+            pass
     return code
 
 

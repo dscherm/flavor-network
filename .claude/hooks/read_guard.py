@@ -201,6 +201,44 @@ def decide(payload: dict, env: dict | None = None) -> tuple[bool, str]:
     return True, "\n".join(lines)
 
 
+def log_guard_event(state_dir, guard, tool, target, blocked,
+                    phase=None, mode=None, task=None):
+    """Append one line to <state_dir>/guard_events.jsonl; True when written.
+
+    Stores a hash of the target, never its text. Never raises, prints nothing.
+    """
+    try:
+        import hashlib
+        from datetime import datetime, timezone
+
+        d = Path(state_dir)
+        if not d.is_dir():
+            return False
+
+        def _s(v):
+            return v if isinstance(v, str) and len(v) <= 64 else None
+
+        digest = None
+        if isinstance(target, str) and target:
+            digest = hashlib.sha256(target.replace("\\", "/").encode("utf-8")).hexdigest()
+        rec = {
+            "guard": _s(guard),
+            "tool": _s(tool),
+            "target_sha256": digest,
+            "phase": _s(phase),
+            "mode": _s(mode),
+            "blocked": bool(blocked),
+            "task": _s(task),
+            "ts": datetime.now(timezone.utc).isoformat(),
+        }
+        line = json.dumps(rec, ensure_ascii=True) + "\n"
+        with open(d / "guard_events.jsonl", "a", encoding="utf-8") as fh:
+            fh.write(line)
+        return True
+    except Exception:  # noqa: BLE001
+        return False
+
+
 def main() -> int:
     try:
         raw = sys.stdin.read()
@@ -219,6 +257,13 @@ def main() -> int:
         return 0
     if block:
         sys.stderr.write(msg + "\n")
+        try:
+            cwd = payload.get("cwd")
+            base = Path(normalize_path(cwd)) if isinstance(cwd, str) and cwd.strip() else Path.cwd()
+            log_guard_event(_state_dir(_git_root(base)), "read", "Read",
+                            payload["tool_input"].get("file_path"), True)
+        except Exception:  # noqa: BLE001
+            pass
         return 2
     return 0
 
