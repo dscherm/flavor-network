@@ -3321,3 +3321,146 @@ stays as the record of the trial page. Runs after STANDIN-1, before STANDIN-2.
   ]
 }
 ```
+
+## 2026-11-22 — The app stops looking AI-made
+
+Owner, 2026-11-22: "the design agent has criteria to make the design of apps look less ai designed. can you use
+that as a critque to review and suggest changes for this app? what's making it look like it was created by ai and
+what makes it more authentic?", then, to filing the findings: "Yes, file tasks". The criteria are the owner's
+`~/.claude/design-criteria.md` (2026-11-22). The review looked at the live site at 375 px: landing page, Cocktail
+menu, the Piña Colada card, the recipe builder.
+
+Keep (what already reads as hand-made): the chalkboard world, the drawn chef's hat, the glass shelf and the bottle
+shelf on the Cocktail menu, the drawn lab icons, the honest copy ("an idea from what pairs, not a tested recipe").
+
+Rules for every task below: brief each agent with `~/.claude/design-criteria.md` (paste it or point to it) and
+`design/DESIGN.md` once LOOK-1 has written it; no literal colours outside the token block; proof is before-and-after
+screenshots at 375 px and desktop width checked item by item against the criteria; nothing deployed without the
+owner's go-ahead. Order: LOOK-1 and LOOK-2 first (independent), then LOOK-3, LOOK-4, LOOK-5, LOOK-6, LOOK-7 one at
+a time (they touch the same components).
+
+Open decision, NOT in any task (defined for the owner 2026-11-22): the name "Neural Flavor" and the atom logo say
+"tech lab" while the app says "kitchen chalkboard". If nothing is decided both stay and every task here still
+works. Options: keep both (no work, the clash stays); keep the name and redraw the atom as something from a
+kitchen (cheap); rename (domain, share cards and links; large). No earlier ruling collides. LOOK-5 leaves the logo
+and name exactly as they are.
+
+```json
+{
+  "id": "LOOK-1",
+  "title": "Write the design system: tokens, colour roles, spacing, allowed components, a never list, and typeface specimens for the owner",
+  "category": "chore",
+  "passes": false,
+  "description": "design/DESIGN.md is still the empty template, so every screen was styled by default. Fill it from what the app already uses (src/components/chalkTheme.js and the other chalk styles; Caveat from index.html; the system-ui, Inter and Georgia stacks found in src/ are listed as things to remove, not tokens). Sections: (1) colour ROLES as named tokens with hex and where each is defined: slate ground, chalk text, muted chalk, the ONE accent for the primary action and current state, focus, error, and the taste and aroma colours as data colours only; (2) a spacing scale (tight within a group, generous between sections); (3) the type roles (display, body, small print) with sizes and weights, faces left as 'to be chosen by the owner, LOOK-6'; (4) the components allowed and which tokens each uses (button: one filled primary per view; secondary as text or outline; chip only for something you can toggle; card only for something you can open; rule and space to separate sections); (5) a 'never' list taken from ~/.claude/design-criteria.md as it applies here, plus the review's findings: tracked all-caps labels, middle-dot meta strings, arrows in labels and buttons, emoji as icons (sparkle on Invent included), pills for plain text, a box around every row, coloured stripes that mean nothing, developer words on screen, a stats boast in the hero; (6) required states (empty, loading, error, disabled) for the shared pieces. Then make a specimen page (docs/prototypes/type-specimens.html, self-contained, fonts from Google Fonts only) that renders a real Cocktail card (Negroni: name, ingredients with amounts, method) and a recipe-builder question on the slate ground in three or four candidate pairings: Caveat (or one other chalk hand) for titles with a steady face for body and ingredients. Candidates chosen for a bistro chalkboard menu, not the usual defaults (no Inter, Roboto, Poppins, Montserrat, Georgia), each with one line on why. Publish it for the owner to choose; do not pick for them. No app code changes in this task.",
+  "acceptance": [
+    "design/DESIGN.md has all six sections filled; every token names the file and variable it lives in; nothing is marked TBD except the typeface names, which point to LOOK-6",
+    "The never list covers each item of ~/.claude/design-criteria.md that applies to this app and each finding of the 2026-11-22 review, one line each",
+    "docs/prototypes/type-specimens.html renders the Negroni card and the builder question in 3 or 4 pairings at 375 px and desktop width, with real content; screenshots of both widths were looked at",
+    "The owner is shown the rendered specimens (an artifact link or screenshots), not font names; their choice is recorded in DESIGN.md and BACKLOG.md when made",
+    "No file under src/ changed"
+  ]
+}
+```
+
+```json
+{
+  "id": "LOOK-2",
+  "title": "Recipe lines that read as machine-made: 'tblsp Coconut milk 3' on the Piña Colada, and the empty photo frame",
+  "category": "bug",
+  "passes": false,
+  "description": "Seen live 2026-11-22 on the Piña Colada card (Cocktail Lab): the What do I need rows and the Ingredients list show 'tblsp Coconut milk 3' and 'tblsp Pineapple 3', the unit read as part of the name and the amount on the wrong side; the card's photo frame was an empty grey box. Find where the line is split into amount, unit and name for cocktail cards (the codex lines, src/data/curation/cocktailOverrides.json, the amount parser in src/data/amountGrams.js and whatever builds the card rows) and fix the cause, not the one drink. Then write a check script that runs every built-in cocktail, sauce and Cookbook dish through the same split and lists each line whose name starts with a unit word or a number, or whose amount is empty while the raw text has one; fix what it finds through the existing correction tables (never by editing generated data), and add the script to npm (for example npm run check:lines). Photo frame: when a drink has no photo or the photo fails to load, the card shows no frame at all rather than an empty box (or the drink's drawn glass if one exists); a failed load must not leave a grey rectangle. State how many lines were wrong before and after.",
+  "acceptance": [
+    "The Piña Colada card reads coconut milk and pineapple with their amounts in front of the name, in the What do I need rows and in Ingredients (component test on that drink)",
+    "The check script runs over all built-in cocktails, sauces and dishes and prints the count of bad lines; before and after counts are in the report; after is 0 or each remaining line is named with the reason",
+    "No generated data file is edited by hand; fixes live in the parser or the correction tables",
+    "A drink with no photo or a failing photo shows no empty frame (test with a failing image)",
+    "Looked at in a browser at 375 px on the Piña Colada and two other drinks the script had flagged; npm run gate green; nothing deployed"
+  ]
+}
+```
+
+```json
+{
+  "id": "LOOK-3",
+  "title": "Words and punctuation: no tracked capitals, middle dots, arrows or developer words",
+  "category": "design",
+  "design_surface": "Cocktail Lab menu and card, Sauce Lab, Wine Lab, Cookbook, the three builders, shopping list, ingredient card",
+  "passes": false,
+  "description": "After LOOK-1. The review found: tracked all-caps section labels ('FAMILIES', 'SPIRITS', 'ABOUT THIS DRINK', 'WHAT DO I NEED?', 'INGREDIENTS', 'PREPARATION', 'COCKTAILS LIKE THIS'; 133 uppercase uses in src/); middle-dot strings ('Tap a family to filter · tap a drink for the recipe', 'cocktail · card', 'Tropical Sours · Piña coladas & blended', credits; 83 in src/); arrows in labels and buttons ('← Back', 'swipe →', a → bullet before each ingredient); developer or system words on screen ('cocktail · card', 'Bridges other families', 'Warming up the recipe model…'). Change: section headings become sentence case in the chalkboard's own heading style, and a heading is dropped where the content already says what it is (numbered method steps need no 'Preparation' label); a meta string becomes real structure (the family shown by its drawn glass, the sub-group as a plain second line, credits as small print); Back is a plain 'Back' (an arrow icon from the one icon set only if LOOK-4 has drawn one); ingredient lines lose the → bullet and read amount first, the way a bartender writes a spec; developer words get plain names or are removed ('cocktail · card' removed; 'Bridges other families' becomes words a cook would use, offered in the report; loading lines say what is loading in plain words). A grey hint paragraph under a section moves behind a '?' where it is help, or is cut. Every visible label change keeps tests meaningful: a test that matched the old text is updated and named in the report. Usage-event names and data are not touched.",
+  "acceptance": [
+    "grep in the report: tracked all-caps text, ' · ' and → / ← in visible copy under src/components, before and after counts; every remaining one named with the reason it stays",
+    "Before-and-after screenshots at 375 px and desktop width of the Cocktail menu, the Piña Colada card, a Sauce Lab card, the recipe builder and the shopping list, checked against ~/.claude/design-criteria.md item by item in the report",
+    "Each renamed label is listed old -> new in the report, and the owner sees that list before deploy",
+    "Tests updated only where they matched old text, each named; npm run gate green; nothing deployed"
+  ]
+}
+```
+
+```json
+{
+  "id": "LOOK-4",
+  "title": "One drawn icon set: chalk icons replace the emoji and the tab bar's stock icons",
+  "category": "design",
+  "design_surface": "Invent buttons, Riff, shopping buttons, My bar, Labs menu, bottom tab bar",
+  "passes": false,
+  "description": "After LOOK-3. Emoji stand in for icons (sparkle on 'Invent a cocktail' and the other Invent buttons, 14 uses; 🔀 on 'Riff on this'; 🛒 on the shopping buttons; 🍾 on 'Only what I have' and 'My bar'; others found by grep), and the bottom tab bar uses stock line icons, a system font and a blue 'Sign in' that matches nothing else. Draw one small icon set in the app's chalk line style (same stroke and wobble as the lab icons on the landing page; SVG components in one file), only for places where an icon is the convention (back, close, share, shopping list, search, the tab bar) or where it carries meaning a word cannot: Invent gets a drawn shaker or whisk, never a sparkle. Where a word alone is clearer, drop the emoji and keep the word. The tab bar is redrawn in chalk on the slate with the app's type and token colours; the current tab is the only place the accent colour appears there. Each icon has an accessible name or sits next to its label.",
+  "acceptance": [
+    "grep in the report: emoji used as icons in src/components before and after; after is 0 or each remaining one named with the reason",
+    "One icon file; no icon from another set remains in the tab bar or the buttons listed (grep)",
+    "The tab bar uses only tokens from design/DESIGN.md; the accent appears only on the current tab (screenshot)",
+    "Before-and-after screenshots at 375 px and desktop width of the landing page, the Cocktail menu, a builder and the tab bar, checked against ~/.claude/design-criteria.md; npm run gate green; nothing deployed"
+  ]
+}
+```
+
+```json
+{
+  "id": "LOOK-5",
+  "title": "Landing page: lead with the shelf, no stats boast, the labs as a written menu board",
+  "category": "design",
+  "design_surface": "Landing page (start screen with the six lab doors)",
+  "passes": false,
+  "description": "After LOOK-4. Today: the chef's hat and the atom logo, then 'Built on 2.2M recipes, 68,417 pairings, and real molecular chemistry.', then six identical rounded cards each with a coloured left stripe that means nothing. The stats line is a stock opener and it overclaims (the project measured the molecular model as weak per ingredient, and charts now come from hand-tuned tables; see .claude/.chemdataset-status.md). Change: cut the stats line (if a line stays, it says what the app does for a cook in plain words, offered in the report); give the page one dominant thing drawn from what the app owns, the glass and bottle shelf of the Cocktail menu or an equivalent chalk drawing of the six labs, rather than six equal boxes; the six labs read as items written on a menu board (name and drawn icon, separated by space and chalk rules, no box around each, no coloured stripes), each still a 44 px target. The logo and the name 'Neural Flavor' stay exactly as they are (open decision, see this section's header). The analytics banner and the loading line keep working. Write a short design brief first (ralph-designer) and show the owner one rendered mock before building.",
+  "acceptance": [
+    "The stats line is gone; any replacement line is plain and was shown to the owner",
+    "No coloured stripe and no identical boxed cards on the landing page; each lab is still reachable with a 44 px target and keyboard focus (test)",
+    "One rendered mock was shown to the owner before the build, and their answer recorded",
+    "Logo and name unchanged (diff)",
+    "Before-and-after screenshots at 375 px and desktop width, checked against ~/.claude/design-criteria.md; npm run gate green; nothing deployed"
+  ]
+}
+```
+
+```json
+{
+  "id": "LOOK-6",
+  "title": "Type: handwriting for titles only, the owner's chosen steady face for everything people read",
+  "category": "design",
+  "design_surface": "Every screen (type roles)",
+  "passes": false,
+  "description": "After LOOK-1 (the owner's choice from the specimens) and LOOK-5. Today Caveat sets titles, buttons, list rows, ingredients and method steps, and plain text falls back to system-ui, Inter or Georgia. Apply the type roles in design/DESIGN.md: the chalk hand only for titles and the hand-drawn moments; the chosen steady face for body, ingredients, method, buttons and inputs; one size scale. Self-host or load only from Google Fonts with font-display swap; remove every system-ui, Inter, Georgia and 'sans-serif' fallback stack used as a face (grep). Share cards and the functions package draw text too: if they use Caveat or a system face, say what they use and whether they change (a change there regenerates through scripts/buildShareIndex.mjs and needs the functions tests; deploying it is the owner's call). Check line length (under about 80 characters) and that no label is clipped at 375 px.",
+  "acceptance": [
+    "grep in the report: fontFamily and font-family values in src/ before and after; after uses only the faces in design/DESIGN.md",
+    "Before-and-after screenshots at 375 px and desktop width of the Cocktail card, the recipe builder, the shopping list and the Cookbook card; no clipped label; checked against ~/.claude/design-criteria.md",
+    "Share cards: stated whether they changed; if they did, server and browser cards still match (existing parity tests) and functions tests are green",
+    "npm run gate green; nothing deployed"
+  ]
+}
+```
+
+```json
+{
+  "id": "LOOK-7",
+  "title": "Fewer boxes and pills: borders only on what you can click, one filled button per view, varied spacing",
+  "category": "design",
+  "design_surface": "Cocktail Lab card and menu, the three builders, Flavor Profiles card, shopping list",
+  "passes": false,
+  "description": "After LOOK-6. The review found 171 pill shapes in src/components and a box around nearly every row: the Cocktail card wraps its buttons, chips, rows and sections all in the same rounded border; 'Riff on this', 'Flavor profile' and 'Share' are three equal outlined pills; 'Cocktails like this' is a cloud of boxed pills for plain links; every list row in the Cocktail menu is its own bordered box. Apply the components rule in design/DESIGN.md: a border only on something you can click or that holds state; sections separated by space and a chalk rule; one filled primary action per view (on a drink card that is probably 'What do I need?' or 'Add to shopping list'; propose it in the brief); secondary actions as text or a single grouped control; plain lists as text, not pills; spacing tight within a group and generous between sections. Write the brief first (ralph-designer) with one before-and-after mock of the Cocktail card for the owner.",
+  "acceptance": [
+    "grep in the report: pill and border patterns in src/components before and after, with what remains and why",
+    "Each listed screen has exactly one filled primary action (screenshot per screen)",
+    "Before-and-after screenshots at 375 px and desktop width of each listed screen, checked against ~/.claude/design-criteria.md item by item",
+    "No behaviour change: existing tests pass, changed only where they asserted a class or border, each named; npm run gate green; nothing deployed"
+  ]
+}
+```
