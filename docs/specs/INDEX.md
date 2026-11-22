@@ -1,18 +1,30 @@
 # As-built specs
 
-- [aroma](aroma.md): AROMA-1
-- [barphoto](barphoto.md): BARPHOTO-1, BARPHOTO-3, BARPHOTO-4, BARPHOTO-6
+- [aroma](aroma.md): AROMA-1, AROMA-2, AROMA-3, AROMA-4
+- [barphoto](barphoto.md): BARPHOTO-1, BARPHOTO-3, BARPHOTO-4, BARPHOTO-6, BARPHOTO-2
+- [builder](builder.md): BUILDER-1, BUILDER-2, BUILDER-3, BUILDER-4, BUILDER-5
+- [chart](chart.md): CHART-1, CHART-2, CHART-3, CHART-4, CHART-5, CHART-6, CHART-7
 - [cocktail](cocktail.md): COCKTAIL-FOUND-1, COCKTAIL-FACETS-1, COCKTAIL-RIFF-1
 - [cookbook](cookbook.md): COOKBOOK-49, COOKBOOK-NAMES-1, COOKBOOK-METHOD-1, COOKBOOK-PAIR-1, COOKBOOK-83
+- [data](data.md): DATA-1, DATA-2, DATA-3, DATA-4, DATA-5, DATA-6, DATA-7, DATA-8
 - [deeplink](deeplink.md): DEEPLINK-1
 - [design](design.md): DESIGN-1
 - [fb](fb.md): FB-PURGE-1
+- [flavor](flavor.md): FLAVOR-1, FLAVOR-2, FLAVOR-3, FLAVOR-4, FLAVOR-5, FLAVOR-6
 - [foodon](foodon.md): FOODON-1
+- [gate](gate.md): GATE-1
 - [invent](invent.md): INVENT-1, INVENT-2, INVENT-3, INVENT-4, INVENT-5, INVENT-6, INVENT-7, INVENT-8, INVENT-9, INVENT-10, INVENT-11, INVENT-12, INVENT-13
 - [labsearch](labsearch.md): LABSEARCH-1
 - [pairmatch](pairmatch.md): PAIRMATCH-1, PAIRMATCH-2, PAIRMATCH-3
+- [picture](picture.md): PICTURE-1, PICTURE-2, PICTURE-3, PICTURE-4, PICTURE-5, PICTURE-6, PICTURE-8
+- [profile](profile.md): PROFILE-1, PROFILE-2
 - [sauce](sauce.md): SAUCE-PAIR-1
+- [share](share.md): SHARE-1, SHARE-2, SHARE-3, SHARE-4, SHARE-5, SHARE-6, SHARE-7, SHARE-8
+- [shop](shop.md): SHOP-1, SHOP-2, SHOP-3, SHOP-4, SHOP-5, SHOP-6, SHOP-7
+- [standin](standin.md): STANDIN-1, STANDIN-2, STANDIN-3
 - [stories](stories.md): STORIES-1
+- [usage](usage.md): USAGE-1, USAGE-2, USAGE-3, USAGE-4
 - [weak](weak.md): WEAK-A, WEAK-4
 - [weblink](weblink.md): WEBLINK-17
+- [wheel](wheel.md): WHEEL-1, WHEEL-2
 - [wine](wine.md): WINE-1, WINE-2, WINE-3, WINE-4
