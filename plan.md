@@ -3497,7 +3497,7 @@ and name exactly as they are.
     {"id": "AC-6", "given": "ChalkLogo rendered", "when": "the Nf text is read", "then": "its font family resolves to Caveat at weight 700 (logo unchanged)"},
     {"id": "AC-7", "given": "the package.json dependencies and the app entry", "when": "they are read", "then": "@fontsource/alegreya-sans and @fontsource/caveat are dependencies, @fontsource/kalam is not, and index.html loads no fonts.googleapis.com stylesheet"}
   ],
-  "passes": false,
+  "passes": true,
   "description": "After LOOK-1 (the owner's choice from the specimens) and LOOK-5. Today Caveat sets titles, buttons, list rows, ingredients and method steps, and plain text falls back to system-ui, Inter or Georgia. Apply the type roles in design/DESIGN.md: the chalk hand only for titles and the hand-drawn moments; the chosen steady face for body, ingredients, method, buttons and inputs; one size scale. Self-host or load only from Google Fonts with font-display swap; remove every system-ui, Inter, Georgia and 'sans-serif' fallback stack used as a face (grep). Share cards and the functions package draw text too: if they use Caveat or a system face, say what they use and whether they change (a change there regenerates through scripts/buildShareIndex.mjs and needs the functions tests; deploying it is the owner's call). Check line length (under about 80 characters) and that no label is clipped at 375 px.",
   "acceptance": [
     "grep in the report: fontFamily and font-family values in src/ before and after; after uses only the faces in design/DESIGN.md",
