@@ -163,3 +163,6 @@ Left in place on purpose:
 - BUILDER-SAVE-TWICE-COCKTAIL Saving the same cocktail or sauce twice with no picture and no id still adds a second copy (recipes already replace by name); the with-picture path now reuses the saved item with that name.
 - BUILDER-ORPHANS Files only the deleted components used may now be unreferenced (for example some helpers in `src/data/` named in their comments); not audited.
 
+## The app stops looking AI-made (2026-11-22, LOOK-1 to 7)
+- LOOK-6 typefaces DECIDED by the owner, 2026-11-22: pairing B from docs/prototypes/type-specimens.html, "B: Kalam + Alegreya". Kalam for titles and hand-drawn moments; Alegreya Sans for body, ingredients, method, buttons and inputs. Recorded in design/DESIGN.md.
+- LOOK-LOGO open: the name "Neural Flavor" and the atom logo read as a tech lab against the chalkboard kitchen. Options and costs are in the plan.md section header for LOOK-1 to 7. Nothing decided; LOOK-5 leaves both unchanged.

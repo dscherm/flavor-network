@@ -66,11 +66,11 @@ is recorded here and in BACKLOG.md under LOOK-6.
 
 | Role | Face | Size and weight | Used for |
 |---|---|---|---|
-| Display | to be chosen by the owner, LOOK-6 (chalk hand) | 32 px / 400 | Page and card titles, the hand-drawn moments |
-| Heading | to be chosen by the owner, LOOK-6 (chalk hand) | 22 px / 400 | Section headings, in sentence case |
-| Body | to be chosen by the owner, LOOK-6 (steady face) | 16 px / 400, line 1.5, measure under 80 characters | Ingredients, method steps, descriptions, inputs |
-| Control | to be chosen by the owner, LOOK-6 (steady face) | 16 px / 600 | Button and chip text |
-| Small print | to be chosen by the owner, LOOK-6 (steady face) | 13 px / 400, in Faint chalk | Credits, counts, sources |
+| Display | Kalam (chalk hand; owner, 2026-11-22) | 32 px / 400 | Page and card titles, the hand-drawn moments |
+| Heading | Kalam (chalk hand; owner, 2026-11-22) | 22 px / 400 | Section headings, in sentence case |
+| Body | Alegreya Sans (steady face; owner, 2026-11-22) | 16 px / 400, line 1.5, measure under 80 characters | Ingredients, method steps, descriptions, inputs |
+| Control | Alegreya Sans (steady face; owner, 2026-11-22) | 16 px / 600 | Button and chip text |
+| Small print | Alegreya Sans (steady face; owner, 2026-11-22) | 13 px / 400, in Faint chalk | Credits, counts, sources |
 
 Today (what the code does, for LOOK-6 to replace): `Caveat, cursive` (`chalkTheme.js` `FONT`; link in `index.html`) sets
 titles, buttons, list rows, ingredients and method; `SANS` in `inventUi.jsx` is `system-ui, -apple-system, "Segoe UI",
