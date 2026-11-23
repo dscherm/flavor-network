@@ -3367,7 +3367,7 @@ and name exactly as they are.
   "id": "LOOK-2",
   "title": "Recipe lines that read as machine-made: 'tblsp Coconut milk 3' on the Piña Colada, and the empty photo frame",
   "category": "bug",
-  "passes": false,
+  "passes": true,
   "description": "Seen live 2026-11-22 on the Piña Colada card (Cocktail Lab): the What do I need rows and the Ingredients list show 'tblsp Coconut milk 3' and 'tblsp Pineapple 3', the unit read as part of the name and the amount on the wrong side; the card's photo frame was an empty grey box. Find where the line is split into amount, unit and name for cocktail cards (the codex lines, src/data/curation/cocktailOverrides.json, the amount parser in src/data/amountGrams.js and whatever builds the card rows) and fix the cause, not the one drink. Then write a check script that runs every built-in cocktail, sauce and Cookbook dish through the same split and lists each line whose name starts with a unit word or a number, or whose amount is empty while the raw text has one; fix what it finds through the existing correction tables (never by editing generated data), and add the script to npm (for example npm run check:lines). Photo frame: when a drink has no photo or the photo fails to load, the card shows no frame at all rather than an empty box (or the drink's drawn glass if one exists); a failed load must not leave a grey rectangle. State how many lines were wrong before and after.",
   "acceptance": [
     "The Piña Colada card reads coconut milk and pineapple with their amounts in front of the name, in the What do I need rows and in Ingredients (component test on that drink)",
