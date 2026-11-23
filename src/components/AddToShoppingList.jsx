@@ -19,6 +19,7 @@ import { usage } from '../data/usageEvents.js';
 import { loadUnitSystem } from '../data/shoppingUnits.js';
 import { addTicked, askAgainText, countOptional, shopRecipeUsage, summaryText } from '../data/shoppingRecipes.js';
 import { FONT, CHALK_CREAM, CHALK_DIM } from '../data/chalkTheme.js';
+import { Basket } from './ChalkIcons.jsx';
 
 const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 const FOCUS = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
@@ -57,8 +58,9 @@ export default function AddToShoppingList({ recipe, missing, better = [], option
   return (
     <>
       <button type="button" ref={buttonRef} onClick={click} data-testid="what-do-i-need-add-shopping"
-        className={`px-3 rounded-lg border min-h-[44px] ${FOCUS}`}
+        className={`px-3 rounded-lg border min-h-[44px] inline-flex items-center gap-1 ${FOCUS}`}
         style={{ fontFamily: FONT, fontSize: 18, borderColor: `${color}88`, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
+        <Basket size={20} />
         Add to shopping list
       </button>
       {ask && (

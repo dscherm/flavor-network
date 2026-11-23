@@ -12,6 +12,7 @@
  */
 
 import React from 'react';
+import { Close } from './ChalkIcons.jsx';
 
 const FONT_HAND = 'Caveat, cursive';
 const CHALK_BG = `
@@ -170,7 +171,7 @@ function IngredientCard({ node, onTap, onRemove }) {
             fontFamily: FONT_HAND,
           }}
         >
-          ×
+          <Close size={16} />
         </button>
       )}
       <HeroDisc node={node} />

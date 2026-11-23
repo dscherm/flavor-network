@@ -7,6 +7,7 @@
  * is refocused. Non-blocking and dismissible.
  */
 import { useEffect, useState } from 'react';
+import { Close } from './ChalkIcons.jsx';
 
 const bundleName = (s) => {
   const m = (s || '').match(/index-[A-Za-z0-9_-]+\.js/);
@@ -54,9 +55,9 @@ export default function UpdateBanner() {
   return (
     <div style={{ position: 'fixed', left: 12, right: 12, bottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)', zIndex: 9999, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
       <div style={{ pointerEvents: 'auto', display: 'flex', alignItems: 'center', gap: 8, background: '#1f2937', color: '#f3f4f6', border: '1px solid #374151', borderRadius: 10, padding: '8px 10px', boxShadow: '0 6px 24px rgba(0,0,0,0.4)', fontSize: 13 }}>
-        <span>🔄 A new version is available.</span>
+        <span>A new version is available.</span>
         <button onClick={() => window.location.reload()} style={{ background: '#10b981', color: '#04150e', border: 'none', borderRadius: 6, padding: '5px 10px', fontWeight: 600, minHeight: 32 }}>Refresh</button>
-        <button onClick={() => setDismissed(true)} aria-label="Dismiss" style={{ background: 'transparent', color: '#9ca3af', border: 'none', fontSize: 16, minHeight: 32 }}>×</button>
+        <button onClick={() => setDismissed(true)} aria-label="Dismiss" style={{ background: 'transparent', color: '#9ca3af', border: 'none', minHeight: 32 }}><Close size={16} /></button>
       </div>
     </div>
   );

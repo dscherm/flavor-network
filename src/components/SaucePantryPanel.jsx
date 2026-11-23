@@ -17,6 +17,7 @@ import { whatSauceCanIMake, commonSauceIngredients } from '../data/saucePantry.j
 import { buildIngredientVocab } from '../data/ingredientSearch.js';
 import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, CARD_INK, chalkSurfaceStyle } from '../data/chalkTheme.js';
 import { SauceVessel } from './sauceVessels.jsx';
+import { Close } from './ChalkIcons.jsx';
 
 const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 const NEARLY_SHOWN = 30;
@@ -139,7 +140,7 @@ export default function SaucePantryPanel({
             <li key={k}>
               <button type="button" onClick={() => onChange?.(removeFromKitchen(kitchen, k))} aria-label={`Remove ${k}`}
                 className={`px-3 py-1 rounded-full border min-h-[44px] text-[17px] ${FOCUS}`} style={{ ...pill, background: 'rgba(245,239,222,0.08)' }}>
-                {k} <span aria-hidden="true" style={{ color: CHALK_SUB }}>×</span>
+                {k} <span aria-hidden="true" className="inline-block align-middle" style={{ color: CHALK_SUB, lineHeight: 0 }}><Close size={16} /></span>
               </button>
             </li>
           ))}

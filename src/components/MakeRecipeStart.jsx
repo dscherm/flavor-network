@@ -688,7 +688,6 @@ export default function MakeRecipeStart({
               boxShadow: 'inset 0 0 0 1px #6a6a6a55, 0 8px 24px rgba(0,0,0,0.55)',
             }}
           >
-            <span aria-hidden="true" className="text-lg leading-none">⚠️</span>
             <div className="flex-1 min-w-0">
               <div>{photoError}</div>
               <button
@@ -957,11 +956,11 @@ export default function MakeRecipeStart({
                             type="button"
                             onClick={() => handleResetRow(i)}
                             data-testid={`make-weblink-row-reset-${i}`}
-                            title="Reset to auto-match"
+                            aria-label="Reset to auto-match"
                             className="text-xs"
                             style={{ color: CHALK_DIM }}
                           >
-                            ↻
+                            Reset
                           </button>
                         )}
                       </div>

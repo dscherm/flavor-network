@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Close } from './ChalkIcons.jsx';
 import { FONT, CHALK_CREAM, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
 import { TASTE_COLORS as TASTE_PALETTE, TASTE_WORD_NOTES } from '../utils/color.js';
 
@@ -66,7 +67,7 @@ export default function HowItWorks({
           <div className="rounded-xl shadow-2xl max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto" style={{ ...chalkSurfaceStyle(), border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}>
             <div className="flex justify-between items-center p-4 border-b border-[#4a4a4a]">
               <h2 className="text-2xl" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>How NeuFlavor works</h2>
-              <button onClick={close} className="text-[#8a8478] hover:text-[#f5efde] text-xl">×</button>
+              <button onClick={close} aria-label="Close" className="text-[#8a8478] hover:text-[#f5efde]"><Close size={20} /></button>
             </div>
             <div className="p-4 space-y-4 text-sm text-[#e8e2d0]">
               <section>
@@ -140,7 +141,7 @@ export default function HowItWorks({
                    one page per taste (sweet/sour/bitter/salty/umami/heat) and aroma
                    (fruity/floral/green/woody/spice/creamy) — showing the dish's score on that
                    axis, the ingredients driving it, and one-tap <strong>boost</strong> /
-                   <strong> temper</strong> suggestions. <strong>✨ Suggest</strong> and
+                   <strong> temper</strong> suggestions. <strong>Suggest</strong> and
                    <strong> Smart swaps</strong> propose additions and substitutions as cards
                    with a before→after profile; a final page lists matching cocktails, sauces,
                    and similar dishes.</p>
@@ -161,7 +162,7 @@ export default function HowItWorks({
                    and recolor; line thickness shows pairing strength, and solid vs. dashed shows
                    whether it comes from shared chemistry or culinary tradition. Tap a partner to
                    re-center on it, or press-and-hold any node (or the center) for its full card —
-                   pair strength, the shared aroma compounds, and a flavor radar. 🎲 Surprise swaps
+                   pair strength, the shared aroma compounds, and a flavor radar. Surprise swaps
                    in cross-family partners, and "See in the network →" zooms out to the full 3D map.</p>
               </section>
 

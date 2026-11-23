@@ -5,7 +5,7 @@
  * One candidate per card, rendered as a dark chalkboard IngredientProfileCard
  * (PairingModeCard aesthetic): the candidate name, a hero before→after pair of
  * fixed flavor grids (the recipe's profile now and with this ingredient added/swapped), a one-line
- * change caption, and an Add/Swap action. Swipe left / ◀ ▶ arrows browse the
+ * change caption, and an Add/Swap action. Swipe left or use the arrows browse the
  * deck; the swipe mechanics mirror PairingMode.jsx (unified touch + mouse drag).
  *
  * Smartness (FM-P2 set-completion model):
@@ -19,6 +19,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { recipeAxisProfile, recipeAxisProfileWeighted, profileDelta, topMovers } from '../data/recipeProfileAnalysis.js';
 import { deriveBowlCuisine } from '../data/deriveBowlCuisine.js';
 import IngredientProfileCard from './IngredientProfileCard.jsx';
+import { Close, ChevronLeft, ChevronRight } from './ChalkIcons.jsx';
 import { loadQuantityModel, predictAmountFromCtx } from '../ml/quantityRuntime.js';
 
 const ALPHA = 0.3; // popularity-discount strength (mild — high α promotes junk)
@@ -285,9 +286,9 @@ export default function SuggestionCardDeck({
           Back
         </button>
         <span className="text-[22px] text-[#f5efde] text-center flex-1 px-2" style={{ fontFamily: 'Caveat, cursive' }}>
-          {headerLabel || (mode === 'replace' ? `Instead of ${ingredient}` : '✨ Goes well with your recipe')}
+          {headerLabel || (mode === 'replace' ? `Instead of ${ingredient}` : 'Goes well with your recipe')}
         </span>
-        <button onClick={onClose} aria-label="Close" className="min-h-[44px] text-[#8a8478] hover:text-[#f5efde] px-2 text-2xl">×</button>
+        <button onClick={onClose} aria-label="Close" className="min-h-[44px] text-[#8a8478] hover:text-[#f5efde] px-2"><Close size={20} /></button>
       </div>
 
       <div className="flex flex-col items-center justify-center overflow-y-auto px-3 py-3" style={{ flex: 1 }}>
@@ -356,7 +357,7 @@ export default function SuggestionCardDeck({
             className="min-h-[44px] px-4 text-[#bdb6a3] disabled:opacity-30 disabled:cursor-not-allowed"
             aria-label="Previous suggestion"
           >
-            ◀
+            <ChevronLeft size={20} />
           </button>
           <span className="text-sm text-[#8a8478]">{Math.min(cardIdx + 1, items.length)} / {items.length}</span>
           <button
@@ -366,7 +367,7 @@ export default function SuggestionCardDeck({
             className="min-h-[44px] px-4 text-[#bdb6a3] disabled:opacity-30 disabled:cursor-not-allowed"
             aria-label="Next suggestion"
           >
-            ▶
+            <ChevronRight size={20} />
           </button>
         </div>
       )}

@@ -19,6 +19,7 @@
  *   />
  */
 import { useEffect, useRef, useState } from 'react';
+import { Close } from './ChalkIcons.jsx';
 
 // Variant palettes. 'light' matches HelpButton.jsx (dark translucent + cyan
 // accent on the network UI); 'chalk' matches the chalkboard cards
@@ -137,7 +138,7 @@ export default function HelpBubble({
               className="ml-auto -mt-1 -mr-1 px-1 text-lg leading-none"
               style={{ color: v.sub, background: 'none', border: 'none', cursor: 'pointer' }}
             >
-              ×
+              <Close size={20} />
             </button>
           </div>
           {lines.map((line, i) => (

@@ -22,6 +22,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { absoluteShareUrl, shareTargetUrls, shareTextFor, SHARE_OWN_ENABLED } from '../data/shareTargets.js';
 import ShareImages from './ShareImages.jsx';
+import { Share, Close } from './ChalkIcons.jsx';
 import { usage } from '../data/usageEvents.js';
 import { SANS, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT, btn, heading } from './inventUi.jsx';
 
@@ -96,7 +97,7 @@ export function ShareSheet({ open, onClose, recipe, link = '', ownItem = false, 
         <div className="flex items-center justify-between gap-2">
           <h2 style={{ ...heading, fontSize: 24 }} className="min-w-0 break-words">Share {title}</h2>
           <button type="button" ref={closeRef} onClick={onClose} aria-label="Close" data-testid="share-close"
-            className="flex-shrink-0 rounded-lg px-3" style={{ ...btn(), ...tap, minWidth: 44 }}>×</button>
+            className="flex-shrink-0 rounded-lg px-3" style={{ ...btn(), ...tap, minWidth: 44 }}><Close size={20} /></button>
         </div>
 
         {ownItem ? (
@@ -162,8 +163,9 @@ export function ShareButton({ recipe, link = '', ownItem = false, onPublish, ima
   return (
     <>
       <button type="button" onClick={() => setOpen(true)} data-testid={testid} aria-haspopup="dialog"
-        className={`inline-flex items-center justify-center rounded-lg px-4 ${className}`}
+        className={`inline-flex items-center justify-center gap-1 rounded-lg px-4 ${className}`}
         style={{ ...btn({ background: `${ACCENT}22` }), ...tap, ...style }}>
+        <Share size={20} />
         {label}
       </button>
       <ShareSheet open={open} onClose={() => setOpen(false)} recipe={recipe} link={link} ownItem={ownItem}

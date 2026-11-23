@@ -24,6 +24,7 @@ import { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import { TASTE_COLORS } from '../utils/color.js';
 import { FONT, CHALK_CREAM, CHALK_DIM } from '../data/chalkTheme.js';
 import { groupByLens } from '../data/pairingEgoModel.js';
+import { More } from './ChalkIcons.jsx';
 import { placeLabels, ringRadii } from '../data/pairingLabelLayout.js';
 
 const TWEEN_MS = 460;
@@ -468,7 +469,7 @@ export default function PairingBoard({
                   fontFamily: SANS, fontSize: 13, borderRadius: 10, padding: '2px 8px', cursor: 'pointer',
                 }}
               >
-                ⋯
+                <More size={20} />
               </button>
             )}
           </li>

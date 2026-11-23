@@ -65,7 +65,7 @@ export default function AppleNewsFallback({ info, onImportUrl, onBack, inputStyl
           style={buttonStyle}
           data-testid="make-weblink-applenews-search"
         >
-          Find it on the web ↗
+          Find it on the web
         </a>
         {linked && (
           <a
@@ -76,7 +76,7 @@ export default function AppleNewsFallback({ info, onImportUrl, onBack, inputStyl
             style={{ fontFamily: FONT, color: CHALK_DIM }}
             data-testid="make-weblink-applenews-publisher"
           >
-            Open it on {linked} ↗
+            Open it on {linked}
           </a>
         )}
       </div>

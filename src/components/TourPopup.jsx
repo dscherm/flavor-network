@@ -13,6 +13,7 @@
  * focuses Next on stage change.
  */
 import { useEffect, useRef } from 'react';
+import { Close } from './ChalkIcons.jsx';
 import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB } from '../data/chalkTheme.js';
 
 const ANCHOR_CLASSES = {
@@ -77,7 +78,7 @@ export default function TourPopup({
             className="leading-none w-6 h-6 flex items-center justify-center rounded hover:bg-white/10 transition-colors"
             style={{ color: CHALK_DIM }}
           >
-            ✕
+            <Close size={20} />
           </button>
         </div>
       </div>

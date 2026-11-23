@@ -27,6 +27,7 @@ import { dishTypeOf } from '../data/dishType.js';
 import { loadRealRecipes } from '../ml/kitchenRuntime.js';
 import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
 import { DishArt, ChalkLoader, IngredientArt } from './chalkArt.jsx';
+import { Close, ChevronDown, ChevronRight } from './ChalkIcons.jsx';
 
 const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 const NEARLY_SHOWN = 12;
@@ -198,7 +199,7 @@ export default function KitchenPanel({
               <button type="button" onClick={() => onChange?.(removeFromKitchen(kitchen, k))} aria-label={`Remove ${k}`}
                 className={`pl-2 pr-3 py-1 rounded-full border min-h-[44px] text-[17px] inline-flex items-center gap-1.5 ${FOCUS}`} style={{ ...pill, background: 'rgba(245,239,222,0.08)' }}>
                 <IngredientArt category={categoryOf(k)} name={k} size={20} />
-                {k} <span aria-hidden="true" style={{ color: CHALK_SUB }}>×</span>
+                {k} <span aria-hidden="true" className="inline-block align-middle" style={{ color: CHALK_SUB, lineHeight: 0 }}><Close size={16} /></span>
               </button>
             </li>
           ))}
@@ -270,7 +271,7 @@ export default function KitchenPanel({
                         <button type="button" aria-expanded={openSteps === i} onClick={() => setOpenSteps(openSteps === i ? null : i)}
                           aria-label={`${openSteps === i ? 'Hide' : 'Show'} the method for ${m.title}`}
                           className={`px-2 min-w-[44px] min-h-[44px] text-[15px] rounded-lg ${FOCUS}`} style={{ fontFamily: FONT, color: CHALK_SUB, outlineColor: CHALK_CREAM }}>
-                          {openSteps === i ? '▾' : '▸'} method
+                          <span aria-hidden="true" className="inline-block align-middle" style={{ lineHeight: 0 }}>{openSteps === i ? <ChevronDown size={16} /> : <ChevronRight size={16} />}</span> method
                         </button>
                       )}
                     </div>

@@ -19,6 +19,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { recipeAxisProfile } from '../data/recipeProfileAnalysis.js';
 import { profilePair } from '../data/profileGridPair.js';
 import FlavorGrid from './FlavorGrid.jsx';
+import { Close, ChevronLeft, ChevronRight } from './ChalkIcons.jsx';
 import { formatPairedVia, formatMatchBadge } from '../data/recipePairingMatch.js';
 
 const FONT_HAND = 'Caveat, cursive';
@@ -240,9 +241,9 @@ export default function SauceSuggestionDeck({
           Back
         </button>
         <span className="text-[22px] text-[#f5efde] text-center flex-1 px-2" style={{ fontFamily: FONT_HAND }}>
-          🥣 Sauces for {recipeName}
+          Sauces for {recipeName}
         </span>
-        <button onClick={onClose} aria-label="Close" className="min-h-[44px] text-[#8a8478] hover:text-[#f5efde] px-2 text-2xl">×</button>
+        <button onClick={onClose} aria-label="Close" className="min-h-[44px] text-[#8a8478] hover:text-[#f5efde] px-2"><Close size={20} /></button>
       </div>
 
       <div className="flex flex-col items-center justify-center overflow-y-auto px-3 py-3" style={{ flex: 1 }}>
@@ -291,7 +292,7 @@ export default function SauceSuggestionDeck({
             className="min-h-[44px] px-4 text-[#bdb6a3] disabled:opacity-30 disabled:cursor-not-allowed"
             aria-label="Previous sauce"
           >
-            ◀
+            <ChevronLeft size={20} />
           </button>
           <span className="text-xs text-[#8a8478]">{Math.min(cardIdx + 1, cards.length)} / {cards.length}</span>
           <button
@@ -301,7 +302,7 @@ export default function SauceSuggestionDeck({
             className="min-h-[44px] px-4 text-[#bdb6a3] disabled:opacity-30 disabled:cursor-not-allowed"
             aria-label="Next sauce"
           >
-            ▶
+            <ChevronRight size={20} />
           </button>
         </div>
       )}

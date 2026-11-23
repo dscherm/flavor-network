@@ -289,11 +289,12 @@ function PantryArt({ c, size }) {
 function InventArt({ c, size }) {
   return (
     <Art size={size}>
-      {/* KITCHEN-2: a pan with a spark over it — a new dish */}
+      {/* LOOK-4: a pan with a whisk over it, a new dish (no sparkle) */}
       <path d="M14 58 L70 58 Q68 80 42 80 Q16 80 14 58 Z" fill={c} fillOpacity="0.35" />
       <Chalk d="M14 58 L70 58 Q68 80 42 80 Q16 80 14 58 Z M70 62 L92 54" c={CHALK_CREAM} />
-      <Chalk d="M42 10 L46 26 L62 30 L46 34 L42 50 L38 34 L22 30 L38 26 Z" c={c} w={2.4} fill={c} fillOpacity={0.3} />
-      <Chalk d="M72 14 L74 20 L80 22 L74 24 L72 30 L70 24 L64 22 L70 20 Z" c={CHALK_CREAM} w={1.8} />
+      <Chalk d="M42 38 C24 32 24 14 42 8 C60 14 60 32 42 38 Z" c={c} w={2.4} fill={c} fillOpacity={0.3} />
+      <Chalk d="M42 38 C34 30 34 17 42 8 M42 38 C50 30 50 17 42 8" c={CHALK_CREAM} w={1.8} />
+      <Chalk d="M38 40 Q42 42 46 40 M42 41 Q43 47 42 53" c={CHALK_CREAM} w={2.2} />
     </Art>
   );
 }

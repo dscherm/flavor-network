@@ -106,7 +106,7 @@ export default function WhatDoINeed({ title, needs, stockEmpty = false, stockLab
           <button type="button" onClick={copy} data-testid="what-do-i-need-copy"
             className="px-3 rounded-lg border min-h-[44px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
             style={{ fontFamily: FONT, fontSize: 18, borderColor: `${color}88`, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
-            {copied ? 'Copied' : '🛒 Copy shopping list'}
+            {copied ? 'Copied' : 'Copy shopping list'}
           </button>
         )}
         {shopping && missing.length + better.length + optional.length > 0 && (

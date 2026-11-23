@@ -32,7 +32,7 @@ describe('CocktailBrowse — ✨ Invent this', () => {
     cocktailBrowse({ onInventThis: vi.fn() });
     expect(screen.queryByTestId('cocktail-invent-this')).toBeNull();
     fireEvent.change(screen.getByLabelText(/search cocktails/i), { target: { value: 'gin' } });
-    expect(screen.getByTestId('cocktail-invent-this')).toHaveTextContent(/^✨ Invent this$/);
+    expect(screen.getByTestId('cocktail-invent-this')).toHaveTextContent(/^Invent this$/);
   });
   it('is not rendered at all without onInventThis', () => {
     cocktailBrowse();

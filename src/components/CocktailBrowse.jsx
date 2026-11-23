@@ -11,6 +11,7 @@ import { glassMark, glassTypeFor } from './cocktailGlasses.jsx';
 import { UNCATEGORISED } from '../data/savedInventions.js';
 import PictureView from './PictureView.jsx';
 import { SANS } from './inventUi.jsx';
+import { Shaker, Close, Search, Filters, ChevronDown, ChevronUp } from './ChalkIcons.jsx';
 
 // The 2D cocktail list IS a bar menu, so it's drawn as colored chalk on
 // slate (shared kitchen-world DNA, see chalkTheme.js). Caveat carries
@@ -389,9 +390,10 @@ export default function CocktailBrowse({
   const inventButton = onInventThis ? (
     <div className="inline-flex flex-col items-start">
       <button type="button" onClick={() => onInventThis(searchTerm.trim())} data-testid="cocktail-invent-this"
-        className="px-4 py-1 rounded-full border min-h-[44px] text-[17px]"
+        className="px-4 py-1 rounded-full border min-h-[44px] text-[17px] inline-flex items-center gap-1"
         style={{ fontFamily: FONT, borderColor: CHALK_CREAM, color: CHALK_CREAM }}>
-        ✨ Invent this
+        <Shaker size={20} />
+        Invent this
       </button>
       {inventSummaryText && (
         <span className="text-[13px] mt-0.5" data-testid="cocktail-invent-this-summary" style={{ color: CHALK_SUB }}>{inventSummaryText}</span>
@@ -722,7 +724,7 @@ export default function CocktailBrowse({
                 <span className="absolute top-[2px] rounded-full transition-all"
                   style={{ width: 14, height: 14, left: barOnly ? 17 : 2, background: barOnly ? '#0a0a0a' : CHALK_CREAM }} />
               </span>
-              🍾 Only what I have
+              Only what I have
               <span className="text-[13px]" style={{ fontFamily: 'system-ui, sans-serif', color: CHALK_DIM }}>({makeableNames.size})</span>
             </button>
           )}
@@ -730,9 +732,11 @@ export default function CocktailBrowse({
             <span className="text-[15px] inline-flex items-center gap-1.5" style={{ fontFamily: FONT, color: COCKTAIL_SPIRIT_COLORS[filterSpirit] || CHALK_CREAM }}>
               <span className="inline-block rounded-full" style={{ width: 8, height: 8, background: COCKTAIL_SPIRIT_COLORS[filterSpirit] || CHALK_CREAM }} aria-hidden="true" />
               {SPIRIT_SHELF.find((s) => s.key === filterSpirit)?.label}
-              <button type="button" onClick={() => onFilterSpirit(null)} aria-label="Clear spirit filter" style={{ color: CHALK_SUB }}>×</button>
+              <button type="button" onClick={() => onFilterSpirit(null)} aria-label="Clear spirit filter" className="inline-flex items-center" style={{ color: CHALK_SUB }}><Close size={16} /></button>
             </span>
           )}
+          <span className="relative ml-auto flex-1 min-w-[12rem] sm:max-w-sm inline-flex items-center">
+          <span aria-hidden="true" className="absolute left-2 pointer-events-none" style={{ color: CHALK_SUB, lineHeight: 0 }}><Search size={20} /></span>
           <input
             type="search"
             value={searchTerm}
@@ -741,9 +745,10 @@ export default function CocktailBrowse({
             aria-label="Search cocktails by name or ingredient"
             list="cocktail-ingredient-vocab"
             data-cocktail-search
-            className="ml-auto flex-1 min-w-[12rem] sm:max-w-sm px-2.5 py-1 rounded-md focus:outline-none text-[15px]"
-            style={{ fontFamily: FONT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
+            className="w-full pr-2.5 py-1 rounded-md focus:outline-none text-[15px]"
+            style={{ paddingLeft: 32, fontFamily: FONT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
           />
+          </span>
           <datalist id="cocktail-ingredient-vocab">
             {ingredientVocab.map((v) => <option key={v} value={v} />)}
           </datalist>
@@ -753,27 +758,26 @@ export default function CocktailBrowse({
             aria-expanded={filtersOpen} aria-controls="cocktail-facet-rail"
             className="px-3 py-1 rounded-full border min-h-[40px] text-[17px] flex items-center gap-1.5"
             style={{ fontFamily: FONT, borderColor: activeFacetCount ? CHALK_CREAM : CHALK_RAIL, color: CHALK_CREAM }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M4 6h16M7 12h10M10 18h4" />
-            </svg>
+            <Filters size={20} />
             Filters
             {activeFacetCount > 0 && (
               <span className="rounded-full px-1.5 text-[13px] leading-5" style={{ fontFamily: 'system-ui, sans-serif', background: CHALK_CREAM, color: '#0a0a0a' }}>{activeFacetCount}</span>
             )}
-            <span aria-hidden="true" className="text-[13px]" style={{ color: CHALK_SUB }}>{filtersOpen ? '▴' : '▾'}</span>
+            <span aria-hidden="true" style={{ color: CHALK_SUB, lineHeight: 0 }}>{filtersOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}</span>
           </button>
           {onOpenMyBar && (
             <button type="button" onClick={onOpenMyBar} data-testid="cocktail-my-bar-open"
               className="px-3 py-1 rounded-full border min-h-[40px] text-[17px]"
               style={{ fontFamily: FONT, borderColor: CHALK_RAIL, color: CHALK_CREAM }}>
-              🍾 My bar{barCount ? ` (${barCount})` : ''}
+              My bar{barCount ? ` (${barCount})` : ''}
             </button>
           )}
           {onOpenInvent && (
             <button type="button" onClick={onOpenInvent} data-testid="cocktail-invent-open"
-              className="px-3 py-1 rounded-full border min-h-[40px] text-[17px]"
+              className="px-3 py-1 rounded-full border min-h-[40px] text-[17px] inline-flex items-center gap-1"
               style={{ fontFamily: FONT, borderColor: CHALK_RAIL, color: CHALK_CREAM }}>
-              ✨ Invent a cocktail
+              <Shaker size={20} />
+              Invent a cocktail
             </button>
           )}
           {barFilterOn && makeableNames.size === 0 && (

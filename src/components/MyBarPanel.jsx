@@ -19,6 +19,7 @@ import { buildIngredientVocab } from '../data/ingredientSearch.js';
 import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
 import { DrinkGlass } from './cocktailGlasses.jsx';
 import BarScanSetup from './BarScanSetup.jsx';
+import { Camera, Close } from './ChalkIcons.jsx';
 import BarScanReview from './BarScanReview.jsx';
 import { usage } from '../data/usageEvents.js';
 import { noteTypedIngredient } from '../data/usageIngredient.js';
@@ -182,7 +183,7 @@ export default function MyBarPanel({
 
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <button type="button" onClick={startScan} disabled={scanBusy} data-testid="my-bar-photo"
-            className="px-3 rounded-md min-h-[44px] border disabled:opacity-50" style={pill}>📷 Add from a photo</button>
+            className="px-3 rounded-md min-h-[44px] border disabled:opacity-50 inline-flex items-center gap-1" style={pill}><Camera size={20} />Add from a photo</button>
           {mode && scanView !== 'setup' && (
             <button type="button" data-testid="my-bar-scan-change" onClick={() => { setScanError(null); setScanView('setup'); }}
               className="px-2 min-h-[44px] text-[14px] underline" style={{ fontFamily: SANS, color: CHALK_SUB }}>Change key or code</button>
@@ -229,7 +230,7 @@ export default function MyBarPanel({
             <li key={k}>
               <button type="button" onClick={() => onChange?.(removeFromBar(bar, k))} aria-label={`Remove ${k}`}
                 className="px-3 py-1 rounded-full border min-h-[36px] text-[17px]" style={{ ...pill, background: 'rgba(245,239,222,0.08)' }}>
-                {k} <span aria-hidden="true" style={{ color: CHALK_SUB }}>×</span>
+                {k} <span aria-hidden="true" className="inline-block align-middle" style={{ color: CHALK_SUB, lineHeight: 0 }}><Close size={16} /></span>
               </button>
             </li>
           ))}
@@ -249,7 +250,7 @@ export default function MyBarPanel({
                 <li key={k}>
                   <button type="button" onClick={() => onKitchenChange?.(removeFromKitchen(kitchen, k))} aria-label={`Remove ${k} from your kitchen`}
                     className="px-3 py-1 rounded-full border min-h-[36px] text-[16px]" style={{ ...pill, borderStyle: 'dotted', color: CHALK_DIM }}>
-                    {k} <span aria-hidden="true" style={{ color: CHALK_SUB }}>×</span>
+                    {k} <span aria-hidden="true" className="inline-block align-middle" style={{ color: CHALK_SUB, lineHeight: 0 }}><Close size={16} /></span>
                   </button>
                 </li>
               ))}

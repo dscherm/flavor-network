@@ -24,6 +24,7 @@ import {
   sharedNeighborhood, surprisingNeighborhood, partnerBridges,
 } from '../data/pairingEgoModel.js';
 import { buildPairingCardProps } from '../data/pairingCardData.js';
+import { Close } from './ChalkIcons.jsx';
 import {
   FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, chalkSurfaceStyle,
 } from '../data/chalkTheme.js';
@@ -41,6 +42,12 @@ function pickDefaultCenter(names) {
   return names[0];
 }
 
+function strengthName(strength, thr) {
+  const t = thr || { weak: 0.2, moderate: 0.5, strong: 0.8 };
+  if (strength >= t.strong) return 'Strong';
+  if (strength >= t.moderate) return 'Moderate';
+  return 'Weak';
+}
 function strengthTier(strength, thr) {
   const t = thr || { weak: 0.2, moderate: 0.5, strong: 0.8 };
   if (strength >= t.strong) return '★★★';
@@ -152,7 +159,7 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
             onClick={() => setSurprise((s) => !s)}
             style={{ ...chip(surprise ? CHALK_CREAM : CHALK_RAIL), fontSize: 18, color: surprise ? '#0a0a0a' : CHALK_CREAM, background: surprise ? CHALK_CREAM : '#0a0a0a' }}
           >
-            {surprise ? '🎲 Surprising' : '🎲 Surprise'}
+            {surprise ? 'Surprising' : 'Surprise'}
           </button>
         </div>
         <div style={{ height: 8 }} />
@@ -163,13 +170,13 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
       {compareWith && (
         <div data-testid="compare-banner" style={bannerStyle}>
           <span>Pairs with <strong>{center}</strong> &amp; <strong>{compareWith}</strong></span>
-          <button type="button" onClick={() => setCompareWith(null)} aria-label="Exit pair view" style={bannerX}>×</button>
+          <button type="button" onClick={() => setCompareWith(null)} aria-label="Exit pair view" style={bannerX}><Close size={16} /></button>
         </div>
       )}
       {surprise && !compareWith && (
         <div data-testid="surprise-banner" style={bannerStyle}>
           <span>Surprising affinities for <strong>{center}</strong> — partners from other flavor families</span>
-          <button type="button" onClick={() => setSurprise(false)} aria-label="Exit surprise view" style={bannerX}>×</button>
+          <button type="button" onClick={() => setSurprise(false)} aria-label="Exit surprise view" style={bannerX}><Close size={16} /></button>
         </div>
       )}
 
@@ -239,7 +246,7 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
           {!netOpen ? (
             <button type="button" data-testid="network-teaser-toggle" onClick={() => setNetOpen(true)}
               style={{ background: 'none', border: 'none', color: CHALK_DIM, fontFamily: SANS, fontSize: 12, cursor: 'pointer', padding: 0 }}>
-              🌐 Where do these pairings come from?
+              Where do these pairings come from?
             </button>
           ) : (
             <div style={{ fontFamily: SANS, fontSize: 12, color: CHALK_DIM, lineHeight: 1.5 }} data-testid="network-teaser-body">
@@ -270,9 +277,9 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
             Your plate · {tray.length} pick{tray.length === 1 ? '' : 's'}: {tray.join(', ')} — send to a lab to build with them:
           </div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            <button type="button" data-testid="tray-send-cocktail" style={chip()} onClick={() => onFindCocktail?.(tray, center)}>🍸 Cocktail</button>
-            <button type="button" data-testid="tray-send-sauce" style={chip()} onClick={() => onFindSauce?.(tray, center)}>🥣 Sauce</button>
-            <button type="button" data-testid="tray-send-recipe" style={chip()} onClick={() => onSendToRecipe?.(tray, center)}>📓 Recipe</button>
+            <button type="button" data-testid="tray-send-cocktail" style={chip()} onClick={() => onFindCocktail?.(tray, center)}>Cocktail</button>
+            <button type="button" data-testid="tray-send-sauce" style={chip()} onClick={() => onFindSauce?.(tray, center)}>Sauce</button>
+            <button type="button" data-testid="tray-send-recipe" style={chip()} onClick={() => onSendToRecipe?.(tray, center)}>Recipe</button>
             <button type="button" data-testid="tray-clear" style={{ ...chip(), color: CHALK_DIM }} onClick={() => setTray([])}>Clear</button>
           </div>
         </div>
@@ -305,16 +312,16 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
             >
               {peek === center
                 ? `${peek} — its own flavor profile.`
-                : `${strengthTier(peekPartner?.strength, data?.affinityThresholds)} pairs with ${center} via ${PROV_LABEL[peekPartner?.provenance] || 'shared chemistry'}.`}
+                : (<><span role="img" aria-label={`${strengthName(peekPartner?.strength, data?.affinityThresholds)} pairing`}>{strengthTier(peekPartner?.strength, data?.affinityThresholds)}</span>{` pairs with ${center} via ${PROV_LABEL[peekPartner?.provenance] || 'shared chemistry'}.`}</>)}
             </div>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
               {peek !== center && (
                 <button type="button" data-testid="peek-center" style={chip()} onClick={() => { recenter(peek); setPeek(null); }}>Center on {peek}</button>
               )}
               {peek !== center && (
-                <button type="button" data-testid="peek-pair" style={chip()} onClick={() => { setCompareWith(peek); setPeek(null); }}>🔗 Pair with {center}</button>
+                <button type="button" data-testid="peek-pair" style={chip()} onClick={() => { setCompareWith(peek); setPeek(null); }}>Pair with {center}</button>
               )}
-              <button type="button" data-testid="peek-add" style={chip()} onClick={() => { addToTray(peek); setPeek(null); }}>➕ Add to plate</button>
+              <button type="button" data-testid="peek-add" style={chip()} onClick={() => { addToTray(peek); setPeek(null); }}>Add to plate</button>
               <button type="button" data-testid="peek-close" style={{ ...chip(), color: CHALK_DIM }} onClick={() => setPeek(null)}>Close</button>
             </div>
           </div>

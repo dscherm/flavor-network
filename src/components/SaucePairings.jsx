@@ -87,7 +87,7 @@ export default function SaucePairings({ sauce, color = '#fb923c', categoryOf = n
               className="mt-2 min-h-[44px] px-3 rounded-lg border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               style={{ borderColor: `${color}88`, color: CHALK_CREAM, fontFamily: FONT, fontSize: 18, outlineColor: CHALK_CREAM }}
             >
-              🍷 More wines for {sauce.name} with {first}
+              More wines for {sauce.name} with {first}
             </button>
           )}
         </>

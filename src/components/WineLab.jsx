@@ -129,10 +129,10 @@ export function WineProfileSections({ wine, color, reviewEntry = null }) {
       {mapping.avoid.length > 0 && (
         <>
           <ProfileHeading>Avoid</ProfileHeading>
-          <ul className="flex flex-col gap-1" data-testid="wine-avoid">
+          <ul className="flex flex-col gap-2" data-testid="wine-avoid">
             {mapping.avoid.map((a) => (
               <li key={a.id} className="flex gap-2" style={{ fontFamily: FONT, fontSize: 18, color: CHALK_DIM, lineHeight: 1.25 }}>
-                <span aria-hidden="true" style={{ color: CHALK_SUB }}>✕</span><span>{a.text}</span>
+                <span>{a.text}</span>
               </li>
             ))}
           </ul>

@@ -36,6 +36,7 @@ import { getRecipeDetails } from '../data/seedRecipeDetails.js';
 import { shareLinkFor, normaliseBuiltIn, fromOwnItem } from '../data/sharedRecipe.js';
 import { FlavorProfileButton, FlavorProfileSection, useFlavorToggle } from './RecipeFlavorProfile.jsx';
 import { btn, ACCENT } from './inventUi.jsx';
+import { Whisk, Close, Search, ChevronRight, ChevronDown } from './ChalkIcons.jsx';
 import { ShareButton } from './ShareSheet.jsx';
 import { OwnShareButton } from './OwnShare.jsx';
 import { itemFromRecipe } from '../data/sharePublish.js';
@@ -261,10 +262,10 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="text-2xl leading-none p-1 -mr-1 -mt-1 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
+            className="p-1 -mr-1 -mt-1 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
             style={{ color: CHALK_SUB }}
           >
-            ×
+            <Close size={20} />
           </button>
         </div>
 
@@ -349,7 +350,7 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
                 style={{ border: `1px dashed ${color}88`, background: 'rgba(255,255,255,0.03)' }}
               >
                 <span style={{ fontFamily: FONT, fontSize: '20px', color: CHALK_CREAM }}>Method ({steps.length} steps)</span>
-                <span aria-hidden="true" style={{ color, transform: methodOpen ? 'rotate(90deg)' : 'none', transition: 'transform .15s' }}>▸</span>
+                <span aria-hidden="true" style={{ color, lineHeight: 0 }}>{methodOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}</span>
               </button>
               {methodOpen && (
                 <ol id={`method-${recipe.id}`} className="space-y-2 mt-3">
@@ -519,9 +520,10 @@ export default function CookbookLab({
   const inventButton = inventSeed ? (
     <div className="inline-flex flex-col items-center">
       <button type="button" onClick={() => onInventThis(inventSeed.seed)} data-testid="cookbook-invent-this"
-        className="px-4 py-1 rounded-full border min-h-[44px] text-[17px]"
+        className="px-4 py-1 rounded-full border min-h-[44px] text-[17px] inline-flex items-center gap-1"
         style={{ fontFamily: FONT, borderColor: CHALK_CREAM, color: CHALK_CREAM }}>
-        ✨ Invent this
+        <Whisk size={20} />
+        Invent this
       </button>
       {inventSeed.summary && (
         <span className="text-[13px] mt-0.5" data-testid="cookbook-invent-this-summary" style={{ color: CHALK_SUB }}>{inventSeed.summary}</span>
@@ -576,6 +578,8 @@ export default function CookbookLab({
         </p>
 
         <div className="mb-4 text-center">
+          <div className="relative w-full max-w-md mx-auto">
+          <span aria-hidden="true" className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: CHALK_SUB, lineHeight: 0 }}><Search size={20} /></span>
           <input
             type="search"
             value={searchTerm}
@@ -583,9 +587,10 @@ export default function CookbookLab({
             placeholder="Search a dish, or ingredients like chicken, ginger"
             aria-label="Search dishes by name or ingredient"
             data-testid="cookbook-search"
-            className="w-full max-w-md px-2.5 py-1.5 rounded-md focus:outline-none text-[16px]"
-            style={{ fontFamily: FONT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
+            className="w-full pr-2.5 py-1.5 rounded-md focus:outline-none text-[16px]"
+            style={{ paddingLeft: 32, fontFamily: FONT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
           />
+          </div>
           {searchTerms.length > 0 && filtered.length > 0 && (
             <div className="mt-2">
               <p className="text-[13px] mb-1" style={{ color: CHALK_SUB }} aria-live="polite">

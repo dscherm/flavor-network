@@ -92,8 +92,8 @@ stacks are removed, not tokenised. Input text is at least 16 px so iOS does not 
 | Chalk rule | Rail, 1 px, slightly uneven | Separates sections. Preferred over a box |
 | Input | Rail border, Chalk text on a faint wash, Focus ring | 16 px text, 44 px tall, label always visible |
 | Heading | Display or Heading role, Chalk text | Sentence case. Dropped where the content already says what it is |
-| Icon | one drawn chalk set (LOOK-4), Chalk text, Accent only when current | Only where an icon is the convention or carries meaning a word cannot; has an accessible name |
-| Tab bar | Slate ground, Chalk text, Rail top rule | Accent only on the current tab |
+| Icon | `src/components/ChalkIcons.jsx`, the one icon set (LOOK-4): each icon its own named export, drawn twice (a faint 2.2x halo under a crisp line, round ends, wobble in the path, no fill, no filter), one ink in `currentColor`, sizes 16, 20 and 24 only. Chalk text or Muted chalk; Accent only when current | Only where an icon is the convention (back, close, previous and next, disclosure, search, filters, share, camera, a shopping list, a checklist tick, the tab bar) or carries meaning a word cannot (Invent: a shaker for drinks, a whisk for food). Pass `title` for an accessible name; decorative beside a word. Nothing else defines a UI icon |
+| Tab bar | Slate ground (opaque), Muted chalk at rest, an uneven chalk rule on top | Accent only on the current tab, which is also marked by a drawn underline, a heavier label and `aria-current` |
 | Chart | Data colours only | Labelled "a guide, not a taste test" |
 | Recipe card (Cookbook) | Card paper and ink tokens | The one place the paper look is used |
 | Help disclosure ("?") | `HelpBubble.jsx`, `variant="chalk"`: Rail border, Chalk text, Focus ring | The one place help text lives. A 44 x 44 px "?" button with accessible name "How this works" opens a small dismissible note (tap outside, Escape or the close mark). Used instead of a grey hint paragraph under a title or button |

@@ -114,7 +114,7 @@ export default function SauceLab({
   }, [initialInventSeed]);
   // Edit / Delete on a card for one of the cook's own sauces (never on codex sauces).
   const savedActions = (sauce) => (sauce?.mine && userProfile?.deleteInvention ? [
-    { label: '✏️ Edit', testid: 'saved-edit', onClick: () => {
+    { label: 'Edit', testid: 'saved-edit', onClick: () => {
       const item = savedSauces.find((x) => x.id === sauce.savedId);
       if (!item) return;
       setEditItem({ id: item.id, ...fromSavedItem(item) });
@@ -123,7 +123,7 @@ export default function SauceLab({
       setSelectedSauce(null);
       openPanel('invent');
     } },
-    { label: '🗑 Delete', testid: 'saved-delete', onClick: () => setConfirmDelete({ id: sauce.savedId, name: sauce.name }) },
+    { label: 'Delete', testid: 'saved-delete', onClick: () => setConfirmDelete({ id: sauce.savedId, name: sauce.name }) },
   ] : []);
   // Share: codex sauces link straight to /r/<kind>/<slug>; the cook's own (mine) go through the publish step.
   const shareFor = (sauce) => (sauce && !sauce.mine ? { link: shareLinkFor('sauce', sauce), recipe: { kind: 'sauce', name: sauce.name } } : null);

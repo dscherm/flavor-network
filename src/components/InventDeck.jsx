@@ -39,7 +39,7 @@ export default function InventDeck({ mode = 'add', ingredient = null, keys = [],
         amounts={amountMap}
         includeUnscored
         qtyPrefill={false}
-        headerLabel={mode === 'replace' ? `Stand-ins for ${ingredient}` : '✨ How each one changes the flavor'}
+        headerLabel={mode === 'replace' ? `Stand-ins for ${ingredient}` : 'How each one changes the flavor'}
         onAdd={(name) => { onAdd?.(name); onClose?.(); }}
         onSwap={(oldKey, name) => { onSwap?.(oldKey, name); onClose?.(); }}
         onClose={onClose}

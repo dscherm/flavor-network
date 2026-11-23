@@ -22,6 +22,7 @@ import { liftColor } from '../data/drinkColor.js';
 import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, chalkSurfaceStyle } from '../data/chalkTheme.js';
 import { ShareButton } from './ShareSheet.jsx';
 import { OwnShareButton } from './OwnShare.jsx';
+import { ChevronLeft } from './ChalkIcons.jsx';
 import { SHARE_OWN_ENABLED } from '../data/shareTargets.js';
 import { IngredientName } from './IngredientCardProvider.jsx';
 import { FlavorProfileButton, FlavorProfileSection, useFlavorToggle } from './RecipeFlavorProfile.jsx';
@@ -167,8 +168,9 @@ export default function LabNodeCard({
       <div className="w-full max-w-[560px] flex items-center justify-between mb-2 flex-shrink-0">
         <button type="button" onClick={() => onClose?.()}
           data-testid="lab-node-card-back"
-          className="px-3 py-2 rounded-lg min-h-[44px] min-w-[44px]"
+          className="px-3 py-2 rounded-lg min-h-[44px] min-w-[44px] inline-flex items-center gap-1"
           style={{ color: CHALK_CREAM, background: 'rgba(255,255,255,0.04)', border: `1px solid ${CHALK_BORDER_INNER}`, fontFamily: FONT, fontSize: FS_SUB, textShadow: CHALK_TEXT_SHADOW }}>
+          <ChevronLeft size={20} />
           Back
         </button>
       </div>

@@ -16,7 +16,8 @@
  * Test ids: {p} root, {p}-item-{slotId} (data-done, data-required), {p}-tag-{slotId} (unticked parts only: 'needed' / 'optional'), {p}-open-{slotId} (unticked parts only),
  * {p}-why-{slotId}, {p}-options-{slotId}, {p}-option (data-key), {p}-none-{slotId}.
  */
-import { Chip, heading, small, SANS, FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT } from './inventUi.jsx';
+import { Chip, heading, small, SANS, FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL } from './inventUi.jsx';
+import { Checkbox } from './ChalkIcons.jsx';
 
 export default function InventChecklist({
   title, items = [], onOpen, openId = null, optionsFor = () => [], onPick, labels = {}, testidPrefix = 'checklist',
@@ -35,7 +36,7 @@ export default function InventChecklist({
           const tag = it.required ? L.required : L.usual;
           const row = (
             <>
-              <span aria-hidden="true" className="w-6 text-center text-[20px] flex-shrink-0" style={{ fontFamily: FONT, color: it.done ? ACCENT : CHALK_SUB }}>{it.done ? '✓' : '○'}</span>
+              <span className="w-6 flex justify-center flex-shrink-0" style={{ color: it.done ? CHALK_CREAM : CHALK_SUB }}><Checkbox size={20} checked={!!it.done} /><span className="sr-only">{it.done ? 'done' : 'still needed'}</span></span>
               <span className="flex-1 min-w-0">
                 <span className="block text-[20px] truncate" style={{ fontFamily: FONT, color: it.done ? CHALK_CREAM : CHALK_DIM }}>
                   {it.label}

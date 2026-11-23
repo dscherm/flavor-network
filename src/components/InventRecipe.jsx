@@ -65,6 +65,7 @@ import { toSavedItem } from '../data/inventSaved.js';
 import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
 import { DishArt, ChalkLoader } from './chalkArt.jsx';
 import InventStart from './InventStart.jsx';
+import { Close, ChevronDown, ChevronRight } from './ChalkIcons.jsx';
 import InventList from './InventList.jsx';
 import HelpBubble from './HelpBubble.jsx';
 import { IngredientBuilderScope } from './IngredientCardProvider.jsx';
@@ -513,15 +514,15 @@ export default function InventRecipe({
                 <div className="flex flex-wrap gap-2">
                   {onFindCocktail && (
                     <button type="button" onClick={() => onFindCocktail(keys, name.trim())} data-testid="invent-recipe-find-cocktail"
-                      className={`px-3 py-2 rounded-lg border min-h-[44px] ${FOCUS}`} style={{ ...btn, fontSize: 17 }}>🍸 Find a cocktail</button>
+                      className={`px-3 py-2 rounded-lg border min-h-[44px] ${FOCUS}`} style={{ ...btn, fontSize: 17 }}>Find a cocktail</button>
                   )}
                   {onFindSauce && (
                     <button type="button" onClick={() => onFindSauce(keys, name.trim())} data-testid="invent-recipe-find-sauce"
-                      className={`px-3 py-2 rounded-lg border min-h-[44px] ${FOCUS}`} style={{ ...btn, fontSize: 17 }}>🥣 Need a sauce</button>
+                      className={`px-3 py-2 rounded-lg border min-h-[44px] ${FOCUS}`} style={{ ...btn, fontSize: 17 }}>Need a sauce</button>
                   )}
                   {onFindWine && (
                     <button type="button" onClick={() => onFindWine(keys, name.trim())} data-testid="invent-recipe-find-wine"
-                      className={`px-3 py-2 rounded-lg border min-h-[44px] ${FOCUS}`} style={{ ...btn, fontSize: 17 }}>🍷 Find wines</button>
+                      className={`px-3 py-2 rounded-lg border min-h-[44px] ${FOCUS}`} style={{ ...btn, fontSize: 17 }}>Find wines</button>
                   )}
                 </div>
               </div>
@@ -532,7 +533,7 @@ export default function InventRecipe({
                 <img src={photoUrl} alt="Recipe photo" data-testid="invent-recipe-photo-img" className="rounded-lg object-cover min-w-0"
                   style={{ height: 96, maxWidth: '60%', border: `1px solid ${CHALK_RAIL}` }} />
                 <button type="button" onClick={() => setPhotoUrl(null)} aria-label="Remove recipe photo" data-testid="invent-recipe-photo-remove"
-                  className={`min-h-[44px] min-w-[44px] rounded-full border ${FOCUS}`} style={btn}>×</button>
+                  className={`min-h-[44px] min-w-[44px] rounded-full border ${FOCUS}`} style={btn}><Close size={20} /></button>
               </div>
             )}
 
@@ -547,7 +548,7 @@ export default function InventRecipe({
                       <span className="block text-[14px]" style={{ color: CHALK_SUB }}>from “{handoffMethod.from}”</span>
                     )}
                   </span>
-                  <span aria-hidden="true">{methodOpen ? '▾' : '▸'}</span>
+                  <span aria-hidden="true" style={{ lineHeight: 0 }}>{methodOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}</span>
                 </button>
                 {methodOpen && (
                   <ol className="mt-2 space-y-1.5 list-decimal pl-6 text-[14px] leading-snug" style={{ fontFamily: SANS, color: CHALK_CREAM }} data-testid="invent-recipe-handoff-steps">
@@ -568,7 +569,7 @@ export default function InventRecipe({
                     <button type="button" aria-expanded={openMethod} onClick={() => setOpenMethod((o) => !o)}
                       className={`w-full text-left min-h-[44px] flex items-center gap-2 rounded-lg ${FOCUS}`} style={{ outlineColor: CHALK_CREAM }}>
                       <span className="text-[19px] flex-1 min-w-0" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{closest.title}</span>
-                      <span className="text-[14px] flex-shrink-0" style={{ fontFamily: FONT, color: CHALK_SUB }}><span aria-hidden="true">{openMethod ? '▾' : '▸'}</span> {openMethod ? 'Hide method' : 'Show method'}</span>
+                      <span className="text-[14px] flex-shrink-0" style={{ fontFamily: FONT, color: CHALK_SUB }}><span aria-hidden="true" className="inline-block align-middle" style={{ lineHeight: 0 }}>{openMethod ? <ChevronDown size={16} /> : <ChevronRight size={16} />}</span> {openMethod ? 'Hide method' : 'Show method'}</span>
                     </button>
                     {openMethod && (
                       <ol className="space-y-1 list-decimal list-inside text-[13px]" style={{ fontFamily: SANS, color: CHALK_CREAM }}>

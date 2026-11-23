@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'react';
+import { Home, Person, Labs, Help, chalkUnderline, chalkRule } from './ChalkIcons.jsx';
+import { SANS, ACCENT } from './inventUi.jsx';
+import { CHALK_BG, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL } from '../data/chalkTheme.js';
 
 // Labs popover destinations. The Flavor Network (the 3D pairing map) is
 // surfaced here again (2026-06-25) now that the Pairing Lab gives it a
@@ -16,13 +19,15 @@ const LABS = [
   { id: 'profile',  label: 'Profile',          desc: 'Saved recipes & insights' },
 ];
 
+const LABS_SCREENS = ['make', 'cookbook', 'cocktail', 'sauce', 'wine', 'pairing', 'labs', 'shopping', 'recipe', 'profile'];
+
 /**
  * MobileTabBar — bottom-of-viewport nav: Home · (Sign in) · Labs · How-to.
  *
- * The molecular lab (network "Model" tab + its 3D/2D modes + the Molecule
- * Lab compound inspector) is hidden for now — the kitchen flows are the
- * product. "How it works" moved into the Labs popover since its old home
- * (the network dropdown) went with the network. Shows on mobile + desktop.
+ * Drawn chalk icons (ChalkIcons), opaque slate, an uneven chalk rule on top. Muted chalk at rest;
+ * the Accent marks ONLY the current tab, which is also shown by a drawn underline, a heavier label
+ * and aria-current. Exactly one tab (or none) is current: Sign in while a signed-out visitor is on
+ * the profile page, otherwise Labs on any lab screen. How-to opens a sheet and is never current.
  */
 export default function MobileTabBar({
   activeTab,
@@ -31,10 +36,13 @@ export default function MobileTabBar({
   onOpenHowItWorks,
   onHome,
   user = null,
+  howItWorksOpen = false,
 }) {
   const [labsOpen, setLabsOpen] = useState(false);
+  const [hover, setHover] = useState(null);
 
-  const isLabsActive = ['make', 'cookbook', 'cocktail', 'sauce', 'wine', 'pairing', 'labs', 'shopping', 'recipe', 'profile'].includes(activeTab);
+  const signInCurrent = !user && activeTab === 'profile';
+  const labsCurrent = LABS_SCREENS.includes(activeTab) && !signInCurrent;
 
   const closeAll = () => setLabsOpen(false);
 
@@ -45,6 +53,20 @@ export default function MobileTabBar({
     return () => window.removeEventListener('keydown', onKey);
   }, [labsOpen]);
 
+  const tabStyle = (id, current) => ({
+    fontFamily: SANS,
+    color: current ? ACCENT : hover === id ? CHALK_CREAM : CHALK_DIM,
+    background: 'transparent',
+  });
+  const labelStyle = (current) => ({ fontSize: 13, lineHeight: '16px', fontWeight: current ? 600 : 400 });
+  const tabClass = 'flex flex-col items-center justify-center min-w-[64px] h-14 px-2';
+  const mark = (current) => (
+    <span className="block" style={{ height: 6, marginTop: 1, visibility: current ? 'visible' : 'hidden' }}>
+      {current ? chalkUnderline() : null}
+    </span>
+  );
+  const hoverProps = (id) => ({ onMouseEnter: () => setHover(id), onMouseLeave: () => setHover(null) });
+
   return (
     <>
       {labsOpen && (
@@ -53,117 +75,120 @@ export default function MobileTabBar({
 
       <div
         data-testid="mobile-tab-bar"
-        className="fixed bottom-0 inset-x-0 z-[100] bg-[#0a0a12]/95 backdrop-blur-md border-t border-[#1e1e2e]"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+        className="fixed bottom-0 inset-x-0 z-[100]"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)', background: CHALK_BG }}
       >
-        <div className="flex items-center justify-around h-14">
-          {/* Home — back to the starting page (the lab picker). Took the
-              Recipe Lab's slot 2026-11-15; the Recipe Lab is a tile there
-              and a row in the Labs popover. */}
+        <div style={{ color: CHALK_RAIL, lineHeight: 0, position: 'absolute', top: 0, left: 0, right: 0 }}>{chalkRule()}</div>
+        <div className="flex items-center justify-evenly h-14 mx-auto" style={{ maxWidth: 480 }}>
           <button
             onClick={() => { if (onHome) onHome(); closeAll(); }}
             data-testid="tabbar-home"
-            className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-gray-500 hover:text-gray-300 transition-colors"
+            className={tabClass}
+            style={tabStyle('home', false)}
+            {...hoverProps('home')}
             aria-label="Home"
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 11.5 12 4l9 7.5M5.5 10v9.5h4.5v-5.5h4v5.5h4.5V10" />
-            </svg>
-            <span className="text-[10px]">Home</span>
+            <Home size={24} />
+            <span style={labelStyle(false)}>Home</span>
+            {mark(false)}
           </button>
 
-          {/* WEBLINK-11: top-level Sign in, signed-out only. Reported from
-              an iPhone as "there's not an option to sign in anywhere on the
-              app" — and that was fair: the only route was Labs -> Profile ->
-              scroll, under a menu that reads as cocktail/sauce/recipe labs
-              and a row described as "Saved recipes & insights". Nothing on
-              that path said sign in. Disappears once signed in, so the bar
-              stays three-wide for everyone who is already in. */}
+          {/* WEBLINK-11: top-level Sign in, signed-out only; gone once signed in so the bar stays three-wide. */}
           {!user && (
             <button
               onClick={() => { onTabChange('profile'); closeAll(); }}
               data-testid="tabbar-signin"
-              className="flex flex-col items-center gap-0.5 px-3 py-1.5 transition-colors text-blue-400"
+              className={tabClass}
+              style={tabStyle('signin', signInCurrent)}
+              {...hoverProps('signin')}
+              aria-current={signInCurrent ? 'page' : undefined}
               aria-label="Sign in"
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-              <span className="text-[10px]">Sign in</span>
+              <Person size={24} />
+              <span style={labelStyle(signInCurrent)}>Sign in</span>
+              {mark(signInCurrent)}
             </button>
           )}
 
-          {/* Labs — popover to every lab + Recipe Notebook + Profile, plus
-              the rehomed "How it works" explainer. */}
           <div className="relative">
             <button
               onClick={() => setLabsOpen((v) => !v)}
               data-testid="tabbar-labs"
               aria-expanded={labsOpen ? 'true' : 'false'}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 transition-colors ${
-                isLabsActive ? 'text-emerald-300' : 'text-gray-500'
-              }`}
+              aria-current={labsCurrent ? 'page' : undefined}
+              className={tabClass}
+              style={tabStyle('labs', labsCurrent)}
+              {...hoverProps('labs')}
               aria-label="Labs"
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10 3v6.5L4.5 18.5A2 2 0 006.25 21.5h11.5A2 2 0 0019.5 18.5L14 9.5V3" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 3h6" />
-              </svg>
-              <span className="text-[10px]">Labs</span>
+              <Labs size={24} />
+              <span style={labelStyle(labsCurrent)}>Labs</span>
+              {mark(labsCurrent)}
             </button>
             {labsOpen && (
               <div
-                className="absolute bottom-full right-0 mb-2 w-56 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[101] overflow-hidden"
+                className="absolute bottom-full right-0 mb-2 w-56 z-[101] overflow-hidden"
+                style={{ background: CHALK_BG, border: `1px solid ${CHALK_RAIL}` }}
                 data-testid="tabbar-labs-menu"
               >
                 {LABS.map((lab) => {
-                  // WEBLINK-11: "Profile / Saved recipes & insights" gave a
-                  // signed-out user no reason to think sign-in lived there.
+                  // WEBLINK-11: "Profile / Saved recipes & insights" gave a signed-out user no reason to think sign-in lived there.
                   const isSignIn = lab.id === 'profile' && !user;
                   const label = isSignIn ? 'Sign in' : lab.label;
                   const desc = isSignIn ? 'Save recipes, import from links' : lab.desc;
+                  const current = activeTab === lab.id;
                   return (
-                  <button
-                    key={lab.id}
-                    onClick={() => {
-                      closeAll();
-                      if (onSelectLab) onSelectLab(lab.id);
-                      else onTabChange(lab.id);
-                    }}
-                    data-testid={`tabbar-labs-item-${lab.id}`}
-                    className="w-full text-left px-3 py-2 min-h-[44px] hover:bg-white/5 flex flex-col"
-                  >
-                    <span className="text-[13px] text-gray-100 leading-tight">{label}</span>
-                    <span className="text-[11px] text-gray-500 leading-tight">{desc}</span>
-                  </button>
+                    <button
+                      key={lab.id}
+                      onClick={() => {
+                        closeAll();
+                        if (onSelectLab) onSelectLab(lab.id);
+                        else onTabChange(lab.id);
+                      }}
+                      data-testid={`tabbar-labs-item-${lab.id}`}
+                      aria-current={current ? 'page' : undefined}
+                      className="w-full text-left px-3 py-2 min-h-[44px] hover:bg-white/5 flex flex-col"
+                      style={{ fontFamily: SANS }}
+                    >
+                      <span style={{ fontSize: 16, lineHeight: '20px', color: CHALK_CREAM, display: 'inline-flex', flexDirection: 'column', alignSelf: 'flex-start' }}>
+                        {label}
+                        {current ? chalkUnderline({ width: 22 }) : null}
+                      </span>
+                      <span style={{ fontSize: 13, lineHeight: '16px', color: CHALK_SUB }}>{desc}</span>
+                    </button>
                   );
                 })}
                 {onOpenHowItWorks && (
-                  <button
-                    onClick={() => { closeAll(); onOpenHowItWorks(); }}
-                    data-testid="tabbar-labs-item-how-it-works"
-                    className="w-full text-left px-3 py-2 min-h-[44px] hover:bg-white/5 flex items-center gap-2 border-t border-[#2a2a3a]"
-                  >
-                    <span className="w-4 h-4 rounded-full border border-gray-500 text-gray-400 flex items-center justify-center text-[10px] font-bold leading-none">?</span>
-                    <span className="text-[13px] text-gray-300 leading-tight">How it works</span>
-                  </button>
+                  <>
+                    <div style={{ color: CHALK_RAIL, lineHeight: 0 }}>{chalkRule()}</div>
+                    <button
+                      onClick={() => { closeAll(); onOpenHowItWorks(); }}
+                      data-testid="tabbar-labs-item-how-it-works"
+                      className="w-full text-left px-3 py-2 min-h-[44px] hover:bg-white/5 flex items-center gap-1"
+                      style={{ fontFamily: SANS, color: CHALK_CREAM }}
+                    >
+                      <Help size={20} />
+                      <span style={{ fontSize: 16, lineHeight: '20px' }}>How it works</span>
+                    </button>
+                  </>
                 )}
               </div>
             )}
           </div>
 
-          {/* How-to — top-level help button (2026-06-25). "How it works"
-              was buried in the Labs popover; surface it here so it's one
-              tap from any screen. */}
           {onOpenHowItWorks && (
             <button
               onClick={() => { onOpenHowItWorks(); closeAll(); }}
               data-testid="tabbar-howto"
-              className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-gray-500 hover:text-gray-300 transition-colors"
+              className={tabClass}
+              style={tabStyle('howto', false)}
+              {...hoverProps('howto')}
+              aria-expanded={howItWorksOpen ? 'true' : 'false'}
               aria-label="How it works"
             >
-              <span className="w-5 h-5 rounded-full border-2 border-current flex items-center justify-center text-[12px] font-bold leading-none">?</span>
-              <span className="text-[10px]">How-to</span>
+              <Help size={24} />
+              <span style={labelStyle(false)}>How-to</span>
+              {mark(false)}
             </button>
           )}
         </div>

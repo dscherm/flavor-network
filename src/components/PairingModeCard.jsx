@@ -343,7 +343,7 @@ export default function PairingModeCard({
           data-testid="pairing-card-fb"
           title="Listed as a pairing in The Flavor Bible"
         >
-          📖 in The Flavor Bible
+          In The Flavor Bible
         </div>
       )}
       <AnalysisBlock analysis={analysis} />

@@ -1,0 +1,13 @@
+{
+  "entries": [
+    { "file": "src/components/PairingLab.jsx", "pattern": "U+2605", "reason": "Brief row L2: the strengthTier star scale (one to three stars) is a rating notation, not a control; left on purpose. Text equivalent added: the stars sit in a span with role=img and aria-label 'Strong/Moderate/Weak pairing'." },
+    { "file": "src/components/PairingBoard.jsx", "pattern": "U+2605", "reason": "Brief row L2: the star on the highlighted bucket label is drawn on the canvas as a label, not a control; left on purpose. The canvas keeps its aria-label and the partner names are a real button list." },
+    { "file": "src/components/AffinityPanel.jsx", "pattern": "U+2605", "reason": "Brief row P: parked 3D Network view (AffinityPanel), unreachable by a cook; not restyled." },
+    { "file": "src/components/AffinityPanel.jsx", "pattern": "U+1F4D6", "reason": "Brief row P: parked 3D Network view (AffinityPanel), unreachable by a cook; not restyled." },
+    { "file": "src/components/IngredientPanel.jsx", "pattern": "U+2605", "reason": "Brief row P: IngredientPanel is mounted only in the parked 3D Network (?path=explore); not restyled." },
+    { "file": "src/components/IngredientPanel.jsx", "pattern": "U+1F4D6", "reason": "Brief row P: IngredientPanel is mounted only in the parked 3D Network (?path=explore); not restyled." },
+    { "file": "src/components/IngredientPanel.jsx", "pattern": "U+2197", "reason": "Brief row P: IngredientPanel is mounted only in the parked 3D Network (?path=explore); not restyled." },
+    { "file": "src/components/InsightDrawer.jsx", "pattern": "U+2194", "reason": "Brief row P: InsightDrawer belongs to the parked 3D Network and is not mounted for a cook; not restyled." },
+    { "file": "src/components/LabsFab.jsx", "pattern": "U+1F52C", "reason": "Brief row P: LabsFab is an unmounted floating button (replaced by the bottom tab bar); not restyled." }
+  ]
+}

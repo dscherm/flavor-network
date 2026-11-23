@@ -226,14 +226,14 @@ describe('RecipeFlavorProfilesCard', () => {
     const { default: FreshCard } = await import('../RecipeFlavorProfilesCard.jsx');
     render(<FreshCard bowlNames={['strawberry', 'coconut cream']} nodes={nodes} recipeType="main" onFindCocktail={vi.fn()} onFindSauce={vi.fn()} />);
     for (let i = 0; i < 11; i++) fireEvent.click(screen.getByLabelText('Next'));
-    await waitFor(() => expect(screen.getByText('🍸 Find cocktails')).toBeInTheDocument());
-    expect(screen.getByText('🥣 Find sauces')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText('Find cocktails')).toBeInTheDocument());
+    expect(screen.getByText('Find sauces')).toBeInTheDocument();
   });
 
   it('hides the sauce pairing entirely for drink recipes (gate)', () => {
     render(<RecipeFlavorProfilesCard bowlNames={['strawberry', 'coconut cream']} nodes={nodes} recipeType="drink" onFindCocktail={vi.fn()} onFindSauce={vi.fn()} />);
     for (let i = 0; i < 11; i++) fireEvent.click(screen.getByLabelText('Next'));
-    expect(screen.queryByText('🥣 Sauces')).not.toBeInTheDocument();
+    expect(screen.queryByText('Sauces')).not.toBeInTheDocument();
   });
 
   it('renders page-indicator dots and navigates via dot tap + touch-swipe', () => {

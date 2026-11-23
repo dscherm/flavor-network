@@ -22,6 +22,7 @@ import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ShareOwnContext } from './shareOwnContext.js';
 import { ShareSheet } from './ShareSheet.jsx';
 import ShareImages from './ShareImages.jsx';
+import { Share } from './ChalkIcons.jsx';
 import { SHARE_OWN_ENABLED } from '../data/shareTargets.js';
 import { SHARE_LIMITS, firstName, fromSharedDoc, newShareId, shareFingerprint, toSharedDoc } from '../data/sharePublish.js';
 import { publishShare, publishShareWithPicture } from '../data/shareStore.js';
@@ -247,8 +248,9 @@ export function OwnShareButton({ kind, item, label = 'Share', className = '', st
   return (
     <>
       <button type="button" onClick={() => setOpen(true)} data-testid={testid} aria-haspopup="dialog"
-        className={`inline-flex items-center justify-center rounded-lg px-4 ${className}`}
+        className={`inline-flex items-center justify-center gap-1 rounded-lg px-4 ${className}`}
         style={{ ...btn({ background: `${ACCENT}22` }), ...tap, ...style }}>
+        <Share size={20} />
         {label}
       </button>
       {link && recipe ? (

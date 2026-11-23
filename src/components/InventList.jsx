@@ -24,6 +24,7 @@
  */
 import { useState } from 'react';
 import { IngredientName, IngredientInfoButton } from './IngredientCardProvider.jsx';
+import { Close } from './ChalkIcons.jsx';
 import { TextAdd, Chip, btn, inputStyle, heading, small, SANS, FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT } from './inventUi.jsx';
 
 export const DEFAULTS = {
@@ -71,11 +72,11 @@ function Line({ line, p, L, onRemove, onAmount, replacementsFor, onReplace, onRe
             <IngredientName name={line.key} testid={`${p}-name-${line.key}`} style={NAME_BLOCK}>{line.key}</IngredientName>
           </span>
           <span className="block text-[11px] -mt-1.5" style={{ fontFamily: SANS, color: CHALK_SUB }}>
-            {[line.have ? L.haveIt : '', line.source === 'search' ? `🔒 ${L.fromSearch}` : '', line.note || ''].filter(Boolean).join(', ')}
+            {[line.have ? L.haveIt : '', line.source === 'search' ? L.fromSearch : '', line.note || ''].filter(Boolean).join(', ')}
           </span>
         </span>
         <button type="button" onClick={() => onRemove(line.key)} aria-label={`${L.remove} ${line.key}`} data-testid={`${p}-remove-${line.key}`}
-          className="min-h-[44px] min-w-[44px] rounded-lg flex-shrink-0" style={btn({ fontSize: 20 })}>✕</button>
+          className="min-h-[44px] min-w-[44px] rounded-lg flex-shrink-0" style={btn({ fontSize: 20 })}><Close size={20} /></button>
       </div>
       {missing && (
         <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} data-testid={`${p}-need-${line.key}`}

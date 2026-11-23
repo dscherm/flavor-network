@@ -8,6 +8,7 @@ import { popColor, sauceVesselFor, vesselMark } from './sauceVessels.jsx';
 import { UNCATEGORISED } from '../data/savedInventions.js';
 import PictureView from './PictureView.jsx';
 import { SANS } from './inventUi.jsx';
+import { Whisk, Search } from './ChalkIcons.jsx';
 
 /**
  * SauceBrowse — 2D selection surface for the Sauce Lab, drawn as a bistro
@@ -148,9 +149,10 @@ export default function SauceBrowse({
   const inventButton = onInventThis ? (
     <div className="inline-flex flex-col items-start">
       <button type="button" onClick={() => onInventThis(searchTerm.trim())} data-testid="sauce-invent-this"
-        className="px-4 py-1 rounded-full border min-h-[44px] text-[17px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+        className="px-4 py-1 rounded-full border min-h-[44px] text-[17px] inline-flex items-center gap-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
         style={{ fontFamily: FONT, borderColor: CHALK_CREAM, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
-        ✨ Invent this
+        <Whisk size={20} />
+        Invent this
       </button>
       {inventSummaryText && (
         <span className="text-[13px] mt-0.5" data-testid="sauce-invent-this-summary" style={{ color: CHALK_SUB }}>{inventSummaryText}</span>
@@ -307,6 +309,8 @@ export default function SauceBrowse({
         className="sticky top-0 z-30 backdrop-blur-md px-4 py-2.5 max-w-4xl mx-auto"
         style={{ background: '#0a0a0aE6', borderBottom: `1px solid ${CHALK_RAIL}66` }}
       >
+        <div className="relative mb-1">
+        <span aria-hidden="true" className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: CHALK_SUB, lineHeight: 0 }}><Search size={20} /></span>
         <input
           type="search"
           value={searchTerm}
@@ -315,9 +319,10 @@ export default function SauceBrowse({
           aria-label="Search sauces by name or ingredient"
           list="sauce-ingredient-vocab"
           data-sauce-search
-          className="w-full px-2.5 py-1.5 rounded-md focus:outline-none text-[16px] mb-1"
-          style={{ fontFamily: FONT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
+          className="w-full pr-2.5 py-1.5 rounded-md focus:outline-none text-[16px]"
+          style={{ paddingLeft: 32, fontFamily: FONT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
         />
+        </div>
         <datalist id="sauce-ingredient-vocab">
           {ingredientVocab.map((v) => <option key={v} value={v} />)}
         </datalist>
@@ -327,14 +332,15 @@ export default function SauceBrowse({
               <button type="button" onClick={onOpenPantry} data-testid="sauce-pantry-open"
                 className="px-3 py-1 rounded-full border min-h-[44px] text-[17px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                 style={{ fontFamily: FONT, borderColor: CHALK_RAIL, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
-                🧺 My pantry{pantryCount ? ` (${pantryCount})` : ''}
+                My pantry{pantryCount ? ` (${pantryCount})` : ''}
               </button>
             )}
             {onOpenInvent && (
               <button type="button" onClick={onOpenInvent} data-testid="sauce-invent-open"
-                className="px-3 py-1 rounded-full border min-h-[44px] text-[17px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                className="px-3 py-1 rounded-full border min-h-[44px] text-[17px] inline-flex items-center gap-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                 style={{ fontFamily: FONT, borderColor: CHALK_RAIL, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
-                ✨ Invent a sauce
+                <Whisk size={20} />
+                Invent a sauce
               </button>
             )}
           </div>

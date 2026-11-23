@@ -89,7 +89,7 @@ describe('Cocktail Lab — facet chips', () => {
     expect(screen.queryByTestId('cocktail-facet-rail')).toBeNull();
     expect(shown(['Gimlet', 'Negroni', 'Moscow Mule'])).toEqual(['Negroni']);
     fireEvent.click(screen.getByRole('button', { name: /clear filters/i }));
-    expect(toggle).toHaveTextContent(/^\s*Filters\s*▾/);
+    expect(toggle).toHaveTextContent(/^\s*Filters\s*$/);
   });
 
   it('renders the facet rail and filters by strength', () => {

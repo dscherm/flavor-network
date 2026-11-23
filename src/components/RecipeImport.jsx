@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { Close } from './ChalkIcons.jsx';
 
 /**
  * RecipeImport — collapsible card on the Profile › Recipes tab.
@@ -142,9 +143,6 @@ export default function RecipeImport({ onSave }) {
         onClick={() => setOpen(true)}
         className="w-full mb-3 flex items-center justify-center gap-2 px-3 py-2 rounded-md border border-dashed border-blue-500/40 text-blue-300 hover:bg-blue-500/10 hover:border-blue-400/60 transition-colors text-xs"
       >
-        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-        </svg>
         Import recipe (PDF or photo)
       </button>
     );
@@ -160,7 +158,7 @@ export default function RecipeImport({ onSave }) {
           className="text-gray-500 hover:text-gray-300 text-xs"
           aria-label="Close import panel"
         >
-          ×
+          <Close size={16} />
         </button>
       </div>
 
@@ -254,7 +252,7 @@ export default function RecipeImport({ onSave }) {
                     className="text-gray-600 hover:text-red-400 text-xs px-1"
                     aria-label={`Remove ingredient ${ing.name || idx + 1}`}
                   >
-                    ×
+                    <Close size={16} />
                   </button>
                 </li>
               ))}
@@ -281,7 +279,7 @@ export default function RecipeImport({ onSave }) {
                     className="text-gray-600 hover:text-red-400 text-xs px-1"
                     aria-label={`Remove step ${idx + 1}`}
                   >
-                    ×
+                    <Close size={16} />
                   </button>
                 </li>
               ))}

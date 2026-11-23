@@ -292,10 +292,10 @@ export default function CocktailLabV2({
     setBarPanel('invent');
   };
   const cardActions = selectedNode ? [
-    { label: '🔀 Riff on this', onClick: () => setRiffOpen(true), testid: 'cocktail-riff-open' },
+    { label: 'Riff on this', onClick: () => setRiffOpen(true), testid: 'cocktail-riff-open' },
     ...(selectedNode.mine && userProfile?.deleteInvention ? [
-      { label: '✏️ Edit', onClick: editSelected, testid: 'saved-edit' },
-      { label: '🗑 Delete', onClick: () => setConfirmDelete({ id: selectedNode.savedId, name: selectedNode.name }), testid: 'saved-delete' },
+      { label: 'Edit', onClick: editSelected, testid: 'saved-edit' },
+      { label: 'Delete', onClick: () => setConfirmDelete({ id: selectedNode.savedId, name: selectedNode.name }), testid: 'saved-delete' },
     ] : []),
   ] : [];
   // Share: codex drinks link straight to /r/<kind>/<slug>; the cook's own (mine) go through the publish step.

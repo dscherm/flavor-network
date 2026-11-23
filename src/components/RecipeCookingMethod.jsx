@@ -24,13 +24,6 @@ function loadRecipeVocab(basePath = '') {
   return _vocabPromise;
 }
 
-const METHOD_EMOJI = {
-  'sauté': '🍳', sear: '🔥', roast: '🔥', bake: '🍞', grill: '🔥', broil: '🔥',
-  braise: '🍲', simmer: '🍲', boil: '💧', steam: '♨️', poach: '💧', blanch: '💧',
-  fry: '🍳', 'stir-fry': '🥢', 'deep-fry': '🍳', caramelize: '🍯', toast: '🍞',
-  marinate: '🧂', whisk: '🥄', blend: '🌀', chill: '❄️',
-};
-
 export default function RecipeCookingMethod({ bowlNames = [], chalk = false, selected = null, onToggle = null }) {
   const [index, setIndex] = useState(null);
   const [vocab, setVocab] = useState(null);
@@ -59,7 +52,7 @@ export default function RecipeCookingMethod({ bowlNames = [], chalk = false, sel
     return (
       <div data-testid="cooking-method-chips">
         <div className="text-[13px] mb-1" style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif', color: CHALK_SUB }}>
-          🍳 Likely cooking method{methods.length === 1 ? '' : 's'}
+          Likely cooking method{methods.length === 1 ? '' : 's'}
         </div>
         <div className="flex flex-wrap gap-1.5">
           {methods.map((m) => {
@@ -79,7 +72,6 @@ export default function RecipeCookingMethod({ bowlNames = [], chalk = false, sel
                   color: on ? '#0a0a0a' : CHALK_CREAM, background: on ? CHALK_CREAM : 'transparent',
                 }}
               >
-                <span aria-hidden="true">{METHOD_EMOJI[m.method] || '🍳'}</span>
                 {m.method}
               </button>
             );
@@ -92,7 +84,7 @@ export default function RecipeCookingMethod({ bowlNames = [], chalk = false, sel
   return (
     <div className="px-4 pt-2 pb-3" style={{ paddingLeft: 48 }}>
       <div className="text-[13px] mb-1.5" style={{ color: '#a09070' }}>
-        🍳 Likely cooking method{methods.length === 1 ? '' : 's'}
+        Likely cooking method{methods.length === 1 ? '' : 's'}
       </div>
       <div className="flex flex-wrap gap-1.5">
         {methods.map((m) => (
@@ -109,7 +101,6 @@ export default function RecipeCookingMethod({ bowlNames = [], chalk = false, sel
               textTransform: 'capitalize',
             }}
           >
-            <span aria-hidden="true">{METHOD_EMOJI[m.method] || '🍳'}</span>
             {m.method}
           </span>
         ))}

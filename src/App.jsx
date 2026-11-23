@@ -2651,6 +2651,7 @@ export default function App() {
             setLabDropdownOpen(false);
           }}
           onOpenHowItWorks={() => setHowItWorksOpen(true)}
+          howItWorksOpen={howItWorksOpen}
           onSelectLab={(id) => {
             // Bottom-bar Labs popover routes the same surfaces the
             // floating LabsFab used to — each id is a top-level activeTab.

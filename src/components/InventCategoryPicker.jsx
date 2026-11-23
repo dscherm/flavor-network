@@ -15,6 +15,7 @@
  * Test ids: {p} root, {p}-toggle, {p}-option-{id} (aria-pressed), {p}-none.
  */
 import { btn, SANS, FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT } from './inventUi.jsx';
+import { ChevronDown, ChevronUp } from './ChalkIcons.jsx';
 
 export default function InventCategoryPicker({
   title, options = [], value = null, onChange, open = false, onToggle, labels = {}, testidPrefix = 'category',
@@ -43,7 +44,7 @@ export default function InventCategoryPicker({
           <span className="truncate">{title}</span>
           {chosen ? <span className="truncate" style={{ color: ACCENT }} data-testid={`${p}-chosen`}>{chosen.label}</span> : null}
         </span>
-        <span aria-hidden="true" style={{ color: CHALK_SUB }}>{open ? '▴' : '▾'}</span>
+        <span aria-hidden="true" style={{ color: CHALK_SUB, lineHeight: 0 }}>{open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}</span>
       </button>
       {open && (
         <ul className="flex flex-col gap-1.5 mt-2" data-testid={`${p}-options`}>
