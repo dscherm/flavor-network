@@ -1,19 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" fill="#0d1f38" rx="6"/>
-  <!-- Three orbits centered at (16, 18), rotated 0/60/-60 -->
-  <g fill="none" stroke="#ffffff" stroke-width="1.1">
-    <ellipse cx="16" cy="18" rx="11" ry="4.5"/>
-    <ellipse cx="16" cy="18" rx="11" ry="4.5" transform="rotate(60 16 18)"/>
-    <ellipse cx="16" cy="18" rx="11" ry="4.5" transform="rotate(-60 16 18)"/>
-  </g>
-  <!-- Chef hat: tiny stylized version above the atom -->
-  <path
-    d="M 11 9 Q 9 6 11 4 Q 11 2 13 2 Q 13 1 16 1 Q 19 1 19 2 Q 21 2 21 4 Q 23 6 21 9 L 21 11 Q 21 12 20 12 L 12 12 Q 11 12 11 11 Z"
-    fill="none" stroke="#ffffff" stroke-width="1.1" stroke-linejoin="round"/>
-  <!-- Center "Nf" -->
-  <text x="16" y="21" text-anchor="middle" font-size="6.5" font-weight="700"
-        fill="#ffffff" font-family="Inter, system-ui, sans-serif" letter-spacing="-0.3">Nf</text>
-  <!-- Tiny static dots (white + orange) to nod at the source mark -->
-  <circle cx="16" cy="14.5" r="0.85" fill="#e8f3ff"/>
-  <circle cx="16" cy="21.5" r="0.85" fill="#ff8c42"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-9 74 218 218" role="img" aria-label="Neural Flavor">
+<title>Neural Flavor</title>
+<rect x="-9" y="74" width="218" height="218" rx="41" fill="#0a0a0a"/>
+<g transform="translate(100 183) scale(1) translate(-100 -183)"><g data-part="flask">
+<path d="M61 228 Q100 233 139 228 L160 274 Q164 284 150 284 L50 284 Q36 284 40 274 Z" fill="#f2a93b" fill-opacity="0.6"/>
+<path d="M61 228 Q100 233 139 228" fill="none" stroke="#f2a93b" stroke-width="5.28" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="100" cy="266" r="4.5" fill="#f5efde" fill-opacity="0.85"/>
+<path d="M76 144 Q81 145 82 150 L82 178 L40 272 Q35 286 52 286 L148 286 Q165 286 160 272 L118 178 L118 150 Q119 145 124 144" fill="none" stroke="#8fa274" stroke-width="8.16" stroke-linecap="round" stroke-linejoin="round"/>
+</g><g transform="translate(100 148) scale(0.62) translate(-100 -140)">
+<path d="M70 96 C48 100 32 88 36 70 C39 52 56 44 72 50 C73 34 90 28 100 28 C110 28 127 34 128 50 C144 44 161 52 164 70 C168 88 152 100 130 96" fill="#f5efde" fill-opacity="0.05"/><path d="M70 98 L68 136 Q100 141 132 136 L130 98 Q100 104 70 98 Z" fill="#f5efde" fill-opacity="0.07"/>
+<path d="M70 96 C48 100 32 88 36 70 C39 52 56 44 72 50 C73 34 90 28 100 28 C110 28 127 34 128 50 C144 44 161 52 164 70 C168 88 152 100 130 96" fill="none" stroke="#f5efde" stroke-width="7.68" stroke-linecap="round" stroke-linejoin="round"/><path d="M70 96 Q100 103 130 96" fill="none" stroke="#f5efde" stroke-width="5.28" stroke-linecap="round" stroke-linejoin="round"/><path d="M70 98 L68 136 Q100 141 132 136 L130 98 Q100 104 70 98 Z" fill="none" stroke="#f5efde" stroke-width="7.20" stroke-linecap="round" stroke-linejoin="round"/></g></g>
 </svg>

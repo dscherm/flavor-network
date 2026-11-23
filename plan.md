@@ -3581,6 +3581,21 @@ and name exactly as they are.
   "title": "Logo: keep the name and the chef's hat, redraw the atom as something from a kitchen",
   "category": "design",
   "design_surface": "The logo (ChalkLogo, AnimatedLogo) wherever it appears: landing page, loading, share cards, favicon/app icons if they use it",
+  "public_surface": {
+    "module": "src.components.ChalkLogo",
+    "adds": [
+      "ChalkLogo draws the chef's hat with Nf capping a conical flask (candidate E) instead of the atom",
+      "public/favicon.svg and public/icons/* redrawn from the small-size cut on slate"
+    ]
+  },
+  "acceptance_criteria": [
+    {"id": "AC-1", "given": "src/components/ChalkLogo.jsx and AnimatedLogo.jsx as text", "when": "scanned", "then": "they contain no orbit, electron, nucleus or atom drawing code"},
+    {"id": "AC-2", "given": "ChalkLogo rendered", "when": "its svg is read", "then": "it contains the hat paths unchanged from before LOOK-8 and the Nf text in Caveat 700, and a flask drawing element marked data-part=\"flask\""},
+    {"id": "AC-3", "given": "ChalkLogo rendered with reduced motion", "when": "animations are read", "then": "no animate or animateMotion element is present, or all are absent/paused; with motion allowed the bubbles animate"},
+    {"id": "AC-4", "given": "public/favicon.svg", "when": "read as text", "then": "it has no atom/orbit drawing and draws the flask with the hat"},
+    {"id": "AC-5", "given": "public/icons/icon-192.png, icon-512.png, icon-512-maskable.png and apple-touch-icon.png", "when": "their sizes are read", "then": "each exists at its stated pixel size and differs from its pre-LOOK-8 bytes"},
+    {"id": "AC-6", "given": "public/fn-logo-chalk.png", "when": "checked", "then": "it no longer exists"}
+  ],
   "passes": false,
   "description": "Owner decision LOOK-LOGO, 2026-11-23: 'Redraw the atom' (options were keep both, redraw the atom, rename). The name 'Neural Flavor' and the chef's hat with 'Nf' stay. The Rutherford atom under the hat (and its animated electrons) is replaced by a kitchen object in the same chalk line style, colours and proportions, so the logo reads as a kitchen chalkboard rather than a tech lab. Owner addition, 2026-11-23: 'try also the chef hat but add a lab item. a beaker with a chef hat on top' — so one candidate is the hat on a chalk-drawn beaker (a lab item, kept on purpose by the owner). Brief first (ralph-designer) with three or four candidate drawings rendered for the owner to pick from; nothing built before the pick. Then replace it everywhere the logo is drawn (find every use, including share cards and any icon files), keep the reduced-motion behaviour sensible for whatever animation replaces the electrons, and keep the landing page layout from LOOK-5.",
   "acceptance": [

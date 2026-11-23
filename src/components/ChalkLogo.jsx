@@ -1,11 +1,10 @@
 /**
- * ChalkLogo — the Neural Flavor mark (chef's toque with "Nf" on the band,
- * over a Rutherford atom) drawn in the same chalk style as the lab icons
+ * ChalkLogo — the Neural Flavor mark: a chef's toque with "Nf" on the band,
+ * capping a conical flask, drawn in the same chalk style as the lab icons
  * in chalkArt.jsx: a crisp chalk line over a faint, wider dust halo.
  *
- * Replaces the painted PNG (public/fn-logo-chalk.png). Because the orbits
- * are true ellipses here, the electrons can travel them again; they stop
- * under prefers-reduced-motion.
+ * The hat is the stopper on the flask's neck. Three bubbles rise through the
+ * orange liquid; they stay drawn and still under prefers-reduced-motion.
  */
 import { useId } from 'react';
 import { LOGO_HAND, CHALK_CREAM } from '../data/chalkTheme.js';
@@ -13,23 +12,19 @@ import { LOGO_HAND, CHALK_CREAM } from '../data/chalkTheme.js';
 const ORANGE = '#f2a93b';
 const SAGE = '#8fa274';
 
-const CX = 100;   // atom centre
-const CY = 218;
-const RX = 70;
-const RY = 25;
-// One ellipse as a path, so an electron can follow it with animateMotion.
-const ORBIT = `M${CX - RX} ${CY} a${RX} ${RY} 0 1 0 ${RX * 2} 0 a${RX} ${RY} 0 1 0 ${-RX * 2} 0`;
-
-const ORBITS = [
-  // Drawn in this order: the orange ring first, so the green rings cross over it.
-  { angle: 88, color: ORANGE, dur: '8s' },   // the upright, middle orbit
-  { angle: -28, color: SAGE, dur: '7s' },
-  { angle: 32, color: SAGE, dur: '9s' },
-];
-
 const CSS = `
-.fn-logo-electron { display: inline; }
-@media (prefers-reduced-motion: reduce) { .fn-logo-electron { display: none; } }`;
+.fn-logo-bubble { animation: fn-logo-rise 3.4s ease-in infinite; transform-box: fill-box; }
+.fn-logo-bubble.b2 { animation-delay: 1.1s; }
+.fn-logo-bubble.b3 { animation-delay: 2.2s; }
+@keyframes fn-logo-rise {
+  0% { transform: translateY(0); opacity: 0; }
+  15% { opacity: .9; }
+  80% { opacity: .9; }
+  100% { transform: translateY(-38px); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .fn-logo-bubble { animation: none; } }`;
+
+const BUBBLES = [[84, 272, 3.6], [106, 262, 3], [122, 276, 2.6]];
 
 function Chalk({ d, c, w = 3, halo = 2.4, opacity = 1 }) {
   return (
@@ -42,7 +37,6 @@ function Chalk({ d, c, w = 3, halo = 2.4, opacity = 1 }) {
 
 export default function ChalkLogo({ className = '', title = 'Neural Flavor', animate = true }) {
   const id = useId().replace(/:/g, '');
-  const nucleus = `fn-logo-nucleus-${id}`;
   const rough = `fn-logo-rough-${id}`;
 
   // Toque: a tall pleated band under a puffed top that overhangs it, made
@@ -60,11 +54,6 @@ export default function ChalkLogo({ className = '', title = 'Neural Flavor', ani
       <title>{title}</title>
       <style>{CSS}</style>
       <defs>
-        <radialGradient id={nucleus} cx="38%" cy="35%" r="70%">
-          <stop offset="0%" stopColor="#ffe08a" />
-          <stop offset="60%" stopColor={ORANGE} />
-          <stop offset="100%" stopColor="#c9761c" />
-        </radialGradient>
         {/* Slightly broken edges, so lines read as chalk rather than vector strokes. */}
         <filter id={rough} x="-5%" y="-5%" width="110%" height="110%">
           <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n" />
@@ -85,20 +74,19 @@ export default function ChalkLogo({ className = '', title = 'Neural Flavor', ani
         <text x="100" y="128" textAnchor="middle" fill={ORANGE}
           style={{ fontFamily: LOGO_HAND, fontSize: 32, fontWeight: 700 }}>Nf</text>
 
-        {/* Rutherford atom */}
-        {ORBITS.map((o) => (
-          <g key={o.angle} transform={`rotate(${o.angle} ${CX} ${CY})`}>
-            <Chalk d={ORBIT} c={o.color} w={3.4} />
-            {animate && (
-              <circle className="fn-logo-electron" r="3.6" fill={CHALK_CREAM}>
-                <animateMotion dur={o.dur} repeatCount="indefinite" path={ORBIT} />
-              </circle>
-            )}
-          </g>
-        ))}
-        <circle cx={CX} cy={CY} r="16" fill={ORANGE} fillOpacity="0.25" />
-        <circle cx={CX} cy={CY} r="12" fill={`url(#${nucleus})`} />
-        <Chalk d={`M${CX - 12} ${CY} a12 12 0 1 0 24 0 a12 12 0 1 0 -24 0`} c="#ffd27a" w={1.2} opacity={0.7} />
+        {/* Conical flask under the hat */}
+        <g data-part="flask">
+          <path d="M61 228 Q100 233 139 228 L160 274 Q164 284 150 284 L50 284 Q36 284 40 274 Z" fill={ORANGE} fillOpacity={0.6} />
+          <Chalk d="M61 228 Q100 233 139 228" c={ORANGE} w={2.2} opacity={0.95} />
+          {BUBBLES.map(([x, y, r], i) => (
+            <circle key={i} data-part="bubble" className={animate ? `fn-logo-bubble b${i + 1}` : undefined}
+              cx={x} cy={y} r={r} fill={CHALK_CREAM} fillOpacity={0.85} />
+          ))}
+          <Chalk d="M92 196 L108 196 M95 212 L105 212 M90 244 L110 244 M95 260 L105 260" c={CHALK_CREAM} w={1.3} opacity={0.55} />
+          <Chalk d="M60 248 L76 248 L76 262 L56 262" c={CHALK_CREAM} w={1.2} opacity={0.45} />
+          <Chalk d="M124 192 L144 238" c={CHALK_CREAM} w={1.3} opacity={0.4} />
+          <Chalk d="M76 144 Q81 145 82 150 L82 178 L40 272 Q35 286 52 286 L148 286 Q165 286 160 272 L118 178 L118 150 Q119 145 124 144" c={SAGE} w={3.4} />
+        </g>
       </g>
     </svg>
   );
