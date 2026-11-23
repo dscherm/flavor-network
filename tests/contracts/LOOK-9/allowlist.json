@@ -1,0 +1,10 @@
+{
+  "_schema": "Each entry allows pill shapes (rounded-full, borderRadius 999 / 9999 / '999px' / '9999px' / '50%') on the lines of `file` that contain `pattern` (a literal substring of that source line). `file` is repo-relative with forward slashes and must exist; `pattern` must be non-empty and must still occur in the file; `reason` must say why the shape is allowed. Brief LOOK-9 section 9 test 8 expects one entry only: HelpBubble's round '?' button (the implementer adds it if the scan does not already read it as a dot).",
+  "entries": [
+    {
+      "file": "src/components/HelpBubble.jsx",
+      "pattern": "min-h-[44px] min-w-[44px] rounded-full border",
+      "reason": "The round 44 px help button: DESIGN.md allows rounded-full on the round help button (a circle, not a pill)."
+    }
+  ]
+}

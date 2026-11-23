@@ -32,7 +32,7 @@ import { sharedPictureField } from '../data/pictureField.js';
 import { barsFor } from '../data/shareCardData.js';
 import { loadLabelNodes } from '../data/sharedLoaders.js';
 import { usage } from '../data/usageEvents.js';
-import { CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT, btn, heading, inputStyle } from './inventUi.jsx';
+import { CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT, FOCUS, btn, heading, inputStyle, primaryBtn } from './inventUi.jsx';
 
 import { TEXT } from '../data/chalkTheme.js';
 export { ShareOwnContext };
@@ -65,27 +65,27 @@ function SignIn({ auth }) {
         A shared recipe gets a public link, so it is tied to your account. You can take it down at any time.
       </p>
       <div className="mt-3 flex flex-col gap-2">
-        <button type="button" onClick={auth?.loginWithGoogle} data-testid="own-signin-google" className="w-full rounded-lg px-4"
-          style={{ ...btn({ background: `${ACCENT}22` }), ...tap }}>Sign in with Google</button>
-        <button type="button" onClick={auth?.loginWithApple} data-testid="own-signin-apple" className="w-full rounded-lg px-4"
-          style={{ ...btn({ background: 'rgba(255,255,255,0.05)' }), ...tap }}>Sign in with Apple</button>
+        <button type="button" onClick={auth?.loginWithGoogle} data-testid="own-signin-google" className={`w-full px-4 ${FOCUS}`}
+          style={{ ...btn(), ...tap }}>Sign in with Google</button>
+        <button type="button" onClick={auth?.loginWithApple} data-testid="own-signin-apple" className={`w-full px-4 ${FOCUS}`}
+          style={{ ...btn(), ...tap }}>Sign in with Apple</button>
       </div>
-      {auth?.authError && <p role="alert" className="mt-2 text-[14px]" style={{ fontFamily: TEXT, color: '#fda4af' }}>{auth.authError}</p>}
+      {auth?.authError && <p role="alert" className="mt-2 text-[14px]" style={{ fontFamily: TEXT, color: '#f87171' }}>{auth.authError}</p>}
     </div>
   );
 }
 
 function Preview({ doc, picture }) {
   return (
-    <section data-testid="own-preview" aria-label="What will be public" className="mt-3 rounded-lg p-3 min-w-0"
-      style={{ border: `1px solid ${CHALK_RAIL}`, background: 'rgba(255,255,255,0.03)' }}>
+    <section data-testid="own-preview" aria-label="What will be public" className="mt-3 p-3 min-w-0"
+      style={{ border: `1px solid ${CHALK_RAIL}`, borderRadius: 8 }}>
       <p className="text-[13px]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>This will be public</p>
       <p data-testid="own-preview-name" className="break-words" style={{ ...heading, fontSize: 24 }}>{doc.name}</p>
       {picture ? <div className="my-2" data-testid="own-preview-picture">{picture}</div> : null}
       <ul className="mt-1 overflow-y-auto" style={{ maxHeight: 160 }} role="list">
         {doc.lines.map((l, i) => (
           <li key={`${l.key}-${i}`} data-testid="own-preview-line" className="flex gap-2 py-0.5 min-w-0 text-[15px]" style={{ fontFamily: TEXT }}>
-            <span className="w-20 flex-shrink-0 text-right" style={{ color: ACCENT }}>{l.amount}</span>
+            <span className="w-20 flex-shrink-0 text-right" style={{ color: CHALK_DIM }}>{l.amount}</span>
             <span className="min-w-0 break-words" style={{ color: CHALK_CREAM }}>{l.key}</span>
           </li>
         ))}
@@ -104,7 +104,7 @@ function Preview({ doc, picture }) {
 
 function NameChoice({ choice, onChoice, nick, onNick, first }) {
   const radio = (id, label, testid, disabled = false) => (
-    <label className="flex items-center gap-2 rounded-lg px-3" style={{ ...tap, border: `1px solid ${choice === id ? ACCENT : CHALK_RAIL}`, opacity: disabled ? 0.5 : 1, fontFamily: TEXT, fontSize: 16, color: CHALK_CREAM }}>
+    <label className="flex items-center gap-2 px-3" style={{ ...tap, borderRadius: 8, border: choice === id ? `1.5px solid ${ACCENT}` : `1px solid ${CHALK_RAIL}`, opacity: disabled ? 0.5 : 1, fontFamily: TEXT, fontSize: 16, color: CHALK_CREAM }}>
       <input type="radio" name="own-by" checked={choice === id} disabled={disabled} onChange={() => onChoice(id)} data-testid={testid} />
       <span className="min-w-0 break-words">{label}</span>
     </label>
@@ -117,7 +117,7 @@ function NameChoice({ choice, onChoice, nick, onNick, first }) {
       {radio('nick', 'A nickname', 'own-by-nick')}
       {choice === 'nick' && (
         <input type="text" value={nick} onChange={(e) => onNick(e.target.value)} maxLength={SHARE_LIMITS.by} placeholder="Nickname"
-          aria-label="Nickname" data-testid="own-nick-input" autoComplete="off" className="w-full min-w-0 px-3 rounded-lg" style={{ ...inputStyle, ...tap }} />
+          aria-label="Nickname" data-testid="own-nick-input" autoComplete="off" className="w-full min-w-0 px-3" style={{ ...inputStyle, borderRadius: 8, ...tap }} />
       )}
     </fieldset>
   );
@@ -185,7 +185,7 @@ function PublishStep({ kind, item, ctx, onPublished, getDb }) {
   };
 
   if (!doc) {
-    return <p data-testid="own-status" role="alert" className="mt-3 text-[15px]" style={{ fontFamily: TEXT, color: '#fda4af' }}>
+    return <p data-testid="own-status" role="alert" className="mt-3 text-[15px]" style={{ fontFamily: TEXT, color: '#f87171' }}>
       Add a name and at least one ingredient before sharing this.
     </p>;
   }
@@ -199,11 +199,11 @@ function PublishStep({ kind, item, ctx, onPublished, getDb }) {
       <p className="mt-3 text-[13px]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
         Anyone with the link can read this. It is a copy: editing your recipe later will not change it.
       </p>
-      <button type="button" onClick={create} disabled={busy || needsNick} data-testid="own-create" className="mt-2 w-full rounded-lg px-4"
-        style={{ ...btn({ background: `${ACCENT}33` }), ...tap, opacity: busy || needsNick ? 0.55 : 1 }}>
+      <button type="button" onClick={create} disabled={busy || needsNick} data-testid="own-create" data-primary="true" className={`mt-2 w-full px-4 ${FOCUS}`}
+        style={primaryBtn({}, busy || needsNick)}>
         {busy ? 'Creating...' : 'Create link'}
       </button>
-      {error && <p role="alert" data-testid="own-status" className="mt-2 text-[14px]" style={{ fontFamily: TEXT, color: '#fda4af' }}>{error}</p>}
+      {error && <p role="alert" data-testid="own-status" className="mt-2 text-[14px]" style={{ fontFamily: TEXT, color: '#f87171' }}>{error}</p>}
     </div>
   );
 }
@@ -249,7 +249,7 @@ export function OwnShareButton({ kind, item, label = 'Share', className = '', st
   return (
     <>
       <button type="button" onClick={() => setOpen(true)} data-testid={testid} aria-haspopup="dialog"
-        className={`inline-flex items-center justify-center gap-1 px-4 ${className}`}
+        className={`inline-flex items-center justify-center gap-1 px-4 ${FOCUS} ${className}`}
         style={{ ...btn(), ...tap, ...style }}>
         <Share size={20} />
         {label}

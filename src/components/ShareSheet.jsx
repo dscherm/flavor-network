@@ -24,7 +24,7 @@ import { absoluteShareUrl, shareTargetUrls, shareTextFor, SHARE_OWN_ENABLED } fr
 import ShareImages from './ShareImages.jsx';
 import { Share, Close } from './ChalkIcons.jsx';
 import { usage } from '../data/usageEvents.js';
-import { CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT, btn, heading } from './inventUi.jsx';
+import { CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, SLATE, FOCUS, btn, heading, textAction, primaryBtn } from './inventUi.jsx';
 
 import { TEXT } from '../data/chalkTheme.js';
 const NETWORKS = [
@@ -89,16 +89,16 @@ export function ShareSheet({ open, onClose, recipe, link = '', ownItem = false, 
     }
   };
 
-  const row = { ...btn({ textDecoration: 'none', background: 'rgba(255,255,255,0.05)' }), ...tap };
+  const outline = { ...btn(), ...tap };
   const sheet = (
     <div className="fixed inset-0 z-[120] flex items-end justify-center" data-testid="share-sheet" role="dialog" aria-modal="true" aria-label={`Share ${title}`}>
       <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.6)' }} onClick={onClose} data-testid="share-backdrop" />
       <div className="relative w-full min-w-0 overflow-x-hidden overflow-y-auto rounded-t-2xl px-4 pt-3"
-        style={{ maxWidth: 480, maxHeight: '85vh', background: '#14120f', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM, paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
+        style={{ maxWidth: 480, maxHeight: '85vh', background: SLATE, borderTop: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM, paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
         <div className="flex items-center justify-between gap-2">
           <h2 style={{ ...heading, fontSize: 24 }} className="min-w-0 break-words">Share {title}</h2>
           <button type="button" ref={closeRef} onClick={onClose} aria-label="Close" data-testid="share-close"
-            className="flex-shrink-0 rounded-lg px-3" style={{ ...btn(), ...tap, minWidth: 44 }}><Close size={20} /></button>
+            className={`flex-shrink-0 inline-flex items-center justify-center ${FOCUS}`} style={{ ...tap, minWidth: 44, color: CHALK_DIM, background: 'transparent' }}><Close size={20} /></button>
         </div>
 
         {ownItem ? (
@@ -108,7 +108,7 @@ export function ShareSheet({ open, onClose, recipe, link = '', ownItem = false, 
                 To share your own recipe it first needs a public link.
               </p>
               <button type="button" onClick={onPublish} disabled={!onPublish} data-testid="share-publish"
-                className="mt-3 w-full rounded-lg px-4" style={{ ...btn({ background: `${ACCENT}22` }), ...tap, opacity: onPublish ? 1 : 0.5 }}>
+                data-primary="true" className={`mt-3 w-full px-4 ${FOCUS}`} style={primaryBtn({}, !onPublish)}>
                 Make a public link
               </button>
             </div>
@@ -117,14 +117,20 @@ export function ShareSheet({ open, onClose, recipe, link = '', ownItem = false, 
           <div className="mt-3 flex flex-col gap-2">
             {canNative && (
               <button type="button" onClick={nativeShare} data-testid="share-native"
-                className="w-full rounded-lg px-4" style={{ ...btn({ background: `${ACCENT}22` }), ...tap }}>
+                data-primary="true" className={`w-full px-4 ${FOCUS}`} style={primaryBtn()}>
                 Share
               </button>
             )}
-            <button type="button" onClick={copy} data-testid="share-copy" className="w-full rounded-lg px-4" style={row}>
-              Copy link
-            </button>
-            <p role="status" data-testid="share-copy-status" className="text-[14px] min-h-[1.25rem]" style={{ fontFamily: TEXT, color: ACCENT }}>
+            {canNative ? (
+              <button type="button" onClick={copy} data-testid="share-copy" className={`w-full px-4 ${FOCUS}`} style={outline}>
+                Copy link
+              </button>
+            ) : (
+              <button type="button" onClick={copy} data-testid="share-copy" data-primary="true" className={`w-full px-4 ${FOCUS}`} style={primaryBtn()}>
+                Copy link
+              </button>
+            )}
+            <p role="status" data-testid="share-copy-status" className="text-[14px] min-h-[1.25rem]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
               {copied ? 'Link copied' : ''}
             </p>
             {copyFailed && (
@@ -134,14 +140,14 @@ export function ShareSheet({ open, onClose, recipe, link = '', ownItem = false, 
                 </label>
                 <input id="share-link-field" readOnly value={url} data-testid="share-link-field"
                   onFocus={(e) => e.target.select()} onClick={(e) => e.target.select()}
-                  className="w-full min-w-0 rounded-lg px-3"
-                  style={{ fontFamily: TEXT, fontSize: 16, color: CHALK_CREAM, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, ...tap }} />
+                  className="w-full min-w-0 px-3"
+                  style={{ fontFamily: TEXT, fontSize: 16, color: CHALK_CREAM, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, borderRadius: 8, ...tap }} />
               </div>
             )}
-            <div className="grid grid-cols-2 gap-2">
+            <div role="group" aria-label="Share to" className="flex flex-wrap items-center gap-x-6">
               {NETWORKS.map((n) => (
                 <a key={n.key} href={targets[n.key]} target="_blank" rel="noopener noreferrer" data-testid={`share-${n.key}`}
-                  className="inline-flex items-center justify-center rounded-lg px-3" style={row}>
+                  className={`inline-flex items-center ${FOCUS}`} style={textAction({ fontSize: 17, textDecoration: 'none' })}>
                   {n.label}
                 </a>
               ))}
@@ -164,7 +170,7 @@ export function ShareButton({ recipe, link = '', ownItem = false, onPublish, ima
   return (
     <>
       <button type="button" onClick={() => setOpen(true)} data-testid={testid} aria-haspopup="dialog"
-        className={`inline-flex items-center justify-center gap-1 px-4 ${className}`}
+        className={`inline-flex items-center justify-center gap-1 px-4 ${FOCUS} ${className}`}
         style={{ ...btn(), ...tap, ...style }}>
         <Share size={20} />
         {label}

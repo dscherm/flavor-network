@@ -17,7 +17,8 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { PictureArt, picturesFor } from './pictureArt.jsx';
-import { TEXT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL } from '../data/chalkTheme.js';
+import { TEXT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CONTROL_RADIUS } from '../data/chalkTheme.js';
+import { FOCUS, SLATE, ACCENT } from './inventUi.jsx';
 import { CHALK_DEFAULTS, CHALK_RANGES, ChalkCancelled } from '../data/chalkFilter.js';
 import { loadPhoto, runChalk, toCanvas, encodeChalk, findSubject } from '../data/chalkFilterBrowser.js';
 import { cropCentre, CROP_SHAPES } from '../data/pictureCrop.js';
@@ -51,8 +52,8 @@ const CUT_STAGES = {
   finding: 'Finding the subject…',
 };
 
-const FOCUS = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
-const focusStyle = { outlineColor: CHALK_CREAM };
+const radius = { borderRadius: CONTROL_RADIUS };
+const picked = (on) => (on ? { border: `1.5px solid ${ACCENT}` } : { border: `1px solid ${CHALK_RAIL}` });
 
 function initialMode(value) {
   if (value?.kind === 'icon') return 'drawing';
@@ -330,12 +331,12 @@ export default function RecipePicture({
   const currentIcon = value?.kind === 'icon' ? value.icon : null;
   const busy = status === 'loading' || status === 'drawing';
 
-  const button = `min-h-[44px] px-3 rounded border text-sm ${FOCUS}`;
+  const button = `min-h-[44px] px-3 border text-sm ${FOCUS}`;
 
   return (
     <div
       className="w-full max-w-full text-left"
-      style={{ background: '#1c1c1c', color: CHALK_CREAM, border: `1px solid ${CHALK_RAIL}`, borderRadius: 8, padding: 12, boxSizing: 'border-box' }}
+      style={{ background: SLATE, color: CHALK_CREAM, border: `1px solid ${CHALK_RAIL}`, borderRadius: CONTROL_RADIUS, padding: 12, boxSizing: 'border-box' }}
       data-testid="recipe-picture"
     >
       <div role="radiogroup" aria-label="Picture for this recipe" className="flex flex-wrap gap-2 mb-3">
@@ -353,9 +354,7 @@ export default function RecipePicture({
               onKeyDown={(e) => onRadioKey(e, i)}
               className={`${button} flex-1`}
               style={{
-                ...focusStyle, minWidth: 96,
-                borderColor: on ? CHALK_CREAM : CHALK_RAIL,
-                background: on ? 'rgba(245,239,222,0.12)' : 'transparent',
+                ...radius, minWidth: 96, ...picked(on),
                 color: on ? CHALK_CREAM : CHALK_DIM, fontFamily: TEXT, fontSize: 18,
               }}
             >
@@ -384,12 +383,8 @@ export default function RecipePicture({
                 aria-label={p.label}
                 data-picture-id={p.id}
                 onClick={() => onChange?.({ kind: 'icon', icon: p.id })}
-                className={`flex flex-col items-center justify-center rounded border ${FOCUS}`}
-                style={{
-                  ...focusStyle, minHeight: 76, minWidth: 44, padding: 4,
-                  borderColor: on ? CHALK_CREAM : CHALK_RAIL,
-                  background: on ? 'rgba(245,239,222,0.12)' : 'transparent',
-                }}
+                className={`flex flex-col items-center justify-center border ${FOCUS}`}
+                style={{ ...radius, minHeight: 76, minWidth: 44, padding: 4, ...picked(on) }}
               >
                 <PictureArt id={p.id} size={48} color={color} />
                 <span style={{ fontSize: 11, color: CHALK_DIM, marginTop: 2 }}>{p.label}</span>
@@ -402,8 +397,8 @@ export default function RecipePicture({
       {(mode === 'photo' || hasPhoto) && (
         <div data-testid="picture-photo" hidden={mode !== 'photo'}>
           <label
-            className={`flex items-center justify-center rounded border cursor-pointer ${FOCUS} focus-within:outline focus-within:outline-2`}
-            style={{ minHeight: 44, borderColor: CHALK_RAIL, color: CHALK_CREAM, fontFamily: TEXT, fontSize: 18, ...focusStyle }}
+            className={`flex items-center justify-center border cursor-pointer ${FOCUS} focus-within:outline focus-within:outline-2`}
+            style={{ ...radius, minHeight: 44, borderColor: CHALK_RAIL, color: CHALK_CREAM, fontFamily: TEXT, fontSize: 18 }}
           >
             {hasPhoto ? 'Choose a different photo' : 'Take or choose a photo'}
             <input
@@ -419,7 +414,7 @@ export default function RecipePicture({
             The photo stays on this device. Only the chalk picture is kept.
           </p>
 
-          {message && <p role="alert" data-testid="picture-message" style={{ color: '#fca5a5', fontSize: 14, margin: '8px 0 0' }}>{message}</p>}
+          {message && <p role="alert" data-testid="picture-message" style={{ color: '#f87171', fontSize: 14, margin: '8px 0 0' }}>{message}</p>}
 
           {busy && (
             <div role="status" aria-live="polite" data-testid="picture-drawing" style={{ margin: '10px 0', color: CHALK_DIM, fontSize: 14 }}>
@@ -433,7 +428,7 @@ export default function RecipePicture({
           <div
             ref={previewRef}
             data-testid="picture-preview"
-            style={{ marginTop: 10, maxWidth: '100%', background: '#0a0a0a', borderRadius: 6, overflow: 'hidden', display: hasPhoto ? 'block' : 'none', opacity: status === 'drawing' ? 0.55 : 1 }}
+            style={{ marginTop: 10, maxWidth: '100%', background: SLATE, borderRadius: 6, overflow: 'hidden', display: hasPhoto ? 'block' : 'none', opacity: status === 'drawing' ? 0.55 : 1 }}
           />
 
           {!hasPhoto && valueUrl && (
@@ -450,7 +445,7 @@ export default function RecipePicture({
                     aria-pressed={crop === shape}
                     onClick={() => changeCrop(shape)}
                     className={`${button} flex-1`}
-                    style={{ ...focusStyle, borderColor: crop === shape ? CHALK_CREAM : CHALK_RAIL, background: crop === shape ? 'rgba(245,239,222,0.12)' : 'transparent', color: CHALK_CREAM }}
+                    style={{ ...radius, ...picked(crop === shape), color: CHALK_CREAM }}
                   >
                     {CROP_LABEL[shape]}
                   </button>
@@ -463,7 +458,7 @@ export default function RecipePicture({
                   aria-expanded={adjust}
                   onClick={() => setAdjust((a) => !a)}
                   className={`${button} flex-1`}
-                  style={{ ...focusStyle, borderColor: CHALK_RAIL, color: CHALK_CREAM }}
+                  style={{ ...radius, borderColor: CHALK_RAIL, color: CHALK_CREAM }}
                 >
                   Adjust
                 </button>
@@ -472,7 +467,7 @@ export default function RecipePicture({
                   aria-pressed={cut === 'on'}
                   onClick={toggleCut}
                   className={`${button} flex-1`}
-                  style={{ ...focusStyle, borderColor: cut === 'on' ? CHALK_CREAM : CHALK_RAIL, background: cut === 'on' ? 'rgba(245,239,222,0.12)' : 'transparent', color: CHALK_CREAM }}
+                  style={{ ...radius, ...picked(cut === 'on'), color: CHALK_CREAM }}
                 >
                   {cut === 'finding' ? 'Cancel cut-out' : 'Remove background'}
                 </button>
@@ -481,7 +476,7 @@ export default function RecipePicture({
                   onClick={usePicture}
                   disabled={status !== 'ready'}
                   className={`${button} flex-1 disabled:opacity-40`}
-                  style={{ ...focusStyle, borderColor: CHALK_CREAM, background: 'rgba(245,239,222,0.16)', color: CHALK_CREAM }}
+                  style={{ ...radius, borderColor: CHALK_RAIL, color: CHALK_CREAM }}
                 >
                   {status === 'saving' ? 'Saving…' : 'Use this picture'}
                 </button>
@@ -518,7 +513,7 @@ export default function RecipePicture({
                           value={settings[key]}
                           onChange={(e) => changeSetting(key, e.target.value)}
                           className={FOCUS}
-                          style={{ ...focusStyle, width: '100%', minHeight: 44, accentColor: CHALK_CREAM }}
+                          style={{ width: '100%', minHeight: 44, accentColor: CHALK_CREAM }}
                         />
                       </div>
                     );
@@ -527,7 +522,7 @@ export default function RecipePicture({
                     type="button"
                     onClick={reset}
                     className={`${button} w-full`}
-                    style={{ ...focusStyle, borderColor: CHALK_RAIL, color: CHALK_DIM }}
+                    style={{ ...radius, borderColor: CHALK_RAIL, color: CHALK_DIM }}
                   >
                     Reset
                   </button>

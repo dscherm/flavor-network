@@ -43,6 +43,7 @@ describe('WineLab — browse', () => {
   it('colour chips filter (Sparkling includes Lambrusco and Moscato d’Asti)', async () => {
     render(<WineLab />);
     await waitFor(() => screen.getByText('Wine list'));
+    fireEvent.click(screen.getByRole('button', { name: /^filters/i })); // the chips sit behind Filters (LOOK-9)
     fireEvent.click(screen.getByRole('button', { name: 'Sparkling' }));
     expect(screen.getByTestId('wine-row-lambrusco')).toBeInTheDocument();
     expect(screen.getByTestId('wine-row-moscato-dasti')).toBeInTheDocument();
@@ -52,6 +53,7 @@ describe('WineLab — browse', () => {
   it('country chips filter, and a country shows its region chips', async () => {
     render(<WineLab />);
     await waitFor(() => screen.getByText('Wine list'));
+    fireEvent.click(screen.getByRole('button', { name: /^filters/i })); // the chips sit behind Filters (LOOK-9)
     fireEvent.click(screen.getByTestId('wine-country-Italy'));
     const shown = [...document.querySelectorAll('[data-testid^="wine-row-"]')].map((el) => el.dataset.testid.replace('wine-row-', ''));
     expect(shown.sort()).toEqual(WINE_JSON.wines.filter((w) => w.countries.includes('Italy')).map((w) => w.id).sort());

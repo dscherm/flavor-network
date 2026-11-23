@@ -21,7 +21,8 @@ import { absoluteShareUrl, captionFor, printedLinkFor, SHARE_CHARTS_ENABLED } fr
 import { parseSharePath, resolveBuiltIn } from '../data/sharedRecipe.js';
 import { barsFor } from '../data/shareCardData.js';
 import { defaultLoadData, loadLabelNodes } from '../data/sharedLoaders.js';
-import { CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT, btn, heading } from './inventUi.jsx';
+import { CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT, FOCUS, btn, heading, textAction } from './inventUi.jsx';
+import { chalkRule } from './ChalkIcons.jsx';
 
 import { TEXT } from '../data/chalkTheme.js';
 const tap = { minHeight: 44 };
@@ -38,8 +39,8 @@ function Choice({ legend, options, value, onChange, testid }) {
     <div role="group" aria-label={legend} data-testid={testid} className="grid grid-cols-2 gap-2">
       {options.map((o) => (
         <button key={o.id} type="button" onClick={() => onChange(o.id)} aria-pressed={value === o.id}
-          data-testid={`${testid}-${o.id}`} className="rounded-lg px-2"
-          style={{ ...btn({ fontSize: 17, background: value === o.id ? `${ACCENT}33` : 'rgba(255,255,255,0.05)', borderColor: value === o.id ? ACCENT : CHALK_RAIL }), ...tap }}>
+          data-testid={`${testid}-${o.id}`} className={`px-2 ${FOCUS}`}
+          style={{ ...btn({ fontSize: 17, ...(value === o.id ? { border: `1.5px solid ${ACCENT}` } : {}) }), ...tap }}>
           {o.label}
         </button>
       ))}
@@ -129,8 +130,9 @@ export default function ShareImages({ link = '', recipe: given = null, bars: giv
 
   const waiting = !files && !error;
   return (
-    <section data-testid="share-images" aria-label="Share as pictures" className="mt-4 pt-3 min-w-0" style={{ borderTop: `1px solid ${CHALK_RAIL}` }}>
-      <h3 style={{ ...heading, fontSize: 22 }}>As pictures</h3>
+    <section data-testid="share-images" aria-label="Share as pictures" className="mt-4 min-w-0">
+      <div style={{ color: CHALK_RAIL }} aria-hidden="true">{chalkRule()}</div>
+      <h3 className="mt-3" style={{ ...heading, fontSize: 22 }}>As pictures</h3>
       <p className="text-[14px] mt-0.5" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
         For Instagram and TikTok. The link is printed on every card.
       </p>
@@ -138,25 +140,25 @@ export default function ShareImages({ link = '', recipe: given = null, bars: giv
         <Choice legend="How many cards" options={COUNTS} value={count} onChange={setCount} testid="share-choice-count" />
         <Choice legend="Where you will post" options={FORMATS} value={format} onChange={setFormat} testid="share-choice-format" />
         <button type="button" onClick={canShareFiles ? share : download} disabled={!files} data-testid="share-images-action"
-          className="w-full rounded-lg px-4" style={{ ...btn({ background: `${ACCENT}22` }), ...tap, opacity: files ? 1 : 0.55 }}>
+          className={`w-full px-4 ${FOCUS}`} style={{ ...btn(), ...tap, opacity: files ? 1 : 0.55 }}>
           {canShareFiles ? 'Share images' : 'Download images'}
         </button>
         <p role="status" data-testid="share-images-status" className="text-[14px] min-h-[1.25rem]"
-          style={{ fontFamily: TEXT, color: error ? '#fda4af' : CHALK_SUB }}>
+          style={{ fontFamily: TEXT, color: error ? '#f87171' : CHALK_SUB }}>
           {error || (waiting ? 'Drawing the pictures...' : note)}
         </p>
         <button type="button" onClick={() => copyText(captionFor(recipe || { name: '', kind: target.kind }, fullLink), setCaptionNote, 'Caption copied')}
-          data-testid="share-caption" className="w-full rounded-lg px-4" style={{ ...btn({ background: 'rgba(255,255,255,0.05)' }), ...tap }}>
+          data-testid="share-caption" className={FOCUS} style={textAction({ fontSize: 17, alignSelf: 'flex-start' })}>
           Copy caption
         </button>
-        <p role="status" data-testid="share-caption-status" className="text-[14px] min-h-[1.25rem]" style={{ fontFamily: TEXT, color: ACCENT }}>{captionNote}</p>
+        <p role="status" data-testid="share-caption-status" className="text-[14px] min-h-[1.25rem]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>{captionNote}</p>
         <p className="text-[14px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
           Posting a Story? Copy the link and add it as a link sticker.{' '}
           <button type="button" onClick={() => copyText(fullLink, setStoryNote, 'Link copied')} data-testid="share-story-copy"
-            className="underline px-1" style={{ ...tap, color: CHALK_CREAM, fontFamily: TEXT, fontSize: 14 }}>
+            className={FOCUS} style={textAction({ fontSize: 14 })}>
             Copy the link
           </button>
-          <span role="status" data-testid="share-story-status" style={{ color: ACCENT }}>{storyNote}</span>
+          <span role="status" data-testid="share-story-status" style={{ color: CHALK_DIM }}>{storyNote}</span>
         </p>
       </div>
     </section>

@@ -37,7 +37,7 @@ import FlavorWheel from './FlavorWheel.jsx';
 import { ingredientMarks } from '../data/flavorMarks.js';
 import { IngredientName } from './IngredientCardProvider.jsx';
 // CK-14: fold the duplicated chalkboard palette onto the shared theme.
-import { TEXT, HAND, CHALK_BG, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL } from '../data/chalkTheme.js';
 
 const CHALK_TEXT_SHADOW = '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)';
 
@@ -373,8 +373,8 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
 
   return (
     <div
-      className="w-full h-full flex flex-col"
-      style={{ height: '100%', background: CHALK_BG }}
+      className="chalk-board w-full h-full flex flex-col"
+      style={{ height: '100%' }}
       data-testid="flavor-profiles-card"
       onPointerDown={onPointerDown}
       onPointerUp={onPointerUp}

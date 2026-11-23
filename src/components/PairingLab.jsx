@@ -24,7 +24,8 @@ import {
   sharedNeighborhood, surprisingNeighborhood, partnerBridges,
 } from '../data/pairingEgoModel.js';
 import { buildPairingCardProps } from '../data/pairingCardData.js';
-import { Close } from './ChalkIcons.jsx';
+import { Close, chalkRule, chalkUnderline } from './ChalkIcons.jsx';
+import { FOCUS, ACCENT, btn, textAction } from './inventUi.jsx';
 import {
   TEXT,
   HAND,
@@ -60,10 +61,8 @@ function strengthTier(strength, thr) {
   return '★';
 }
 
-const chip = (border = CHALK_RAIL) => ({
-  fontFamily: TEXT, fontSize: 17, padding: '2px 12px', borderRadius: 14,
-  border: `1px solid ${border}`, background: '#0a0a0a', color: CHALK_CREAM, cursor: 'pointer',
-});
+// A text control (no box): the Pairing Lab has no filled button, every action is words (LOOK-9 D4).
+const act = (extra = {}) => textAction({ fontSize: 17, textDecoration: 'none', cursor: 'pointer', ...extra });
 
 export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onSendToRecipe, onOpenInNetwork, initialCenter = null, onInitialConsumed }) {
   const nodes = data?.graph?.nodes;
@@ -156,19 +155,22 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
       style={{ ...chalkSurfaceStyle(), paddingTop: 'var(--nav-h)', color: CHALK_CREAM, bottom: 'var(--tab-bar-h)' }}
     >
       {/* Header — title + Surprise + search */}
-      <div style={{ padding: '10px 12px 6px', borderBottom: `1px solid ${CHALK_RAIL}` }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+      <div style={{ padding: '10px 12px 6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ fontFamily: HAND, fontSize: 26, lineHeight: 1, color: CHALK_CREAM }}>Pairing Lab</div>
           <button
             type="button" data-testid="surprise-btn" aria-pressed={surprise}
             onClick={() => setSurprise((s) => !s)}
-            style={{ ...chip(surprise ? CHALK_CREAM : CHALK_RAIL), fontSize: 18, color: surprise ? '#0a0a0a' : CHALK_CREAM, background: surprise ? CHALK_CREAM : '#0a0a0a' }}
+            className={`px-3 ${FOCUS}`}
+            style={btn({ fontSize: 18, minHeight: 44, cursor: 'pointer', ...(surprise ? { border: `1.5px solid ${ACCENT}` } : {}) })}
           >
             {surprise ? 'Surprising' : 'Surprise'}
           </button>
         </div>
         <div style={{ height: 8 }} />
         <SearchBar inline ingredients={ingredientNames} onSelect={(name) => recenter(name)} />
+        <div style={{ height: 8 }} />
+        <div style={{ color: CHALK_RAIL }}>{chalkRule()}</div>
       </div>
 
       {/* Mode banners */}
@@ -185,22 +187,19 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
         </div>
       )}
 
-      {/* Lens segmented control */}
-      <div role="tablist" aria-label="Pairing lens" className="chip-row" style={{ display: 'flex', gap: 6, padding: '8px 12px', overflowX: 'auto', flexShrink: 0 }}>
+      {/* Lens tabs: words, the current one in Accent with a drawn underline */}
+      <div role="tablist" aria-label="Pairing lens" className="chip-row" style={{ display: 'flex', gap: 20, padding: '0 12px', overflowX: 'auto', flexShrink: 0 }}>
         {LENSES.map((l) => {
           const active = l === lens;
           return (
             <button
               key={l} type="button" role="tab" aria-selected={active}
               onClick={() => setLens(l)} data-testid={`lens-${l}`}
-              style={{
-                fontFamily: TEXT, fontSize: 18, padding: '2px 12px', borderRadius: 14, flexShrink: 0,
-                border: `1px solid ${active ? CHALK_CREAM : CHALK_RAIL}`,
-                background: active ? CHALK_CREAM : 'transparent',
-                color: active ? '#0a0a0a' : CHALK_DIM, cursor: 'pointer',
-              }}
+              className={`flex flex-col items-center justify-center flex-shrink-0 ${FOCUS}`}
+              style={{ fontFamily: TEXT, fontSize: 18, minHeight: 44, background: 'transparent', color: active ? ACCENT : CHALK_DIM, cursor: 'pointer' }}
             >
               {LENS_LABELS[l]}
+              <span aria-hidden="true" style={{ height: 6, visibility: active ? 'visible' : 'hidden' }}>{chalkUnderline()}</span>
             </button>
           );
         })}
@@ -247,10 +246,11 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
 
       {/* Network pathway — inline teaser that expands to the focused 3D network */}
       {hasData && (
-        <div data-testid="network-teaser" style={{ borderTop: `1px solid ${CHALK_RAIL}`, padding: '6px 12px', background: 'rgba(10,10,10,0.5)' }}>
+        <div data-testid="network-teaser" style={{ padding: '0 12px 4px', background: 'rgba(10,10,10,0.5)' }}>
+          <div style={{ color: CHALK_RAIL }}>{chalkRule()}</div>
           {!netOpen ? (
             <button type="button" data-testid="network-teaser-toggle" onClick={() => setNetOpen(true)}
-              style={{ background: 'none', border: 'none', color: CHALK_DIM, fontFamily: TEXT, fontSize: 12, cursor: 'pointer', padding: 0 }}>
+              className={FOCUS} style={act({ fontSize: 14, color: CHALK_DIM })}>
               Where do these pairings come from?
             </button>
           ) : (
@@ -264,11 +264,11 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
               </div>
               Each line is a real co-occurrence across 2.2M recipes plus shared flavor chemistry. The full
               <strong> flavor network</strong> maps every ingredient at once — this lab zooms into one.
-              <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
-                <button type="button" data-testid="network-open" style={chip()}
-                  onClick={() => onOpenInNetwork?.(center)}>See {center} in the network →</button>
+              <div style={{ display: 'flex', gap: 24, marginTop: 2, flexWrap: 'wrap' }}>
+                <button type="button" data-testid="network-open" className={FOCUS} style={act({ fontSize: 15 })}
+                  onClick={() => onOpenInNetwork?.(center)}>See {center} in the network</button>
                 <button type="button" onClick={() => setNetOpen(false)} aria-label="Collapse"
-                  style={{ ...chip(), color: CHALK_DIM }}>Hide</button>
+                  className={FOCUS} style={act({ fontSize: 15, color: CHALK_DIM })}>Hide</button>
               </div>
             </div>
           )}
@@ -277,15 +277,19 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
 
       {/* Build-a-plate tray */}
       {tray.length > 0 && (
-        <div data-testid="tray-bar" style={{ borderTop: `1px solid ${CHALK_RAIL}`, padding: '8px 12px', background: 'rgba(10,10,10,0.6)' }}>
-          <div style={{ fontFamily: TEXT, fontSize: 12, color: CHALK_SUB, marginBottom: 4 }}>
-            Your plate · {tray.length} pick{tray.length === 1 ? '' : 's'}: {tray.join(', ')} — send to a lab to build with them:
+        <div data-testid="tray-bar" style={{ padding: '0 12px 6px', background: 'rgba(10,10,10,0.6)' }}>
+          <div style={{ color: CHALK_RAIL }}>{chalkRule()}</div>
+          <div style={{ fontFamily: TEXT, fontSize: 13, color: CHALK_SUB, margin: '6px 0 0' }}>
+            On your plate: {tray.join(', ')}
           </div>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            <button type="button" data-testid="tray-send-cocktail" style={chip()} onClick={() => onFindCocktail?.(tray, center)}>Cocktail</button>
-            <button type="button" data-testid="tray-send-sauce" style={chip()} onClick={() => onFindSauce?.(tray, center)}>Sauce</button>
-            <button type="button" data-testid="tray-send-recipe" style={chip()} onClick={() => onSendToRecipe?.(tray, center)}>Recipe</button>
-            <button type="button" data-testid="tray-clear" style={{ ...chip(), color: CHALK_DIM }} onClick={() => setTray([])}>Clear</button>
+          <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', alignItems: 'center' }}>
+            <div role="group" aria-label="Send to" style={{ display: 'flex', gap: 24, flexWrap: 'wrap', alignItems: 'center' }}>
+              <span style={{ fontFamily: TEXT, fontSize: 15, color: CHALK_SUB }} aria-hidden="true">Send to</span>
+              <button type="button" data-testid="tray-send-cocktail" className={FOCUS} style={act()} onClick={() => onFindCocktail?.(tray, center)}>Cocktail</button>
+              <button type="button" data-testid="tray-send-sauce" className={FOCUS} style={act()} onClick={() => onFindSauce?.(tray, center)}>Sauce</button>
+              <button type="button" data-testid="tray-send-recipe" className={FOCUS} style={act()} onClick={() => onSendToRecipe?.(tray, center)}>Recipe</button>
+            </div>
+            <button type="button" data-testid="tray-clear" className={FOCUS} style={act({ color: CHALK_DIM })} onClick={() => setTray([])}>Clear</button>
           </div>
         </div>
       )}
@@ -319,15 +323,15 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
                 ? `${peek} — its own flavor profile.`
                 : (<><span role="img" aria-label={`${strengthName(peekPartner?.strength, data?.affinityThresholds)} pairing`}>{strengthTier(peekPartner?.strength, data?.affinityThresholds)}</span>{` pairs with ${center} via ${PROV_LABEL[peekPartner?.provenance] || 'shared chemistry'}.`}</>)}
             </div>
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
+            <div role="group" aria-label="Ingredient actions" style={{ display: 'flex', columnGap: 24, flexWrap: 'wrap', justifyContent: 'center' }}>
               {peek !== center && (
-                <button type="button" data-testid="peek-center" style={chip()} onClick={() => { recenter(peek); setPeek(null); }}>Center on {peek}</button>
+                <button type="button" data-testid="peek-center" className={FOCUS} style={act()} onClick={() => { recenter(peek); setPeek(null); }}>Center on {peek}</button>
               )}
               {peek !== center && (
-                <button type="button" data-testid="peek-pair" style={chip()} onClick={() => { setCompareWith(peek); setPeek(null); }}>Pair with {center}</button>
+                <button type="button" data-testid="peek-pair" className={FOCUS} style={act()} onClick={() => { setCompareWith(peek); setPeek(null); }}>Pair with {center}</button>
               )}
-              <button type="button" data-testid="peek-add" style={chip()} onClick={() => { addToTray(peek); setPeek(null); }}>Add to plate</button>
-              <button type="button" data-testid="peek-close" style={{ ...chip(), color: CHALK_DIM }} onClick={() => setPeek(null)}>Close</button>
+              <button type="button" data-testid="peek-add" className={FOCUS} style={act()} onClick={() => { addToTray(peek); setPeek(null); }}>Add to plate</button>
+              <button type="button" data-testid="peek-close" className={FOCUS} style={act({ color: CHALK_DIM })} onClick={() => setPeek(null)}>Close</button>
             </div>
           </div>
         </div>
@@ -338,8 +342,8 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
 
 const bannerStyle = {
   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-  padding: '6px 12px', fontFamily: TEXT, fontSize: 13, color: CHALK_CREAM,
-  background: 'rgba(245,239,222,0.06)', borderBottom: `1px solid ${CHALK_RAIL}`,
+  margin: '0 12px', padding: '2px 4px 2px 12px', fontFamily: TEXT, fontSize: 14, color: CHALK_CREAM,
+  border: `1px solid ${CHALK_RAIL}`, borderRadius: 8,
 };
-const bannerX = { background: 'none', border: 'none', color: CHALK_DIM, fontSize: 18, cursor: 'pointer' };
+const bannerX = { background: 'none', border: 'none', color: CHALK_DIM, fontSize: 18, cursor: 'pointer', minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' };
 const emptyStyle = { alignSelf: 'center', fontFamily: TEXT, color: CHALK_SUB, padding: 24, textAlign: 'center' };

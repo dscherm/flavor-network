@@ -14,46 +14,18 @@
  *   <HelpBubble
  *     title="Adding an ingredient"
  *     body={['Tap a row to pin it on the radar.', 'Tap the dot → Yes, add.']}
- *     variant="chalk"        // 'light' (network UI) | 'chalk' (recipe cards)
  *     placement="bottom"     // 'bottom' | 'top'
  *   />
  */
 import { useEffect, useRef, useState } from 'react';
 import { Close } from './ChalkIcons.jsx';
 
-import { HAND, TEXT } from '../data/chalkTheme.js';
-// Variant palettes. 'light' matches HelpButton.jsx (dark translucent + cyan
-// accent on the network UI); 'chalk' matches the chalkboard cards
-// (RecipeFlavorProfilesCard / IngredientProfileCard).
-const VARIANTS = {
-  light: {
-    btn: 'text-gray-400 bg-[#12121a]/90 border-[#1e1e2e] hover:text-cyan-300 hover:border-cyan-500/40 focus:ring-cyan-500',
-    pop: { background: '#12121aF2', border: '1px solid #2a2a3a', color: '#d8dae0' },
-    title: '#67e8f9',
-    sub: '#9aa0ac',
-    shadow: '0 6px 24px rgba(0,0,0,0.5)',
-    titleSize: 17,
-    bodySize: 15,
-  },
-  chalk: {
-    btn: 'text-[#bdb6a3] bg-[#1c1c1c]/90 border-[#4a4a4a] hover:text-[#f5efde] hover:border-[#6a6a6a] focus:ring-[#6a6a6a]',
-    pop: {
-      background: 'radial-gradient(ellipse at center, #1c1c1c 0%, #0a0a0a 75%, #050505 100%), #0a0a0a',
-      border: '2px double #4a4a4a',
-      color: '#f5efde',
-    },
-    title: '#f5efde',
-    sub: '#bdb6a3',
-    shadow: '0 8px 24px rgba(0,0,0,0.55)',
-    titleSize: 22,
-    bodySize: 16,
-  },
-};
+import { HAND, TEXT, CHALK_CREAM, CHALK_DIM, CHALK_RAIL, CONTROL_RADIUS } from '../data/chalkTheme.js';
+import { FOCUS, SLATE } from './inventUi.jsx';
 
 export default function HelpBubble({
   title,
   body,
-  variant = 'light',
   placement = 'bottom',
   label = 'Help',
   testId = 'help-bubble',
@@ -61,7 +33,6 @@ export default function HelpBubble({
 }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
-  const v = VARIANTS[variant] || VARIANTS.light;
   const lines = Array.isArray(body) ? body.filter(Boolean) : (body ? [body] : []);
 
   // Dismiss on outside-click + Esc while open.
@@ -91,12 +62,8 @@ export default function HelpBubble({
         aria-expanded={open}
         title={label}
         data-testid={testId}
-        className={
-          'inline-flex items-center justify-center min-h-[44px] min-w-[44px] '
-          + 'rounded-full border text-sm font-bold backdrop-blur-md '
-          + 'transition-all duration-200 focus:outline-none focus:ring-1 '
-          + v.btn
-        }
+        className={`inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded-full border text-sm font-bold ${FOCUS}`}
+        style={{ color: CHALK_DIM, borderColor: CHALK_RAIL, background: 'transparent' }}
       >
         <span
           aria-hidden="true"
@@ -112,18 +79,20 @@ export default function HelpBubble({
           role="dialog"
           aria-label={title || label}
           data-testid={`${testId}-popover`}
-          className="absolute z-[60] rounded-xl p-3"
+          className="absolute z-[60] p-3"
           style={{
             ...posStyle,
             width: 284,
             maxWidth: '82vw',
-            boxShadow: v.shadow,
-            ...v.pop,
+            background: SLATE,
+            border: `1px solid ${CHALK_RAIL}`,
+            borderRadius: CONTROL_RADIUS,
+            color: CHALK_CREAM,
           }}
         >
           <div className="flex items-start justify-between gap-2 mb-1">
             {title && (
-              <h4 className="font-semibold" style={{ color: v.title, fontFamily: HAND, fontSize: v.titleSize, lineHeight: 1.2, margin: 0 }}>
+              <h4 className="font-semibold" style={{ color: CHALK_CREAM, fontFamily: HAND, fontSize: 22, lineHeight: 1.2, margin: 0 }}>
                 {title}
               </h4>
             )}
@@ -132,8 +101,8 @@ export default function HelpBubble({
               onClick={() => setOpen(false)}
               aria-label="Close help"
               data-testid={`${testId}-close`}
-              className="ml-auto -mt-1 -mr-1 px-1 text-lg leading-none"
-              style={{ color: v.sub, background: 'none', border: 'none', cursor: 'pointer' }}
+              className={`ml-auto -mt-3 -mr-3 inline-flex items-center justify-center min-h-[44px] min-w-[44px] ${FOCUS}`}
+              style={{ color: CHALK_DIM, background: 'none', border: 'none', cursor: 'pointer' }}
             >
               <Close size={20} />
             </button>
@@ -141,7 +110,7 @@ export default function HelpBubble({
           {lines.map((line, i) => (
             <p
               key={i}
-              style={{ color: i === 0 && !title ? v.title : 'inherit', fontFamily: TEXT, fontSize: v.bodySize, margin: '0 0 5px', lineHeight: 1.4 }}
+              style={{ color: i === 0 && !title ? CHALK_CREAM : 'inherit', fontFamily: TEXT, fontSize: 15, margin: '0 0 5px', lineHeight: 1.4 }}
             >
               {line}
             </p>

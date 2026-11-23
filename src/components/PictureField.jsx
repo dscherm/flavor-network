@@ -17,7 +17,7 @@
 import { useEffect, useState } from 'react';
 import RecipePicture from './RecipePicture.jsx';
 import PictureView, { blobFromStored, usePictureData } from './PictureView.jsx';
-import { CHALK_CREAM, CHALK_DIM, ACCENT, btn } from './inventUi.jsx';
+import { CHALK_DIM, FOCUS, btn, textAction } from './inventUi.jsx';
 
 import { TEXT } from '../data/chalkTheme.js';
 const tap = { minHeight: 44 };
@@ -58,7 +58,7 @@ export default function PictureField({ kind = 'dish', value, onChange, item = nu
         <div className="flex items-center gap-3">
           {thumb}
           <button type="button" onClick={() => setOpen(true)} data-testid={`${testid}-open`}
-            className="px-3 rounded-lg" style={{ ...btn({ fontSize: 17, background: 'rgba(255,255,255,0.05)' }), ...tap }}>
+            className={FOCUS} style={textAction({ fontSize: 17 })}>
             {showing ? 'Change the picture' : 'Add a picture (optional)'}
           </button>
         </div>
@@ -69,7 +69,7 @@ export default function PictureField({ kind = 'dish', value, onChange, item = nu
           </p>
           <RecipePicture key={seed?.kind === 'chalk' ? 'chalk' : 'other'} kind={kind} value={seed} color={color} filter={filter} initialPhoto={initialPhoto} onChange={(v) => onChange(v === undefined ? null : v)} />
           <button type="button" onClick={() => setOpen(false)} data-testid={`${testid}-done`}
-            className="mt-3 w-full rounded-lg px-4" style={{ ...btn({ background: `${ACCENT}22`, color: CHALK_CREAM }), ...tap }}>
+            className={`mt-3 w-full px-4 ${FOCUS}`} style={{ ...btn({ fontSize: 17 }), ...tap }}>
             Done
           </button>
         </div>

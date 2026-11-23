@@ -35,8 +35,8 @@ import { SEED_RECIPES, CUISINE_COLOR, userRecipeToSeed } from '../data/seedRecip
 import { getRecipeDetails } from '../data/seedRecipeDetails.js';
 import { shareLinkFor, normaliseBuiltIn, fromOwnItem } from '../data/sharedRecipe.js';
 import { FlavorProfileButton, FlavorProfileSection, useFlavorToggle } from './RecipeFlavorProfile.jsx';
-import { btn, ACCENT } from './inventUi.jsx';
-import { Whisk, Close, Search, ChevronRight, ChevronDown } from './ChalkIcons.jsx';
+import { btn, textAction, FOCUS, ACCENT } from './inventUi.jsx';
+import { Whisk, Search, ChevronRight, ChevronDown, ChevronLeft, chalkRule } from './ChalkIcons.jsx';
 import { ShareButton } from './ShareSheet.jsx';
 import { OwnShareButton } from './OwnShare.jsx';
 import { itemFromRecipe } from '../data/sharePublish.js';
@@ -53,8 +53,11 @@ import {
   CHALK_SUB,
   CHALK_RAIL,
   CHALK_SHADOW,
+  CONTROL_RADIUS,
+  TYPE,
   chalkSurfaceStyle,
   CARD_CREAM,
+  CARD_CREAM_EDGE,
   CARD_INK,
   CARD_INK_SUB,
 } from '../data/chalkTheme.js';
@@ -105,9 +108,8 @@ function KitchenIcon({ kind, color, size = 18 }) {
   return (<svg width={size} height={size} viewBox="0 0 18 18" aria-hidden="true" style={{ flexShrink: 0 }}>{inner}</svg>);
 }
 
-// A recipe-box card: cream stock, ink handwriting, a cuisine colour spine,
-// and (DESIGN-3) a small slate inset with a chalk drawing of the dish type,
-// tinted with the cuisine colour. Picture first, name second.
+// A recipe-box card: cream stock with its thin paper edge, ink handwriting, and a small slate inset with a chalk
+// drawing of the dish type in the cuisine ink. Picture first, name second. It opens a dish, so it is a card.
 function RecipeCard({ recipe, onClick }) {
   const color = CUISINE_COLOR[recipe.cuisine] || '#94a3b8';
   const kind = dishTypeOf(recipe);
@@ -117,34 +119,24 @@ function RecipeCard({ recipe, onClick }) {
       onClick={onClick}
       data-testid={`recipe-card-${recipe.id}`}
       data-dish-type={kind}
-      className="group relative flex items-center gap-3 text-left rounded-lg p-2.5 pl-3.5 transition-transform hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
-      style={{
-        background: CARD_CREAM,
-        backgroundImage: `linear-gradient(135deg, ${color}3a, ${color}12)`,
-        border: `1px solid ${color}66`,
-        boxShadow: '0 1px 2px rgba(0,0,0,0.35), 0 6px 16px rgba(0,0,0,0.25)',
-      }}
+      className={`group relative flex items-center gap-3 text-left rounded-lg p-2.5 ${FOCUS}`}
+      style={{ background: CARD_CREAM, border: `1px solid ${CARD_CREAM_EDGE}` }}
     >
       <span
-        className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-lg"
-        style={{ background: color }}
-        aria-hidden="true"
-      />
-      <span
         className="flex-shrink-0 flex items-center justify-center rounded-md"
-        style={{ ...chalkSurfaceStyle(), width: 84, height: 84, border: `1.5px solid ${color}88`, boxShadow: 'inset 0 0 8px rgba(0,0,0,0.6)' }}
+        style={{ ...chalkSurfaceStyle(), width: 84, height: 84 }}
         aria-hidden="true"
       >
         {recipe._userSaved && recipe.picture ? <PictureView picture={recipe.picture} itemId={recipe._savedId} size={66} color={color} testid="yours-row-picture" /> : <DishArt kind={kind} accent={color} size={66} />}
       </span>
       <span className="min-w-0 flex-1">
         <span className="block text-[22px] leading-tight" style={{ fontFamily: TEXT, color: CARD_INK }}>{recipe.name}</span>
-        <span className="flex items-center gap-1.5 mt-0.5 text-[11px] font-medium" style={{ color: CARD_INK_SUB }}>
+        <span className="flex items-center gap-1.5 mt-0.5 text-[13px] font-medium" style={{ color: CARD_INK_SUB }}>
           <span className="inline-block rounded-full flex-shrink-0" style={{ width: 8, height: 8, background: color }} aria-hidden="true" />
           {recipe.cuisine}
           <span className="ml-1.5">{dishTypeLabel(kind)}</span>
         </span>
-        <span className="block text-[12.5px] leading-snug mt-1 line-clamp-2" style={{ color: CARD_INK_SUB }}>{recipe.description}</span>
+        <span className="block text-[13px] leading-snug mt-1 line-clamp-2" style={{ color: CARD_INK_SUB }}>{recipe.description}</span>
       </span>
     </button>
   );
@@ -196,6 +188,11 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
     setKitchen(next); saveKitchen(next);
   };
   const [methodOpen, setMethodOpen] = useState(false);
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); onClose?.(); } };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
   // WHEEL-2: the card's chart is the combined seventeen-note wheel, from the same profileForRecipe call (same recipe
   // object, same nodes) that the Flavor profile button's section draws, so the two always agree.
   const flavorProfile = useMemo(
@@ -218,8 +215,8 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
   }, [recipe.ingredients, nodes]);
 
   const steps = details?.steps || [];
-  const hasPairings = (onFindCocktail || onFindSauce || onFindWine) && matched.length > 0;
   const categoryOf = (n) => (nodes ? (nodes.get(n.toLowerCase()) || nodes.get(n))?.category : null);
+  const hasPairings = (onFindCocktail || onFindSauce || onFindWine) && matched.length > 0;
 
   const pairCards = [
     onFindWine && {
@@ -232,32 +229,38 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
     onFindSauce && { key: 'sauce', label: 'Sauces', aria: 'Matching sauces', accent: '#ea580c', run: () => onFindSauce(matched, recipe.name) },
   ].filter(Boolean);
 
+  const actionStyle = { ...textAction({ fontSize: 17 }), textShadow: CHALK_SHADOW };
+  const dishTypeWord = dishTypeLabel(kind);
+
   return (
     <div
-      className="fixed inset-x-0 top-0 safe-top-pad z-[80] flex items-center justify-center bg-black/70 backdrop-blur-sm p-3 sm:p-4"
-      style={{ bottom: 'var(--tab-bar-h)' }} // v1.0.2: stop above the fixed tab bar
-      onClick={onClose}
+      className="chalk-board fixed inset-x-0 top-0 safe-top-pad z-[80] overflow-y-auto"
+      style={{ bottom: 'var(--tab-bar-h)', color: CHALK_CREAM }} // v1.0.2: stop above the fixed tab bar
       role="dialog"
       aria-label={`${recipe.name} details`}
+      data-testid="recipe-detail"
     >
-      <div
-        className="w-full max-w-2xl rounded-2xl max-h-full overflow-y-auto"
-        style={{ ...chalkSurfaceStyle(), border: `2px double ${CHALK_RAIL}`, boxShadow: `inset 0 0 0 1px ${color}33, 0 8px 24px rgba(0,0,0,0.55)`, color: CHALK_CREAM }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* 1 — title, dish drawing, meta as icon + number */}
-        <div className="flex items-start gap-3 p-4 pb-3" style={{ borderBottom: `1.5px solid ${color}55` }} data-testid="recipe-head">
+      <div className="w-full max-w-[640px] mx-auto px-4 pt-3 pb-12">
+        <button type="button" onClick={onClose} data-testid="recipe-detail-back"
+          className={`min-w-[44px] inline-flex items-center gap-1 ${FOCUS}`}
+          style={{ ...actionStyle, textDecoration: 'none', fontSize: 16 }}>
+          <ChevronLeft size={20} />
+          Back
+        </button>
+
+        {/* 1 — title, dish drawing, cuisine, meta as icon + number */}
+        <div className="grid gap-3 items-center mt-2" style={{ gridTemplateColumns: 'auto 1fr' }} data-testid="recipe-head">
           {recipe._userSaved && recipe.picture ? <PictureView picture={recipe.picture} itemId={recipe._savedId} size={96} color={color} testid="yours-detail-picture" /> : <DishArt kind={kind} accent={color} size={76} />}
-          <div className="min-w-0 flex-1">
-            <h2 className="text-[32px] leading-none mb-1.5" style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>{recipe.name}</h2>
-            <span
-              className="text-[14px] px-2.5 py-0.5 rounded-full border inline-flex items-center gap-1.5"
-              style={{ fontFamily: TEXT, color: CHALK_CREAM, borderColor: `${color}99`, background: `${color}22` }}
-            >
-              <span className="inline-block rounded-full" style={{ width: 9, height: 9, background: color }} aria-hidden="true" />
-              {recipe.cuisine}
-            </span>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-[14px]" style={{ color: CHALK_DIM }} data-testid="recipe-meta">
+          <div className="min-w-0">
+            <h2 className="text-[36px] leading-none mb-1.5" style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>{recipe.name}</h2>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[16px]" style={{ fontFamily: TEXT }}>
+              <span className="inline-flex items-center gap-1.5" style={{ color: CHALK_CREAM }}>
+                <span className="inline-block rounded-full flex-shrink-0" style={{ width: 9, height: 9, background: color }} aria-hidden="true" />
+                {recipe.cuisine}
+              </span>
+              {dishTypeWord && <span style={{ color: CHALK_DIM }}>{dishTypeWord}</span>}
+            </div>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-[15px]" style={{ color: CHALK_DIM }} data-testid="recipe-meta">
               {details && (
                 <>
                   <span className="inline-flex items-center gap-1"><MetaGlyph kind="serves" /><span className="sr-only">Serves </span>{details.serves}</span>
@@ -267,43 +270,37 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
               <span className="inline-flex items-center gap-1"><MetaGlyph kind="ings" />{recipe.ingredients.length}<span className="sr-only"> ingredients</span></span>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            className="p-1 -mr-1 -mt-1 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
-            style={{ color: CHALK_SUB }}
-          >
-            <Close size={20} />
-          </button>
         </div>
 
-        <div className="p-4 pt-3 space-y-4">
-          <div className="flex flex-wrap justify-end items-center gap-2 !mt-0" data-testid="recipe-actions">
+        <div className="mt-2 space-y-10">
+          <div className="flex flex-wrap items-center gap-x-6 mt-1" role="group" aria-label="Dish actions" data-testid="recipe-actions">
             {flavorRecipe && (
-              <FlavorProfileButton toggle={flavorToggle} className="inline-flex items-center justify-center rounded-lg px-4"
-                style={{ ...btn({ background: `${ACCENT}22` }), minHeight: 44 }} />
+              <FlavorProfileButton toggle={flavorToggle} className={`inline-flex items-center gap-1 ${FOCUS}`}
+                style={{ ...actionStyle, ...(flavorToggle.open ? { color: ACCENT, textDecorationColor: ACCENT } : {}) }}
+                label={<>Flavor profile<ChevronDown size={16} /></>} />
             )}
             {shareLink && (
-              <div data-testid="recipe-share">
-                <ShareButton recipe={{ kind: 'dish', name: recipe.name }} link={shareLink} />
-              </div>
+              <span data-testid="recipe-share">
+                <ShareButton recipe={{ kind: 'dish', name: recipe.name }} link={shareLink} className={`!px-0 ${FOCUS}`}
+                  style={{ ...actionStyle, border: 'none' }} />
+              </span>
             )}
             {ownItem && SHARE_OWN_ENABLED && (
-              <div data-testid="recipe-own-share">
-                <OwnShareButton kind="recipe" item={ownItem} testid="recipe-own-share-button" />
-              </div>
+              <span data-testid="recipe-own-share">
+                <OwnShareButton kind="recipe" item={ownItem} testid="recipe-own-share-button" className={`!px-0 ${FOCUS}`}
+                  style={{ ...actionStyle, border: 'none' }} />
+              </span>
             )}
           </div>
           {flavorRecipe && <FlavorProfileSection toggle={flavorToggle} recipe={flavorRecipe} nodes={nodes} className="!mt-2" />}
           {recipe.description && (
-            <p className="leading-snug" style={{ fontFamily: TEXT, fontSize: '19px', color: CHALK_DIM }}>{recipe.description}</p>
+            <p className="leading-snug text-center sm:text-left !mt-2" style={{ fontFamily: TEXT, fontSize: 17, color: CHALK_DIM }}>{recipe.description}</p>
           )}
 
-          {/* 1b — STORIES-1: photo + background from Wikipedia, leading the card */}
-          <DishStory kind="recipe" storyKey={recipe.id} name={recipe.name} className="!mt-0" />
+          {/* 1b — STORIES-1: photo + background from Wikipedia */}
+          <DishStory kind="recipe" storyKey={recipe.id} name={recipe.name} />
 
-          {/* 2 — the flavor wheel, near the top (WHEEL-2: the combined wheel, drawn from profileForRecipe) */}
+          {/* 2 — the flavor wheel (WHEEL-2: the combined wheel, drawn from profileForRecipe) */}
           {flavorProfile?.drawn ? (
             <div className="flex flex-col items-center" data-testid="recipe-profile">
               <span className="sr-only">Flavor profile</span>
@@ -315,24 +312,23 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
             </p>
           )}
 
-          {/* 3 — ingredients as chips: amount + name (+ a category glyph) */}
+          {/* 3 — ingredients: plain rows, amount then name */}
           <div data-testid="recipe-ingredients">
             <h3 className="mb-3" style={SECTION_LABEL}>
               Ingredients
             </h3>
-            <ul className="flex flex-wrap gap-1.5">
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
               {[...matched.map((n) => ({ n, ok: true })), ...unmatched.map((n) => ({ n, ok: false }))].map(({ n, ok }) => (
                 <li
                   key={n}
-                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1"
-                  style={{ background: ok ? `${color}1f` : 'rgba(255,255,255,0.03)', border: `1px solid ${ok ? `${color}66` : CHALK_RAIL}` }}
+                  className="flex items-baseline gap-3"
                   title={ok ? 'matched in the ingredient graph' : 'not found in the ingredient graph'}
                 >
-                  <IngredientGlyph category={categoryOf(n)} color={ok ? CHALK_CREAM : CHALK_SUB} size={15} />
-                  {details?.amounts?.[n] && (
-                    <span className="text-[12px]" style={{ color: CHALK_DIM }}>{details.amounts[n]}</span>
-                  )}
-                  <span style={{ fontFamily: TEXT, fontSize: '18px', lineHeight: 1.1, color: ok ? CHALK_CREAM : CHALK_SUB }}>
+                  <span className="flex-shrink-0 text-right text-[15px]" style={{ width: 124, fontFamily: TEXT, color: CHALK_DIM }}>
+                    {details?.amounts?.[n] || ''}
+                  </span>
+                  <span className="min-w-0 inline-flex items-baseline gap-1.5" style={{ fontFamily: TEXT, fontSize: 18, lineHeight: 1.25, color: ok ? CHALK_CREAM : CHALK_SUB }}>
+                    <span className="self-center"><IngredientGlyph category={categoryOf(n)} color={ok ? CHALK_DIM : CHALK_SUB} size={15} /></span>
                     <IngredientName name={n} loose tall testid="cookbook-ingredient-link">{n}</IngredientName>
                   </span>
                 </li>
@@ -347,25 +343,26 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
               recipe: recipeRefFor('dish', recipe, userRecipe && userRecipe.id != null ? { ownKind: 'recipe', ownId: userRecipe.id } : {}),
             } : null} />
 
-          {/* 4 — method, folded */}
+          {/* 4 — method, folded behind a plain row */}
           {steps.length > 0 && (
             <div data-testid="recipe-method">
+              <div style={{ color: CHALK_RAIL, lineHeight: 0, marginBottom: 16 }} aria-hidden="true">{chalkRule()}</div>
               <button
                 type="button"
                 onClick={() => setMethodOpen((o) => !o)}
                 aria-expanded={methodOpen}
                 aria-controls={`method-${recipe.id}`}
-                className="w-full flex items-center justify-between gap-2 rounded-lg px-3 py-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
-                style={{ border: `1px dashed ${color}88`, background: 'rgba(255,255,255,0.03)' }}
+                className={`w-full flex items-center justify-between gap-2 min-h-[44px] text-left ${FOCUS}`}
+                style={{ ...TYPE.heading, color: CHALK_CREAM, background: 'transparent' }}
               >
-                <span style={{ fontFamily: TEXT, fontSize: '20px', color: CHALK_CREAM }}>Method ({steps.length} steps)</span>
-                <span aria-hidden="true" style={{ color, lineHeight: 0 }}>{methodOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}</span>
+                <span>Method ({steps.length} steps)</span>
+                <span aria-hidden="true" style={{ color: CHALK_SUB, lineHeight: 0 }}>{methodOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}</span>
               </button>
               {methodOpen && (
                 <ol id={`method-${recipe.id}`} className="space-y-2 mt-3">
                   {steps.map((step, i) => (
-                    <li key={i} className="flex gap-3 text-[15px] leading-snug" style={{ color: CHALK_CREAM }}>
-                      <span className="flex-shrink-0 text-[22px] leading-none" style={{ fontFamily: TEXT, color }}>{i + 1}.</span>
+                    <li key={i} className="flex gap-3 text-[16px] leading-snug" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>
+                      <span className="flex-shrink-0 text-[18px] leading-tight" style={{ fontFamily: TEXT, color: CHALK_SUB }}>{i + 1}.</span>
                       <span>{step}</span>
                     </li>
                   ))}
@@ -374,7 +371,7 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
             </div>
           )}
 
-          {/* 5 — goes well with: drawn mini-cards */}
+          {/* 5 — goes well with: three drawings, each with its word */}
           {hasPairings && pairCards.length > 0 && (
             <div data-testid="recipe-goes-well-with">
               <h3 className="mb-3" style={SECTION_LABEL}>
@@ -388,39 +385,31 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
                     onClick={p.run}
                     aria-label={p.aria}
                     data-testid={`pair-card-${p.key}`}
-                    className="flex flex-col items-center gap-1 rounded-lg px-1 pt-2 pb-1.5 transition-transform hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
-                    style={{ background: `${color}14`, border: `1px solid ${color}66` }}
+                    className={`flex flex-col items-center gap-1 min-h-[44px] ${FOCUS}`}
+                    style={{ background: 'transparent' }}
                   >
                     <LabArt id={p.key} accent={p.accent} size={54} />
-                    <span style={{ fontFamily: TEXT, fontSize: '19px', color: CHALK_CREAM, lineHeight: 1 }}>{p.label}</span>
+                    <span style={{ fontFamily: TEXT, fontSize: 19, color: CHALK_CREAM, lineHeight: 1.1, textDecoration: 'underline dotted', textDecorationColor: CHALK_RAIL, textUnderlineOffset: 5 }}>{p.label}</span>
                   </button>
                 ))}
               </div>
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-            {onOpenRecipeLab && (
-              <button
-                type="button"
-                onClick={() => onOpenRecipeLab('recipe', recipe.ingredients)}
-                className="px-4 py-2.5 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
-                style={{ fontFamily: TEXT, fontSize: '18px', color: '#0a0a0a', background: CHALK_CREAM, border: `1px solid ${CHALK_CREAM}` }}
-              >
-                Open in the Recipe Notebook
-              </button>
-            )}
-            {onOpenInNetwork && (
-              <button
-                type="button"
-                onClick={() => onOpenInNetwork(matched[0] || recipe.ingredients[0])}
-                className="px-4 py-2.5 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
-                style={{ fontFamily: TEXT, fontSize: '18px', color: CHALK_CREAM, background: `${color}22`, border: `1px solid ${color}88` }}
-              >
-                See its pairings in 3D
-              </button>
-            )}
-          </div>
+          {(onOpenRecipeLab || onOpenInNetwork) && (
+            <div className="flex flex-wrap gap-x-6" role="group" aria-label="More">
+              {onOpenRecipeLab && (
+                <button type="button" onClick={() => onOpenRecipeLab('recipe', recipe.ingredients)} className={FOCUS} style={actionStyle}>
+                  Open in the Recipe Notebook
+                </button>
+              )}
+              {onOpenInNetwork && (
+                <button type="button" onClick={() => onOpenInNetwork(matched[0] || recipe.ingredients[0])} className={FOCUS} style={actionStyle}>
+                  See its pairings in 3D
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -529,8 +518,8 @@ export default function CookbookLab({
   const inventButton = inventSeed ? (
     <div className="inline-flex flex-col items-center">
       <button type="button" onClick={() => onInventThis(inventSeed.seed)} data-testid="cookbook-invent-this"
-        className="px-4 py-1 rounded-full border min-h-[44px] text-[17px] inline-flex items-center gap-1"
-        style={{ fontFamily: TEXT, borderColor: CHALK_CREAM, color: CHALK_CREAM }}>
+        className={`px-4 inline-flex items-center gap-1 ${FOCUS}`}
+        style={btn({ fontSize: 17, minHeight: 44 })}>
         <Whisk size={20} />
         Invent this
       </button>
@@ -569,9 +558,10 @@ export default function CookbookLab({
             onClick={() => onExitPickerMode?.()}
             aria-label="Back to Make"
             data-testid="cookbook-picker-breadcrumb"
-            className="mb-3 inline-flex items-center gap-1 px-3 py-1 text-sm rounded-full transition-colors"
-            style={{ fontFamily: TEXT, border: `1px solid ${CHALK_RAIL}`, background: 'rgba(255,255,255,0.04)', color: CHALK_DIM }}
+            className={`mb-3 inline-flex items-center gap-1 ${FOCUS}`}
+            style={textAction({ fontSize: 16, textDecoration: 'none', color: CHALK_DIM })}
           >
+            <ChevronLeft size={20} />
             Back
           </button>
         )}
@@ -596,8 +586,8 @@ export default function CookbookLab({
             placeholder="Search a dish, or ingredients like chicken, ginger"
             aria-label="Search dishes by name or ingredient"
             data-testid="cookbook-search"
-            className="w-full pr-2.5 py-1.5 rounded-md focus:outline-none text-[16px]"
-            style={{ paddingLeft: 32, fontFamily: TEXT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
+            className="w-full pr-2.5 py-1.5 min-h-[44px] focus:outline-none text-[16px]"
+            style={{ paddingLeft: 32, borderRadius: CONTROL_RADIUS, fontFamily: TEXT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
           />
           </div>
           {searchTerms.length > 0 && filtered.length > 0 && (
@@ -663,7 +653,7 @@ export default function CookbookLab({
                     key={String(t.key)}
                     type="button"
                     onClick={() => setClusterFilter(t.key)}
-                    className="flex flex-col items-center gap-1 transition-opacity"
+                    className={`flex flex-col items-center gap-1 min-h-[44px] ${FOCUS}`}
                     style={{ opacity: active ? 1 : 0.6 }}
                     aria-label={t.key ? `${t.label} dishes` : 'All types'}
                     aria-pressed={active}
@@ -671,7 +661,7 @@ export default function CookbookLab({
                     <KitchenIcon kind={t.kind} color={color} size={56} />
                     <span
                       className="text-[19px] capitalize leading-none pb-0.5"
-                      style={{ fontFamily: TEXT, color, borderBottom: active ? `2px solid ${CHALK_CREAM}` : '2px solid transparent' }}
+                      style={{ fontFamily: TEXT, color: active ? ACCENT : color, borderBottom: active ? `2px solid ${ACCENT}` : '2px solid transparent' }}
                     >
                       {t.label}
                     </span>
@@ -699,9 +689,6 @@ export default function CookbookLab({
           </div>
         )}
 
-        <p className="text-center text-[13px] mt-3" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
-          Tap a card for the full recipe.
-        </p>
       </div>
 
       {selected && (

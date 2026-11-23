@@ -1,114 +1,55 @@
 /**
- * PairingModeCard — chalkboard-menu styled card for the Tinder-stack
- * pairing browser. (B-version P3 revision per user feedback.)
+ * PairingModeCard: the chalkboard card for one ingredient (the Pairing Lab peek, the ingredient card overlay,
+ * the suggestion decks and the Flavor Profiles card).
  *
- * Aesthetic: dark slate-green chalkboard background, double chalk-rail
- * border, cream-chalk text, Caveat handwriting font for the ingredient
- * name, tiny chalk-caps section labels. Keeps the existing flavor
- * palette for axis colors + tier chips so the chalkboard feels lit by
- * the same neon vocabulary used elsewhere in the app.
+ * One 1 px Rail edge on Slate ground (LOOK-9: no double line, inset or drop shadow), the ingredient's own chalk
+ * drawing in place of a coloured disc, and plain words for the notes: no pills.
  *
- * Fixed dimensions — every card in the stack is identical:
+ * Fixed dimensions, so every card in a stack is identical:
  *   width  = min(26rem, 92vw)
  *   height = min(620px, calc(100dvh - 180px))
  *
- * No internal scrolling — content is packed to fit the fixed budget.
- * If the viewport shrinks below the budget, the height clamp kicks in.
- *
- * Sections, top → bottom (all centered):
- *   1. Hero disc (cluster-color, ingredient initial)
- *   2. Ingredient name (Caveat 28px cream)
- *   3. Pair-strength readout
- *   4. Pairing analysis block (1-2 sentences) — hidden if null
- *   5. Stylized "chalkboard menu" table — Pairings / Cuisines / Season
- *   6. Tier chip rows — Aroma / Taste / Mouthfeel / Leaves
- *   7. Shared aroma compound chips — hidden if empty
- *   8. Flavor wheel (FlavorWheel: seventeen fixed wedges for this one ingredient's notes)
+ * Sections, top to bottom (all centered): drawing, name, pair strength, analysis (hidden if null), a small table
+ * (Pairings / Cuisines / Season), one line each for Aroma / Taste / Mouthfeel / More notes, the shared aroma
+ * compounds as one comma line (hidden if empty), and the flavor wheel (seventeen fixed wedges for this one
+ * ingredient's notes).
  */
 
 import React from 'react';
 import FlavorWheel from './FlavorWheel.jsx';
+import { IngredientArt } from './chalkArt.jsx';
 import { ingredientNoteBars, wheelAxisFor } from '../data/pairingCardData.js';
 import { NO_CHART_LINE, axisColor } from '../data/recipeProfileAnalysis.js';
+import { HAND, TEXT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW } from '../data/chalkTheme.js';
 
-
-import { HAND, TEXT } from '../data/chalkTheme.js';
-// ── Chalkboard palette ─────────────────────────────────────────────
-// Near-black slate with the chalk-dust radial wash that gives real
-// chalkboards their lit-from-center look. Cream-chalk text with a soft
-// shadow for the slightly-smudged feel.
-const CHALK_BG = `
-  radial-gradient(ellipse at center, #1c1c1c 0%, #0a0a0a 75%, #050505 100%),
-  #0a0a0a
-`;
-const CHALK_BORDER_OUTER = '#4a4a4a';
-const CHALK_BORDER_INNER = '#6a6a6a';
-const CHALK_CREAM = '#f5efde';
-const CHALK_DIM = '#bdb6a3';
-const CHALK_SUB = '#8a8478';
-const CHALK_TEXT_SHADOW = '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)';
+const CHALK_TEXT_SHADOW = CHALK_SHADOW;
 
 // ── Card dimensions ────────────────────────────────────────────────
 const CARD_WIDTH_CLASS = 'w-[min(26rem,92vw)]';
 const CARD_HEIGHT_CLASS = 'h-[min(620px,calc(100dvh-180px))]';
 
-// ── Cluster colors (hero disc) ─────────────────────────────────────
-const CLUSTER_COLORS = [
-  '#22c55e', '#f59e0b', '#ec4899', '#06b6d4', '#a855f7',
-  '#84cc16', '#fb7185', '#0ea5e9', '#facc15', '#14b8a6',
-  '#fde68a', '#94a3b8',
-];
-function clusterColor(node) {
-  const cid = typeof node?.cluster === 'number' ? node.cluster : 0;
-  return CLUSTER_COLORS[cid % CLUSTER_COLORS.length];
-}
-
 // ── Subcomponents ──────────────────────────────────────────────────
-
-function HeroDisc({ node }) {
-  const ch = (node?.name || '?').trim().charAt(0).toUpperCase();
-  const fill = clusterColor(node);
-  return (
-    <div
-      className="flex items-center justify-center rounded-full"
-      style={{
-        width: 52,
-        height: 52,
-        backgroundColor: fill,
-        boxShadow: `0 0 14px ${fill}66`,
-        color: '#0a0a0f',
-        fontSize: 26,
-        fontWeight: 700,
-        fontFamily: HAND,
-      }}
-      aria-hidden="true"
-    >
-      {ch}
-    </div>
-  );
-}
 
 function MenuTable({ rows }) {
   const visible = rows.filter((r) => r.value);
   if (visible.length === 0) return null;
   return (
     <div
-      className="w-full grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 px-3 py-1.5 border-t border-b"
-      style={{ borderColor: CHALK_BORDER_INNER + '55' }}
+      className="w-full grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 px-3 py-1.5"
       data-testid="pairing-card-table"
     >
       {visible.map((r) => (
         <React.Fragment key={r.label}>
           <span
             className="text-[13px] self-center text-right"
-            style={{ color: CHALK_DIM, fontFamily: TEXT, textShadow: CHALK_TEXT_SHADOW }}
+            style={{ color: CHALK_DIM, fontFamily: TEXT }}
             data-testid={`pairing-card-row-${r.label.toLowerCase()}`}
           >
             {r.label}
           </span>
           <span
-            className="text-[14px] self-center"
-            style={{ color: r.valueColor || CHALK_CREAM, fontFamily: TEXT, lineHeight: 1.1, textShadow: CHALK_TEXT_SHADOW }}
+            className="text-[15px] self-center"
+            style={{ color: CHALK_CREAM, fontFamily: TEXT, lineHeight: 1.1 }}
           >
             {r.value}
           </span>
@@ -118,34 +59,22 @@ function MenuTable({ rows }) {
   );
 }
 
-function ChipStrip({ label, items, color, id = label.toLowerCase() }) {
+function ChipStrip({ label, items, id = label.toLowerCase() }) {
   if (!Array.isArray(items) || items.length === 0) return null;
   return (
     <div
-      className="flex items-center gap-1.5 w-full"
+      className="flex items-baseline gap-1.5 w-full"
       data-testid={`pairing-card-${id}`}
     >
       <span
-        className="text-[13px] flex-shrink-0 w-[68px] text-right"
-        style={{ color: CHALK_DIM, fontFamily: TEXT, textShadow: CHALK_TEXT_SHADOW }}
+        className="text-[13px] flex-shrink-0 w-[72px] text-right"
+        style={{ color: CHALK_DIM, fontFamily: TEXT }}
       >
         {label}
       </span>
-      <div className="flex items-center justify-start gap-1 flex-wrap flex-1">
-        {items.map((t, i) => (
-          <span
-            key={`${t}-${i}`}
-            className="px-2 py-0 rounded-full text-[11px] border"
-            style={{
-              color,
-              borderColor: `${color}66`,
-              backgroundColor: `${color}15`,
-            }}
-          >
-            {t}
-          </span>
-        ))}
-      </div>
+      <span className="flex-1 text-[15px]" style={{ color: CHALK_CREAM, fontFamily: TEXT, lineHeight: 1.25 }}>
+        {items.join(', ')}
+      </span>
     </div>
   );
 }
@@ -160,39 +89,16 @@ function CompoundList({ compounds }) {
   const overflow = compounds.length - names.length;
   return (
     <div
-      className="w-full flex flex-col items-center gap-0.5"
+      className="w-full flex flex-col items-center gap-0.5 text-center"
       data-testid="pairing-card-compounds"
       data-count={compounds.length}
     >
-      <span
-        className="text-[13px]"
-        style={{ color: '#86efac', fontFamily: TEXT, textShadow: CHALK_TEXT_SHADOW }}
-      >
+      <span className="text-[13px]" style={{ color: CHALK_DIM, fontFamily: TEXT }}>
         Shared aroma compounds ({compounds.length})
       </span>
-      <div className="flex flex-wrap justify-center gap-1">
-        {names.map((n, i) => (
-          <span
-            key={`${n}-${i}`}
-            className="px-1.5 py-0 rounded text-[10px]"
-            style={{
-              color: '#bbf7d0',
-              backgroundColor: 'rgba(16, 78, 51, 0.45)',
-              border: '1px solid rgba(110, 231, 183, 0.30)',
-            }}
-          >
-            {n}
-          </span>
-        ))}
-        {overflow > 0 && (
-          <span
-            className="px-1.5 py-0 rounded text-[10px]"
-            style={{ color: CHALK_SUB, backgroundColor: 'rgba(255,255,255,0.04)', border: `1px solid ${CHALK_BORDER_INNER}40` }}
-          >
-            +{overflow}
-          </span>
-        )}
-      </div>
+      <span className="text-[13px]" style={{ color: CHALK_SUB, fontFamily: TEXT, lineHeight: 1.3 }}>
+        {names.join(', ')}{overflow > 0 ? ` and ${overflow} more` : ''}
+      </span>
     </div>
   );
 }
@@ -249,7 +155,7 @@ function NotesWheel({ node, filterType, chosenAxis }) {
           className="text-[16px] italic"
           style={{ color: CHALK_DIM, fontFamily: TEXT, textShadow: CHALK_TEXT_SHADOW }}
         >
-          Leaning <span style={{ color: wedge ? axisColor(wedge) : '#86e7f5' }}>{leaning}</span>
+          Leaning <span style={{ color: wedge ? axisColor(wedge) : CHALK_CREAM }}>{leaning}</span>
         </div>
       )}
     </div>
@@ -270,8 +176,8 @@ export default function PairingModeCard({
   if (!node || !node.name) {
     return (
       <div
-        className={`${CARD_WIDTH_CLASS} ${CARD_HEIGHT_CLASS} rounded-2xl flex items-center justify-center`}
-        style={{ background: CHALK_BG, border: `2px double ${CHALK_BORDER_OUTER}` }}
+        className={`chalk-board ${CARD_WIDTH_CLASS} ${CARD_HEIGHT_CLASS} rounded-2xl flex items-center justify-center`}
+        style={{ border: `1px solid ${CHALK_RAIL}` }}
         data-testid="pairing-card-empty"
       >
         <span style={{ color: CHALK_SUB, fontFamily: TEXT }} className="text-base">No pairing</span>
@@ -289,7 +195,6 @@ export default function PairingModeCard({
     typeof node.pairingCount === 'number' && node.pairingCount > 0 ? {
       label: 'Pairings',
       value: node.pairingCount.toLocaleString(),
-      valueColor: '#86e7f5',
     } : null,
     Array.isArray(node.cuisines) && node.cuisines.length > 0 ? {
       label: 'Cuisines',
@@ -303,18 +208,14 @@ export default function PairingModeCard({
 
   return (
     <div
-      className={`${CARD_WIDTH_CLASS} ${CARD_HEIGHT_CLASS} rounded-2xl overflow-hidden flex flex-col items-center px-4 py-3 gap-2`}
-      style={{
-        background: CHALK_BG,
-        border: `2px double ${CHALK_BORDER_OUTER}`,
-        boxShadow: `inset 0 0 0 1px ${CHALK_BORDER_INNER}55, 0 8px 24px rgba(0,0,0,0.55)`,
-      }}
+      className={`chalk-board ${CARD_WIDTH_CLASS} ${CARD_HEIGHT_CLASS} rounded-2xl overflow-hidden flex flex-col items-center px-4 py-3 gap-2`}
+      style={{ border: `1px solid ${CHALK_RAIL}` }}
       data-testid="pairing-card"
       data-ingredient={node.name}
       data-has-chemistry={hasChemistry ? 'yes' : 'no'}
       data-has-analysis={analysis ? 'yes' : 'no'}
     >
-      <HeroDisc node={node} />
+      <IngredientArt category={node.category} name={node.name} size={52} ink={CHALK_CREAM} />
       <h3
         className="text-center leading-none"
         style={{
@@ -349,10 +250,10 @@ export default function PairingModeCard({
       <AnalysisBlock analysis={analysis} />
       <MenuTable rows={tableRows} />
       <div className="w-full flex flex-col gap-0.5">
-        <ChipStrip label="Aroma" items={tier1} color="#86e7f5" />
-        <ChipStrip label="Taste" items={tier2} color="#fbbf24" />
-        <ChipStrip label="Mouthfeel" items={tier3} color="#a78bfa" />
-        <ChipStrip label="More notes" id="leaves" items={leaves} color="#cbd5e1" />
+        <ChipStrip label="Aroma" items={tier1} />
+        <ChipStrip label="Taste" items={tier2} />
+        <ChipStrip label="Mouthfeel" items={tier3} />
+        <ChipStrip label="More notes" id="leaves" items={leaves} />
       </div>
       <CompoundList compounds={sharedCompounds} />
       <div className="mt-auto">
@@ -366,4 +267,3 @@ export default function PairingModeCard({
   );
 }
 
-export { clusterColor };

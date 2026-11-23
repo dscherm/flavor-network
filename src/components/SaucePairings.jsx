@@ -13,7 +13,8 @@
  * still render and the wine section is simply absent.
  */
 import { useEffect, useMemo, useState } from 'react';
-import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL } from '../data/chalkTheme.js';
+import { FOCUS, textAction } from './inventUi.jsx';
 import { loadWineStyles, familyColor } from '../data/wineStyles.js';
 import { winesForSauce, proteinIngredient } from '../data/sauceWines.js';
 import { WineGlass } from './wineGlasses.jsx';
@@ -52,10 +53,10 @@ export default function SaucePairings({ sauce, color = '#fb923c', categoryOf = n
   return (
     <div data-testid="sauce-pairings">
       <Label>Serve it with</Label>
-      <ul className="flex flex-wrap gap-1.5" data-testid="sauce-proteins">
+      <ul className="flex flex-wrap gap-x-4 gap-y-2" data-testid="sauce-proteins">
         {proteins.map((p) => (
-          <li key={p} className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border"
-            style={{ borderColor: `${color}77`, background: `${color}1a`, color: CHALK_CREAM, fontFamily: TEXT, fontSize: 18 }}>
+          <li key={p} className="flex items-center gap-1.5"
+            style={{ color: CHALK_CREAM, fontFamily: TEXT, fontSize: 18 }}>
             <IngredientArt category="protein" name={proteinIngredient(p)} size={18} ink={CHALK_CREAM} />
             {p}
           </li>
@@ -84,8 +85,8 @@ export default function SaucePairings({ sauce, color = '#fb923c', categoryOf = n
               type="button"
               data-testid="sauce-more-wines"
               onClick={() => onFindWine([...ingredients, proteinIngredient(first)], `${sauce.name} with ${first}`, 'sauce', { cuisine: sauce.cuisine })}
-              className="mt-2 min-h-[44px] px-3 rounded-lg border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-              style={{ borderColor: `${color}88`, color: CHALK_CREAM, fontFamily: TEXT, fontSize: 18, outlineColor: CHALK_CREAM }}
+              className={`mt-2 ${FOCUS}`}
+              style={textAction({ fontSize: 18 })}
             >
               More wines for {sauce.name} with {first}
             </button>

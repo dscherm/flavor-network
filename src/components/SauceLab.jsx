@@ -226,6 +226,8 @@ export default function SauceLab({
     return codexData.codex.clusters.find(c => c.id === node.family_id) || null;
   }, [selectedSauce, codexData]);
 
+  const sauceDrawing = familyForSelected ? <SauceVessel familyName={familyForSelected.name} color={familyForSelected.color} size={96} /> : null;
+
   const identityFor = (sauce) => ({
     clusterName: familyForSelected?.name || (sauce?.mine ? 'Uncategorised' : undefined),
     clusterColor: familyForSelected?.color || '#9a8f7a',
@@ -324,7 +326,7 @@ export default function SauceLab({
             afterIngredients={detailSauce && sauceNeeds(detailSauce)}
             afterMethod={(
               <>
-                <DishStory kind="sauce" storyKey={detailSauce?.name || selectedSauce} name={detailSauce?.name || selectedSauce} />
+                <DishStory kind="sauce" storyKey={detailSauce?.name || selectedSauce} name={detailSauce?.name || selectedSauce} fallback={sauceDrawing} />
                 {detailSauce && (
                   <SaucePairings sauce={detailSauce} color={familyForSelected?.color} onFindWine={onFindWine}
                     categoryOf={(n) => fullData?.graph?.nodes?.get?.(n)?.category || null} />
@@ -458,7 +460,7 @@ export default function SauceLab({
             afterIngredients={s && sauceNeeds(s)}
             afterMethod={(
               <>
-                <DishStory kind="sauce" storyKey={s?.name || selectedSauce} name={s?.name || selectedSauce} />
+                <DishStory kind="sauce" storyKey={s?.name || selectedSauce} name={s?.name || selectedSauce} fallback={sauceDrawing} />
                 {s && (
                   <SaucePairings sauce={s} color={familyForSelected?.color} onFindWine={onFindWine}
                     categoryOf={(n) => fullData?.graph?.nodes?.get?.(n)?.category || null} />

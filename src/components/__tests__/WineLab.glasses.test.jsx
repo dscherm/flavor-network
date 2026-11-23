@@ -56,6 +56,7 @@ describe('WineLab — family glasses (DESIGN-2)', () => {
   it('shelf works together with the colour and country chips', async () => {
     render(<WineLab />);
     await waitFor(() => screen.getByText('Wine list'));
+    fireEvent.click(screen.getByRole('button', { name: /^filters/i })); // the chips sit behind Filters (LOOK-9)
     fireEvent.click(screen.getByRole('button', { name: 'Red' }));
     // counts follow the colour chip: no dessert wine is a red
     const reds = WINE_JSON.wines.filter((w) => w.colour === 'red');

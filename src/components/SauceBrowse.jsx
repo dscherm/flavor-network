@@ -8,6 +8,7 @@ import {
   CHALK_SUB,
   CHALK_RAIL,
   CHALK_SHADOW,
+  CONTROL_RADIUS,
   chalkSurfaceStyle,
 } from '../data/chalkTheme.js';
 import { parseQuery, matchItem, buildIngredientVocab } from '../data/ingredientSearch.js';
@@ -15,7 +16,8 @@ import { popColor, sauceVesselFor, vesselMark } from './sauceVessels.jsx';
 import { UNCATEGORISED } from '../data/savedInventions.js';
 import PictureView from './PictureView.jsx';
 
-import { Whisk, Search } from './ChalkIcons.jsx';
+import { Whisk, Search, Filters, ChevronDown, ChevronUp, chalkRule } from './ChalkIcons.jsx';
+import { FOCUS, SLATE, ACCENT, btn, textAction, primaryBtn } from './inventUi.jsx';
 
 /**
  * SauceBrowse — 2D selection surface for the Sauce Lab, drawn as a bistro
@@ -83,6 +85,7 @@ export default function SauceBrowse({
   inventSummary = null,
 }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const families = codexData?.codex?.clusters || [];
 
@@ -156,8 +159,8 @@ export default function SauceBrowse({
   const inventButton = onInventThis ? (
     <div className="inline-flex flex-col items-start">
       <button type="button" onClick={() => onInventThis(searchTerm.trim())} data-testid="sauce-invent-this"
-        className="px-4 py-1 rounded-full border min-h-[44px] text-[17px] inline-flex items-center gap-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-        style={{ fontFamily: TEXT, borderColor: CHALK_CREAM, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
+        className={`px-4 inline-flex items-center gap-1 ${FOCUS}`}
+        style={btn({ fontSize: 17, minHeight: 44 })}>
         <Whisk size={20} />
         Invent this
       </button>
@@ -196,16 +199,9 @@ export default function SauceBrowse({
         onClick={() => onSelectSauce(s.name)}
         data-testid="sauce-row"
         data-yours={s.mine ? 'true' : undefined}
-        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-left transition-colors min-h-[38px]"
-        style={{
-          background: isSelected
-            ? `linear-gradient(135deg, ${fam.color}55, ${fam.color}2a)`
-            : `linear-gradient(135deg, ${fam.color}36, ${fam.color}16)`,
-          border: `1.5px solid ${isSelected ? CHALK_CREAM : popColor(fam.color)}`,
-          boxShadow: isSelected
-            ? `0 0 0 1px ${fam.color}, 0 0 14px ${fam.color}88, 0 2px 8px rgba(0,0,0,0.4)`
-            : `0 0 10px ${fam.color}55, 0 2px 6px rgba(0,0,0,0.35)`,
-        }}
+        aria-current={isSelected ? 'true' : undefined}
+        className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-left min-h-[44px] ${FOCUS}`}
+        style={{ background: 'transparent' }}
       >
         {s.mine && s.picture ? (
           <PictureView picture={s.picture} itemId={s.savedId} size={40} testid="yours-row-picture" />
@@ -215,7 +211,7 @@ export default function SauceBrowse({
           </svg>
         )}
         <span className="flex-1 min-w-0">
-          <span className="block truncate text-[20px]" style={{ fontFamily: TEXT, color: isSelected ? CHALK_CREAM : popColor(fam.color), textShadow: `0 0 6px ${fam.color}66, ${CHALK_SHADOW}` }}>{s.name}</span>
+          <span className="block truncate text-[20px]" style={{ fontFamily: TEXT, color: isSelected ? ACCENT : popColor(fam.color) }}>{s.name}</span>
           {searchHits?.get(s.name)?.length > 0 && (
             <span className="block truncate text-[11px]" style={{ color: CHALK_DIM }} data-search-hit>
               with {searchHits.get(s.name).join(', ')}
@@ -223,13 +219,13 @@ export default function SauceBrowse({
           )}
         </span>
         {s.mine && (
-          <span className="text-[11px] rounded px-1 py-px" data-testid="yours-tag" style={{ color: CHALK_CREAM, border: `1px solid ${CHALK_CREAM}88` }}>Yours</span>
+          <span className="text-[13px]" data-testid="yours-tag" style={{ color: CHALK_DIM }}>Yours</span>
         )}
         {s.isRoot && (
-          <span className="text-[11px] rounded px-1 py-px" style={{ color: '#fde68a', border: '1px solid rgba(252,211,77,0.35)' }}>mother sauce</span>
+          <span className="text-[13px]" style={{ color: CHALK_SUB }}>mother sauce</span>
         )}
         {s.cuisine && (
-          <span className="text-[11px]" style={{ color: CHALK_DIM }}>{s.cuisine}</span>
+          <span className="text-[13px]" style={{ color: CHALK_SUB }}>{s.cuisine}</span>
         )}
       </button>
     );
@@ -240,7 +236,7 @@ export default function SauceBrowse({
       className="absolute inset-x-0 top-0 overflow-y-auto"
       // v1.0.2/3: bottom stops above the fixed tab bar (inset-0 hid the last ~57px);
       // top-0 instead of top-10 — the top nav it reserved space for is hidden.
-      style={{ bottom: 'var(--tab-bar-h)', paddingTop: 'env(safe-area-inset-top, 0px)', ...chalkSurfaceStyle(), color: CHALK_CREAM, boxShadow: `inset 0 0 0 2px ${CHALK_RAIL}55, inset 0 0 0 4px #00000080` }}
+      style={{ bottom: 'var(--tab-bar-h)', paddingTop: 'env(safe-area-inset-top, 0px)', ...chalkSurfaceStyle(), color: CHALK_CREAM }}
       data-sauce-browse-root
     >
       {/* ───── Board header — the "specials board" title ───── */}
@@ -304,17 +300,17 @@ export default function SauceBrowse({
         })()}
         {filterFamily != null && (
           <div className="text-center -mt-1">
-            <button type="button" onClick={() => onFilterFamily(null)} className="text-sm underline underline-offset-2" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
+            <button type="button" onClick={() => onFilterFamily(null)} className={FOCUS} style={textAction({ fontSize: 15, color: CHALK_DIM })}>
               Show all families
             </button>
           </div>
         )}
       </div>
 
-      {/* ───── Filter bar — cuisine chalk chips + search ───── */}
+      {/* ───── Sticky bar: search and one row of controls; the cuisine chips open under it ───── */}
       <div
-        className="sticky top-0 z-30 backdrop-blur-md px-4 py-2.5 max-w-4xl mx-auto"
-        style={{ background: '#0a0a0aE6', borderBottom: `1px solid ${CHALK_RAIL}66` }}
+        className="sticky top-0 z-30 backdrop-blur-md px-4 pt-2.5 max-w-4xl mx-auto"
+        style={{ background: `${SLATE}e6` }}
       >
         <div className="relative mb-1">
         <span aria-hidden="true" className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: CHALK_SUB, lineHeight: 0 }}><Search size={20} /></span>
@@ -326,62 +322,69 @@ export default function SauceBrowse({
           aria-label="Search sauces by name or ingredient"
           list="sauce-ingredient-vocab"
           data-sauce-search
-          className="w-full pr-2.5 py-1.5 rounded-md focus:outline-none text-[16px]"
-          style={{ paddingLeft: 32, fontFamily: TEXT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
+          className="w-full pr-2.5 py-1.5 min-h-[44px] focus:outline-none text-[16px]"
+          style={{ paddingLeft: 32, borderRadius: CONTROL_RADIUS, fontFamily: TEXT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
         />
         </div>
         <datalist id="sauce-ingredient-vocab">
           {ingredientVocab.map((v) => <option key={v} value={v} />)}
         </datalist>
-        {(onOpenPantry || onOpenInvent) && (
-          <div className="mt-1 mb-2 flex flex-wrap items-center gap-2">
-            {onOpenPantry && (
-              <button type="button" onClick={onOpenPantry} data-testid="sauce-pantry-open"
-                className="px-3 py-1 rounded-full border min-h-[44px] text-[17px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                style={{ fontFamily: TEXT, borderColor: CHALK_RAIL, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
-                My pantry{pantryCount ? ` (${pantryCount})` : ''}
-              </button>
-            )}
-            {onOpenInvent && (
-              <button type="button" onClick={onOpenInvent} data-testid="sauce-invent-open"
-                className="px-3 py-1 rounded-full border min-h-[44px] text-[17px] inline-flex items-center gap-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                style={{ fontFamily: TEXT, borderColor: CHALK_RAIL, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
-                <Whisk size={20} />
-                Invent a sauce
-              </button>
-            )}
-          </div>
-        )}
+        <div className="mt-1 mb-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+          <button type="button" onClick={() => setFiltersOpen((o) => !o)} data-testid="sauce-filters-toggle"
+            aria-expanded={filtersOpen} aria-controls="sauce-cuisine-filters"
+            className={`flex items-center gap-1.5 ${FOCUS}`}
+            style={textAction({ fontSize: 17, textDecoration: 'none' })}>
+            <Filters size={20} />
+            Filters
+            {filterCuisine && <span className="text-[15px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>1</span>}
+            <span aria-hidden="true" style={{ color: CHALK_SUB, lineHeight: 0 }}>{filtersOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}</span>
+          </button>
+          {onOpenPantry && (
+            <button type="button" onClick={onOpenPantry} data-testid="sauce-pantry-open"
+              className={FOCUS}
+              style={textAction({ fontSize: 17, textDecoration: 'none' })}>
+              My pantry{pantryCount ? ` (${pantryCount})` : ''}
+            </button>
+          )}
+          {onOpenInvent && (
+            <button type="button" onClick={onOpenInvent} data-testid="sauce-invent-open"
+              data-primary="true" className={`px-5 inline-flex items-center gap-2 ${FOCUS}`}
+              style={primaryBtn({ fontSize: 17 })}>
+              <Whisk size={20} />
+              Invent a sauce
+            </button>
+          )}
+        </div>
         {searchHits && (
           <p className="mb-1.5 text-[13px]" style={{ color: CHALK_SUB }} aria-live="polite">
             {matchCount} sauce{matchCount === 1 ? '' : 's'} match “{searchTerm.trim()}”
           </p>
         )}
         {searchHits && onInventThis && searchTerm.trim() && matchCount > 0 && <div className="mb-2">{inventButton}</div>}
-        <div className="text-[13px] mb-1" style={{ fontFamily: TEXT, color: CHALK_SUB }}>Cuisines</div>
-        <div className="flex flex-wrap items-center gap-1.5">
-          {[{ key: null, label: 'All cuisines' }, ...cuisines.map((c) => ({ key: c, label: c }))].map((chip) => {
-            const active = filterCuisine === chip.key;
-            return (
-              <button
-                key={String(chip.key)}
-                type="button"
-                onClick={() => onFilterCuisine(active ? null : chip.key)}
-                className="px-3 py-1 rounded-full text-[15px] border transition-colors"
-                style={{
-                  fontFamily: TEXT,
-                  color: active ? '#0a0a0a' : CHALK_CREAM,
-                  background: active ? CHALK_CREAM : 'rgba(255,255,255,0.04)',
-                  borderColor: active ? CHALK_CREAM : `${CHALK_RAIL}99`,
-                  textShadow: active ? 'none' : CHALK_SHADOW,
-                }}
-              >
-                {chip.label}
-              </button>
-            );
-          })}
-        </div>
+        <div style={{ color: CHALK_RAIL }}>{chalkRule()}</div>
       </div>
+      {filtersOpen && (
+        <div className="px-4 pt-3 max-w-4xl mx-auto" id="sauce-cuisine-filters" data-testid="sauce-cuisine-filters">
+          <div className="text-[13px] mb-1" style={{ fontFamily: TEXT, color: CHALK_SUB }}>Cuisines</div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {[{ key: null, label: 'All cuisines' }, ...cuisines.map((c) => ({ key: c, label: c }))].map((chip) => {
+              const active = chip.key === null ? !filterCuisine : filterCuisine === chip.key;
+              return (
+                <button
+                  key={String(chip.key)}
+                  type="button"
+                  onClick={() => onFilterCuisine(chip.key === null || active ? null : chip.key)}
+                  aria-pressed={active}
+                  className={`px-3 min-h-[44px] ${FOCUS}`}
+                  style={btn({ fontSize: 15, ...(active ? { border: `1.5px solid ${ACCENT}` } : {}) })}
+                >
+                  {chip.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* ───── Menu sections — colored-chalk family headers ───── */}
       <div className="px-4 py-4 max-w-4xl mx-auto pb-24">
@@ -392,7 +395,7 @@ export default function SauceBrowse({
             <p className="mt-3 text-[15px]" style={{ color: CHALK_SUB }}>
               <button type="button" data-testid="sauce-invent-empty-clear"
                 onClick={() => { onFilterFamily(null); onFilterCuisine(null); setSearchTerm(''); }}
-                className="underline underline-offset-2" style={{ color: CHALK_DIM }}>
+                className={FOCUS} style={textAction({ fontSize: 15, color: CHALK_DIM })}>
                 Clear search and filters
               </button>
             </p>
@@ -400,11 +403,14 @@ export default function SauceBrowse({
         )}
         {yoursShown.length > 0 && (
           <section className="mb-7" data-testid="sauce-yours-group" aria-label="Yours">
-            <header className="flex items-baseline gap-2.5 mb-2 py-1.5" style={{ borderTop: `1.5px solid ${CHALK_CREAM}55`, borderBottom: `1.5px solid ${CHALK_CREAM}55` }}>
-              <h2 className="text-[36px] leading-none" style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Yours</h2>
-              <span className="text-[13px]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>{yoursShown.length} sauces</span>
+            <header className="mb-2 py-1.5">
+              <div className="flex items-baseline gap-2.5 mb-1.5">
+                <h2 className="text-[36px] leading-none" style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Yours</h2>
+                <span className="text-[13px]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>{yoursShown.length} sauces</span>
+              </div>
+              <div style={{ color: CHALK_RAIL }}>{chalkRule()}</div>
             </header>
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 ml-5">
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1 ml-5">
               {yoursShown.map((m, idx) => {
                 const fam = familyOf(m);
                 return <li key={`yours-${m.savedId || m.name}-${idx}`}>{renderRow(m, fam, sauceVesselFor(fam.name))}</li>;
@@ -419,14 +425,17 @@ export default function SauceBrowse({
 
           return (
             <section key={fam.id ?? 'uncategorised'} className="mb-7" data-testid={fam.id == null ? 'sauce-uncategorised-group' : undefined}>
-              <header className="flex items-center gap-2.5 mb-2 py-1.5" style={{ borderTop: `1.5px solid ${fam.color}66`, borderBottom: `1.5px solid ${fam.color}66` }}>
-                <svg width="42" height="36" viewBox="-8 2 80 72" aria-hidden="true" style={{ flexShrink: 0 }}>
-                  {vesselMark(famVessel, 32, 58, fam.color, fam.color, true)}
-                </svg>
-                <h2 className="text-[36px] leading-none" style={{ fontFamily: HAND, color: fam.color, textShadow: CHALK_SHADOW }}>{fam.name}</h2>
-                <span className="text-[13px]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>{sorted.length} of {members.length} sauces</span>
+              <header className="mb-2 py-1.5">
+                <div className="flex items-center gap-2.5 mb-1.5">
+                  <svg width="42" height="36" viewBox="-8 2 80 72" aria-hidden="true" style={{ flexShrink: 0 }}>
+                    {vesselMark(famVessel, 32, 58, fam.color, fam.color, true)}
+                  </svg>
+                  <h2 className="text-[36px] leading-none" style={{ fontFamily: HAND, color: fam.color, textShadow: CHALK_SHADOW }}>{fam.name}</h2>
+                  <span className="text-[13px]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>{sorted.length} of {members.length} sauces</span>
+                </div>
+                <div style={{ color: CHALK_RAIL }}>{chalkRule()}</div>
               </header>
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 ml-5">
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1 ml-5">
                 {sorted.map((s, idx) => (
                   <li key={`${s.name}-${idx}`}>{renderRow(s, fam, famVessel)}</li>
                 ))}
@@ -440,8 +449,8 @@ export default function SauceBrowse({
             <button
               type="button"
               onClick={() => { onFilterFamily(null); onFilterCuisine(null); setSearchTerm(''); }}
-              className="underline underline-offset-2"
-              style={{ color: CHALK_DIM }}
+              className={FOCUS}
+              style={textAction({ fontSize: 16, color: CHALK_DIM })}
             >
               Reset all
             </button>

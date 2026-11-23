@@ -15,12 +15,12 @@ import { useMemo, useState } from 'react';
 import { addToKitchen, removeFromKitchen, haveIngredient } from '../data/myKitchen.js';
 import { whatSauceCanIMake, commonSauceIngredients } from '../data/saucePantry.js';
 import { buildIngredientVocab } from '../data/ingredientSearch.js';
-import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, CARD_INK, chalkSurfaceStyle } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, CONTROL_RADIUS, chalkSurfaceStyle } from '../data/chalkTheme.js';
+import { FOCUS, btn, textAction, primaryBtn, Chip, AddRow } from './inventUi.jsx';
 import { SauceVessel } from './sauceVessels.jsx';
-import { Close } from './ChalkIcons.jsx';
+import { Close, ChevronLeft } from './ChalkIcons.jsx';
 
 const NEARLY_SHOWN = 30;
-const FOCUS = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
 
 function SauceRow({ entry, familyById, onSelect, children }) {
   const s = entry.item;
@@ -28,8 +28,7 @@ function SauceRow({ entry, familyById, onSelect, children }) {
   return (
     <li>
       <button type="button" onClick={() => onSelect?.(s.name)}
-        className={`w-full text-left py-1 min-h-[44px] flex items-center gap-2.5 rounded-md ${FOCUS}`}
-        style={{ outlineColor: CHALK_CREAM }}>
+        className={`w-full text-left py-1 min-h-[44px] flex items-center gap-2.5 ${FOCUS}`}>
         <SauceVessel familyName={fam?.name || s.family || ''} color={fam?.color || CHALK_DIM} size={34} />
         <span className="flex-1 min-w-0">
           <span className="block text-[20px] leading-tight" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>{s.name}</span>
@@ -84,25 +83,25 @@ export default function SaucePantryPanel({
     setText('');
   };
 
-  const pill = { fontFamily: TEXT, borderColor: CHALK_RAIL, color: CHALK_CREAM, outlineColor: CHALK_CREAM };
   return (
     <div className="fixed inset-x-0 top-0 safe-top-pad z-[82] flex flex-col items-center px-4 py-3 overflow-y-auto overflow-x-hidden"
       style={{ ...chalkSurfaceStyle(), bottom: 'var(--tab-bar-h)', color: CHALK_CREAM }}
       data-testid="sauce-pantry-panel" role="dialog" aria-label="My pantry">
       <div className="w-full max-w-[560px] flex items-center justify-between mb-2 gap-2">
         <button type="button" onClick={onClose} data-testid="sauce-pantry-close"
-          className={`px-3 py-2 rounded-lg min-h-[44px] ${FOCUS}`} style={{ ...pill, fontSize: 18, border: `1px solid ${CHALK_RAIL}`, minWidth: 44 }}>
+          className={`inline-flex items-center gap-1 ${FOCUS}`} style={textAction({ fontSize: 18, textDecoration: 'none', minWidth: 44 })}>
+          <ChevronLeft size={20} />
           Back
         </button>
         {onInvent && (
           <button type="button" onClick={onInvent} data-testid="sauce-pantry-invent"
-            className={`px-3 py-2 rounded-lg min-h-[44px] ${FOCUS}`} style={{ fontFamily: TEXT, fontSize: 18, color: CARD_INK, background: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
+            data-primary="true" className={`px-4 ${FOCUS}`} style={primaryBtn({ fontSize: 18 })}>
             Invent a sauce
           </button>
         )}
       </div>
 
-      <div className="w-full max-w-[560px] rounded-2xl px-4 py-4" style={{ border: `2px double ${CHALK_RAIL}`, background: 'rgba(255,255,255,0.025)' }}>
+      <div className="w-full max-w-[560px] px-1 py-4">
         <h2 className="text-center text-[34px] leading-tight" style={{ fontFamily: HAND, textShadow: CHALK_SHADOW }}>My pantry</h2>
         <p className="text-center text-[13px] mb-3" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
           What’s in your kitchen. Shared with Make a recipe; kept on this device only.
@@ -113,11 +112,11 @@ export default function SaucePantryPanel({
             type="search" value={text} onChange={(e) => setText(e.target.value)}
             placeholder="Add an ingredient — e.g. shallot"
             aria-label="Add an ingredient to my pantry" list="sauce-pantry-vocab" data-testid="sauce-pantry-input"
-            className="flex-1 min-w-0 px-2.5 py-2 rounded-md focus:outline-none focus-visible:ring-2 text-[17px] min-h-[44px]"
-            style={{ fontFamily: TEXT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
+            className="flex-1 min-w-0 px-2.5 py-2 focus:outline-none focus-visible:ring-2 text-[17px] min-h-[44px]"
+            style={{ fontFamily: TEXT, borderRadius: CONTROL_RADIUS, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
           />
           <datalist id="sauce-pantry-vocab">{vocab.map((v) => <option key={v} value={v} />)}</datalist>
-          <button type="submit" data-testid="sauce-pantry-add" className={`px-4 rounded-md min-h-[44px] border ${FOCUS}`} style={pill}>Add</button>
+          <button type="submit" data-testid="sauce-pantry-add" className={`px-4 min-h-[44px] ${FOCUS}`} style={btn({ fontSize: 17 })}>Add</button>
         </form>
 
         <label className="mt-2 flex items-center gap-2 min-h-[44px] cursor-pointer text-[15px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
@@ -138,7 +137,7 @@ export default function SaucePantryPanel({
           {kitchen.map((k) => (
             <li key={k}>
               <button type="button" onClick={() => onChange?.(removeFromKitchen(kitchen, k))} aria-label={`Remove ${k}`}
-                className={`px-3 py-1 rounded-full border min-h-[44px] text-[17px] ${FOCUS}`} style={{ ...pill, background: 'rgba(245,239,222,0.08)' }}>
+                className={`px-3 py-1 min-h-[44px] text-[17px] ${FOCUS}`} style={btn()}>
                 {k} <span aria-hidden="true" className="inline-block align-middle" style={{ color: CHALK_SUB, lineHeight: 0 }}><Close size={16} /></span>
               </button>
             </li>
@@ -150,10 +149,7 @@ export default function SaucePantryPanel({
             <p className="text-[13px] mb-1" style={{ fontFamily: TEXT, color: CHALK_SUB }}>Most used in sauces</p>
             <div className="flex flex-wrap gap-1.5" data-testid="sauce-pantry-quick">
               {common.map((k) => (
-                <button key={k} type="button" onClick={() => add(k)} aria-label={`Add ${k}`}
-                  className={`px-2.5 py-1 rounded-full border min-h-[44px] text-[15px] ${FOCUS}`} style={{ ...pill, borderStyle: 'dashed', color: CHALK_DIM }}>
-                  + {k}
-                </button>
+                <AddRow key={k} name={k} ariaLabel={`Add ${k}`} onClick={() => add(k)} />
               ))}
             </div>
           </div>

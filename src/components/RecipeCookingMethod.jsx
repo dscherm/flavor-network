@@ -8,7 +8,8 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import { loadDirectionsIndex, retrieveCookingMethods } from '../ml/directionsRuntime.js';
-import { TEXT, CHALK_CREAM, CHALK_SUB, CHALK_RAIL } from '../data/chalkTheme.js';
+import { TEXT, CHALK_SUB } from '../data/chalkTheme.js';
+import { FOCUS, ACCENT, btn } from './inventUi.jsx';
 
 const MIN_BOWL = 3;
 
@@ -23,7 +24,7 @@ function loadRecipeVocab(basePath = '') {
   return _vocabPromise;
 }
 
-export default function RecipeCookingMethod({ bowlNames = [], chalk = false, selected = null, onToggle = null }) {
+export default function RecipeCookingMethod({ bowlNames = [], selected = null, onToggle = null }) {
   const [index, setIndex] = useState(null);
   const [vocab, setVocab] = useState(null);
 
@@ -47,8 +48,7 @@ export default function RecipeCookingMethod({ bowlNames = [], chalk = false, sel
 
   if (!enough || methods.length === 0) return null;
 
-  if (chalk) {
-    return (
+  return (
       <div data-testid="cooking-method-chips">
         <div className="text-[13px] mb-1" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
           Likely cooking method{methods.length === 1 ? '' : 's'}
@@ -65,11 +65,8 @@ export default function RecipeCookingMethod({ bowlNames = [], chalk = false, sel
                 data-method={m.method}
                 onClick={() => onToggle?.(m.method)}
                 title={`${Math.round(m.frac * 100)}% of similar recipes`}
-                className="inline-flex items-center gap-1 px-3 py-1 rounded-full border min-h-[44px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                style={{
-                  fontFamily: TEXT, fontSize: 17, textTransform: 'capitalize', borderColor: CHALK_RAIL, outlineColor: CHALK_CREAM,
-                  color: on ? '#0a0a0a' : CHALK_CREAM, background: on ? CHALK_CREAM : 'transparent',
-                }}
+                className={`inline-flex items-center gap-1 px-3 min-h-[44px] ${FOCUS}`}
+                style={btn({ fontSize: 17, textTransform: 'capitalize', ...(on ? { border: `1.5px solid ${ACCENT}` } : {}) })}
               >
                 {m.method}
               </button>
@@ -77,33 +74,5 @@ export default function RecipeCookingMethod({ bowlNames = [], chalk = false, sel
           })}
         </div>
       </div>
-    );
-  }
-
-  return (
-    <div className="px-4 pt-2 pb-3" style={{ paddingLeft: 48 }}>
-      <div className="text-[13px] mb-1.5" style={{ color: '#a09070' }}>
-        Likely cooking method{methods.length === 1 ? '' : 's'}
-      </div>
-      <div className="flex flex-wrap gap-1.5">
-        {methods.map((m) => (
-          <span
-            key={m.method}
-            title={`${Math.round(m.frac * 100)}% of similar recipes`}
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full"
-            style={{
-              fontFamily: TEXT,
-              fontSize: 15,
-              color: '#5a4a2a',
-              background: '#f0e8d0',
-              border: '1.5px solid #c9b99a',
-              textTransform: 'capitalize',
-            }}
-          >
-            {m.method}
-          </span>
-        ))}
-      </div>
-    </div>
   );
 }

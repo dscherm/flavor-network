@@ -22,19 +22,10 @@ import FlavorGrid from './FlavorGrid.jsx';
 import { Close, ChevronLeft, ChevronRight } from './ChalkIcons.jsx';
 import { formatPairedVia, formatMatchBadge } from '../data/recipePairingMatch.js';
 
-import { HAND, TEXT } from '../data/chalkTheme.js';
+import { HAND, TEXT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL } from '../data/chalkTheme.js';
+import { FOCUS, btn, textAction } from './inventUi.jsx';
 const SWIPE_THRESHOLD = 50; // px — mirror SuggestionCardDeck / PairingMode
 
-// ── Chalkboard palette (copied from IngredientProfileCard) ─────────
-const CHALK_BG = `
-  radial-gradient(ellipse at center, #1c1c1c 0%, #0a0a0a 75%, #050505 100%),
-  #0a0a0a
-`;
-const CHALK_BORDER_OUTER = '#4a4a4a';
-const CHALK_BORDER_INNER = '#6a6a6a';
-const CHALK_CREAM = '#f5efde';
-const CHALK_DIM = '#bdb6a3';
-const CHALK_SUB = '#8a8478';
 const CHALK_TEXT_SHADOW = '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)';
 
 function formatAromaKey(key) {
@@ -57,11 +48,9 @@ function SauceCard({ name, profile, recipeName, similarity, matchedAromas, paire
   const badge = typeof similarity === 'number' ? formatMatchBadge(similarity) : null;
   return (
     <div
-      className="w-[min(40rem,94vw)] rounded-2xl overflow-hidden flex flex-col items-center"
+      className="chalk-board w-[min(40rem,94vw)] rounded-2xl overflow-hidden flex flex-col items-center"
       style={{
-        background: CHALK_BG,
-        border: `2px double ${CHALK_BORDER_OUTER}`,
-        boxShadow: `inset 0 0 0 1px ${CHALK_BORDER_INNER}55, 0 8px 24px rgba(0,0,0,0.55)`,
+        border: `1px solid ${CHALK_RAIL}`,
         maxHeight: '100%',
         padding: 'clamp(12px, 2.5vw, 22px)',
         gap: 'clamp(8px, 2vw, 16px)',
@@ -99,47 +88,23 @@ function SauceCard({ name, profile, recipeName, similarity, matchedAromas, paire
       </div>
 
       {pairedVia.length > 0 && (
-        <div className="flex flex-wrap gap-1 justify-center" data-testid="sauce-card-paired-via">
-          {pairedVia.map((p) => (
-            <span
-              key={`${p.item}|${p.recipe}`}
-              className="px-2 py-px rounded-full border"
-              style={{ borderColor: CHALK_SUB, color: CHALK_DIM, fontFamily: TEXT, fontSize: 'clamp(11px, 2.4vw, 14px)' }}
-            >
-              {formatPairedVia(p)}
-            </span>
-          ))}
-        </div>
+        <p className="text-center" data-testid="sauce-card-paired-via"
+          style={{ color: CHALK_SUB, fontFamily: TEXT, fontSize: 13 }}>
+          {pairedVia.map((p) => formatPairedVia(p)).join('; ')}
+        </p>
       )}
 
       {Array.isArray(matchedAromas) && matchedAromas.length > 0 && (
-        <div className="flex flex-wrap gap-1 justify-center">
-          {matchedAromas.map((a) => (
-            <span
-              key={a}
-              className="px-2 py-px rounded-full border"
-              style={{ borderColor: CHALK_SUB, color: CHALK_DIM, fontFamily: TEXT, fontSize: 'clamp(11px, 2.4vw, 14px)' }}
-            >
-              {formatAromaKey(a)}
-            </span>
-          ))}
-        </div>
+        <p className="text-center" style={{ color: CHALK_DIM, fontFamily: TEXT, fontSize: 14 }}>
+          {matchedAromas.map((a) => formatAromaKey(a)).join(', ')}
+        </p>
       )}
 
       <button
         onClick={onView}
         data-testid="sauce-card-view"
-        className="rounded-full border flex-shrink-0"
-        style={{
-          backgroundColor: 'rgba(16,78,51,0.55)',
-          borderColor: 'rgba(110,231,183,0.45)',
-          color: '#bbf7d0',
-          fontFamily: TEXT,
-          fontSize: 'clamp(16px, 3.2vw, 22px)',
-          textShadow: CHALK_TEXT_SHADOW,
-          minHeight: 48,
-          padding: '0 clamp(22px, 6vw, 36px)',
-        }}
+        className={`flex-shrink-0 ${FOCUS}`}
+        style={btn({ fontSize: 18, minHeight: 48, padding: '0 28px' })}
       >
         View sauce
       </button>
@@ -215,12 +180,11 @@ export default function SauceSuggestionDeck({
 
   return (
     <div
-      className="w-full h-full shadow-2xl"
+      className="chalk-board w-full h-full"
       style={{
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        background: 'radial-gradient(ellipse at center, #161616 0%, #0a0a0a 80%, #050505 100%), #0a0a0a',
       }}
       data-testid="sauce-suggestion-deck"
       data-card-idx={cardIdx}
@@ -235,9 +199,10 @@ export default function SauceSuggestionDeck({
           onClick={onBackToRecipe}
           data-testid="sauce-deck-back"
           aria-label="Back to recipe"
-          className="min-h-[44px] px-3 rounded-lg border border-[#3a3a3a] text-[#bdb6a3] hover:text-[#f5efde] hover:bg-white/5"
-          style={{ fontFamily: TEXT, fontSize: 17 }}
+          className={`inline-flex items-center gap-1 ${FOCUS}`}
+          style={textAction({ fontSize: 17, textDecoration: 'none', color: CHALK_DIM })}
         >
+          <ChevronLeft size={20} />
           Back
         </button>
         <span className="text-[22px] text-[#f5efde] text-center flex-1 px-2" style={{ fontFamily: TEXT }}>
@@ -257,11 +222,10 @@ export default function SauceSuggestionDeck({
               <div
                 key={`peek-${p.name}`}
                 aria-hidden="true"
-                className="absolute top-0 w-[min(26rem,92vw)] rounded-2xl"
+                className="chalk-board absolute top-0 w-[min(26rem,92vw)] rounded-2xl"
                 style={{
                   height: '100%',
-                  background: 'radial-gradient(ellipse at center, #1c1c1c 0%, #0a0a0a 75%, #050505 100%), #0a0a0a',
-                  border: '2px double #4a4a4a',
+                  border: `1px solid ${CHALK_RAIL}`,
                   transform: `translateY(${(i + 1) * 8}px) scale(${1 - (i + 1) * 0.03})`,
                   opacity: 0.5 - i * 0.15,
                   zIndex: 0,

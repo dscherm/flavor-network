@@ -62,9 +62,9 @@ export function Chip({ item, onClick, testid, haveLabel = 'have', pressed, fit =
 }
 
 /** Adding from a list: a "+" in Muted chalk, the name, small print after it. The whole row is the 44 px button. */
-export function AddRow({ name, note, have = false, haveLabel = 'have', onClick, testid, disabled = false, children }) {
+export function AddRow({ name, note, have = false, haveLabel = 'have', onClick, testid, disabled = false, ariaLabel, children }) {
   return (
-    <button type="button" onClick={onClick} data-testid={testid} data-key={name} disabled={disabled}
+    <button type="button" onClick={onClick} data-testid={testid} data-key={name} disabled={disabled} aria-label={ariaLabel}
       className={`inline-flex items-center gap-2 min-h-[44px] text-left max-w-full ${FOCUS}`}
       style={{ ...TYPE.control, color: CHALK_CREAM, background: 'transparent' }}>
       <span aria-hidden="true" style={{ color: CHALK_DIM }}>+</span>
