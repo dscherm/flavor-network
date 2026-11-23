@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Type specimens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Kalam:wght@400;700&family=Alegreya+Sans:wght@400;500;700&family=Patrick+Hand&family=Bitter:wght@400;600&family=Gochi+Hand&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --slate: #0a0a0a;
+    --slate-wash: #1c1c1c;
+    --chalk: #f5efde;
+    --chalk-muted: #bdb6a3;
+    --chalk-faint: #8a8478;
+    --rail: #4a4a4a;
+    --accent: #e8c97a;
+    --focus: #4f9eff;
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 24px;
+    --space-6: 40px;
+    --space-7: 64px;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--slate);
+    background-image: radial-gradient(ellipse at center, var(--slate-wash) 0%, var(--slate) 75%);
+    background-attachment: fixed;
+    color: var(--chalk);
+    font: 400 16px/1.5 Karla, sans-serif;
+  }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .page { max-width: 1180px; margin: 0 auto; padding: var(--space-5) var(--space-4) var(--space-7); }
+  .intro h1 { font: 700 32px/1.1 Caveat, cursive; margin: 0 0 var(--space-3); }
+  .intro p { margin: 0; max-width: 62ch; color: var(--chalk-muted); font-family: Karla, sans-serif; }
+  .grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-6); margin-top: var(--space-6); }
+  @media (min-width: 900px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6) var(--space-7); } .page { padding-inline: var(--space-5); } }
+
+  .pairing { min-width: 0; border-top: 1px solid var(--rail); padding-top: var(--space-4); }
+  .pairing header { margin-bottom: var(--space-4); }
+  .pairing .tag { font: 700 28px/1 Caveat, cursive; color: var(--accent); }
+  .pairing .why { margin: var(--space-2) 0 var(--space-1); color: var(--chalk-muted); font-size: 15px; max-width: 56ch; }
+  .pairing .names { margin: 0; font: 400 13px/1.4 Karla, sans-serif; color: var(--chalk-faint); }
+
+  .hand { font-family: var(--hand); font-weight: 400; }
+  .steady { font-family: var(--steady); }
+
+  .card { padding: var(--space-3) 0 var(--space-5); }
+  .card h2 { font: 400 38px/1.05 var(--hand); margin: 0 0 var(--space-1); letter-spacing: 0; }
+  .card .sub { margin: 0 0 var(--space-4); font: 400 14px/1.4 var(--steady); color: var(--chalk-faint); }
+  .spec { list-style: none; margin: 0 0 var(--space-5); padding: 0; font: 400 17px/1.5 var(--steady); }
+  .spec li { padding: 2px 0; }
+  .spec b { font-weight: 600; margin-right: var(--space-2); }
+  .rule { border: 0; border-top: 1px solid var(--rail); margin: 0 0 var(--space-4); }
+  .card h3, .ask h3 { font: 400 24px/1.1 var(--hand); margin: 0 0 var(--space-2); }
+  .steps { margin: 0 0 var(--space-5); padding-left: 1.3em; font: 400 16px/1.55 var(--steady); max-width: 52ch; }
+  .steps li { padding-left: 2px; margin-bottom: 4px; }
+  .card .go {
+    font: 600 16px/1 var(--steady); min-height: 44px; padding: 0 var(--space-4);
+    background: var(--accent); color: var(--slate); border: 0; border-radius: 4px; cursor: pointer;
+  }
+  .card .quiet { font: 400 16px/1 var(--steady); min-height: 44px; padding: 0 var(--space-3); background: none; color: var(--chalk); border: 0; text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--rail); cursor: pointer; }
+  .actions { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); align-items: center; }
+
+  .ask { padding: var(--space-5) 0 0; border-top: 1px solid var(--rail); }
+  .ask .q { font: 400 32px/1.1 var(--hand); margin: 0 0 var(--space-4); }
+  .chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0 0 var(--space-4); padding: 0; list-style: none; }
+  .chip {
+    font: 500 16px/1 var(--steady); min-height: 44px; padding: 0 var(--space-4);
+    background: none; color: var(--chalk); border: 1px solid var(--rail); border-radius: 6px; cursor: pointer;
+  }
+  .chip[aria-pressed="true"] { border-color: var(--accent); }
+  .field { display: flex; gap: var(--space-2); min-width: 0; }
+  .field input {
+    flex: 1 1 auto; min-width: 0; min-height: 44px; padding: 0 var(--space-3);
+    font: 400 16px/1 var(--steady); color: var(--chalk);
+    background: rgba(255, 255, 255, 0.05); border: 1px solid var(--rail); border-radius: 6px;
+  }
+  .field input::placeholder { color: var(--chalk-faint); }
+  .field button {
+    flex: 0 0 auto; min-height: 44px; padding: 0 var(--space-4);
+    font: 600 16px/1 var(--steady); background: none; color: var(--chalk); border: 1px solid var(--rail); border-radius: 6px; cursor: pointer;
+  }
+  .help { margin: var(--space-2) 0 0; font: 400 13px/1.4 var(--steady); color: var(--chalk-faint); }
+
+  #a { --hand: Caveat, cursive; --steady: Newsreader, serif; }
+  #b { --hand: Kalam, cursive; --steady: "Alegreya Sans", sans-serif; }
+  #c { --hand: "Patrick Hand", cursive; --steady: Bitter, serif; }
+  #d { --hand: "Gochi Hand", cursive; --steady: Karla, sans-serif; }
+</style>
+</head>
+<body>
+<main class="page">
+  <section class="intro">
+    <h1>Four ways to set the type</h1>
+    <p>The same Negroni card and the same recipe-builder question in each pairing. Nothing here is chosen. A chalk hand sets titles, and a steady face sets everything you read or press.</p>
+  </section>
+
+  <div class="grid">
+
+    <article class="pairing" id="a">
+      <header>
+        <div class="tag">A</div>
+        <p class="why">The Caveat the app already uses for titles, with a text serif like a printed bistro menu, so the hand stays rare and the reading is calm.</p>
+        <p class="names">Caveat for titles, Newsreader for everything else</p>
+      </header>
+      <div class="card">
+        <h2>Negroni</h2>
+        <p class="sub">Stirred, bittersweet, bright orange at the end</p>
+        <ul class="spec">
+          <li><b>1 oz</b>gin</li>
+          <li><b>1 oz</b>Campari</li>
+          <li><b>1 oz</b>sweet vermouth</li>
+        </ul>
+        <hr class="rule">
+        <ol class="steps">
+          <li>Stir with ice.</li>
+          <li>Strain over a large cube.</li>
+          <li>Finish with an orange peel.</li>
+        </ol>
+        <div class="actions"><button class="go" type="button">Add to shopping list</button><button class="quiet" type="button">Share</button></div>
+      </div>
+      <div class="ask">
+        <p class="q">What is the main ingredient?</p>
+        <ul class="chips">
+          <li><button class="chip" type="button">chicken</button></li>
+          <li><button class="chip" type="button" aria-pressed="true">beef</button></li>
+          <li><button class="chip" type="button">pork</button></li>
+          <li><button class="chip" type="button">salmon</button></li>
+          <li><button class="chip" type="button">shrimp</button></li>
+          <li><button class="chip" type="button">tofu</button></li>
+        </ul>
+        <form class="field" onsubmit="return false"><input type="text" placeholder="Or type your own" aria-label="Main ingredient"><button type="submit">Add</button></form>
+        <p class="help">Chicken thighs, a pork shoulder, a whole fish: any ingredient works.</p>
+      </div>
+    </article>
+
+    <article class="pairing" id="b">
+      <header>
+        <div class="tag">B</div>
+        <p class="why">A rounder, more upright hand that stays legible at small sizes, with a humanist sans that has the open, friendly shapes of a handwritten specials board.</p>
+        <p class="names">Kalam for titles, Alegreya Sans for everything else</p>
+      </header>
+      <div class="card">
+        <h2>Negroni</h2>
+        <p class="sub">Stirred, bittersweet, bright orange at the end</p>
+        <ul class="spec">
+          <li><b>1 oz</b>gin</li>
+          <li><b>1 oz</b>Campari</li>
+          <li><b>1 oz</b>sweet vermouth</li>
+        </ul>
+        <hr class="rule">
+        <ol class="steps">
+          <li>Stir with ice.</li>
+          <li>Strain over a large cube.</li>
+          <li>Finish with an orange peel.</li>
+        </ol>
+        <div class="actions"><button class="go" type="button">Add to shopping list</button><button class="quiet" type="button">Share</button></div>
+      </div>
+      <div class="ask">
+        <p class="q">What is the main ingredient?</p>
+        <ul class="chips">
+          <li><button class="chip" type="button">chicken</button></li>
+          <li><button class="chip" type="button" aria-pressed="true">beef</button></li>
+          <li><button class="chip" type="button">pork</button></li>
+          <li><button class="chip" type="button">salmon</button></li>
+          <li><button class="chip" type="button">shrimp</button></li>
+          <li><button class="chip" type="button">tofu</button></li>
+        </ul>
+        <form class="field" onsubmit="return false"><input type="text" placeholder="Or type your own" aria-label="Main ingredient"><button type="submit">Add</button></form>
+        <p class="help">Chicken thighs, a pork shoulder, a whole fish: any ingredient works.</p>
+      </div>
+    </article>
+
+    <article class="pairing" id="c">
+      <header>
+        <div class="tag">C</div>
+        <p class="why">A plain, blocky schoolroom hand, closest to real chalk lettering, over a sturdy slab serif that stands up on a dark board like a stamped bar menu.</p>
+        <p class="names">Patrick Hand for titles, Bitter for everything else</p>
+      </header>
+      <div class="card">
+        <h2>Negroni</h2>
+        <p class="sub">Stirred, bittersweet, bright orange at the end</p>
+        <ul class="spec">
+          <li><b>1 oz</b>gin</li>
+          <li><b>1 oz</b>Campari</li>
+          <li><b>1 oz</b>sweet vermouth</li>
+        </ul>
+        <hr class="rule">
+        <ol class="steps">
+          <li>Stir with ice.</li>
+          <li>Strain over a large cube.</li>
+          <li>Finish with an orange peel.</li>
+        </ol>
+        <div class="actions"><button class="go" type="button">Add to shopping list</button><button class="quiet" type="button">Share</button></div>
+      </div>
+      <div class="ask">
+        <p class="q">What is the main ingredient?</p>
+        <ul class="chips">
+          <li><button class="chip" type="button">chicken</button></li>
+          <li><button class="chip" type="button" aria-pressed="true">beef</button></li>
+          <li><button class="chip" type="button">pork</button></li>
+          <li><button class="chip" type="button">salmon</button></li>
+          <li><button class="chip" type="button">shrimp</button></li>
+          <li><button class="chip" type="button">tofu</button></li>
+        </ul>
+        <form class="field" onsubmit="return false"><input type="text" placeholder="Or type your own" aria-label="Main ingredient"><button type="submit">Add</button></form>
+        <p class="help">Chicken thighs, a pork shoulder, a whole fish: any ingredient works.</p>
+      </div>
+    </article>
+
+    <article class="pairing" id="d">
+      <header>
+        <div class="tag">D</div>
+        <p class="why">A loose, felt-marker hand with some swagger for the cocktail side, kept in check by a warm, slightly quirky sans that reads easily in long ingredient lists.</p>
+        <p class="names">Gochi Hand for titles, Karla for everything else</p>
+      </header>
+      <div class="card">
+        <h2>Negroni</h2>
+        <p class="sub">Stirred, bittersweet, bright orange at the end</p>
+        <ul class="spec">
+          <li><b>1 oz</b>gin</li>
+          <li><b>1 oz</b>Campari</li>
+          <li><b>1 oz</b>sweet vermouth</li>
+        </ul>
+        <hr class="rule">
+        <ol class="steps">
+          <li>Stir with ice.</li>
+          <li>Strain over a large cube.</li>
+          <li>Finish with an orange peel.</li>
+        </ol>
+        <div class="actions"><button class="go" type="button">Add to shopping list</button><button class="quiet" type="button">Share</button></div>
+      </div>
+      <div class="ask">
+        <p class="q">What is the main ingredient?</p>
+        <ul class="chips">
+          <li><button class="chip" type="button">chicken</button></li>
+          <li><button class="chip" type="button" aria-pressed="true">beef</button></li>
+          <li><button class="chip" type="button">pork</button></li>
+          <li><button class="chip" type="button">salmon</button></li>
+          <li><button class="chip" type="button">shrimp</button></li>
+          <li><button class="chip" type="button">tofu</button></li>
+        </ul>
+        <form class="field" onsubmit="return false"><input type="text" placeholder="Or type your own" aria-label="Main ingredient"><button type="submit">Add</button></form>
+        <p class="help">Chicken thighs, a pork shoulder, a whole fish: any ingredient works.</p>
+      </div>
+    </article>
+
+  </div>
+</main>
+</body>
+</html>
