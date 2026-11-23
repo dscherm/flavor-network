@@ -46,7 +46,7 @@ function drivenBy(profile) {
   return ['taste', 'aroma'].map((g) => {
     const bar = firstOf(g);
     const keys = bar ? (profile.drivers?.[bar.axis] || []) : [];
-    return bar && keys.length ? { head: `${g === 'taste' ? 'Taste' : 'Aroma'} (${bar.label.toLowerCase()}): `, keys } : null;
+    return bar && keys.length ? { head: `${bar.label}: `, keys } : null;
   }).filter(Boolean);
 }
 
@@ -68,15 +68,15 @@ export function RecipeFlavorProfile({ recipe, nodes, testidPrefix = 'recipe-prof
     <div className="min-w-0">
       <InventFlavorProfile profile={profile} testidPrefix={testidPrefix} />
       {driven.length > 0 && (
-        <p className="mt-1 text-[13px]" style={{ fontFamily: SANS, color: CHALK_CREAM }} data-testid="flavor-profile-driven">
-          <span style={small}>Driven by </span>
-          {driven.map((d, i) => (
-            <span key={d.head}>
-              {i > 0 ? ' · ' : ''}{d.head}
+        <div className="mt-1" data-testid="flavor-profile-driven">
+          <p style={{ ...small, fontSize: 13 }}>Where it comes from</p>
+          {driven.map((d) => (
+            <p key={d.head} className="text-[13px]" style={{ fontFamily: SANS, color: CHALK_CREAM }}>
+              {d.head}
               {d.keys.map((k, j) => <span key={k}>{j > 0 ? ', ' : ''}<IngredientName name={k} loose tall>{k}</IngredientName></span>)}
-            </span>
+            </p>
           ))}
-        </p>
+        </div>
       )}
     </div>
   );

@@ -132,8 +132,7 @@ function RecipeCard({ recipe, onClick }) {
         <span className="flex items-center gap-1.5 mt-0.5 text-[11px] font-medium" style={{ color: CARD_INK_SUB }}>
           <span className="inline-block rounded-full flex-shrink-0" style={{ width: 8, height: 8, background: color }} aria-hidden="true" />
           {recipe.cuisine}
-          <span aria-hidden="true">·</span>
-          {dishTypeLabel(kind)}
+          <span className="ml-1.5">{dishTypeLabel(kind)}</span>
         </span>
         <span className="block text-[12.5px] leading-snug mt-1 line-clamp-2" style={{ color: CARD_INK_SUB }}>{recipe.description}</span>
       </span>
@@ -151,7 +150,7 @@ function MetaGlyph({ kind, color = CHALK_DIM }) {
   return <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" style={{ flexShrink: 0 }}>{inner}</svg>;
 }
 
-const SECTION_LABEL = { fontFamily: FONT, fontSize: '15px', color: CHALK_DIM, textShadow: CHALK_SHADOW };
+const SECTION_LABEL = { fontFamily: FONT, fontSize: '22px', fontWeight: 400, color: CHALK_CREAM, textShadow: CHALK_SHADOW };
 
 // DESIGN-3: the popup leads with pictures — dish drawing, meta as
 // icon+number, the profile radar — then ingredient chips, the method
@@ -308,9 +307,9 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
 
           {/* 3 — ingredients as chips: amount + name (+ a category glyph) */}
           <div data-testid="recipe-ingredients">
-            <div className="uppercase tracking-[0.16em] mb-2" style={SECTION_LABEL}>
+            <h3 className="mb-3" style={SECTION_LABEL}>
               Ingredients
-            </div>
+            </h3>
             <ul className="flex flex-wrap gap-1.5">
               {[...matched.map((n) => ({ n, ok: true })), ...unmatched.map((n) => ({ n, ok: false }))].map(({ n, ok }) => (
                 <li
@@ -368,9 +367,9 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
           {/* 5 — goes well with: drawn mini-cards */}
           {hasPairings && pairCards.length > 0 && (
             <div data-testid="recipe-goes-well-with">
-              <div className="uppercase tracking-[0.16em] mb-2" style={SECTION_LABEL}>
+              <h3 className="mb-3" style={SECTION_LABEL}>
                 Goes well with
-              </div>
+              </h3>
               <div className="grid grid-cols-3 gap-2">
                 {pairCards.map((p) => (
                   <button
@@ -383,7 +382,7 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
                     style={{ background: `${color}14`, border: `1px solid ${color}66` }}
                   >
                     <LabArt id={p.key} accent={p.accent} size={54} />
-                    <span style={{ fontFamily: FONT, fontSize: '19px', color: CHALK_CREAM, lineHeight: 1 }}>{p.label} →</span>
+                    <span style={{ fontFamily: FONT, fontSize: '19px', color: CHALK_CREAM, lineHeight: 1 }}>{p.label}</span>
                   </button>
                 ))}
               </div>
@@ -398,7 +397,7 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
                 className="px-4 py-2.5 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
                 style={{ fontFamily: FONT, fontSize: '18px', color: '#0a0a0a', background: CHALK_CREAM, border: `1px solid ${CHALK_CREAM}` }}
               >
-                Open in Recipe Notebook →
+                Open in the Recipe Notebook
               </button>
             )}
             {onOpenInNetwork && (
@@ -408,7 +407,7 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
                 className="px-4 py-2.5 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
                 style={{ fontFamily: FONT, fontSize: '18px', color: CHALK_CREAM, background: `${color}22`, border: `1px solid ${color}88` }}
               >
-                Explore in Network →
+                See its pairings in 3D
               </button>
             )}
           </div>
@@ -562,7 +561,7 @@ export default function CookbookLab({
             className="mb-3 inline-flex items-center gap-1 px-3 py-1 text-sm rounded-full transition-colors"
             style={{ fontFamily: FONT, border: `1px solid ${CHALK_RAIL}`, background: 'rgba(255,255,255,0.04)', color: CHALK_DIM }}
           >
-            ← Make → Pick a recipe
+            Back
           </button>
         )}
         <div className="mb-1">
@@ -581,7 +580,7 @@ export default function CookbookLab({
             type="search"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search dish or ingredient — e.g. chicken, ginger"
+            placeholder="Search a dish, or ingredients like chicken, ginger"
             aria-label="Search dishes by name or ingredient"
             data-testid="cookbook-search"
             className="w-full max-w-md px-2.5 py-1.5 rounded-md focus:outline-none text-[16px]"
@@ -590,7 +589,7 @@ export default function CookbookLab({
           {searchTerms.length > 0 && filtered.length > 0 && (
             <div className="mt-2">
               <p className="text-[13px] mb-1" style={{ color: CHALK_SUB }} aria-live="polite">
-                {filtered.length} dish{filtered.length === 1 ? '' : 'es'} match “{searchTerm.trim()}” · separate ingredients with commas to combine
+                {filtered.length} dish{filtered.length === 1 ? '' : 'es'} match “{searchTerm.trim()}”
               </p>
               {inventButton}
             </div>
@@ -601,7 +600,7 @@ export default function CookbookLab({
         <div className="flex flex-col gap-3 mb-6">
           {/* Cuisine cookbook shelf */}
           <div>
-            <span className="text-[11px] uppercase tracking-wider" style={{ color: CHALK_SUB }}>Cuisines · swipe →</span>
+            <span className="text-[13px]" style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif', color: CHALK_SUB }}>Cuisines</span>
             {(() => {
               const books = [{ key: null, label: 'All' }, ...cuisines.map((c) => ({ key: c, label: c }))];
               const SLOT = 88;
@@ -640,7 +639,7 @@ export default function CookbookLab({
           </div>
           {/* Dish-type — icon-only (no bubbles), label underneath */}
           <div>
-            <span className="text-[11px] uppercase tracking-wider block text-center" style={{ color: CHALK_SUB }}>Type</span>
+            <span className="text-[13px] block text-center" style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif', color: CHALK_SUB }}>Kind of dish</span>
             <div className="flex flex-wrap items-end justify-center gap-4 sm:gap-6 mt-2">
               {[{ key: null, label: 'All', kind: 'dot' }, ...clusters.map((c) => ({ key: c, label: c, kind: typeIconKind(c) }))].map((t) => {
                 const active = t.key === null ? !clusterFilter : clusterFilter === t.key;

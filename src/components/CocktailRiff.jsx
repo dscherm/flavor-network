@@ -46,7 +46,7 @@ export default function CocktailRiff({
       <div className="w-full max-w-[560px] flex items-center justify-between mb-2">
         <button type="button" onClick={onClose} data-testid="cocktail-riff-close"
           className="px-3 py-2 rounded-lg" style={{ fontFamily: FONT, fontSize: 18, border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}>
-          ← Back to card
+          Back to the card
         </button>
         {changed && (
           <button type="button" onClick={() => { setRows(original); setOpen(null); }} className="text-[13px] underline underline-offset-2" style={{ color: CHALK_DIM }}>
@@ -71,7 +71,7 @@ export default function CocktailRiff({
                 <span className="flex-1 min-w-0">
                   <span className="block text-[20px] truncate" style={{ fontFamily: FONT, color: r.swappedFrom ? color : CHALK_CREAM, textShadow: CHALK_SHADOW }}>{r.name}</span>
                   <span className="block text-[11px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>
-                    {ROLE_LABEL[r.role] || 'other'}{r.swappedFrom ? ` · was ${r.swappedFrom}` : ''}
+                    {ROLE_LABEL[r.role] || 'other'}{r.swappedFrom ? `, was ${r.swappedFrom}` : ''}
                   </span>
                 </span>
                 {r.swappable && r.role && (
@@ -102,14 +102,14 @@ export default function CocktailRiff({
 
         {changed && (
           <div className="mt-4" data-testid="cocktail-riff-nearest">
-            <p className="text-[13px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>Closest existing cocktails</p>
+            <p className="text-[13px] mb-1" style={{ fontFamily: SANS, color: CHALK_SUB }}>Closest cocktails on the menu</p>
             {nearest.length === 0 && <p className="text-[15px]" style={{ fontFamily: FONT, color: CHALK_DIM }}>Nothing close in the list — this one might be new.</p>}
             {nearest.map((n, idx) => (
               <button key={n.cocktail.name} type="button" onClick={() => onSelectCocktail?.(n.cocktail.name)}
                 className="w-full text-left flex items-baseline gap-2 py-0.5">
                 <span className="text-[19px]" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{n.cocktail.name}</span>
                 <span className="text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
-                  {Math.round(n.similarity * 100)}% alike · shares {n.shared.join(', ')}
+                  {Math.round(n.similarity * 100)}% alike, shares {n.shared.join(', ')}
                   {idx === 0 && n.similarity >= 0.9 ? ' — your riff is basically this drink' : ''}
                 </span>
               </button>
@@ -120,7 +120,7 @@ export default function CocktailRiff({
         {changed && onOpenRecipeLab && (
           <button type="button" onClick={() => onOpenRecipeLab(rows.map((r) => r.key))}
             className="mt-4 w-full px-4 py-2.5 rounded-lg" style={{ fontFamily: FONT, fontSize: 18, color: '#0a0a0a', background: CHALK_CREAM }}>
-            Write this riff in the Recipe Notebook →
+            Write this riff in the Recipe Notebook
           </button>
         )}
       </div>

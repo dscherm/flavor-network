@@ -109,7 +109,7 @@ export default function AppleNewsFallback({ info, onImportUrl, onBack, inputStyl
       </div>
 
       <p className="text-xs mb-4" style={{ color: CHALK_SUB }} data-testid="make-weblink-applenews-tip">
-        Tip: in Apple News, tap Share → Open in Safari, then share that page's link instead.
+        Tip: in Apple News, tap Share, then Open in Safari, then share that page's link instead.
       </p>
 
       <div className="flex items-center justify-between gap-2" style={{ borderTop: `1px solid ${CHALK_RAIL}`, paddingTop: 12 }}>
@@ -120,7 +120,7 @@ export default function AppleNewsFallback({ info, onImportUrl, onBack, inputStyl
           style={{ fontFamily: FONT, color: CHALK_DIM }}
           data-testid="make-weblink-applenews-back"
         >
-          ← Back to picker
+          Back to the picker
         </button>
       </div>
     </div>

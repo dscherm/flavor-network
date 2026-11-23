@@ -44,8 +44,8 @@ export function Chip({ item, onClick, testid, color = ACCENT, haveLabel = 'have'
     <button type="button" onClick={onClick} data-testid={testid} data-key={item.key} aria-pressed={pressed}
       className={`px-3 rounded-full min-h-[44px] inline-flex items-center gap-1 ${fit ? '' : 'max-w-full'}`} style={btn({ background: item.have ? `${color}33` : 'transparent' })}>
       <span className="truncate flex-shrink-0 max-w-full">{item.key}</span>
-      {item.have ? <span className="text-[11px] flex-shrink-0" style={{ fontFamily: SANS, color: CHALK_DIM }}>· {haveLabel}</span> : null}
-      {item.note ? <span className="text-[11px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>· {item.note}</span> : null}
+      {item.have ? <span className="text-[11px] flex-shrink-0" style={{ fontFamily: SANS, color: CHALK_DIM }}>{haveLabel}</span> : null}
+      {item.note ? <span className="text-[11px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>{item.note}</span> : null}
     </button>
   );
 }

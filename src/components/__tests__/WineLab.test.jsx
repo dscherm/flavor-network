@@ -18,14 +18,14 @@ beforeEach(() => {
 describe('WineLab — browse', () => {
   it('lists every wine under its family', async () => {
     render(<WineLab />);
-    await waitFor(() => expect(screen.getByText('Wine List')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Wine list')).toBeInTheDocument());
     for (const fam of WINE_JSON._meta.families) expect(screen.getByTestId(`wine-family-${fam.id}`)).toBeInTheDocument();
     expect(document.querySelectorAll('[data-testid^="wine-row-"]').length).toBe(WINE_JSON.wines.length);
   });
 
   it('search matches food: "salmon" finds the wines that list it', async () => {
     render(<WineLab />);
-    await waitFor(() => screen.getByText('Wine List'));
+    await waitFor(() => screen.getByText('Wine list'));
     fireEvent.change(screen.getByLabelText(/search wines/i), { target: { value: 'salmon' } });
     const expected = WINE_JSON.wines.filter((w) => w.classicMatches.includes('salmon')).map((w) => w.id).sort();
     const shown = [...document.querySelectorAll('[data-testid^="wine-row-"]')].map((el) => el.dataset.testid.replace('wine-row-', '')).sort();
@@ -34,7 +34,7 @@ describe('WineLab — browse', () => {
 
   it('search matches grape: "nebbiolo" finds Barolo', async () => {
     render(<WineLab />);
-    await waitFor(() => screen.getByText('Wine List'));
+    await waitFor(() => screen.getByText('Wine list'));
     fireEvent.change(screen.getByLabelText(/search wines/i), { target: { value: 'nebbiolo' } });
     expect(screen.getByTestId('wine-row-barolo')).toBeInTheDocument();
     expect(screen.queryByTestId('wine-row-chablis')).toBeNull();
@@ -42,7 +42,7 @@ describe('WineLab — browse', () => {
 
   it('colour chips filter (Sparkling includes Lambrusco and Moscato d’Asti)', async () => {
     render(<WineLab />);
-    await waitFor(() => screen.getByText('Wine List'));
+    await waitFor(() => screen.getByText('Wine list'));
     fireEvent.click(screen.getByRole('button', { name: 'Sparkling' }));
     expect(screen.getByTestId('wine-row-lambrusco')).toBeInTheDocument();
     expect(screen.getByTestId('wine-row-moscato-dasti')).toBeInTheDocument();
@@ -51,7 +51,7 @@ describe('WineLab — browse', () => {
 
   it('country chips filter, and a country shows its region chips', async () => {
     render(<WineLab />);
-    await waitFor(() => screen.getByText('Wine List'));
+    await waitFor(() => screen.getByText('Wine list'));
     fireEvent.click(screen.getByTestId('wine-country-Italy'));
     const shown = [...document.querySelectorAll('[data-testid^="wine-row-"]')].map((el) => el.dataset.testid.replace('wine-row-', ''));
     expect(shown.sort()).toEqual(WINE_JSON.wines.filter((w) => w.countries.includes('Italy')).map((w) => w.id).sort());
@@ -62,7 +62,7 @@ describe('WineLab — browse', () => {
 
   it('search matches a region name: "tuscany" finds Chianti and Vin Santo', async () => {
     render(<WineLab />);
-    await waitFor(() => screen.getByText('Wine List'));
+    await waitFor(() => screen.getByText('Wine list'));
     fireEvent.change(screen.getByLabelText(/search wines/i), { target: { value: 'tuscany' } });
     const shown = [...document.querySelectorAll('[data-testid^="wine-row-"]')].map((el) => el.dataset.testid.replace('wine-row-', ''));
     expect(shown.sort()).toEqual(['chianti', 'vin-santo']);
@@ -70,7 +70,7 @@ describe('WineLab — browse', () => {
 
   it('group by country makes one section per home country, each wine once', async () => {
     render(<WineLab />);
-    await waitFor(() => screen.getByText('Wine List'));
+    await waitFor(() => screen.getByText('Wine list'));
     fireEvent.click(screen.getByRole('button', { name: 'Country' }));
     expect(screen.getByTestId('wine-country-section-France')).toBeInTheDocument();
     expect(screen.getByTestId('wine-country-section-Hungary')).toBeInTheDocument();
@@ -79,7 +79,7 @@ describe('WineLab — browse', () => {
 
   it('opens a wine card with structure, grapes, notes and classic foods', async () => {
     render(<WineLab />);
-    await waitFor(() => screen.getByText('Wine List'));
+    await waitFor(() => screen.getByText('Wine list'));
     fireEvent.click(screen.getByTestId('wine-row-chianti'));
     const card = screen.getByTestId('lab-node-card');
     expect(card).toHaveAttribute('data-kind', 'wine');
@@ -96,10 +96,10 @@ describe('WineLab — browse', () => {
 
   it('the wine card shows the structure wheel, aroma families and pairing rules', async () => {
     render(<WineLab />);
-    await waitFor(() => screen.getByText('Wine List'));
+    await waitFor(() => screen.getByText('Wine list'));
     fireEvent.click(screen.getByTestId('wine-row-barolo'));
     const card = screen.getByTestId('lab-node-card');
-    expect(within(card).getByText('Flavour profile')).toBeInTheDocument();
+    expect(within(card).getByText('Flavor profile')).toBeInTheDocument();
     // WHEEL-2: fixed wedges for wine's own six axes (the same drawing as the flavor wheel), no polygon radar, no seventeen notes
     expect(within(card).getByRole('img', { name: /Wine structure wheel/i })).toBeInTheDocument();
     for (const axis of ['body', 'acidity', 'tannin', 'sweetness', 'alcohol']) expect(within(card).getByTestId(`wine-wedge-${axis}`)).toBeInTheDocument();
@@ -108,14 +108,14 @@ describe('WineLab — browse', () => {
     expect(within(card).getByRole('list', { name: 'Structure' })).toHaveTextContent('Tannin 100 percent');
     expect(within(card).queryByRole('img', { name: /structure radar/i })).toBeNull();
     expect(within(card).getByTestId('wine-aroma-families')).toHaveTextContent('Earthy');
-    expect(within(card).getByText('Pairs by profile')).toBeInTheDocument();
+    expect(within(card).getByText('What it suits')).toBeInTheDocument();
     expect(within(card).getByTestId('wine-rule-tannin')).toHaveTextContent(/red meat/i);
     expect(within(card).getByTestId('wine-avoid')).toHaveTextContent(/fish/i);
   });
 
   it('a dessert wine card maps to desserts, not to red meat', async () => {
     render(<WineLab />);
-    await waitFor(() => screen.getByText('Wine List'));
+    await waitFor(() => screen.getByText('Wine list'));
     fireEvent.click(screen.getByTestId('wine-row-sauternes'));
     const card = screen.getByTestId('lab-node-card');
     expect(within(card).getByTestId('wine-rule-dessert')).toHaveTextContent(/desserts/i);

@@ -100,8 +100,8 @@ function MenuTable({ rows }) {
       {visible.map((r) => (
         <React.Fragment key={r.label}>
           <span
-            className="text-[10px] uppercase tracking-[0.18em] self-center text-right"
-            style={{ color: CHALK_DIM, fontFamily: FONT_HAND, letterSpacing: '0.06em', textShadow: CHALK_TEXT_SHADOW }}
+            className="text-[13px] self-center text-right"
+            style={{ color: CHALK_DIM, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
             data-testid={`pairing-card-row-${r.label.toLowerCase()}`}
           >
             {r.label}
@@ -118,16 +118,16 @@ function MenuTable({ rows }) {
   );
 }
 
-function ChipStrip({ label, items, color }) {
+function ChipStrip({ label, items, color, id = label.toLowerCase() }) {
   if (!Array.isArray(items) || items.length === 0) return null;
   return (
     <div
       className="flex items-center gap-1.5 w-full"
-      data-testid={`pairing-card-${label.toLowerCase()}`}
+      data-testid={`pairing-card-${id}`}
     >
       <span
-        className="text-[10px] uppercase tracking-[0.16em] flex-shrink-0 w-[68px] text-right"
-        style={{ color: CHALK_DIM, fontFamily: FONT_HAND, letterSpacing: '0.06em', textShadow: CHALK_TEXT_SHADOW }}
+        className="text-[13px] flex-shrink-0 w-[68px] text-right"
+        style={{ color: CHALK_DIM, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
       >
         {label}
       </span>
@@ -165,8 +165,8 @@ function CompoundList({ compounds }) {
       data-count={compounds.length}
     >
       <span
-        className="text-[10px] uppercase tracking-[0.16em]"
-        style={{ color: '#86efac', fontFamily: FONT_HAND, letterSpacing: '0.06em', textShadow: CHALK_TEXT_SHADOW }}
+        className="text-[13px]"
+        style={{ color: '#86efac', fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
       >
         Shared aroma compounds ({compounds.length})
       </span>
@@ -293,7 +293,7 @@ export default function PairingModeCard({
     } : null,
     Array.isArray(node.cuisines) && node.cuisines.length > 0 ? {
       label: 'Cuisines',
-      value: node.cuisines.slice(0, 3).join(' · '),
+      value: node.cuisines.slice(0, 3).join(', '),
     } : null,
     typeof node.season === 'string' && node.season ? {
       label: 'Season',
@@ -330,10 +330,10 @@ export default function PairingModeCard({
       </h3>
       {typeof strength === 'number' && strength > 0 && (
         <div
-          className="text-[16px] tracking-widest uppercase"
-          style={{ color: '#86e7f5', fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
+          className="text-[13px]"
+          style={{ color: CHALK_DIM, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
         >
-          pair strength {strength.toFixed(2)}
+          Pair strength {strength.toFixed(2)}
         </div>
       )}
       {fb && (
@@ -352,7 +352,7 @@ export default function PairingModeCard({
         <ChipStrip label="Aroma" items={tier1} color="#86e7f5" />
         <ChipStrip label="Taste" items={tier2} color="#fbbf24" />
         <ChipStrip label="Mouthfeel" items={tier3} color="#a78bfa" />
-        <ChipStrip label="Leaves" items={leaves} color="#cbd5e1" />
+        <ChipStrip label="More notes" id="leaves" items={leaves} color="#cbd5e1" />
       </div>
       <CompoundList compounds={sharedCompounds} />
       <div className="mt-auto">

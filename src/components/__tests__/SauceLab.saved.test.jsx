@@ -182,7 +182,7 @@ describe('SauceLab — Edit and Delete', () => {
 
   it('opens the normal card, marked yours, with Edit and Delete', async () => {
     const card = await openCard(withSaved([item()]));
-    expect(card).toHaveTextContent('YOURS');
+    expect(card).toHaveTextContent('Yours');
     expect(within(card).getByTestId('saved-edit')).toBeInTheDocument();
     expect(within(card).getByTestId('saved-delete')).toBeInTheDocument();
     expect(within(card).getByTestId('lab-node-card-ingredients')).toHaveTextContent('miso');

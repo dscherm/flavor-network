@@ -62,7 +62,7 @@ export default function FlavorGrid({ grid, marks = null, showLabels = false, tit
   let at = 0;
   for (const n of grid.rows) { rows.push(grid.cells.slice(at, at + n)); at += n; }
   const heading = (t) => (
-    <div className="uppercase tracking-[0.18em] text-left" style={{ fontFamily: FONT, fontSize: 10, color: DIM }}>{t}</div>
+    <div className="text-left" style={{ fontFamily: FONT, fontSize: 13, color: DIM }}>{t}</div>
   );
   return (
     <div className="w-full min-w-0" data-testid={testId}>

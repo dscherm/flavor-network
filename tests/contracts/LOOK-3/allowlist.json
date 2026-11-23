@@ -1,0 +1,264 @@
+{
+  "entries": [
+    {
+      "file": "src/components/AffinityFlavorWheel.jsx",
+      "pattern": "uppercase",
+      "reason": "AffinityFlavorWheel is imported only by IngredientPanel (a parked view named in brief section 3.3), the 3D network ingredient panel; not a LOOK-3 surface."
+    },
+    {
+      "file": "src/components/AffinityPanel.jsx",
+      "pattern": " · ",
+      "reason": "AffinityPanel has no importer under src outside tests (network or molecule view that is not mounted); not a LOOK-3 surface."
+    },
+    {
+      "file": "src/components/AffinityPanel.jsx",
+      "pattern": "uppercase",
+      "reason": "AffinityPanel has no importer under src outside tests (network or molecule view that is not mounted); not a LOOK-3 surface."
+    },
+    {
+      "file": "src/components/AlphaModeDetailsCard.jsx",
+      "pattern": " · ",
+      "reason": "Parked or unmounted view named in brief section 3.3 (AlphaModeDetailsCard); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/AlphaModeDetailsCard.jsx",
+      "pattern": "uppercase",
+      "reason": "Parked or unmounted view named in brief section 3.3 (AlphaModeDetailsCard); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/AlphaModeDetailsCard.jsx",
+      "pattern": "←",
+      "reason": "Parked or unmounted view named in brief section 3.3 (AlphaModeDetailsCard); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/AlphaModeDetailsCard.jsx",
+      "pattern": "→",
+      "reason": "Parked or unmounted view named in brief section 3.3 (AlphaModeDetailsCard); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/ClusterJoystick.jsx",
+      "pattern": "uppercase",
+      "reason": "ClusterJoystick has no importer under src outside tests (network or molecule view that is not mounted); not a LOOK-3 surface."
+    },
+    {
+      "file": "src/components/CocktailCard.jsx",
+      "pattern": " · ",
+      "reason": "Parked or unmounted view named in brief section 3.3 (CocktailCard); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/CocktailCard.jsx",
+      "pattern": "uppercase",
+      "reason": "Parked or unmounted view named in brief section 3.3 (CocktailCard); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/CocktailDetailPanel.jsx",
+      "pattern": " · ",
+      "reason": "Parked or unmounted view named in brief section 3.3 (CocktailDetailPanel); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/CocktailDetailPanel.jsx",
+      "pattern": "uppercase",
+      "reason": "Parked or unmounted view named in brief section 3.3 (CocktailDetailPanel); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/CocktailRecipeCard.jsx",
+      "pattern": "uppercase",
+      "reason": "Parked or unmounted view named in brief section 3.3 (CocktailRecipeCard); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/CocktailRecipeCard.jsx",
+      "pattern": "→",
+      "reason": "Parked or unmounted view named in brief section 3.3 (CocktailRecipeCard); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/Controls.jsx",
+      "pattern": "uppercase",
+      "reason": "Controls has no importer under src outside tests (network or molecule view that is not mounted); not a LOOK-3 surface."
+    },
+    {
+      "file": "src/components/CuisineFilterPills.jsx",
+      "pattern": "uppercase",
+      "reason": "CuisineFilterPills is imported only by IngredientPanel (a parked view named in brief section 3.3), the 3D network ingredient panel; not a LOOK-3 surface."
+    },
+    {
+      "file": "src/components/DistilledProfile.jsx",
+      "pattern": "uppercase",
+      "reason": "DistilledProfile is imported only by IngredientPanel (a parked view named in brief section 3.3), the 3D network ingredient panel; not a LOOK-3 surface."
+    },
+    {
+      "file": "src/components/FilterPullSlider.jsx",
+      "pattern": "uppercase",
+      "reason": "FilterPullSlider has no importer under src outside tests (network or molecule view that is not mounted); not a LOOK-3 surface."
+    },
+    {
+      "file": "src/components/FlavorGraphTree.jsx",
+      "pattern": "uppercase",
+      "reason": "FlavorGraphTree is imported only by IngredientPanel (a parked view named in brief section 3.3), the 3D network ingredient panel; not a LOOK-3 surface."
+    },
+    {
+      "file": "src/components/FlavorPathCard.jsx",
+      "pattern": "uppercase",
+      "reason": "FlavorPathCard is imported only by IngredientPanel (a parked view named in brief section 3.3), the 3D network ingredient panel; not a LOOK-3 surface."
+    },
+    {
+      "file": "src/components/FlavorPathCard.jsx",
+      "pattern": "→",
+      "reason": "FlavorPathCard is imported only by IngredientPanel (a parked view named in brief section 3.3), the 3D network ingredient panel; not a LOOK-3 surface."
+    },
+    {
+      "file": "src/components/FlavorTreeExplorer.jsx",
+      "pattern": "uppercase",
+      "reason": "Parked or unmounted view named in brief section 3.3 (FlavorTreeExplorer); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/GlobalInsights.jsx",
+      "pattern": "uppercase",
+      "reason": "Parked or unmounted view named in brief section 3.3 (GlobalInsights); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/HowItWorks.jsx",
+      "pattern": " · ",
+      "reason": "HowItWorks has no importer under src outside tests (network or molecule view that is not mounted); not a LOOK-3 surface."
+    },
+    {
+      "file": "src/components/HowItWorks.jsx",
+      "pattern": "→",
+      "reason": "HowItWorks has no importer under src outside tests (network or molecule view that is not mounted); not a LOOK-3 surface."
+    },
+    {
+      "file": "src/components/IngredientPanel.jsx",
+      "pattern": " · ",
+      "reason": "Parked or unmounted view named in brief section 3.3 (IngredientPanel); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/IngredientPanel.jsx",
+      "pattern": "uppercase",
+      "reason": "Parked or unmounted view named in brief section 3.3 (IngredientPanel); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/IngredientPanel.jsx",
+      "pattern": "→",
+      "reason": "Parked or unmounted view named in brief section 3.3 (IngredientPanel); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/InsightDrawer.jsx",
+      "pattern": " · ",
+      "reason": "Parked or unmounted view named in brief section 3.3 (InsightDrawer); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/InsightDrawer.jsx",
+      "pattern": "uppercase",
+      "reason": "Parked or unmounted view named in brief section 3.3 (InsightDrawer); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/MessagePassingDiagram.jsx",
+      "pattern": " · ",
+      "reason": "MessagePassingDiagram has no importer under src outside tests (network or molecule view that is not mounted); not a LOOK-3 surface."
+    },
+    {
+      "file": "src/components/MessagePassingDiagram.jsx",
+      "pattern": "uppercase",
+      "reason": "MessagePassingDiagram has no importer under src outside tests (network or molecule view that is not mounted); not a LOOK-3 surface."
+    },
+    {
+      "file": "src/components/MoleculeOfTheDay.jsx",
+      "pattern": "uppercase",
+      "reason": "MoleculeOfTheDay has no importer under src outside tests (network or molecule view that is not mounted); not a LOOK-3 surface."
+    },
+    {
+      "file": "src/components/MoleculeOfTheDay.jsx",
+      "pattern": "→",
+      "reason": "MoleculeOfTheDay has no importer under src outside tests (network or molecule view that is not mounted); not a LOOK-3 surface."
+    },
+    {
+      "file": "src/components/PairingLab.jsx",
+      "pattern": " · ",
+      "reason": "Parked or unmounted view named in brief section 3.3 (PairingLab); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/PairingLab.jsx",
+      "pattern": "→",
+      "reason": "Parked or unmounted view named in brief section 3.3 (PairingLab); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/PairingMode.jsx",
+      "pattern": " · ",
+      "reason": "Parked or unmounted view named in brief section 3.3 (PairingMode); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/PairingMode.jsx",
+      "pattern": "←",
+      "reason": "Parked or unmounted view named in brief section 3.3 (PairingMode); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/PairingMode.jsx",
+      "pattern": "→",
+      "reason": "Parked or unmounted view named in brief section 3.3 (PairingMode); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/ProfileRadar.jsx",
+      "pattern": "uppercase",
+      "reason": "ProfileRadar is imported only by IngredientPanel (a parked view named in brief section 3.3), the 3D network ingredient panel; not a LOOK-3 surface."
+    },
+    {
+      "file": "src/components/ProfileRadarCarousel.jsx",
+      "pattern": "←",
+      "reason": "ProfileRadarCarousel is imported only by IngredientPanel (a parked view named in brief section 3.3), the 3D network ingredient panel; not a LOOK-3 surface."
+    },
+    {
+      "file": "src/components/ProfileRadarCarousel.jsx",
+      "pattern": "→",
+      "reason": "ProfileRadarCarousel is imported only by IngredientPanel (a parked view named in brief section 3.3), the 3D network ingredient panel; not a LOOK-3 surface."
+    },
+    {
+      "file": "src/components/SauceDetailPanel.jsx",
+      "pattern": " · ",
+      "reason": "Parked or unmounted view named in brief section 3.3 (SauceDetailPanel); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/SauceDetailPanel.jsx",
+      "pattern": "uppercase",
+      "reason": "Parked or unmounted view named in brief section 3.3 (SauceDetailPanel); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/ShapeLegend.jsx",
+      "pattern": "uppercase",
+      "reason": "ShapeLegend is imported only by LivingArchView (the parked 3D network, named in brief section 3.3); not a LOOK-3 surface."
+    },
+    {
+      "file": "src/components/SharedMoleculesCard.jsx",
+      "pattern": "uppercase",
+      "reason": "SharedMoleculesCard is imported only by IngredientPanel (a parked view named in brief section 3.3), the 3D network ingredient panel; not a LOOK-3 surface."
+    },
+    {
+      "file": "src/components/StoryPanel.jsx",
+      "pattern": "uppercase",
+      "reason": "Parked or unmounted view named in brief section 3.3 (StoryPanel); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/TierBadge.jsx",
+      "pattern": "uppercase",
+      "reason": "TierBadge is imported only by IngredientPanel (a parked view named in brief section 3.3), the 3D network ingredient panel; not a LOOK-3 surface."
+    },
+    {
+      "file": "src/components/TrainingTraceModal.jsx",
+      "pattern": " · ",
+      "reason": "TrainingTraceModal has no importer under src outside tests (network or molecule view that is not mounted); not a LOOK-3 surface."
+    },
+    {
+      "file": "src/components/TrainingTraceModal.jsx",
+      "pattern": "uppercase",
+      "reason": "TrainingTraceModal has no importer under src outside tests (network or molecule view that is not mounted); not a LOOK-3 surface."
+    },
+    {
+      "file": "src/components/Walkthrough.jsx",
+      "pattern": "uppercase",
+      "reason": "Parked or unmounted view named in brief section 3.3 (Walkthrough); not a LOOK-3 surface, not restyled."
+    },
+    {
+      "file": "src/components/WedgeGridFlavorWheel.jsx",
+      "pattern": "uppercase",
+      "reason": "WedgeGridFlavorWheel is imported only by IngredientPanel (a parked view named in brief section 3.3), the 3D network ingredient panel; not a LOOK-3 surface."
+    }
+  ]
+}

@@ -28,7 +28,7 @@ function Strip({ title, row, id, p }) {
   if (!row.segments.length) return null;
   return (
     <div className="grid items-start gap-2 min-w-0" style={{ gridTemplateColumns: '3.6em 1fr' }}>
-      <span className="text-[11px] uppercase tracking-wider pt-[1px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>{title}</span>
+      <span className="text-[13px] pt-[1px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>{title}</span>
       <div className="flex min-w-0" style={{ gap: 2 }} data-testid={`${p}-strip-${id}`} aria-hidden="true">
         {row.segments.map((s) => (
           <div key={s.axis} data-testid={`${p}-seg-${s.axis}`} className="flex flex-col min-w-0" style={{ width: `${(s.length * 100).toFixed(2)}%`, gap: 4 }}>

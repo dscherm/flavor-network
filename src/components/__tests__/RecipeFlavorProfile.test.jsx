@@ -40,7 +40,7 @@ describe('LabNodeCard: Flavor profile', () => {
     const section = screen.getByTestId('flavor-profile-section');
     expect(within(section).getByText('Taste')).toBeInTheDocument();
     expect(within(section).getByText('Aroma')).toBeInTheDocument();
-    expect(within(section).getByTestId('flavor-profile-driven')).toHaveTextContent('Driven by');
+    expect(within(section).getByTestId('flavor-profile-driven')).toHaveTextContent('Where it comes from');
     expect(within(section).getByText(/A guide, not a taste test/)).toBeInTheDocument();
     expect(onProfileOpen).toHaveBeenCalledWith('cocktail', true);
     expect(fetchSpy).not.toHaveBeenCalled();

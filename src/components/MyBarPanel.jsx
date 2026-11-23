@@ -151,13 +151,13 @@ export default function MyBarPanel({
       data-testid="my-bar-panel" role="dialog" aria-label="My bar">
       <div className="w-full max-w-[560px] flex items-center justify-between mb-2 gap-2">
         <button type="button" onClick={onClose} data-testid="my-bar-close"
-          className="px-3 py-2 rounded-lg min-h-[44px]" style={{ fontFamily: FONT, fontSize: 18, border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}>
-          ← Back to the menu
+          className="px-3 py-2 rounded-lg min-h-[44px] min-w-[44px]" style={{ fontFamily: FONT, fontSize: 18, border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}>
+          Back to the menu
         </button>
         {onInvent && (
           <button type="button" onClick={onInvent} data-testid="my-bar-invent"
             className="px-3 py-2 rounded-lg min-h-[44px]" style={{ fontFamily: FONT, fontSize: 18, color: '#0a0a0a', background: CHALK_CREAM }}>
-            Invent a cocktail →
+            Invent a cocktail
           </button>
         )}
       </div>
@@ -243,7 +243,7 @@ export default function MyBarPanel({
 
         {kitchenForDrinks.length > 0 && (
           <div className="mt-3" data-testid="my-bar-kitchen">
-            <p className="text-[12px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>From your kitchen</p>
+            <p className="text-[13px] mb-1" style={{ fontFamily: SANS, color: CHALK_SUB }}>From your kitchen</p>
             <ul className="flex flex-wrap gap-1.5" aria-label="From your kitchen">
               {kitchenForDrinks.map((k) => (
                 <li key={k}>
@@ -259,7 +259,7 @@ export default function MyBarPanel({
 
         {common.some((k) => !stock.includes(k)) && (
           <div className="mt-3">
-            <p className="text-[12px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>Quick add — most used in cocktails</p>
+            <p className="text-[13px] mb-1" style={{ fontFamily: SANS, color: CHALK_SUB }}>Most used in cocktails</p>
             <div className="flex flex-wrap gap-1.5" data-testid="my-bar-quick">
               {common.filter((k) => !stock.includes(k)).map((k) => (
                 <button key={k} type="button" onClick={() => add(k)}
@@ -305,9 +305,9 @@ export default function MyBarPanel({
                       <span className="flex-1 min-w-0">
                         <span className="block text-[20px]" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{m.cocktail.name}</span>
                         <span className="block text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
-                          missing {m.missing[0].key}
-                          {m.suggestion ? ` · or use your ${m.suggestion.use} in its place` : ''}
-                          {m.substitutions.length ? ` · ${substitutionText(m.substitutions)}` : ''}
+                          {`missing ${m.missing[0].key}.`}
+                          {m.suggestion ? ` Or use your ${m.suggestion.use} in its place.` : ''}
+                          {m.substitutions.length ? ` ${substitutionText(m.substitutions).replace(/\.?$/, '.')}` : ''}
                         </span>
                       </span>
                     </button>

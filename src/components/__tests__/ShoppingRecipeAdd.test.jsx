@@ -274,8 +274,9 @@ describe('keyboard and structure', () => {
     render(<Harness stock={stockOf(STOCK)} />);
     const t = screen.getByTestId('shopping-empty').textContent;
     expect(t).toMatch(/Type an item above/);
-    expect(t).toMatch(/Add from a recipe/);
-    expect(t).toMatch(/Add to shopping list/);
+    expect(t).toMatch(/add a recipe/);
+    fireEvent.click(screen.getByTestId('shopping-empty-help'));
+    expect(screen.getByTestId('shopping-empty-help-popover')).toHaveTextContent(/only what you do not have/);
   });
 });
 

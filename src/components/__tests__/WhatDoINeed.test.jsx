@@ -22,7 +22,7 @@ describe('WhatDoINeed', () => {
     fireEvent.click(screen.getByTestId('what-do-i-need-have-garlic'));
     expect(onHave).toHaveBeenCalledWith('garlic');
     rerender(<WhatDoINeed title="P" needs={needsFromKitchen(recipe, ['pasta', 'tomato', 'garlic', 'basil'])} />);
-    expect(screen.getByTestId('what-do-i-need-summary').textContent).toBe('You have everything ✓');
+    expect(screen.getByTestId('what-do-i-need-summary').textContent).toBe('You have everything.');
     expect(screen.queryByTestId('what-do-i-need-copy')).toBeNull();
   });
 
@@ -33,7 +33,7 @@ describe('WhatDoINeed', () => {
     fireEvent.click(screen.getByTestId('what-do-i-need-copy'));
     await waitFor(() => expect(writeText).toHaveBeenCalled());
     expect(writeText.mock.calls[0][0]).toMatch(/^Shopping list for Pomodoro:\n- tomato\n- 3 cloves garlic/);
-    expect(await screen.findByText('Copied ✓')).toBeTruthy();
+    expect(await screen.findByText('Copied')).toBeTruthy();
   });
 
   it('with an empty kitchen, lists everything as needed', () => {

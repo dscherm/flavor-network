@@ -39,7 +39,10 @@ export default function InventCategoryPicker({
     <div data-testid={p} className="min-w-0">
       <button type="button" onClick={onToggle} aria-expanded={open} data-testid={`${p}-toggle`}
         className="w-full flex items-center justify-between gap-2 px-3 rounded-lg min-h-[44px] text-left" style={btn({ fontSize: 18 })}>
-        <span className="min-w-0 truncate">{title}{chosen ? <span style={{ color: ACCENT }}> · {chosen.label}</span> : null}</span>
+        <span className="min-w-0 flex flex-col leading-tight">
+          <span className="truncate">{title}</span>
+          {chosen ? <span className="truncate" style={{ color: ACCENT }} data-testid={`${p}-chosen`}>{chosen.label}</span> : null}
+        </span>
         <span aria-hidden="true" style={{ color: CHALK_SUB }}>{open ? '▴' : '▾'}</span>
       </button>
       {open && (

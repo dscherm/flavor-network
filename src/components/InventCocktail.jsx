@@ -43,6 +43,7 @@ import { CocktailFamilyGlass, DrinkGlass } from './cocktailGlasses.jsx';
 import { drinkColor } from '../data/drinkColor.js';
 import InventStart from './InventStart.jsx';
 import InventList from './InventList.jsx';
+import HelpBubble from './HelpBubble.jsx';
 import { IngredientBuilderScope } from './IngredientCardProvider.jsx';
 import InventChecklist from './InventChecklist.jsx';
 import InventSuggestions from './InventSuggestions.jsx';
@@ -59,6 +60,10 @@ const NEUTRAL = '#9a8f7a';
 const NO_PINS = [];
 const NO_STOCK = [];
 const article = (w) => `${/^[aeiou]/i.test(w) ? 'An' : 'A'} ${w}`;
+const inGlass = (g) => {
+  const w = String(g || '').replace(/^\w/, (c) => c.toLowerCase());
+  return `in ${/^[aeiou]/i.test(w) ? 'an' : 'a'} ${w}`;
+};
 
 export default function InventCocktail({
   bar = NO_STOCK,
@@ -209,7 +214,7 @@ export default function InventCocktail({
     const ownedKey = (k) => stockSet.size > 0 && owned(k) === true;
     const table = alternativesFor({ key: canonicalKey(key, names) }, { has: ownedKey, names, main: true })
       .alternatives.filter((a) => a.kind === 'swap' && a.source === 'kitchenSwaps' && !inDrink.has(a.key))
-      .map((a) => ({ key: a.key, have: a.have, note: a.have ? a.note || undefined : [a.note, stockSet.size ? 'not in your bar' : ''].filter(Boolean).join(' · ') || undefined }));
+      .map((a) => ({ key: a.key, have: a.have, note: a.have ? a.note || undefined : [a.note, stockSet.size ? 'not in your bar' : ''].filter(Boolean).join(', ') || undefined }));
     const mine = idx < 0 ? [] : swapCandidates(rows, idx, barRolePool(stock, roles, rows[idx]), pairingIndex, 6)
       .map((c) => ({ key: c.name, have: true, note: c.reason }));
     const out = [];
@@ -263,7 +268,7 @@ export default function InventCocktail({
   const pickerOptions = INVENT_FAMILY_ORDER.map((id) => ({
     id,
     label: familyName(id),
-    blurb: `${FAMILY_BLURB[id]} · ${FAMILY_SKELETONS[id].glass.split(' or ')[0]}`,
+    blurb: `${FAMILY_BLURB[id]}. Served ${inGlass(FAMILY_SKELETONS[id].glass.split(' or ')[0])}.`,
     art: <CocktailFamilyGlass familyName={familyName(id)} color={familyColor(id)} liquid={familyColor(id)} size={30} testid={`invent-family-glass-${id}`} />,
   }));
 
@@ -277,23 +282,25 @@ export default function InventCocktail({
       style={{ ...chalkSurfaceStyle(), bottom: 'var(--tab-bar-h)', color: CHALK_CREAM }}
       data-testid="invent-cocktail" role="dialog" aria-label="Invent a cocktail">
       <div className="w-full max-w-[560px] flex items-center justify-between mb-2">
-        <button type="button" onClick={onClose} data-testid="invent-close" className="px-3 py-2 rounded-lg min-h-[44px]" style={btnStyle}>← Back</button>
+        <button type="button" onClick={onClose} data-testid="invent-close" className="px-3 py-2 rounded-lg min-h-[44px] min-w-[44px]" style={btnStyle}>Back</button>
       </div>
 
       <div className="w-full max-w-[560px] rounded-2xl px-4 py-4 flex flex-col gap-4 min-w-0" style={{ border: `2px double ${CHALK_RAIL}`, background: 'rgba(255,255,255,0.025)' }}>
-        <h2 className="text-center text-[34px] leading-tight" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }}>Invent a cocktail</h2>
+        <div className="flex items-center justify-center gap-1">
+          <h2 className="text-center text-[34px] leading-tight" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }}>Invent a cocktail</h2>
+          {started ? (
+            <HelpBubble variant="chalk" label="How this works" testId="invent-source-help"
+              body={stock.length
+                ? `Marked against your bar and kitchen (${stock.length} item${stock.length === 1 ? '' : 's'}).`
+                : 'Your bar is empty, so suggestions draw on every bottle in the cocktail list.'} />
+          ) : null}
+        </div>
 
         {!started ? (
           <InventStart question="Which liquor do you want to use?" options={startOptions} onPick={startWith}
             placeholder="or type one" labels={{ go: 'Start' }} testidPrefix="invent-start" />
         ) : (
           <>
-            <p className="text-center text-[13px] -mt-2" style={{ fontFamily: SANS, color: CHALK_SUB }} data-testid="invent-source">
-              {stock.length
-                ? `Marked against your bar and kitchen (${stock.length} item${stock.length === 1 ? '' : 's'}).`
-                : 'Your bar is empty, so suggestions draw on every bottle in the cocktail list.'}
-            </p>
-
             <InventList lines={lines} vocab={vocab} notice={notice} onAdd={(t) => { noteTypedIngredient('cocktail', t, names); return add(t); }} onRemove={remove}
               onAmount={(k, t) => patch({ edited: { ...edited, [k]: t } })}
               replacementsFor={replacementsFor} onReplace={replace} onReplaceDeck={(k, cands) => setDeck({ mode: 'replace', ingredient: k, candidates: cands })} testidPrefix="invent-list" />
@@ -339,14 +346,14 @@ export default function InventCocktail({
                   </span>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-[24px] leading-tight" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }} data-testid="invent-style">{familyName(categoryId)}</h3>
-                    <p className="text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }} data-testid="invent-method">{drink.build} · {drink.glass}</p>
+                    <p className="text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }} data-testid="invent-method">{drink.build}, served {inGlass(drink.glass)}</p>
                   </div>
                 </div>
                 <p className="text-[14px]" style={{ fontFamily: SANS, color: CHALK_CREAM }} data-testid="invent-why">{drink.why}</p>
                 <p className="mt-1 text-[11px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>Amounts are suggestions for the style, not a tested recipe. Taste and adjust.</p>
                 {nearest.length > 0 && (
                   <div className="mt-3" data-testid="invent-nearest">
-                    <p className="text-[12px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>Closest existing cocktails</p>
+                    <p className="text-[13px] mb-1" style={{ fontFamily: SANS, color: CHALK_SUB }}>Closest cocktails on the menu</p>
                     {nearest.map((x) => (
                       <button key={x.cocktail.name} type="button" onClick={() => onSelectCocktail?.(x.cocktail.name)}
                         className="w-full text-left flex items-center gap-2 py-0.5 min-h-[44px]">
@@ -378,7 +385,7 @@ export default function InventCocktail({
               {onOpenRecipeLab && hasList && (
                 <button type="button" onClick={() => onOpenRecipeLab(keys)} data-testid="invent-notebook"
                   className="px-3 py-2 rounded-lg min-h-[44px]" style={{ fontFamily: FONT, fontSize: 18, color: '#0a0a0a', background: CHALK_CREAM }}>
-                  Write it in the Recipe Notebook →
+                  Write it in the Recipe Notebook
                 </button>
               )}
             </div>

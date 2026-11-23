@@ -58,7 +58,7 @@ export default function RecipeCookingMethod({ bowlNames = [], chalk = false, sel
   if (chalk) {
     return (
       <div data-testid="cooking-method-chips">
-        <div className="text-[12px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>
+        <div className="text-[13px] mb-1" style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif', color: CHALK_SUB }}>
           🍳 Likely cooking method{methods.length === 1 ? '' : 's'}
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -91,7 +91,7 @@ export default function RecipeCookingMethod({ bowlNames = [], chalk = false, sel
 
   return (
     <div className="px-4 pt-2 pb-3" style={{ paddingLeft: 48 }}>
-      <div className="text-[11px] uppercase tracking-wider mb-1.5" style={{ color: '#a09070' }}>
+      <div className="text-[13px] mb-1.5" style={{ color: '#a09070' }}>
         🍳 Likely cooking method{methods.length === 1 ? '' : 's'}
       </div>
       <div className="flex flex-wrap gap-1.5">

@@ -24,6 +24,7 @@ import useEverydayPairs from '../hooks/useEverydayPairs.js';
 import { readSaved, withSavedSauces } from '../data/savedInventions.js';
 import { fromSavedItem } from '../data/inventSaved.js';
 import PictureView from './PictureView.jsx';
+import { SauceVessel } from './sauceVessels.jsx';
 import useSaveInvention from '../hooks/useSaveInvention.js';
 import InventSaveOverlay from './InventSaveOverlay.jsx';
 import SavedDeleteConfirm from './SavedDeleteConfirm.jsx';
@@ -225,6 +226,14 @@ export default function SauceLab({
     return codexData.codex.clusters.find(c => c.id === node.family_id) || null;
   }, [selectedSauce, codexData]);
 
+  const identityFor = (sauce) => ({
+    clusterName: familyForSelected?.name || (sauce?.mine ? 'Uncategorised' : undefined),
+    clusterColor: familyForSelected?.color || '#9a8f7a',
+    clusterTag: sauce?.mine ? null : (sauce?.isRoot ? 'Mother sauce' : (sauce?.cuisine || null)),
+    clusterArt: familyForSelected ? <SauceVessel familyName={familyForSelected.name} color={familyForSelected.color} size={32} testid="card-family-vessel" /> : null,
+    yours: !!sauce?.mine,
+  });
+
   // Pantry / Invent context: the sauce list, the sauce-ingredient catalogue
   // (roles), names for resolving what the cook types, and two pairing
   // indexes — recipe co-occurrence (ProData graph) + curated sauce pairings.
@@ -299,9 +308,7 @@ export default function SauceLab({
           <LabNodeCard
             kind="sauce"
             name={detailSauce?.name || selectedSauce}
-            clusterName={familyForSelected?.name || (detailSauce?.mine ? 'Uncategorised' : undefined)}
-            clusterColor={familyForSelected?.color || '#9a8f7a'}
-            clusterTag={detailSauce?.mine ? 'YOURS' : (detailSauce?.isRoot ? 'MOTHER' : (detailSauce?.cuisine || null))}
+            {...identityFor(detailSauce)}
             headerArt={detailSauce?.mine && detailSauce.picture ? <PictureView picture={detailSauce.picture} itemId={detailSauce.savedId} size={120} testid="yours-card-picture" /> : null}
             actions={savedActions(detailSauce)}
             share={shareFor(detailSauce)}
@@ -314,14 +321,17 @@ export default function SauceLab({
             pairsWith={detailSauce?.pairsWith || []}
             onSelect={(name) => setSelectedSauce(name)}
             onClose={() => setSelectedSauce(null)}
-          >
-            <DishStory kind="sauce" storyKey={detailSauce?.name || selectedSauce} name={detailSauce?.name || selectedSauce} />
-            {detailSauce && sauceNeeds(detailSauce)}
-            {detailSauce && (
-              <SaucePairings sauce={detailSauce} color={familyForSelected?.color} onFindWine={onFindWine}
-                categoryOf={(n) => fullData?.graph?.nodes?.get?.(n)?.category || null} />
+            afterIngredients={detailSauce && sauceNeeds(detailSauce)}
+            afterMethod={(
+              <>
+                <DishStory kind="sauce" storyKey={detailSauce?.name || selectedSauce} name={detailSauce?.name || selectedSauce} />
+                {detailSauce && (
+                  <SaucePairings sauce={detailSauce} color={familyForSelected?.color} onFindWine={onFindWine}
+                    categoryOf={(n) => fullData?.graph?.nodes?.get?.(n)?.category || null} />
+                )}
+              </>
             )}
-          </LabNodeCard>
+          />
         ) : (
           <SauceSuggestionDeck
             items={matchesContext.items}
@@ -432,9 +442,7 @@ export default function SauceLab({
           <LabNodeCard
             kind="sauce"
             name={s?.name || selectedSauce}
-            clusterName={familyForSelected?.name || (s?.mine ? 'Uncategorised' : undefined)}
-            clusterColor={familyForSelected?.color || '#9a8f7a'}
-            clusterTag={s?.mine ? 'YOURS' : (s?.isRoot ? 'MOTHER' : (s?.cuisine || null))}
+            {...identityFor(s)}
             headerArt={s?.mine && s.picture ? <PictureView picture={s.picture} itemId={s.savedId} size={120} testid="yours-card-picture" /> : null}
             actions={savedActions(s)}
             share={shareFor(s)}
@@ -447,14 +455,17 @@ export default function SauceLab({
             pairsWith={s?.pairsWith || []}
             onSelect={(name) => setSelectedSauce(name)}
             onClose={closeCard}
-          >
-            <DishStory kind="sauce" storyKey={s?.name || selectedSauce} name={s?.name || selectedSauce} />
-            {s && sauceNeeds(s)}
-            {s && (
-              <SaucePairings sauce={s} color={familyForSelected?.color} onFindWine={onFindWine}
-                categoryOf={(n) => fullData?.graph?.nodes?.get?.(n)?.category || null} />
+            afterIngredients={s && sauceNeeds(s)}
+            afterMethod={(
+              <>
+                <DishStory kind="sauce" storyKey={s?.name || selectedSauce} name={s?.name || selectedSauce} />
+                {s && (
+                  <SaucePairings sauce={s} color={familyForSelected?.color} onFindWine={onFindWine}
+                    categoryOf={(n) => fullData?.graph?.nodes?.get?.(n)?.category || null} />
+                )}
+              </>
             )}
-          </LabNodeCard>
+          />
         );
       })()}
 

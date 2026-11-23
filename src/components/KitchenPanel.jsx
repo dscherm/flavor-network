@@ -124,7 +124,7 @@ export default function KitchenPanel({
           <span className="flex-1 min-w-0">
             <span className="block text-[20px] leading-tight" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{r.name}</span>
             <span className="block text-[12px]" style={{ fontFamily: SANS, color: nearly ? CHALK_DIM : CHALK_SUB }}>
-              {nearly ? missingText(entry.missing) : `${r.cuisine} · you have the ${entry.total === 1 ? 'main' : `${entry.total} mains`}`}
+              {nearly ? missingText(entry.missing) : `${r.cuisine}. You have the ${entry.total === 1 ? 'main' : `${entry.total} mains`}.`}
             </span>
             {!nearly && entry.withSwap && (
               <span className="block text-[12px]" data-testid={`kitchen-recipe-${r.id}-swap`} style={{ fontFamily: SANS, color: CHALK_CREAM }}>
@@ -148,13 +148,13 @@ export default function KitchenPanel({
       data-testid="kitchen-panel" role="dialog" aria-label="What's in my kitchen">
       <div className="w-full max-w-[560px] flex items-center justify-between mb-2 gap-2">
         <button type="button" onClick={onClose} data-testid="kitchen-close"
-          className={`px-3 py-2 rounded-lg min-h-[44px] ${FOCUS}`} style={{ fontFamily: FONT, fontSize: 18, border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
-          ← Recipe Lab
+          className={`px-3 py-2 rounded-lg min-h-[44px] ${FOCUS}`} style={{ fontFamily: FONT, fontSize: 18, border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM, outlineColor: CHALK_CREAM, minWidth: 44 }}>
+          Back
         </button>
         {onInvent && (
           <button type="button" onClick={onInvent} data-testid="kitchen-invent"
             className={`px-3 py-2 rounded-lg min-h-[44px] ${FOCUS}`} style={{ fontFamily: FONT, fontSize: 18, color: '#0a0a0a', background: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
-            Invent a recipe →
+            Invent a recipe
           </button>
         )}
       </div>
@@ -206,7 +206,7 @@ export default function KitchenPanel({
 
         {common.some((k) => !kitchen.includes(k)) && (
           <div className="mt-3">
-            <p className="text-[12px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>Quick add — most used in recipes</p>
+            <p className="text-[13px] mb-1" style={{ fontFamily: SANS, color: CHALK_SUB }}>Most used in recipes</p>
             <div className="flex flex-wrap gap-1.5" data-testid="kitchen-quick">
               {common.filter((k) => !kitchen.includes(k)).map((k) => (
                 <button key={k} type="button" onClick={() => add(k)}
@@ -263,7 +263,7 @@ export default function KitchenPanel({
                         className={`flex-1 min-w-0 text-left px-2.5 py-1.5 min-h-[44px] rounded-lg ${FOCUS}`} style={{ outlineColor: CHALK_CREAM }}>
                         <span className="block text-[19px] leading-tight" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{m.title}</span>
                         <span className="block text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
-                          you have {m.covered} of {m.total}{m.missing.length ? ` · ${missingText(m.missing, 3)}` : ' · nothing missing'}
+                          {`You have ${m.covered} of ${m.total}.`}{m.missing.length ? ` ${missingText(m.missing, 3).replace(/^\w/, (c) => c.toUpperCase())}.` : ' Nothing missing.'}
                         </span>
                       </button>
                       {m.steps.length > 0 && (

@@ -33,7 +33,7 @@ describe('SaucePairings', () => {
     render(<SaucePairings sauce={BORDELAISE} onFindWine={onFindWine} />);
     const wines = await screen.findByTestId('sauce-wines');
     expect(wines.querySelectorAll('li').length).toBeGreaterThan(0);
-    expect(wines.textContent).toMatch(/with (beef|lamb)/);
+    expect(wines.textContent).toMatch(/With (beef|lamb)/);
     expect(wines.querySelector('[data-testid^="wine-glass-"]')).toBeTruthy();
     fireEvent.click(screen.getByTestId('sauce-more-wines'));
     expect(onFindWine).toHaveBeenCalledWith(

@@ -282,16 +282,16 @@ export default function SuggestionCardDeck({
           className="min-h-[44px] px-3 rounded-lg border border-[#3a3a3a] text-[#bdb6a3] hover:text-[#f5efde] hover:bg-white/5"
           style={{ fontFamily: 'Caveat, cursive', fontSize: 17 }}
         >
-          ← Back
+          Back
         </button>
-        <span className="text-[13px] uppercase tracking-wider text-[#bdb6a3] text-center flex-1 px-2" style={{ fontFamily: 'Caveat, cursive' }}>
-          {headerLabel || (mode === 'replace' ? `⇄ Smart swaps for ${ingredient}` : '✨ Smart suggestions')}
+        <span className="text-[22px] text-[#f5efde] text-center flex-1 px-2" style={{ fontFamily: 'Caveat, cursive' }}>
+          {headerLabel || (mode === 'replace' ? `Instead of ${ingredient}` : '✨ Goes well with your recipe')}
         </span>
         <button onClick={onClose} aria-label="Close" className="min-h-[44px] text-[#8a8478] hover:text-[#f5efde] px-2 text-2xl">×</button>
       </div>
 
       <div className="flex flex-col items-center justify-center overflow-y-auto px-3 py-3" style={{ flex: 1 }}>
-        {loading && <p className="text-center text-base text-[#8a8478] py-6" style={{ fontFamily: 'Caveat, cursive' }}>Finding smart suggestions…</p>}
+        {loading && <p className="text-center text-base text-[#8a8478] py-6" style={{ fontFamily: 'Caveat, cursive' }}>Finding suggestions…</p>}
         {!loading && items.length === 0 && <p className="text-center text-base text-[#8a8478] py-6" style={{ fontFamily: 'Caveat, cursive' }}>No suggestions for this recipe yet.</p>}
 
         {/* Per-page title (HELP-5): label each swipeable deck page by its subject

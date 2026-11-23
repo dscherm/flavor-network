@@ -549,7 +549,7 @@ export default function MakeRecipeStart({
 
   const kitchenCount = kitchen.filter((k) => !isBasic(k)).length;
   const subtitleFor = (c) => {
-    if (c.id === 'kitchen' && kitchenCount > 0) return `${kitchenCount} thing${kitchenCount === 1 ? '' : 's'} on hand · see what you can cook`;
+    if (c.id === 'kitchen' && kitchenCount > 0) return `${kitchenCount} thing${kitchenCount === 1 ? '' : 's'} on hand. See what you can cook.`;
     return c.subtitle;
   };
 
@@ -617,7 +617,7 @@ export default function MakeRecipeStart({
           className="mt-1 min-h-[44px] px-3 text-lg underline underline-offset-4 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
           style={{ fontFamily: FONT, color: CHALK_DIM, outlineColor: CHALK_CREAM }}
         >
-          Open my notebook →
+          Open my notebook
         </button>
       </header>
       <div className="w-full max-w-md flex flex-col gap-4">
@@ -663,7 +663,7 @@ export default function MakeRecipeStart({
                 className="px-4 py-2 rounded-md text-base"
                 style={creamButtonStyle}
               >
-                Use this photo →
+                Use this photo
               </button>
             </div>
           </div>
@@ -807,7 +807,7 @@ export default function MakeRecipeStart({
                 style={{ fontFamily: FONT, color: CHALK_DIM }}
                 data-testid="make-weblink-back"
               >
-                ← Back
+                Back
               </button>
               <button
                 type="button"
@@ -931,8 +931,8 @@ export default function MakeRecipeStart({
                     />
                     <div className="flex-1 min-w-0">
                       <div className="truncate" style={{ color: CHALK_CREAM }}>{m.input}</div>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs" style={{ color: CHALK_SUB }}>→</span>
+                      <p className="mt-1 text-[13px]" style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif', color: CHALK_SUB }}>Saved as</p>
+                      <div className="flex items-center gap-2">
                         <input
                           type="text"
                           list="make-weblink-ingredient-names"
@@ -990,7 +990,7 @@ export default function MakeRecipeStart({
                 style={creamButtonStyle}
                 data-testid="make-weblink-add-btn"
               >
-                Add {included.size} to bowl →
+                Add {included.size} to the recipe
               </button>
             </div>
           </div>

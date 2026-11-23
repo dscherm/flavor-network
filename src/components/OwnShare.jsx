@@ -77,7 +77,7 @@ function Preview({ doc, picture }) {
   return (
     <section data-testid="own-preview" aria-label="What will be public" className="mt-3 rounded-lg p-3 min-w-0"
       style={{ border: `1px solid ${CHALK_RAIL}`, background: 'rgba(255,255,255,0.03)' }}>
-      <p className="text-[13px] uppercase tracking-wide" style={{ fontFamily: SANS, color: CHALK_SUB }}>This will be public</p>
+      <p className="text-[13px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>This will be public</p>
       <p data-testid="own-preview-name" className="break-words" style={{ ...heading, fontSize: 24 }}>{doc.name}</p>
       {picture ? <div className="my-2" data-testid="own-preview-picture">{picture}</div> : null}
       <ul className="mt-1 overflow-y-auto" style={{ maxHeight: 160 }} role="list">

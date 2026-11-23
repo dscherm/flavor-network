@@ -100,7 +100,7 @@ describe('Apple News fallback panel', () => {
     scrapeRecipeMock.mockResolvedValueOnce({ data: FALLBACK });
     mount();
     await parse(APPLE);
-    expect(await screen.findByTestId('make-weblink-applenews-tip')).toHaveTextContent(/Share → Open in Safari/);
+    expect(await screen.findByTestId('make-weblink-applenews-tip')).toHaveTextContent(/Share, then Open in Safari/);
   });
 
   it('the paste box imports the pasted link', async () => {

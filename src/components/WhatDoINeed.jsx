@@ -43,18 +43,17 @@ export default function WhatDoINeed({ title, needs, stockEmpty = false, stockLab
 
   return (
     <section data-testid="what-do-i-need" aria-label="What do I need?">
-      <div className="uppercase tracking-[0.16em] mb-1.5 mt-3"
-        style={{ color: CHALK_DIM, fontFamily: FONT, fontSize: 'clamp(13px, 1.7vh, 18px)', textShadow: SHADOW }}>
+      <h3 style={{ color: CHALK_CREAM, fontFamily: FONT, fontSize: 22, fontWeight: 400, marginTop: 24, marginBottom: 12, textShadow: SHADOW }}>
         What do I need?
-      </div>
+      </h3>
 
       <p className="mb-2" data-testid="what-do-i-need-summary" style={{ fontFamily: FONT, fontSize: 20, color: CHALK_CREAM, lineHeight: 1.2, textShadow: SHADOW }}>
         {stockEmpty
           ? `Your ${stockLabel} is empty, so here is everything you'd need.`
           : missing.length === 0
             ? (swaps.length
-              ? `You can make it ✓ — with ${swaps.length === 1 ? 'a swap' : `${swaps.length} swaps`}`
-              : better.length ? 'You can make it ✓' : 'You have everything ✓')
+              ? `You can make it, with ${swaps.length === 1 ? 'a swap' : `${swaps.length} swaps`}.`
+              : better.length ? 'You can make it.' : 'You have everything.')
             :`You have ${have.length} of ${have.length + missing.length} — you need ${missing.length}:`}
       </p>
 
@@ -84,7 +83,7 @@ export default function WhatDoINeed({ title, needs, stockEmpty = false, stockLab
         <ul className="mt-1 flex flex-col gap-0.5" data-testid="what-do-i-need-swaps" aria-label="Swaps from your kitchen">
           {swaps.map((w) => (
             <li key={w.name} className="text-[16px]" style={{ fontFamily: FONT, color: CHALK_CREAM }}>
-              ⇄ Use your {w.use} for the {w.name}
+              Use your {w.use} for the {w.name}
             </li>
           ))}
         </ul>
@@ -107,7 +106,7 @@ export default function WhatDoINeed({ title, needs, stockEmpty = false, stockLab
           <button type="button" onClick={copy} data-testid="what-do-i-need-copy"
             className="px-3 rounded-lg border min-h-[44px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
             style={{ fontFamily: FONT, fontSize: 18, borderColor: `${color}88`, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
-            {copied ? 'Copied ✓' : '🛒 Copy shopping list'}
+            {copied ? 'Copied' : '🛒 Copy shopping list'}
           </button>
         )}
         {shopping && missing.length + better.length + optional.length > 0 && (

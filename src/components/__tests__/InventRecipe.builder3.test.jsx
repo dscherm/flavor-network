@@ -55,7 +55,7 @@ describe('InventRecipe: opened from a handoff', () => {
     expect(lineKeys()).toEqual(['chicken', 'broccoli', 'garlic']);
     expect(screen.getByTestId(`${P}-list-amount-chicken`)).toHaveValue('1 lb');
     expect(screen.getByTestId(`${P}-namesave-name`)).toHaveValue('Wok night');
-    expect(screen.getByTestId(`${P}-dishline`)).toHaveTextContent('Stir-fry · Thai');
+    expect(screen.getByTestId(`${P}-dishline`)).toHaveTextContent('Thai stir-fry');
     expect(screen.getByTestId(`${P}-checklist`)).toHaveTextContent('Stir-fry');
     await waitFor(() => expect(screen.getByRole('button', { name: 'Thai' })).toHaveAttribute('aria-pressed', 'true'));
   });

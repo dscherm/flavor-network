@@ -44,8 +44,8 @@ function LineRow({ line, checked, onToggle, muted = false, where = null }) {
         <input id={id} type="checkbox" checked={checked} onChange={onToggle} data-testid={`shopping-preview-line-${line.key}`}
           className={`flex-shrink-0 ${FOCUS}`} style={{ width: 24, height: 24, accentColor: CHALK_CREAM, outlineColor: CHALK_CREAM }} />
         <span className="flex-1 min-w-0 break-words" style={{ fontFamily: SANS, fontSize: 16 }}>
+          {line.amount && <span style={{ color: CHALK_DIM, fontSize: 14 }}>{line.amount}{' '}</span>}
           {line.label}
-          {line.amount && <span style={{ color: CHALK_DIM, fontSize: 14 }}>{' · '}{line.amount}</span>}
           {where && <span className="block" style={{ color: CHALK_DIM, fontSize: 12 }}>you have it: {where}</span>}
         </span>
       </label>

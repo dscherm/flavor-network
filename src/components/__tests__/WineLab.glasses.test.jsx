@@ -20,7 +20,7 @@ beforeEach(() => {
 describe('WineLab — family glasses (DESIGN-2)', () => {
   it('every wine row carries its family glass, hidden from screen readers, name still as text', async () => {
     render(<WineLab />);
-    await waitFor(() => screen.getByText('Wine List'));
+    await waitFor(() => screen.getByText('Wine list'));
     for (const w of WINE_JSON.wines) {
       const row = screen.getByTestId(`wine-row-${w.id}`);
       const glass = row.querySelector(`[data-testid="wine-glass-${w.family}"]`);
@@ -32,7 +32,7 @@ describe('WineLab — family glasses (DESIGN-2)', () => {
 
   it('the family filter is a shelf with one glass per family and a count', async () => {
     render(<WineLab />);
-    await waitFor(() => screen.getByText('Wine List'));
+    await waitFor(() => screen.getByText('Wine list'));
     const shelf = screen.getByTestId('wine-shelf');
     for (const fam of FAMILIES) {
       const n = WINE_JSON.wines.filter((w) => w.family === fam.id).length;
@@ -44,7 +44,7 @@ describe('WineLab — family glasses (DESIGN-2)', () => {
 
   it('tapping a shelf glass filters to that family; tapping again clears it', async () => {
     render(<WineLab />);
-    await waitFor(() => screen.getByText('Wine List'));
+    await waitFor(() => screen.getByText('Wine list'));
     const btn = screen.getByTestId('wine-shelf-full-red');
     fireEvent.click(btn);
     expect(btn).toHaveAttribute('aria-pressed', 'true');
@@ -55,7 +55,7 @@ describe('WineLab — family glasses (DESIGN-2)', () => {
 
   it('shelf works together with the colour and country chips', async () => {
     render(<WineLab />);
-    await waitFor(() => screen.getByText('Wine List'));
+    await waitFor(() => screen.getByText('Wine list'));
     fireEvent.click(screen.getByRole('button', { name: 'Red' }));
     // counts follow the colour chip: no dessert wine is a red
     const reds = WINE_JSON.wines.filter((w) => w.colour === 'red');
@@ -72,7 +72,7 @@ describe('WineLab — family glasses (DESIGN-2)', () => {
 
   it('the wine card leads with a large family glass', async () => {
     render(<WineLab />);
-    await waitFor(() => screen.getByText('Wine List'));
+    await waitFor(() => screen.getByText('Wine list'));
     fireEvent.click(screen.getByTestId('wine-row-champagne'));
     const card = screen.getByTestId('lab-node-card');
     const art = within(card).getByTestId('lab-node-card-art');

@@ -67,7 +67,7 @@ describe('<DishStory>', () => {
     expect(screen.getByTestId('dish-story-photo')).toHaveAttribute('data-aspect', '1.333');
     expect(sec).toHaveTextContent('Paella is a rice dish from Valencia.');
     const credit = screen.getByTestId('dish-story-credit');
-    expect(credit).toHaveTextContent('Text: Wikipedia (CC BY-SA) · Photo: Jane Cook, CC BY-SA 4.0');
+    expect(credit).toHaveTextContent('Text: Wikipedia (CC BY-SA) Photo: Jane Cook, CC BY-SA 4.0');
     expect(within(credit).getByRole('link', { name: 'Wikipedia' })).toHaveAttribute('href', DATA.recipes.paella.url);
     expect(within(credit).getByRole('link', { name: 'Jane Cook' })).toHaveAttribute('href', PHOTO.page);
     expect(within(credit).getByRole('link', { name: 'CC BY-SA 4.0' })).toHaveAttribute('href', PHOTO.licenseUrl);

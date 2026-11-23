@@ -30,13 +30,16 @@ LOOK-6 moves the roles into one token block; until then each entry names where i
 | Recipe card paper | #f4ecd8, edge #e4d8bd | `chalkTheme.js` `CARD_CREAM`, `CARD_CREAM_EDGE` | Cookbook recipe card only |
 | Recipe card ink | #2e2a22, sub #6b6353 | `chalkTheme.js` `CARD_INK`, `CARD_INK_SUB` | Text on the recipe card paper |
 
-Data colours (a chart's meaning only; never used for chrome, buttons or headings):
+Data colours (a chart's meaning only; never used for chrome, buttons or headings). The one exception is the family
+colours: a family's identity, used ONLY on that family's drawn glass or vessel, its name, and its list rows. Never on a
+button, a chip fill, a border or a heading that is not the family's own name:
 
 | Set | Values | File and variable |
 |---|---|---|
 | Six tastes | sweet #ff5fa2, sour #2bd4d4, bitter #a855f7, salty #5b8def, umami #e0a93b, heat #ff4444 | `recipeProfileAnalysis.js` `TASTE_COLOR` |
 | Eleven aromas | fruity #fd875a, floral #e0a9d6, green #7ccc7b, woody #967a51, spicy #c25726, fatty #efe096, toasty #cd7e2d, nutty #ceb89b, earthy #9aa373, smoky #a9aac1, savory #ba4b65 | `recipeScoring.js` `AROMA_COLORS` |
 | Fallback axis | #a09070 | `recipeProfileAnalysis.js` `axisColor` |
+| Family colours (owner approved, LOOK-3, 2026-11-22) | One colour per cocktail family, sauce family and wine family (cocktail examples: Tropical Sours #047857, Highballs and Fizzes #0369a1, Sour Family #a16207; the full sets are data) | Cocktails: `families[].color` in `public/data/cocktail_codex_v2.json`, read by `cocktailCodexV2.js`. Sauces: `MOTHER_FAMILIES` in `sauceCodex.js`. Wines: `_meta.families[].color` in `public/data/wine_styles.json`, read with `wineStyles.js` `familyColor()`. Dark colours are lifted for text and outline by `popColor` / `liftColor` |
 
 Not tokens (found in `src/`, to be replaced, listed in Never): the tab bar and menus use the cool dark set #0a0a12,
 #12121a, #1e1e2e, #2a2a3a and Tailwind grays, blue-400 for Sign in and emerald-300 for the current tab
@@ -93,6 +96,7 @@ stacks are removed, not tokenised. Input text is at least 16 px so iOS does not 
 | Tab bar | Slate ground, Chalk text, Rail top rule | Accent only on the current tab |
 | Chart | Data colours only | Labelled "a guide, not a taste test" |
 | Recipe card (Cookbook) | Card paper and ink tokens | The one place the paper look is used |
+| Help disclosure ("?") | `HelpBubble.jsx`, `variant="chalk"`: Rail border, Chalk text, Focus ring | The one place help text lives. A 44 x 44 px "?" button with accessible name "How this works" opens a small dismissible note (tap outside, Escape or the close mark). Used instead of a grey hint paragraph under a title or button |
 
 ## 5. Never
 

@@ -32,6 +32,7 @@ import { usage } from '../data/usageEvents.js';
 import { loadUnitSystem, saveUnitSystem } from '../data/shoppingUnits.js';
 import ShoppingRecipeAdd from './ShoppingRecipeAdd.jsx';
 import StoreAlternatives from './StoreAlternatives.jsx';
+import HelpBubble from './HelpBubble.jsx';
 import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, chalkSurfaceStyle } from '../data/chalkTheme.js';
 
 const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
@@ -262,7 +263,7 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
       <div className="mx-auto w-full max-w-md px-4" style={{ paddingBottom: 150 }}>
         <div className="flex items-center gap-2 pt-3">
           <button type="button" onClick={onClose} data-testid="shopping-back" className={`min-h-[44px] px-3 rounded-lg ${FOCUS}`} style={buttonStyle}>
-            ‹ Labs
+            Back to the Labs
           </button>
         </div>
         <h1 style={{ fontFamily: FONT, fontSize: 36, lineHeight: 1.1, marginTop: 6 }}>Shopping list</h1>
@@ -350,9 +351,11 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
         {list.items.length === 0 ? (
           <div data-testid="shopping-empty" className="mt-4 rounded-xl p-4" style={{ border: `1.5px dashed ${CHALK_RAIL}` }}>
             <div style={{ fontFamily: FONT, fontSize: 26 }}>Nothing on your list yet</div>
-            <p style={{ fontFamily: SANS, fontSize: 14, color: CHALK_DIM, marginTop: 4 }}>
-              Type an item above and tap Add, or tap Add from a recipe and search a cocktail, sauce or dish by name: it adds only what you do not already have. You can also tap Add to shopping list under What do I need? on any recipe. Tick things off as you shop; ticked items drop to the bottom of their aisle so you can see what is left.
-            </p>
+            <div className="flex items-center gap-1" style={{ marginTop: 4 }}>
+              <p style={{ fontFamily: SANS, fontSize: 14, color: CHALK_DIM }}>Type an item above, or add a recipe.</p>
+              <HelpBubble variant="chalk" label="How this works" testId="shopping-empty-help"
+                body="Adding a recipe adds only what you do not have. Ticked items drop to the bottom of their aisle." />
+            </div>
           </div>
         ) : (
           <div className="mt-2">
@@ -384,12 +387,12 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
                                 style={item.checked ? { textDecoration: 'none' } : undefined}>
                                 <span style={{ textDecoration: item.checked ? 'line-through' : 'none' }}>{item.label}</span>
                               </IngredientName>
-                              {qty && <label htmlFor={`shopping-check-${item.id}`} style={{ color: CHALK_DIM, fontSize: 15, cursor: 'pointer' }}>{' · '}{qty}</label>}
                             </span>
                             {forNames.length > 0 && (
                               <label htmlFor={`shopping-check-${item.id}`} className="block break-words" style={{ fontSize: 13, color: CHALK_DIM, cursor: 'pointer' }}>for {forNames.join(', ')}</label>
                             )}
                           </span>
+                          {qty && <label htmlFor={`shopping-check-${item.id}`} data-testid={`shopping-qty-${item.key}`} className="flex-shrink-0 text-right" style={{ fontFamily: SANS, color: CHALK_DIM, fontSize: 15, cursor: 'pointer', maxWidth: '40%' }}>{qty}</label>}
                         </div>
                                         {(item.swappedFrom || item.note) && (
                           <div className="pl-10 pb-1" data-testid={`shopping-swap-${item.key}`} style={{ fontFamily: SANS, fontSize: 13, color: CHALK_DIM }}>
@@ -441,13 +444,12 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
             </div>
 
             {checked.length > 0 && (
-              <div className="mt-3">
+              <div className="mt-3 flex items-center gap-1">
                 <button type="button" onClick={putInKitchen} data-testid="shopping-put-away" className={`min-h-[44px] px-4 rounded-lg ${FOCUS}`} style={{ ...buttonStyle, fontWeight: 600 }}>
                   Put checked items in my kitchen
                 </button>
-                <p style={{ fontFamily: SANS, fontSize: 12, color: CHALK_SUB, marginTop: 4 }}>
-                  Wine, beer, spirits and liqueurs go to My bar, everything else to My kitchen. Nothing moves unless you tap this.
-                </p>
+                <HelpBubble variant="chalk" placement="top" label="How this works" testId="shopping-put-away-help"
+                  body="Wine, beer, spirits and liqueurs go to My bar, everything else to My kitchen. Nothing moves unless you tap this." />
               </div>
             )}
 

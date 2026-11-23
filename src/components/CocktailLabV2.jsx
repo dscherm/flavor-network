@@ -13,6 +13,7 @@ import {
 } from '../data/cocktailCodexV2.js';
 import { formatPairedVia, formatMatchBadge } from '../data/recipePairingMatch.js';
 import { subclusterName } from '../data/cocktailSubclusters.js';
+import { CocktailFamilyGlass } from './cocktailGlasses.jsx';
 import CocktailRiff from './CocktailRiff.jsx';
 import { getCocktailRoles } from '../data/ingredientRoles.js';
 import { buildPairingIndex } from '../data/recipePairingMatch.js';
@@ -431,9 +432,17 @@ export default function CocktailLabV2({
       { label: 'Ice', value: selectedNode.ice_format },
       { label: 'Aeration', value: selectedNode.aeration },
       { label: 'Strength', value: f.strength },
-      ...(cardIngredients.anySuggested ? [{ label: 'Amounts', value: '~ = suggested, not from the source recipe' }] : []),
     ];
   }, [selectedNode, facetCtx, cardIngredients]);
+
+  const cardIdentity = {
+    clusterName: familyForSelected?.name || (selectedNode?.mine ? 'Uncategorised' : undefined),
+    clusterColor: familyForSelected?.color || '#9a8f7a',
+    clusterTag: selectedNode?.mine ? null : (subclusterName(selectedNode?.subcluster_id, null) || null),
+    clusterArt: familyForSelected ? <CocktailFamilyGlass familyName={familyForSelected.name} color={familyForSelected.color} size={32} testid="card-family-glass" /> : null,
+    yours: !!selectedNode?.mine,
+    ingredientsNote: cardIngredients.anySuggested ? '~ marks a suggested amount' : null,
+  };
 
   const savedNotices = (
     <>
@@ -486,7 +495,7 @@ export default function CocktailLabV2({
               data-testid="cocktail-matches-back"
               className="min-h-[40px] px-3 rounded-lg text-[12px] border bg-[#12121a] border-[#2a2a3a] text-gray-300 hover:text-white hover:border-[#3a3a4a] transition-colors whitespace-nowrap"
             >
-              ← Back to recipe
+              Back to the recipe
             </button>
           )}
           {/* "Matches for …" header chip — reuses same pill style as
@@ -567,9 +576,7 @@ export default function CocktailLabV2({
           <LabNodeCard
             kind="cocktail"
             name={selectedNode?.name || selectedCocktail}
-            clusterName={familyForSelected?.name || (selectedNode?.mine ? 'Uncategorised' : undefined)}
-            clusterColor={familyForSelected?.color || '#9a8f7a'}
-            clusterTag={selectedNode?.mine ? 'YOURS' : (subclusterName(selectedNode?.subcluster_id, selectedNode?.subcluster_id) || familyForSelected?.signature || null)}
+            {...cardIdentity}
             headerArt={selectedNode?.mine && selectedNode.picture ? <PictureView picture={selectedNode.picture} itemId={selectedNode.savedId} size={120} testid="yours-card-picture" /> : null}
             details={cardDetails}
             actions={cardActions}
@@ -582,10 +589,9 @@ export default function CocktailLabV2({
             bridges={crossFamilyCousins}
             onSelect={(name) => setSelectedCocktail(name)}
             onClose={() => setSelectedCocktail(null)}
-          >
-            <DishStory kind="cocktail" storyKey={selectedNode?.name || selectedCocktail} name={selectedNode?.name || selectedCocktail} />
-            {needsSection}
-          </LabNodeCard>
+            afterIngredients={needsSection}
+            afterMethod={<DishStory kind="cocktail" storyKey={selectedNode?.name || selectedCocktail} name={selectedNode?.name || selectedCocktail} />}
+          />
         )}
         {riffPanel}
         {savedNotices}
@@ -595,7 +601,7 @@ export default function CocktailLabV2({
 
   if (loading) {
     return (
-      <ChalkLoader label="Setting up the bar…" color="#f59e0b" />
+      <ChalkLoader label="Setting up the cocktail menu…" color="#f59e0b" />
     );
   }
   if (error) {
@@ -631,9 +637,7 @@ export default function CocktailLabV2({
         <LabNodeCard
           kind="cocktail"
           name={selectedNode?.name || selectedCocktail}
-          clusterName={familyForSelected?.name || (selectedNode?.mine ? 'Uncategorised' : undefined)}
-          clusterColor={familyForSelected?.color || '#9a8f7a'}
-          clusterTag={selectedNode?.mine ? 'YOURS' : (subclusterName(selectedNode?.subcluster_id, selectedNode?.subcluster_id) || familyForSelected?.signature || null)}
+          {...cardIdentity}
           headerArt={selectedNode?.mine && selectedNode.picture ? <PictureView picture={selectedNode.picture} itemId={selectedNode.savedId} size={120} testid="yours-card-picture" /> : null}
           details={cardDetails}
           actions={cardActions}
@@ -646,10 +650,9 @@ export default function CocktailLabV2({
           bridges={crossFamilyCousins}
           onSelect={(name) => setSelectedCocktail(name)}
           onClose={() => setSelectedCocktail(null)}
-        >
-          <DishStory kind="cocktail" storyKey={selectedNode?.name || selectedCocktail} name={selectedNode?.name || selectedCocktail} />
-          {needsSection}
-        </LabNodeCard>
+          afterIngredients={needsSection}
+          afterMethod={<DishStory kind="cocktail" storyKey={selectedNode?.name || selectedCocktail} name={selectedNode?.name || selectedCocktail} />}
+        />
       )}
       {barPanels}
       {riffPanel}

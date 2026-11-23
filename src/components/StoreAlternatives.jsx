@@ -102,7 +102,7 @@ export default function StoreAlternatives({ item, sauce = false, main = null, sw
           <ul data-testid="store-alt-list" aria-label="Alternatives" className="mt-3">
             {alternatives.map((a) => (
               <li key={a.key} data-testid={`store-alt-${a.key}`} className="py-2" style={{ borderTop: `1px solid ${CHALK_RAIL}55` }}>
-                <p data-testid={`store-alt-kind-${a.key}`} style={{ fontFamily: SANS, fontSize: 12, letterSpacing: 0.4, textTransform: 'uppercase', color: CHALK_DIM }}>{KIND_LABEL[a.kind] || KIND_LABEL.swap}</p>
+                <p data-testid={`store-alt-kind-${a.key}`} style={{ fontFamily: SANS, fontSize: 13, color: CHALK_DIM }}>{KIND_LABEL[a.kind] || KIND_LABEL.swap}</p>
                 <div style={{ fontFamily: SANS, fontSize: 17 }}>
                   {a.kind === 'make' ? [a.key, ...a.plus].join(' + ') : a.label}
                   {a.have && <span data-testid={`store-alt-have-${a.key}`} style={{ color: CHALK_CREAM, fontSize: 13, marginLeft: 8, border: `1px solid ${CHALK_DIM}`, borderRadius: 999, padding: '1px 8px' }}>you have this</span>}

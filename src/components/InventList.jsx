@@ -38,6 +38,7 @@ export const DEFAULTS = {
   close: 'Close',
   noReplacements: "Nothing you have is a good stand-in. Type one below.",
   have: 'have',
+  haveIt: 'you have it',
   fromSearch: 'from your search',
   deck: 'See how each changes the flavor',
 };
@@ -64,17 +65,15 @@ function Line({ line, p, L, onRemove, onAmount, replacementsFor, onReplace, onRe
     <li className="rounded-lg px-2 py-1.5" data-testid={`${p}-line`} data-key={line.key} data-have={line.have === false ? 'false' : line.have ? 'true' : 'unknown'}
       style={{ border: `1px solid ${CHALK_RAIL}` }}>
       <div className="flex items-center gap-2 min-w-0">
+        <AmountBox line={line} p={p} L={L} onAmount={onAmount} />
         <span className="flex-1 min-w-0">
           <span className="block text-[20px]" style={{ fontFamily: FONT, color: CHALK_CREAM }}>
             <IngredientName name={line.key} testid={`${p}-name-${line.key}`} style={NAME_BLOCK}>{line.key}</IngredientName>
           </span>
           <span className="block text-[11px] -mt-1.5" style={{ fontFamily: SANS, color: CHALK_SUB }}>
-            {line.have ? L.have : ''}
-            {line.source === 'search' ? `${line.have ? ' · ' : ''}🔒 ${L.fromSearch}` : ''}
-            {line.note ? `${line.have || line.source === 'search' ? ' · ' : ''}${line.note}` : ''}
+            {[line.have ? L.haveIt : '', line.source === 'search' ? `🔒 ${L.fromSearch}` : '', line.note || ''].filter(Boolean).join(', ')}
           </span>
         </span>
-        <AmountBox line={line} p={p} L={L} onAmount={onAmount} />
         <button type="button" onClick={() => onRemove(line.key)} aria-label={`${L.remove} ${line.key}`} data-testid={`${p}-remove-${line.key}`}
           className="min-h-[44px] min-w-[44px] rounded-lg flex-shrink-0" style={btn({ fontSize: 20 })}>✕</button>
       </div>

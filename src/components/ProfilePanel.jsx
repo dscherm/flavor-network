@@ -546,7 +546,7 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, onClose, gra
 function InsightSection({ title, children }) {
   return (
     <div>
-      <h3 className="text-neural-glow/80 text-[10px] font-medium uppercase tracking-wider mb-1.5">{title}</h3>
+      <h3 className="text-neural-glow/80 text-[13px] font-medium mb-1.5">{title}</h3>
       {children}
     </div>
   );
@@ -558,7 +558,7 @@ function FrequencyStat({ label, value, color }) {
       <div className="text-xs font-semibold text-neural-text" style={color ? { color } : undefined}>
         {value}
       </div>
-      <div className="text-[8px] text-neural-muted uppercase tracking-wide">{label}</div>
+      <div className="text-[11px] text-neural-muted">{label}</div>
     </div>
   );
 }

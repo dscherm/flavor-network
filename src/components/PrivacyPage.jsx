@@ -12,7 +12,7 @@ export default function PrivacyPage() {
   return (
     <main data-testid="privacy-page" style={{ minHeight: '100vh', background: '#16201c', color: '#f1efe6', lineHeight: 1.5, fontSize: 15 }}>
       <div style={box}>
-        <a href="/" style={{ color: '#9ed8b8', fontSize: 14, display: 'inline-block', minHeight: 44, lineHeight: '44px' }}>&larr; Back to Neural Flavor</a>
+        <a href="/" style={{ color: '#9ed8b8', fontSize: 14, display: 'inline-block', minHeight: 44, lineHeight: '44px' }}>Back to Neural Flavor</a>
         <h1 style={{ fontSize: 24, fontWeight: 700, margin: '4px 0 8px' }}>Privacy</h1>
         <p>
           Neural Flavor can count how the app is used so it can be made better. It is off until you say Yes,

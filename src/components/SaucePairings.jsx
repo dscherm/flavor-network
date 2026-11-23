@@ -23,10 +23,9 @@ const SHADOW = '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)';
 
 function Label({ children }) {
   return (
-    <div className="uppercase tracking-[0.16em] mb-1.5 mt-3"
-      style={{ color: CHALK_DIM, fontFamily: FONT, fontSize: 'clamp(13px, 1.7vh, 18px)', textShadow: SHADOW }}>
+    <h3 style={{ color: CHALK_CREAM, fontFamily: FONT, fontSize: 22, fontWeight: 400, marginTop: 24, marginBottom: 12, textShadow: SHADOW }}>
       {children}
-    </div>
+    </h3>
   );
 }
 
@@ -74,9 +73,8 @@ export default function SaucePairings({ sauce, color = '#fb923c', categoryOf = n
                   <div style={{ fontFamily: FONT, fontSize: 19, color: CHALK_CREAM, lineHeight: 1.2, textShadow: SHADOW }}>
                     {wine.name}
                   </div>
-                  <div className="text-[12px]" style={{ color: CHALK_SUB }}>
-                    with {ps.join(', ')}{reason ? ` · ${reason}` : ''}
-                  </div>
+                  <div style={{ fontFamily: FONT, fontSize: 17, color: CHALK_DIM, lineHeight: 1.2 }}>With {ps.join(', ')}</div>
+                  {reason ? <div className="text-[13px]" style={{ color: CHALK_SUB }}>{reason}</div> : null}
                 </div>
               </li>
             ))}
@@ -89,7 +87,7 @@ export default function SaucePairings({ sauce, color = '#fb923c', categoryOf = n
               className="mt-2 min-h-[44px] px-3 rounded-lg border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               style={{ borderColor: `${color}88`, color: CHALK_CREAM, fontFamily: FONT, fontSize: 18, outlineColor: CHALK_CREAM }}
             >
-              🍷 More wines for {sauce.name} with {first} →
+              🍷 More wines for {sauce.name} with {first}
             </button>
           )}
         </>

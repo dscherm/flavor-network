@@ -32,7 +32,7 @@ describe('SaucePantryPanel', () => {
     const nearly = screen.getByTestId('sauce-pantry-nearly');
     expect(within(nearly).getByText('Béchamel')).toBeInTheDocument();
     expect(nearly).toHaveTextContent('missing nutmeg');
-    expect(nearly).toHaveTextContent('missing crème fraîche · or use your cream in its place');
+    expect(nearly).toHaveTextContent('missing crème fraîche. Or use your cream in its place.');
   });
 
   it('draws each sauce with its family vessel, hidden from assistive tech', () => {

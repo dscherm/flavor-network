@@ -272,8 +272,8 @@ export default function SharedRecipePage({ route, loadData = defaultLoadData, lo
         {state.status === 'gone' && <Gone onHome={onHome} />}
         {ready && recipe && (
           <article className="min-w-0">
-            <p className="text-[13px] uppercase tracking-wide" style={{ fontFamily: SANS, color: CHALK_SUB }} data-testid="shared-kind">
-              {KIND_WORD[recipe.kind]}{recipe.category ? ` · ${recipe.category}` : ''}
+            <p className="text-[13px]" style={{ fontFamily: SANS, color: CHALK_SUB }} data-testid="shared-kind">
+              {KIND_WORD[recipe.kind]}{recipe.category ? `, ${recipe.category}` : ''}
             </p>
             <h1 data-testid="shared-name" className="break-words" style={{ fontFamily: FONT, fontSize: 40, lineHeight: 1.1, color: CHALK_CREAM }}>{recipe.name}</h1>
             {recipe.picture ? (

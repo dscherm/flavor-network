@@ -7,6 +7,7 @@ import { parseQuery, matchItem, buildIngredientVocab } from '../data/ingredientS
 import { popColor, sauceVesselFor, vesselMark } from './sauceVessels.jsx';
 import { UNCATEGORISED } from '../data/savedInventions.js';
 import PictureView from './PictureView.jsx';
+import { SANS } from './inventUi.jsx';
 
 /**
  * SauceBrowse — 2D selection surface for the Sauce Lab, drawn as a bistro
@@ -213,10 +214,10 @@ export default function SauceBrowse({
           )}
         </span>
         {s.mine && (
-          <span className="text-[10px] rounded px-1 py-px tracking-wide uppercase" data-testid="yours-tag" style={{ color: CHALK_CREAM, border: `1px solid ${CHALK_CREAM}88` }}>yours</span>
+          <span className="text-[11px] rounded px-1 py-px" data-testid="yours-tag" style={{ color: CHALK_CREAM, border: `1px solid ${CHALK_CREAM}88` }}>Yours</span>
         )}
         {s.isRoot && (
-          <span className="text-[9px] rounded px-1 py-px tracking-wide" style={{ color: '#fde68a', border: '1px solid rgba(252,211,77,0.35)' }}>MOTHER</span>
+          <span className="text-[11px] rounded px-1 py-px" style={{ color: '#fde68a', border: '1px solid rgba(252,211,77,0.35)' }}>mother sauce</span>
         )}
         {s.cuisine && (
           <span className="text-[11px]" style={{ color: CHALK_DIM }}>{s.cuisine}</span>
@@ -241,14 +242,10 @@ export default function SauceBrowse({
         >
           Sauce Specials
         </h1>
-        <p className="text-base mt-1.5" style={{ fontFamily: FONT, color: CHALK_SUB }}>
-          Tap a family to filter · tap a sauce for the recipe
-        </p>
       </div>
 
       {/* ───── Family board — colored chalk bubbles ───── */}
       <div className="px-4 pt-1 pb-2 max-w-4xl mx-auto">
-        <div className="text-[11px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>Sauce families</div>
         {(() => {
           const { positions, rowCount } = computeLayout(families.length);
           const boardH = ROW_Y0 + (rowCount - 1) * ROW_H + 100;
@@ -314,7 +311,7 @@ export default function SauceBrowse({
           type="search"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search sauce or ingredient — e.g. tomato, basil"
+          placeholder="Search a sauce, or ingredients like tomato, basil"
           aria-label="Search sauces by name or ingredient"
           list="sauce-ingredient-vocab"
           data-sauce-search
@@ -344,13 +341,13 @@ export default function SauceBrowse({
         )}
         {searchHits && (
           <p className="mb-1.5 text-[13px]" style={{ color: CHALK_SUB }} aria-live="polite">
-            {matchCount} sauce{matchCount === 1 ? '' : 's'} match “{searchTerm.trim()}” · separate ingredients with commas to combine
+            {matchCount} sauce{matchCount === 1 ? '' : 's'} match “{searchTerm.trim()}”
           </p>
         )}
         {searchHits && onInventThis && searchTerm.trim() && matchCount > 0 && <div className="mb-2">{inventButton}</div>}
-        <div className="text-[11px] uppercase tracking-wider mb-1.5" style={{ color: CHALK_SUB }}>Cuisines</div>
+        <div className="text-[13px] mb-1" style={{ fontFamily: SANS, color: CHALK_SUB }}>Cuisines</div>
         <div className="flex flex-wrap items-center gap-1.5">
-          {[{ key: null, label: 'All Cuisines' }, ...cuisines.map((c) => ({ key: c, label: c }))].map((chip) => {
+          {[{ key: null, label: 'All cuisines' }, ...cuisines.map((c) => ({ key: c, label: c }))].map((chip) => {
             const active = filterCuisine === chip.key;
             return (
               <button
@@ -392,7 +389,7 @@ export default function SauceBrowse({
           <section className="mb-7" data-testid="sauce-yours-group" aria-label="Yours">
             <header className="flex items-baseline gap-2.5 mb-2 py-1.5" style={{ borderTop: `1.5px solid ${CHALK_CREAM}55`, borderBottom: `1.5px solid ${CHALK_CREAM}55` }}>
               <h2 className="text-[36px] leading-none" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Yours</h2>
-              <span className="text-[14px]" style={{ fontFamily: FONT, color: CHALK_SUB }}>· {yoursShown.length}</span>
+              <span className="text-[13px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>{yoursShown.length} sauces</span>
             </header>
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 ml-5">
               {yoursShown.map((m, idx) => {
@@ -414,7 +411,7 @@ export default function SauceBrowse({
                   {vesselMark(famVessel, 32, 58, fam.color, fam.color, true)}
                 </svg>
                 <h2 className="text-[36px] leading-none" style={{ fontFamily: FONT, color: fam.color, textShadow: CHALK_SHADOW }}>{fam.name}</h2>
-                <span className="text-[14px]" style={{ fontFamily: FONT, color: CHALK_SUB }}>· {sorted.length} of {members.length}</span>
+                <span className="text-[13px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>{sorted.length} of {members.length} sauces</span>
               </header>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 ml-5">
                 {sorted.map((s, idx) => (

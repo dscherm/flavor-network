@@ -86,8 +86,11 @@ function SauceCard({ name, profile, recipeName, similarity, matchedAromas, paire
         className="text-center"
         style={{ color: CHALK_DIM, fontFamily: FONT_HAND, fontSize: 'clamp(13px, 2.8vw, 18px)', textShadow: CHALK_TEXT_SHADOW }}
       >
-        matches {recipeName}{badge ? ` · ${badge}` : ''}
+        Goes with {recipeName}
       </p>
+      {badge ? (
+        <p className="text-center" style={{ color: CHALK_SUB, fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif', fontSize: 13 }}>{badge}</p>
+      ) : null}
 
       {/* The sauce's own profile: tastes and aromas in the one fixed grid. */}
       <div className="w-full flex justify-center">
@@ -234,9 +237,9 @@ export default function SauceSuggestionDeck({
           className="min-h-[44px] px-3 rounded-lg border border-[#3a3a3a] text-[#bdb6a3] hover:text-[#f5efde] hover:bg-white/5"
           style={{ fontFamily: FONT_HAND, fontSize: 17 }}
         >
-          ← Back
+          Back
         </button>
-        <span className="text-[13px] uppercase tracking-wider text-[#bdb6a3] text-center flex-1 px-2" style={{ fontFamily: FONT_HAND }}>
+        <span className="text-[22px] text-[#f5efde] text-center flex-1 px-2" style={{ fontFamily: FONT_HAND }}>
           🥣 Sauces for {recipeName}
         </span>
         <button onClick={onClose} aria-label="Close" className="min-h-[44px] text-[#8a8478] hover:text-[#f5efde] px-2 text-2xl">×</button>

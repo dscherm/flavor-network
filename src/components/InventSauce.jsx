@@ -68,6 +68,7 @@ import InventCategoryHint from './InventCategoryHint.jsx';
 import InventCategoryPicker from './InventCategoryPicker.jsx';
 import InventFlavorProfile from './InventFlavorProfile.jsx';
 import InventNameSave from './InventNameSave.jsx';
+import HelpBubble from './HelpBubble.jsx';
 import { useInventUsage } from '../hooks/useUsage.js';
 import { noteTypedIngredient } from '../data/usageIngredient.js';
 
@@ -279,7 +280,7 @@ export default function InventSauce({
     outlineColor: CHALK_CREAM,
   });
   const actionBtn = { fontFamily: FONT, fontSize: 18, borderColor: CHALK_RAIL, color: CHALK_CREAM, outlineColor: CHALK_CREAM };
-  const sub = (txt) => <p className="text-[12px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>{txt}</p>;
+  const sub = (txt) => <p className="text-[13px] mb-1" style={{ fontFamily: SANS, color: CHALK_SUB }}>{txt}</p>;
 
   return (
     <IngredientBuilderScope onAdd={(k) => { add(k); }} has={(k) => lineViews.some((l) => l.key === k)} addLabel="Add to this sauce">
@@ -288,19 +289,20 @@ export default function InventSauce({
       data-testid={P} role="dialog" aria-label="Invent a sauce">
       <div className="w-full max-w-[560px] flex items-center justify-between mb-2">
         <button type="button" onClick={onClose} data-testid={`${P}-close`}
-          className={`px-3 py-2 rounded-lg min-h-[44px] ${FOCUS}`} style={{ fontFamily: FONT, fontSize: 18, border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
-          ← Back
+          className={`px-3 py-2 rounded-lg min-h-[44px] min-w-[44px] ${FOCUS}`} style={{ fontFamily: FONT, fontSize: 18, border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
+          Back
         </button>
       </div>
 
       <div className="w-full max-w-[560px] min-w-0 rounded-2xl px-4 py-4 flex flex-col gap-4" style={{ border: `2px double ${CHALK_RAIL}`, background: 'rgba(255,255,255,0.025)' }}>
         <div>
-          <h2 className="text-center text-[34px] leading-tight" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }}>Invent a sauce</h2>
-          <p className="text-center text-[13px]" style={{ fontFamily: SANS, color: CHALK_SUB }} data-testid={`${P}-source`}>
-            {kitchen.length
-              ? `From your pantry (${kitchen.length} item${kitchen.length === 1 ? '' : 's'}) first.`
-              : 'Your pantry is empty, so this draws on every ingredient in the sauce list.'}
-          </p>
+          <div className="flex items-center justify-center gap-1">
+            <h2 className="text-center text-[34px] leading-tight" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }}>Invent a sauce</h2>
+            <HelpBubble variant="chalk" label="How this works" testId={`${P}-source-help`}
+              body={kitchen.length
+                ? `From your pantry (${kitchen.length} item${kitchen.length === 1 ? '' : 's'}) first.`
+                : 'Your pantry is empty, so this draws on every ingredient in the sauce list.'} />
+          </div>
         </div>
 
         {!answered && (
@@ -369,7 +371,7 @@ export default function InventSauce({
                   <div className="flex-1 min-w-0">
                     <h3 className="text-[24px] leading-tight" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }} data-testid={`${P}-technique`}>{style.label}</h3>
                     <p className="text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
-                      {sauce.description}{protein ? ` · for ${protein}` : ''}
+                      {sauce.description}{protein ? `, for ${protein}` : ''}
                     </p>
                   </div>
                 </div>
@@ -380,7 +382,8 @@ export default function InventSauce({
                   </p>
                 )}
 
-                <p className="text-[12px] uppercase tracking-wider" style={{ color: CHALK_SUB }}>Method · {sauce.technique}</p>
+                <h4 className="text-[22px]" style={{ fontFamily: FONT, fontWeight: 400, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Method</h4>
+                <p className="text-[13px] mb-1" style={{ fontFamily: SANS, color: CHALK_SUB }}>{sauce.technique}</p>
                 <p className="text-[14px] leading-snug" style={{ fontFamily: SANS, color: CHALK_CREAM }} data-testid={`${P}-method`}>
                   {sauce.method || 'Add the parts it still needs to see the method.'}
                 </p>
@@ -394,14 +397,15 @@ export default function InventSauce({
                     <WineGlass family={wine.wine.family} color={familyColor(styles?.families, wine.wine.family)} size={36} />
                     <div className="min-w-0">
                       <div className="text-[18px]" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{wine.wine.name}</div>
-                      <div className="text-[12px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>wine with {protein}{wine.reason ? ` · ${wine.reason}` : ''}</div>
+                      <div className="text-[15px]" style={{ fontFamily: FONT, color: CHALK_DIM }}>With {protein}</div>
+                      {wine.reason ? <div className="text-[13px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>{wine.reason}</div> : null}
                     </div>
                   </div>
                 )}
 
                 {nearest.length > 0 && (
                   <div className="mt-3" data-testid={`${P}-nearest`}>
-                    <p className="text-[12px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>Closest existing sauce</p>
+                    <p className="text-[13px] mb-1" style={{ fontFamily: SANS, color: CHALK_SUB }}>Closest sauce on the menu</p>
                     {nearest.map((x) => {
                       const fam = familyById.get(x.sauce.family_id);
                       return (
@@ -436,7 +440,7 @@ export default function InventSauce({
                   onClick={() => onOpenRecipeLab([...keys, ...(protein ? [proteinIngredient(protein)] : [])])}
                   className={`px-3 py-2 rounded-lg min-h-[44px] ${FOCUS}`}
                   style={{ fontFamily: FONT, fontSize: 18, color: CARD_INK, background: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
-                  Open in Recipe Notebook →
+                  Open in the Recipe Notebook
                 </button>
               )}
             </div>

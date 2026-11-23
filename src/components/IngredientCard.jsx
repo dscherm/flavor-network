@@ -100,7 +100,7 @@ export default function IngredientCard({
         style={{ maxWidth: 420 }}
       >
         <div className="w-full flex justify-start">
-          <button type="button" ref={backRef} onClick={onClose} data-testid="ingredient-card-back" style={chip({ fontSize: 20 })}>← Back</button>
+          <button type="button" ref={backRef} onClick={onClose} data-testid="ingredient-card-back" style={chip({ fontSize: 20 })}>Back</button>
         </div>
 
         {status === 'loading' && (
@@ -118,9 +118,11 @@ export default function IngredientCard({
         {cardProps && (
           <>
             <PairingModeCard {...cardProps} />
-            <div data-testid="ingredient-card-insight" style={{ fontFamily: SANS, fontSize: 12, color: CHALK_DIM, textAlign: 'center', maxWidth: 360 }}>
-              {from ? (cardProps.analysis || `${name} pairs with ${from}.`) : `${name}: its own flavor profile.`}
-            </div>
+            {from ? (
+              <div data-testid="ingredient-card-insight" style={{ fontFamily: SANS, fontSize: 12, color: CHALK_DIM, textAlign: 'center', maxWidth: 360 }}>
+                {cardProps.analysis || `${name} pairs with ${from}.`}
+              </div>
+            ) : null}
 
             {partners.length > 0 && (
               <div className="w-full" data-testid="ingredient-card-pairs">

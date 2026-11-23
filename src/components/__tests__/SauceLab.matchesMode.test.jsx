@@ -96,7 +96,7 @@ describe('SauceLab — matchesContext non-null renders the card deck', () => {
   it('first card shows its sauce name + "matches {recipe}" caption', () => {
     render(<SauceLab matchesContext={MATCHES_CONTEXT} onExitMatches={() => {}} />);
     expect(screen.getByTestId('sauce-card-name').textContent).toBe('Marinara');
-    expect(screen.getByText(/matches Chicken Piccata/i)).toBeTruthy();
+    expect(screen.getByText(/Goes with Chicken Piccata/i)).toBeTruthy();
   });
 
   it('each card renders its sauce profile as one fixed flavor grid, nothing marked, no radar', () => {

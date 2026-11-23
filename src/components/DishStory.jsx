@@ -53,10 +53,9 @@ export default function DishStory({ kind = 'recipe', storyKey, name, story: give
 
   return (
     <section className={`mt-3 ${className}`} data-testid="dish-story" aria-label={`About this ${noun}`}>
-      <div className="uppercase tracking-[0.16em] mb-1.5"
-        style={{ fontFamily: FONT, fontSize: '15px', color: CHALK_DIM, textShadow: CHALK_SHADOW }}>
+      <h3 style={{ fontFamily: FONT, fontSize: 22, fontWeight: 400, margin: '0 0 12px', color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>
         About this {noun}
-      </div>
+      </h3>
 
       {photo && (
         <figure className="m-0 mb-2 mx-auto" data-testid="dish-story-photo" data-aspect={ar.toFixed(3)}
@@ -97,15 +96,15 @@ export default function DishStory({ kind = 'recipe', storyKey, name, story: give
       <p className="mt-1.5" data-testid="dish-story-credit" style={{ fontSize: '11.5px', lineHeight: 1.35, color: CHALK_SUB, margin: '6px 0 0' }}>
         Text: <a href={story.url} target="_blank" rel="noopener noreferrer" className={LINK} style={linkStyle}>Wikipedia</a>
         {' ('}<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer license" className={LINK} style={linkStyle}>CC BY-SA</a>{')'}
+        {photo && ' '}
         {photo && (
-          <>
-            {' · Photo: '}
-            <a href={photo.page} target="_blank" rel="noopener noreferrer" className={LINK} style={linkStyle}>{photo.artist}</a>
+          <span className="block" data-testid="dish-story-photo-credit">
+            Photo: <a href={photo.page} target="_blank" rel="noopener noreferrer" className={LINK} style={linkStyle}>{photo.artist}</a>
             {', '}
             {photo.licenseUrl
               ? <a href={photo.licenseUrl} target="_blank" rel="noopener noreferrer license" className={LINK} style={linkStyle}>{photo.license}</a>
               : <span>{photo.license}</span>}
-          </>
+          </span>
         )}
       </p>
     </section>

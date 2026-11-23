@@ -146,7 +146,7 @@ export default function TourPopup({
               borderColor: stage.accent,
             }}
           >
-            Got it →
+            Got it
           </button>
         </div>
       )}

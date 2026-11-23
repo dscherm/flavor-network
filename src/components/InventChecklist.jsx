@@ -40,7 +40,7 @@ export default function InventChecklist({
                 <span className="block text-[20px] truncate" style={{ fontFamily: FONT, color: it.done ? CHALK_CREAM : CHALK_DIM }}>
                   {it.label}
                   {it.done ? (it.key ? <span style={{ color: CHALK_SUB }}> — {it.key}</span> : null)
-                    : <span data-testid={`${p}-tag-${it.slotId}`} className="text-[12px] ml-2" style={{ fontFamily: SANS, color: CHALK_SUB }}>· {tag}</span>}
+                    : <span data-testid={`${p}-tag-${it.slotId}`} className="text-[12px] ml-2" style={{ fontFamily: SANS, color: CHALK_SUB }}>{tag}</span>}
                 </span>
               </span>
             </>

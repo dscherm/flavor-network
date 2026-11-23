@@ -169,7 +169,7 @@ describe('InventSauce — recommendation and checklist', () => {
     expect(screen.queryByTestId(`${P}-nearest`)).toBeNull();
     fireEvent.click(screen.getByTestId(`${P}-hint-accept`));
     expect(screen.getByTestId(`${P}-method`)).toHaveTextContent(/lecithin/);
-    expect(screen.getByTestId(`${P}-wine`)).toHaveTextContent('wine with salmon');
+    expect(screen.getByTestId(`${P}-wine`)).toHaveTextContent('With salmon');
     expect(within(screen.getByTestId(`${P}-nearest`)).getByRole('button')).toHaveTextContent(/Hollandaise|Béarnaise/);
     // With a required part missing there is no method yet.
     fireEvent.click(screen.getByTestId(`${L}-remove-egg yolk`));
@@ -392,7 +392,8 @@ describe('InventSauce — exits and the seed', () => {
   it('Back closes; an empty pantry is said so', () => {
     const onClose = vi.fn();
     renderInvent({ onClose, kitchen: [] });
-    expect(screen.getByTestId(`${P}-source`)).toHaveTextContent('Your pantry is empty');
+    fireEvent.click(screen.getByTestId(`${P}-source-help`));
+    expect(screen.getByTestId(`${P}-source-help-popover`)).toHaveTextContent('Your pantry is empty');
     fireEvent.click(screen.getByTestId(`${P}-close`));
     expect(onClose).toHaveBeenCalled();
   });

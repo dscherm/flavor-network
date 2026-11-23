@@ -229,7 +229,7 @@ describe('CocktailLabV2 — Edit and Delete', () => {
     const card = await openCard(withSaved([item()]));
     expect(within(card).getByTestId('saved-edit')).toBeInTheDocument();
     expect(within(card).getByTestId('saved-delete')).toBeInTheDocument();
-    expect(card).toHaveTextContent('YOURS');
+    expect(card).toHaveTextContent('Yours');
     expect(within(card).getByTestId('lab-node-card-ingredients')).toHaveTextContent('gin');
     expect(within(card).getByTestId('lab-node-card-prep')).toHaveTextContent('Stir with ice.');
   });

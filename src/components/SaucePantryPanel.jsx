@@ -91,13 +91,13 @@ export default function SaucePantryPanel({
       data-testid="sauce-pantry-panel" role="dialog" aria-label="My pantry">
       <div className="w-full max-w-[560px] flex items-center justify-between mb-2 gap-2">
         <button type="button" onClick={onClose} data-testid="sauce-pantry-close"
-          className={`px-3 py-2 rounded-lg min-h-[44px] ${FOCUS}`} style={{ ...pill, fontSize: 18, border: `1px solid ${CHALK_RAIL}` }}>
-          ← Back
+          className={`px-3 py-2 rounded-lg min-h-[44px] ${FOCUS}`} style={{ ...pill, fontSize: 18, border: `1px solid ${CHALK_RAIL}`, minWidth: 44 }}>
+          Back
         </button>
         {onInvent && (
           <button type="button" onClick={onInvent} data-testid="sauce-pantry-invent"
             className={`px-3 py-2 rounded-lg min-h-[44px] ${FOCUS}`} style={{ fontFamily: FONT, fontSize: 18, color: CARD_INK, background: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
-            Invent a sauce →
+            Invent a sauce
           </button>
         )}
       </div>
@@ -147,7 +147,7 @@ export default function SaucePantryPanel({
 
         {common.length > 0 && (
           <div className="mt-3">
-            <p className="text-[12px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>Quick add — most used in sauces</p>
+            <p className="text-[13px] mb-1" style={{ fontFamily: SANS, color: CHALK_SUB }}>Most used in sauces</p>
             <div className="flex flex-wrap gap-1.5" data-testid="sauce-pantry-quick">
               {common.map((k) => (
                 <button key={k} type="button" onClick={() => add(k)} aria-label={`Add ${k}`}
@@ -186,8 +186,8 @@ export default function SaucePantryPanel({
                 {result.nearly.slice(0, NEARLY_SHOWN).map((m) => (
                   <SauceRow key={m.item.name} entry={m} familyById={familyById} onSelect={onSelectSauce}>
                     <span className="block text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
-                      missing {m.missing.join(' and ')}
-                      {m.standIn ? ` · or use your ${m.standIn.use} in its place` : ''}
+                      {`missing ${m.missing.join(' and ')}.`}
+                      {m.standIn ? ` Or use your ${m.standIn.use} in its place.` : ''}
                     </span>
                   </SauceRow>
                 ))}

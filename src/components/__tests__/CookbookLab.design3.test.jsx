@@ -127,8 +127,8 @@ describe('Cookbook popup (DESIGN-3)', () => {
     fireEvent.click(within(well).getByRole('button', { name: 'Matching wines' }));
     fireEvent.click(within(well).getByRole('button', { name: 'Matching cocktails' }));
     fireEvent.click(within(well).getByRole('button', { name: 'Matching sauces' }));
-    fireEvent.click(within(dialog).getByRole('button', { name: /Open in Recipe Notebook/i }));
-    fireEvent.click(within(dialog).getByRole('button', { name: /Explore in Network/i }));
+    fireEvent.click(within(dialog).getByRole('button', { name: /Open in the Recipe Notebook/i }));
+    fireEvent.click(within(dialog).getByRole('button', { name: /See its pairings in 3D/i }));
     expect(h.onFindWine).toHaveBeenCalledWith(bolognese.ingredients, 'Beef Bolognese', expect.objectContaining({ cuisine: 'Italian', dishType: 'savory' }));
     expect(h.onFindCocktail).toHaveBeenCalledWith(bolognese.ingredients, 'Beef Bolognese');
     expect(h.onFindSauce).toHaveBeenCalledWith(bolognese.ingredients, 'Beef Bolognese');

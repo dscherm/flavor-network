@@ -21,19 +21,19 @@ describe('WhatDoINeed — WEAK-3', () => {
       .toBe('Even better with: scallion, sichuan peppercorn, soy sauce');
   });
 
-  it('a swap from the kitchen counts: "You can make it ✓ — with a swap" and "Use your onion for the scallion"', () => {
+  it('a swap from the kitchen counts: "You can make it, with a swap." and "Use your onion for the scallion"', () => {
     render(<WhatDoINeed title="K" needs={needsFromKitchen(recipe, ['chicken', 'peanut', 'onion', 'soy sauce'], { mainOf, swaps: true })} />);
-    expect(screen.getByTestId('what-do-i-need-summary').textContent).toBe('You can make it ✓ — with a swap');
+    expect(screen.getByTestId('what-do-i-need-summary').textContent).toBe('You can make it, with a swap.');
     expect(screen.getByTestId('what-do-i-need-swaps').textContent).toContain('Use your onion for the scallion');
     expect(screen.queryByTestId('what-do-i-need-missing')).toBeNull();
     expect(screen.getByTestId('what-do-i-need-better').textContent).toBe('Even better with: sichuan peppercorn, garlic');
   });
 
-  it('every main and nothing else missing: "You can make it ✓", and the list still copies the extras', async () => {
+  it('every main and nothing else missing: "You can make it.", and the list still copies the extras', async () => {
     const writeText = vi.fn(() => Promise.resolve());
     Object.assign(navigator, { clipboard: { writeText } });
     render(<WhatDoINeed title="K" needs={needsFromKitchen(recipe, ['chicken', 'peanut'], { mainOf })} />);
-    expect(screen.getByTestId('what-do-i-need-summary').textContent).toBe('You can make it ✓');
+    expect(screen.getByTestId('what-do-i-need-summary').textContent).toBe('You can make it.');
     fireEvent.click(screen.getByTestId('what-do-i-need-copy'));
     await waitFor(() => expect(writeText).toHaveBeenCalled());
     expect(writeText.mock.calls[0][0]).toContain('Even better with:\n- scallion');

@@ -67,8 +67,8 @@ export default function FlavorWheel({ bars, testidPrefix = 'profile', marks = nu
         ))}
       </svg>
       {placed.length > 0 && (
-        <ul className="mt-1 mb-0 pl-0 list-none text-center text-[12px] leading-snug" style={{ fontFamily: SANS, color: CHALK_SUB }} data-testid={`${p}-marks-list`}>
-          {placed.map((m) => <li key={`li-${m.i}`} className="inline">{m.i > 0 ? ' · ' : ''}<span style={{ color: CHALK_CREAM }}>{m.name}</span> ({m.notes.join(', ').toLowerCase()})</li>)}
+        <ul className="mt-1 mb-0 pl-0 list-none text-center text-[12px] leading-snug flex flex-wrap justify-center gap-x-3" style={{ fontFamily: SANS, color: CHALK_SUB }} data-testid={`${p}-marks-list`}>
+          {placed.map((m) => <li key={`li-${m.i}`}><span style={{ color: CHALK_CREAM }}>{m.name}</span> ({m.notes.join(', ').toLowerCase()})</li>)}
         </ul>
       )}
       {keyText && <p className="mt-1 mb-0 text-center text-[12px]" style={{ fontFamily: SANS, color: CHALK_SUB }} data-testid={`${p}-wheel-key`}>{keyText}</p>}

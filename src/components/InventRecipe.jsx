@@ -66,6 +66,7 @@ import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chal
 import { DishArt, ChalkLoader } from './chalkArt.jsx';
 import InventStart from './InventStart.jsx';
 import InventList from './InventList.jsx';
+import HelpBubble from './HelpBubble.jsx';
 import { IngredientBuilderScope } from './IngredientCardProvider.jsx';
 import InventChecklist from './InventChecklist.jsx';
 import InventSuggestions from './InventSuggestions.jsx';
@@ -404,7 +405,7 @@ export default function InventRecipe({
     const d = DISH_SKELETONS[id];
     return { id, label: d.label, blurb: d.blurb, art: <DishArt kind={d.dishType} accent={ACCENT} size={30} /> };
   });
-  const dishLine = [skeleton?.label, cuisine].filter(Boolean).join(' · ');
+  const dishLine = skeleton ? (cuisine ? `${cuisine} ${skeleton.label.replace(/^\w/, (c) => c.toLowerCase())}` : skeleton.label) : '';
   const rule = { color: CHALK_SUB };
 
   return (
@@ -414,8 +415,8 @@ export default function InventRecipe({
       data-testid="invent-recipe" role="dialog" aria-label="Build a recipe">
       <div className="w-full max-w-[560px] flex items-center justify-between mb-2 gap-2">
         <button type="button" onClick={onClose} data-testid="invent-recipe-close"
-          className={`px-3 py-2 rounded-lg min-h-[44px] border ${FOCUS}`} style={btn}>
-          ← Back
+          className={`px-3 py-2 rounded-lg min-h-[44px] min-w-[44px] border ${FOCUS}`} style={btn}>
+          Back
         </button>
         {onEditKitchen && (
           <button type="button" onClick={onEditKitchen} data-testid="invent-recipe-kitchen"
@@ -427,16 +428,17 @@ export default function InventRecipe({
 
       <div className="w-full max-w-[560px] rounded-2xl px-4 py-4 flex flex-col gap-4" style={{ border: `2px double ${CHALK_RAIL}`, background: 'rgba(255,255,255,0.025)' }}>
         <div>
-          <h2 className="text-center text-[34px] leading-tight" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }}>{editId ? 'Edit your recipe' : 'Build a recipe'}</h2>
-          <p className="text-center text-[13px]" style={{ fontFamily: SANS, color: CHALK_SUB }} data-testid="invent-recipe-source">
-            {pantry.length
-              ? `Your kitchen (${pantry.length} item${pantry.length === 1 ? '' : 's'}) comes first; anything else is marked “you'd need”.`
-              : 'Your kitchen is empty, so this draws on common ingredients.'}
-          </p>
-          {model.status === 'loading' && <div className="py-1"><ChalkLoader compact label="Warming up the recipe model…" color={ACCENT} /></div>}
+          <div className="flex items-center justify-center gap-1">
+            <h2 className="text-center text-[34px] leading-tight" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }}>{editId ? 'Edit your recipe' : 'Build a recipe'}</h2>
+            <HelpBubble variant="chalk" label="How this works" testId="invent-recipe-source-help"
+              body={pantry.length
+                ? `Your kitchen (${pantry.length} item${pantry.length === 1 ? '' : 's'}) comes first; anything else is marked “you'd need”.`
+                : 'Your kitchen is empty, so this draws on common ingredients.'} />
+          </div>
+          {model.status === 'loading' && <div className="py-1"><ChalkLoader compact label="Finding what goes with it…" color={ACCENT} /></div>}
           {model.status === 'failed' && (
             <p className="text-center text-[12px] mt-1" style={{ fontFamily: SANS, color: CHALK_DIM }} data-testid="invent-recipe-no-model" role="status">
-              Suggestions are running without the recipe model (offline?) — pairings still guide them.
+              Suggestions come from pairings only for now.
             </p>
           )}
         </div>
@@ -454,7 +456,7 @@ export default function InventRecipe({
 
             {cuisineList.length > 0 && (
               <div>
-                <p className="text-[12px] uppercase tracking-wider mb-1" style={rule}>Cuisine (optional, steers suggestions)</p>
+                <p className="text-[13px] mb-1" style={{ ...rule, fontFamily: SANS }}>Cuisine (optional)</p>
                 <div className="flex flex-wrap gap-1.5" role="group" aria-label="Cuisine" data-testid="invent-recipe-cuisines">
                   <button type="button" aria-pressed={cuisine === null} onClick={() => patch({ cuisine: null })}
                     className={`px-3 py-1 rounded-full border min-h-[44px] text-[17px] ${FOCUS}`} style={chip(cuisine === null)}>any</button>
@@ -494,7 +496,7 @@ export default function InventRecipe({
             {keys.length >= 3 && nodeMap && (
               <button type="button" onClick={() => setProfilesOpen(true)} data-testid="invent-recipe-profiles"
                 className={`w-full px-3 py-2 rounded-lg border min-h-[44px] text-left ${FOCUS}`} style={btn}>
-                ◆ Flavor Profiles — each note, what to boost or temper
+                Each flavor note, and what to add for more or less
               </button>
             )}
 
@@ -507,7 +509,7 @@ export default function InventRecipe({
 
             {keys.length > 0 && (onFindCocktail || onFindSauce || onFindWine) && (
               <div data-testid="invent-recipe-serve">
-                <p className="text-[12px] uppercase tracking-wider mb-1" style={rule}>Serve it with</p>
+                <p className="text-[13px] mb-1" style={{ ...rule, fontFamily: SANS }}>Serve it with</p>
                 <div className="flex flex-wrap gap-2">
                   {onFindCocktail && (
                     <button type="button" onClick={() => onFindCocktail(keys, name.trim())} data-testid="invent-recipe-find-cocktail"
@@ -562,11 +564,11 @@ export default function InventRecipe({
                 <p className="mt-1 text-[12px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>plus salt, pepper and oil to taste</p>
                 {closest && (
                   <div className="mt-2" data-testid="invent-recipe-closest">
-                    <p className="text-[12px] uppercase tracking-wider" style={rule}>Closest real recipe</p>
+                    <p className="text-[13px]" style={{ ...rule, fontFamily: SANS }}>Closest recipe in the Cookbook</p>
                     <button type="button" aria-expanded={openMethod} onClick={() => setOpenMethod((o) => !o)}
                       className={`w-full text-left min-h-[44px] flex items-center gap-2 rounded-lg ${FOCUS}`} style={{ outlineColor: CHALK_CREAM }}>
                       <span className="text-[19px] flex-1 min-w-0" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{closest.title}</span>
-                      <span className="text-[14px] flex-shrink-0" style={{ fontFamily: FONT, color: CHALK_SUB }}>{openMethod ? '▾ hide method' : '▸ method'}</span>
+                      <span className="text-[14px] flex-shrink-0" style={{ fontFamily: FONT, color: CHALK_SUB }}><span aria-hidden="true">{openMethod ? '▾' : '▸'}</span> {openMethod ? 'Hide method' : 'Show method'}</span>
                     </button>
                     {openMethod && (
                       <ol className="space-y-1 list-decimal list-inside text-[13px]" style={{ fontFamily: SANS, color: CHALK_CREAM }}>
@@ -599,7 +601,7 @@ export default function InventRecipe({
                 <button type="button" onClick={write} disabled={!keys.length} data-testid="invent-recipe-write"
                   className={`flex-1 px-3 py-2 rounded-lg min-h-[44px] ${FOCUS}`}
                   style={{ fontFamily: FONT, fontSize: 19, color: '#0a0a0a', background: CHALK_CREAM, outlineColor: CHALK_CREAM, opacity: keys.length ? 1 : 0.5 }}>
-                  Write it in the Recipe Notebook →
+                  Write it in the Recipe Notebook
                 </button>
               )}
             </div>
@@ -608,7 +610,7 @@ export default function InventRecipe({
       </div>
       {profilesOpen && nodeMap && (
         <div className="fixed inset-x-0 top-0 z-[95]" style={{ bottom: 'var(--tab-bar-h)' }} data-testid="invent-recipe-profiles-overlay">
-          <Suspense fallback={<ChalkLoader compact label="Opening the flavor profiles…" color={ACCENT} />}>
+          <Suspense fallback={<ChalkLoader compact label="Opening the flavor notes…" color={ACCENT} />}>
             <RecipeFlavorProfilesCard
               bowlNames={keys}
               bowlEntries={bowlEntries}

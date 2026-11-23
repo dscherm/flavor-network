@@ -56,12 +56,13 @@ export default function SharedLinks({ shares, onRemoved, getDb = defaultGetDb, u
 
   return (
     <section data-testid="shared-links" aria-label="Shared links" className="min-w-0">
-      <h3 className="text-neural-glow/80 text-[10px] font-medium uppercase tracking-wider mb-1">Shared links</h3>
+      <h3 className="text-neural-glow/80 text-[13px] font-medium mb-1">Shared links</h3>
       <ul className="max-h-44 overflow-y-auto flex flex-col gap-1.5" role="list">
         {shares.map((s) => (
           <li key={s.id} data-testid="shared-link-row" className="rounded border border-[#2a2a3e] bg-[#1a1a2e] p-2 min-w-0">
             <p className="text-xs text-gray-200 break-words">{s.name || 'Recipe'}</p>
-            <p className="text-[10px] text-gray-500 break-all">{`${base}/r/${s.id}`}{dateOf(s.createdAt) ? ` · ${dateOf(s.createdAt)}` : ''}</p>
+            <p className="text-[10px] text-gray-500 break-all">{`${base}/r/${s.id}`}</p>
+            {dateOf(s.createdAt) ? <p className="text-[10px] text-gray-500">{dateOf(s.createdAt)}</p> : null}
             {confirming === s.id ? (
               <div className="mt-1">
                 <p className="text-[11px] text-gray-300">Unshare this? The link will stop working.</p>

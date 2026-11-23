@@ -29,6 +29,7 @@ import { computeRecipeAroma, rankByAromaSimilarity } from '../data/recipeAromaSi
 import { buildPairingIndex, rankByPairing } from '../data/recipePairingMatch.js';
 import { recipeTakesSauce } from '../data/sauceRecommendation.js';
 import HelpBubble from './HelpBubble.jsx';
+const SANS_STACK = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 import { curateCodexRaw } from '../data/cocktailCodexV2.js';
 import { groupBars, selectAxes, hiddenLine } from '../data/flavorDisplay.js';
 import FlavorWheel from './FlavorWheel.jsx';
@@ -174,7 +175,7 @@ function FlavorBarChart({ scores, all = false, onToggleAll }) {
     <div className="flex flex-col gap-2" data-testid="profiles-overview-bars">
       {groups.map((g) => (
         <div key={g.id} data-testid={`overview-group-${g.id}`}>
-          <p className="text-[12px] uppercase tracking-wider mb-1" style={{ fontFamily: FONT, color: CHALK_SUB }}>{g.title}</p>
+          <p className="text-[13px] mb-1" style={{ fontFamily: SANS_STACK, color: CHALK_SUB }}>{g.title}</p>
           <div className="flex flex-col gap-2">
             {g.bars.map((r) => (
               <div key={r.axis} className="flex items-center gap-2" data-testid="overview-bar" data-axis={r.axis}>
@@ -396,16 +397,16 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
           className="min-h-[44px] px-3 rounded-lg border border-[#3a3a3a] hover:bg-white/5"
           style={{ fontFamily: FONT, fontSize: 17, color: CHALK_DIM }}
         >
-          ← Back
+          Back
         </button>
-        <span className="text-[13px] uppercase tracking-wider text-center flex-1 px-2" style={{ fontFamily: FONT, color: CHALK_DIM }}>Flavor Profiles</span>
+        <span className="text-[22px] text-center flex-1 px-2" style={{ fontFamily: FONT, color: CHALK_CREAM }}>Flavor notes</span>
         <div className="flex items-center gap-0.5">
           <HelpBubble
             variant="chalk"
             placement="bottom"
             testId="profiles-help"
-            label="About Flavor Profiles"
-            title="Flavor Profiles"
+            label="How this works"
+            title="Flavor notes"
             body={[
               'Swipe left/right — or tap ◀ ▶ or the dots — to move between pages.',
               'Pages: Overview, a flavor map, one per flavor axis, Enhance, and Pairings.',
@@ -477,7 +478,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
 
             {boost.length > 0 && (
               <div className="mb-1.5">
-                <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: CHALK_SUB }}>Boost</p>
+                <p className="text-[13px] mb-0.5" style={{ fontFamily: SANS_STACK, color: CHALK_SUB }}>For more {axisLabel(axis).toLowerCase()}</p>
                 <div className="flex gap-1 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
                   {boost.map((b) => <Chip key={`b-${b.name}`} name={b.name} delta={b.delta} onTap={addWithQty} />)}
                 </div>
@@ -485,7 +486,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
             )}
             {temper.length > 0 && (
               <div>
-                <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: CHALK_SUB }}>Temper / balance</p>
+                <p className="text-[13px] mb-0.5" style={{ fontFamily: SANS_STACK, color: CHALK_SUB }}>To balance it</p>
                 <div className="flex gap-1 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
                   {temper.map((t) => <Chip key={`t-${t.name}`} name={t.name} onTap={addWithQty} />)}
                 </div>
@@ -517,7 +518,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
                     )}
                     {tmp.length > 0 && (
                       <>
-                        <p className="text-[11px] uppercase tracking-wider mt-1.5 mb-1" style={{ color: CHALK_SUB }}>
+                        <p className="text-[13px] mt-1.5 mb-1" style={{ fontFamily: SANS_STACK, color: CHALK_SUB }}>
                           Tone down {axisLabel(a).toLowerCase()}
                         </p>
                         <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
@@ -537,9 +538,9 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
             <h3 className="text-2xl mb-2" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_TEXT_SHADOW }}>Pairs well with</h3>
             {dishes.length > 0 && (
               <div className="mb-2">
-                <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: CHALK_SUB }}>🍽 Similar dishes</p>
-                <ul className="text-base" style={{ fontFamily: FONT, color: CHALK_CREAM }}>
-                  {dishes.map((d) => <li key={d}>· {d}</li>)}
+                <p className="text-[13px] mb-0.5" style={{ fontFamily: SANS_STACK, color: CHALK_SUB }}>🍽 Similar dishes</p>
+                <ul className="text-base flex flex-col gap-2" style={{ fontFamily: FONT, color: CHALK_CREAM }}>
+                  {dishes.map((d) => <li key={d}>{d}</li>)}
                 </ul>
               </div>
             )}
@@ -547,7 +548,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
                 Cocktail Lab. Falls back to the generic button if no matches. */}
             {onFindCocktail && (
               <div className="mb-2">
-                <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: CHALK_SUB }}>🍸 Cocktails</p>
+                <p className="text-[13px] mb-0.5" style={{ fontFamily: SANS_STACK, color: CHALK_SUB }}>🍸 Cocktails</p>
                 {cocktailMatches.length > 0 ? (
                   <div className="flex flex-wrap gap-1.5" data-testid="pairings-cocktail-names">
                     {cocktailMatches.map(({ item, similarity }) => (
@@ -571,7 +572,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
             {/* 🍷 Wines — opens the Wine Lab's matches for this recipe. */}
             {onFindWine && recipeType !== 'drink' && (
               <div className="mb-2">
-                <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: CHALK_SUB }}>🍷 Wine</p>
+                <p className="text-[13px] mb-0.5" style={{ fontFamily: SANS_STACK, color: CHALK_SUB }}>🍷 Wine</p>
                 <button onClick={onFindWine} data-testid="pairings-find-wines" className="min-h-[44px] px-4 rounded-full border" style={{ fontFamily: FONT, fontSize: 16, background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT, textShadow: CHALK_TEXT_SHADOW }}>🍷 Find wines</button>
               </div>
             )}
@@ -579,7 +580,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
             {/* 🥣 Sauces — gated by recipeTakesSauce; best-pairing names. */}
             {onFindSauce && recipeTakesSauce(recipeType) && (
               <div>
-                <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: CHALK_SUB }}>🥣 Sauces</p>
+                <p className="text-[13px] mb-0.5" style={{ fontFamily: SANS_STACK, color: CHALK_SUB }}>🥣 Sauces</p>
                 {sauceMatches.length > 0 ? (
                   <div className="flex flex-wrap gap-1.5" data-testid="pairings-sauce-names">
                     {sauceMatches.map(({ item, similarity }) => (

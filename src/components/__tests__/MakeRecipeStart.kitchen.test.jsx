@@ -61,7 +61,7 @@ describe('MakeRecipeStart — KITCHEN-2 kitchen flow', () => {
     fireEvent.click(screen.getByTestId('make-card-kitchen'));
     fireEvent.click(within(await screen.findByTestId('kitchen-make')).getByRole('button', { name: /Mujadara/ }));
     const detail = screen.getByRole('dialog', { name: 'Mujadara details' });
-    fireEvent.click(within(detail).getByRole('button', { name: /Open in Recipe Notebook/ }));
+    fireEvent.click(within(detail).getByRole('button', { name: /Open in the Recipe Notebook/ }));
     const h = s.setRecipeHandoff.mock.calls[0][0];
     expect(h).toMatchObject({ source: 'make-kitchen', title: 'Mujadara' });
     expect(h.ingredients).toContain('lentil');

@@ -72,7 +72,7 @@ describe('KitchenPanel', () => {
     mount({ kitchen: ['rice', 'onion', 'lentil'] });
     const make = screen.getByTestId('kitchen-make');
     const row = within(make).getByRole('button', { name: /Mujadara/ });
-    expect(row).toHaveTextContent('you have the 3 mains');
+    expect(row).toHaveTextContent('You have the 3 mains.');
     expect(screen.getByTestId('kitchen-recipe-mujadara-better')).toHaveTextContent('even better with: cumin');
     expect(within(make).getAllByTestId('dish-art').length).toBeGreaterThan(0);
   });
@@ -117,7 +117,7 @@ describe('KitchenPanel', () => {
     resolve({ index: { recipes: REC, inv: INV }, vocab: VOCAB });
     const row = await screen.findByTestId('kitchen-real-0');
     expect(row).toHaveTextContent('Garlic Lemon Chicken');
-    expect(row).toHaveTextContent('you have 3 of 3');
+    expect(row).toHaveTextContent('You have 3 of 3.');
     fireEvent.click(screen.getByRole('button', { name: /Show the method for Garlic Lemon Chicken/ }));
     expect(screen.getByText('Brown the chicken.')).toBeInTheDocument();
     fireEvent.click(row);

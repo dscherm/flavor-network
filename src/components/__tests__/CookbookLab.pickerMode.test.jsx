@@ -82,8 +82,8 @@ describe('CookbookLab — MAKE-COOKBOOK-PICKER (pickerMode="make")', () => {
     );
     const crumb = screen.getByTestId('cookbook-picker-breadcrumb');
     expect(crumb).toBeInTheDocument();
-    expect(crumb.textContent).toMatch(/Make/);
-    expect(crumb.textContent).toMatch(/Pick a recipe/);
+    expect(crumb.textContent).toBe('Back');
+    expect(crumb).toHaveAttribute('aria-label', 'Back to Make');
     fireEvent.click(crumb);
     expect(onExitPickerMode).toHaveBeenCalledTimes(1);
   });

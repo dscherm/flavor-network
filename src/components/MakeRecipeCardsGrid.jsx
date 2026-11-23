@@ -95,8 +95,8 @@ function PortionCard({ node, portion, onChange, onSuggest, recipeCount }) {
       data-testid={`make-recipe-portion-${node.name}`}
     >
       <label
-        className="text-[11px] uppercase tracking-[0.16em] text-center"
-        style={{ color: CHALK_DIM, fontFamily: FONT_HAND, letterSpacing: '0.06em', textShadow: CHALK_TEXT_SHADOW }}
+        className="text-[13px] text-center"
+        style={{ color: CHALK_DIM, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
       >
         Portion
       </label>

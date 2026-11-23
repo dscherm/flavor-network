@@ -18,6 +18,7 @@ import { loadWineStyles, similarWines, wineSearchText, dots, familyColor, fromCo
 import { scaleWord } from '../data/winePairing.js';
 import { wineProfileAxes, wineFoodMapping, reviewHighlights, wineWheelBars, WINE_AXIS_SET } from '../data/wineProfile.js';
 import FlavorWheel from './FlavorWheel.jsx';
+import HelpBubble from './HelpBubble.jsx';
 import { CountryFlag, ChalkLoader } from './chalkArt.jsx';
 import { WineGlass } from './wineGlasses.jsx';
 import { liftColor } from '../data/drinkColor.js';
@@ -42,12 +43,11 @@ function chipMatches(wine, key) {
   return wine.colour === key;
 }
 
-function ProfileHeading({ children, color = CHALK_DIM }) {
+function ProfileHeading({ children, color = CHALK_CREAM }) {
   return (
-    <div className="uppercase tracking-[0.16em] mb-1.5 mt-3"
-      style={{ color, fontFamily: FONT, fontSize: 'clamp(13px, 1.7vh, 18px)', textShadow: CHALK_SHADOW }}>
+    <h3 style={{ color, fontFamily: FONT, fontSize: 22, fontWeight: 400, marginTop: 24, marginBottom: 12, textShadow: CHALK_SHADOW }}>
       {children}
-    </div>
+    </h3>
   );
 }
 
@@ -62,7 +62,7 @@ export function WineProfileSections({ wine, color, reviewEntry = null }) {
   const reviewed = reviewHighlights(reviewEntry);
   return (
     <div data-testid="wine-profile">
-      <ProfileHeading>Flavour profile</ProfileHeading>
+      <ProfileHeading>Flavor profile</ProfileHeading>
       <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
         <div className="flex-shrink-0 w-[260px] max-w-full" data-testid="wine-structure">
           <FlavorWheel bars={wineWheelBars(wine)} axisSet={WINE_AXIS_SET} size="full" testidPrefix="wine" maxWidth={260}
@@ -104,7 +104,7 @@ export function WineProfileSections({ wine, color, reviewEntry = null }) {
         </div>
       )}
 
-      <ProfileHeading>Pairs by profile</ProfileHeading>
+      <ProfileHeading>What it suits</ProfileHeading>
       <ul className="flex flex-col gap-2" data-testid="wine-food-mapping">
         {mapping.rules.map((r) => (
           <li key={r.id} data-testid={`wine-rule-${r.id}`} className="flex flex-col gap-0.5">
@@ -164,8 +164,9 @@ function WineRow({ wine, color, onSelect, reasons = null, badge = null }) {
           <span className="text-[10px] px-1.5 py-px rounded border flex-shrink-0" style={{ color: CHALK_CREAM, borderColor: `${color}aa` }}>{badge}</span>
         )}
       </div>
-      <div className="text-[11px] truncate" style={{ fontFamily: SANS, color: CHALK_DIM }}>
-        <CountryFlag country={wine.country} height={10} /> {wine.area ? `${wine.area}, ${wine.country}` : wine.region} · {wine.grapes.join(', ')}
+      <div className="text-[11px] flex items-baseline gap-3 min-w-0" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+        <span className="truncate"><CountryFlag country={wine.country} height={10} /> {wine.area ? `${wine.area}, ${wine.country}` : wine.region}</span>
+        <span className="truncate">{wine.grapes.join(', ')}</span>
       </div>
       <div className="text-[11px] flex flex-wrap gap-x-3" style={{ fontFamily: SANS, color: CHALK_SUB }} aria-label={`body ${wine.body}, acidity ${wine.acidity}, tannin ${wine.tannin}, sweetness ${wine.sweetness} out of 5`}>
         <span>body <span style={{ color: CHALK_DIM }}>{dots(wine.body)}</span></span>
@@ -195,7 +196,7 @@ function WineShelf({ families, counts, active, onPick }) {
   return (
     <div className="px-4 pt-1 pb-2 max-w-4xl mx-auto" data-testid="wine-shelf">
       <div className="flex items-baseline justify-between mb-1 min-h-[32px]">
-        <span className="text-[11px] uppercase tracking-wider" style={{ color: CHALK_SUB }}>Families</span>
+        <span className="text-[22px]" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Families</span>
         {active && (
           <button type="button" onClick={() => onPick(null)} className="text-[15px] underline underline-offset-2 min-h-[32px] px-1"
             style={{ fontFamily: FONT, color: CHALK_DIM }} data-testid="wine-shelf-clear">
@@ -356,7 +357,7 @@ export default function WineLab({
           {onBackToRecipe && (
             <button type="button" onClick={onBackToRecipe} data-testid="wine-matches-back"
               className="px-3 py-1.5 rounded-lg text-[15px]" style={{ fontFamily: FONT, color: CHALK_CREAM, border: `1px solid ${CHALK_RAIL}` }}>
-              ← Back to {matchesContext?.returnTab === 'sauce' ? 'sauce' : 'recipe'}
+              Back to the {matchesContext?.returnTab === 'sauce' ? 'sauce' : 'recipe'}
             </button>
           )}
           <span className="flex-1 text-[22px] truncate" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }}>Wines for {matchesContext.recipeName}</span>
@@ -399,10 +400,11 @@ export default function WineLab({
   return (
     <div className="absolute inset-x-0 top-0 overflow-y-auto" style={{ bottom: 'var(--tab-bar-h)', paddingTop: 'env(safe-area-inset-top, 0px)', ...chalkSurfaceStyle(), color: CHALK_CREAM }} data-wine-browse-root>
       <div className="px-4 pt-5 pb-2 max-w-4xl mx-auto text-center">
-        <h1 className="text-5xl" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }}>Wine List</h1>
-        <p className="text-[15px] mt-1" style={{ fontFamily: FONT, color: CHALK_SUB }}>
-          {wines.length} styles · open any Cookbook recipe and tap “Matching wines” to pair one
-        </p>
+        <div className="inline-flex items-center gap-1">
+          <h1 className="text-5xl" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }}>Wine list</h1>
+          <HelpBubble variant="chalk" label="How this works" body="To pair a wine with a dish, open the dish in the Cookbook and tap Matching wines." testId="wine-list-help" />
+        </div>
+        <p className="text-[13px] mt-1" style={{ fontFamily: SANS, color: CHALK_SUB }}>{wines.length} styles</p>
       </div>
 
       <WineShelf families={families} counts={familyCounts} active={family} onPick={setFamily} />
@@ -483,7 +485,7 @@ export default function WineLab({
               <header className="flex items-center gap-2.5 mb-2 py-1.5" style={{ borderTop: `1.5px solid ${CHALK_RAIL}`, borderBottom: `1.5px solid ${CHALK_RAIL}` }}>
                 <CountryFlag country={c.country} height={20} />
                 <h2 className="text-[32px] leading-none" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>{c.country}</h2>
-                <span className="text-[14px]" style={{ fontFamily: FONT, color: CHALK_SUB }}>· {members.length}</span>
+                <span className="text-[13px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>{members.length} wines</span>
               </header>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 ml-3">
                 {members.map((w) => (
@@ -501,7 +503,7 @@ export default function WineLab({
               <header className="flex items-center gap-2.5 mb-2 py-1.5" style={{ borderTop: `1.5px solid ${fam.color}66`, borderBottom: `1.5px solid ${fam.color}66` }}>
                 <WineGlass family={fam.id} color={fam.color} size={44} testid={`wine-family-glass-${fam.id}`} />
                 <h2 className="text-[32px] leading-none" style={{ fontFamily: FONT, color: fam.color, textShadow: CHALK_SHADOW }}>{fam.name}</h2>
-                <span className="text-[14px]" style={{ fontFamily: FONT, color: CHALK_SUB }}>· {members.length}</span>
+                <span className="text-[13px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>{members.length} wines</span>
               </header>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 ml-3">
                 {members.map((w) => (

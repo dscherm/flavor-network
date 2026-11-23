@@ -32,7 +32,7 @@ describe('RecipeFlavorProfilesCard', () => {
 
   it('renders the static per-axis analysis (no model needed)', () => {
     render(<RecipeFlavorProfilesCard bowlNames={['strawberry', 'cranberry', 'coconut cream']} nodes={nodes} />);
-    expect(screen.getByText('Flavor Profiles')).toBeInTheDocument();
+    expect(screen.getByText('Flavor notes')).toBeInTheDocument();
     // Page 0 Overview, page 1 Flavor map; two pages to the strongest axis (sweet).
     fireEvent.click(screen.getByLabelText('Next'));
     fireEvent.click(screen.getByLabelText('Next'));

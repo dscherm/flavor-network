@@ -176,7 +176,7 @@ export default function RecipeImport({ onSave }) {
             />
           </label>
           <p className="mt-1.5 text-[10px] text-gray-500 leading-snug">
-            Photo (jpg/png/heic) or PDF up to 20 MB · 5 pages max for PDFs.
+            Photo (jpg/png/heic) or PDF up to 20 MB, 5 pages at most for PDFs.
           </p>
         </div>
       )}

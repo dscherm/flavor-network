@@ -38,7 +38,7 @@ describe('Cookbook card — What do I need? (WEAK-3)', () => {
   it('with every main, it can be made; garlic and red wine are "even better with"', () => {
     localStorage.setItem(MY_KITCHEN_KEY, JSON.stringify(['beef', 'tomato', 'onion', 'carrot', 'celery', 'pasta']));
     const section = openBolognese();
-    expect(within(section).getByTestId('what-do-i-need-summary')).toHaveTextContent('You can make it ✓');
+    expect(within(section).getByTestId('what-do-i-need-summary')).toHaveTextContent('You can make it.');
     expect(within(section).getByTestId('what-do-i-need-better')).toHaveTextContent('Even better with: garlic, red wine');
   });
 
