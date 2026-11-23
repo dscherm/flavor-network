@@ -3385,7 +3385,20 @@ and name exactly as they are.
   "title": "Words and punctuation: no tracked capitals, middle dots, arrows or developer words",
   "category": "design",
   "design_surface": "Cocktail Lab menu and card, Sauce Lab, Wine Lab, Cookbook, the three builders, shopping list, ingredient card",
-  "passes": false,
+  "public_surface": {
+    "module": "src.components",
+    "adds": [
+      "visible copy in src/components/**/*.jsx (scanned as text by tests/contracts/LOOK-3/copy.contract.test.js)"
+    ]
+  },
+  "acceptance_criteria": [
+    {"id": "AC-1", "given": "every non-comment line of the visible copy in src/components/**/*.jsx", "when": "it is scanned for a space, a middle dot (U+00B7) and a space", "then": "the scan returns exactly 0 hits outside allowlisted files"},
+    {"id": "AC-2", "given": "the visible copy in src/components/**/*.jsx", "when": "it is scanned for arrow characters and their escapes", "then": "the scan returns exactly 0 hits outside allowlisted files"},
+    {"id": "AC-3", "given": "the visible copy in src/components/**/*.jsx", "when": "it is scanned for textTransform uppercase, text-transform: uppercase and the Tailwind class uppercase", "then": "the scan returns exactly 0 hits outside allowlisted files"},
+    {"id": "AC-4", "given": "the visible copy in src/components/**/*.jsx", "when": "it is scanned for the developer phrases cocktail · card, Bridges other families and Warming up the recipe model", "then": "the scan returns exactly 0 hits"},
+    {"id": "AC-5", "given": "tests/contracts/LOOK-3/allowlist.json", "when": "each entry is read", "then": "each entry contains a non-empty reason and names a file that exists"}
+  ],
+  "passes": true,
   "description": "After LOOK-1. The review found: tracked all-caps section labels ('FAMILIES', 'SPIRITS', 'ABOUT THIS DRINK', 'WHAT DO I NEED?', 'INGREDIENTS', 'PREPARATION', 'COCKTAILS LIKE THIS'; 133 uppercase uses in src/); middle-dot strings ('Tap a family to filter · tap a drink for the recipe', 'cocktail · card', 'Tropical Sours · Piña coladas & blended', credits; 83 in src/); arrows in labels and buttons ('← Back', 'swipe →', a → bullet before each ingredient); developer or system words on screen ('cocktail · card', 'Bridges other families', 'Warming up the recipe model…'). Change: section headings become sentence case in the chalkboard's own heading style, and a heading is dropped where the content already says what it is (numbered method steps need no 'Preparation' label); a meta string becomes real structure (the family shown by its drawn glass, the sub-group as a plain second line, credits as small print); Back is a plain 'Back' (an arrow icon from the one icon set only if LOOK-4 has drawn one); ingredient lines lose the → bullet and read amount first, the way a bartender writes a spec; developer words get plain names or are removed ('cocktail · card' removed; 'Bridges other families' becomes words a cook would use, offered in the report; loading lines say what is loading in plain words). A grey hint paragraph under a section moves behind a '?' where it is help, or is cut. Every visible label change keeps tests meaningful: a test that matched the old text is updated and named in the report. Usage-event names and data are not touched.",
   "acceptance": [
     "grep in the report: tracked all-caps text, ' · ' and → / ← in visible copy under src/components, before and after counts; every remaining one named with the reason it stays",
@@ -3402,6 +3415,21 @@ and name exactly as they are.
   "title": "One drawn icon set: chalk icons replace the emoji and the tab bar's stock icons",
   "category": "design",
   "design_surface": "Invent buttons, Riff, shopping buttons, My bar, Labs menu, bottom tab bar",
+  "public_surface": {
+    "module": "src.components.ChalkIcons",
+    "adds": [
+      "ChalkIcons.jsx named SVG icon components (title / aria-hidden props, currentColor)"
+    ]
+  },
+  "acceptance_criteria": [
+    {"id": "AC-1", "given": "every non-comment line of src/components/**/*.jsx", "when": "it is scanned for Extended_Pictographic characters and U+FE0F", "then": "the scan returns exactly 0 hits outside allowlisted entries"},
+    {"id": "AC-2", "given": "src/components/ChalkIcons.jsx", "when": "it is read as text", "then": "it exists, exports at least 8 named components, contains <svg and contains no <img and no http URL"},
+    {"id": "AC-3", "given": "src/components/**/*.jsx and MobileTabBar.jsx", "when": "imports are scanned", "then": "no file imports an icon library and MobileTabBar.jsx imports from ChalkIcons and draws no inline svg"},
+    {"id": "AC-4", "given": "tests/contracts/LOOK-4/allowlist.json", "when": "each entry is read", "then": "each entry contains a non-empty reason and names a file that exists"},
+    {"id": "AC-5", "given": "each named export of ChalkIcons.jsx", "when": "it is rendered with no props", "then": "it renders an svg element"},
+    {"id": "AC-6", "given": "each named export of ChalkIcons.jsx", "when": "it is rendered with a title prop, or with aria-hidden", "then": "it returns an accessible name equal to the title, or exactly no accessible name when aria-hidden"},
+    {"id": "AC-7", "given": "each named export of ChalkIcons.jsx", "when": "its markup is rendered", "then": "the stroke or fill contains currentColor"}
+  ],
   "passes": false,
   "description": "After LOOK-3. Emoji stand in for icons (sparkle on 'Invent a cocktail' and the other Invent buttons, 14 uses; 🔀 on 'Riff on this'; 🛒 on the shopping buttons; 🍾 on 'Only what I have' and 'My bar'; others found by grep), and the bottom tab bar uses stock line icons, a system font and a blue 'Sign in' that matches nothing else. Draw one small icon set in the app's chalk line style (same stroke and wobble as the lab icons on the landing page; SVG components in one file), only for places where an icon is the convention (back, close, share, shopping list, search, the tab bar) or where it carries meaning a word cannot: Invent gets a drawn shaker or whisk, never a sparkle. Where a word alone is clearer, drop the emoji and keep the word. The tab bar is redrawn in chalk on the slate with the app's type and token colours; the current tab is the only place the accent colour appears there. Each icon has an accessible name or sits next to its label.",
   "acceptance": [
