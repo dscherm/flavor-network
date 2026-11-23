@@ -3548,7 +3548,7 @@ and name exactly as they are.
     {"id": "AC-6", "given": "a drink with no photo, and a drink whose photo fails to load, rendered as a card", "when": "the picture area is read", "then": "an svg chalk drawing of the drink is shown (no empty frame, no gradient placeholder); a drink whose photo loads shows the photo and no drawing"},
     {"id": "AC-7", "given": "the cocktail menu rendered", "when": "[data-testid=\"cocktail-row\"] elements are read", "then": "each has no border and no box-shadow and a min height of at least 44 px"}
   ],
-  "passes": false,
+  "passes": true,
   "description": "After LOOK-6. The review found 171 pill shapes in src/components and a box around nearly every row: the Cocktail card wraps its buttons, chips, rows and sections all in the same rounded border; 'Riff on this', 'Flavor profile' and 'Share' are three equal outlined pills; 'Cocktails like this' is a cloud of boxed pills for plain links; every list row in the Cocktail menu is its own bordered box. Apply the components rule in design/DESIGN.md: a border only on something you can click or that holds state; sections separated by space and a chalk rule; one filled primary action per view (on a drink card that is probably 'What do I need?' or 'Add to shopping list'; propose it in the brief); secondary actions as text or a single grouped control; plain lists as text, not pills; spacing tight within a group and generous between sections. Write the brief first (ralph-designer) with one before-and-after mock of the Cocktail card for the owner.",
   "acceptance": [
     "grep in the report: pill and border patterns in src/components before and after, with what remains and why",
