@@ -3,21 +3,38 @@
  * files at the layout's exact pixel size. DOM only here; the layout is already wrapped, shrunk and
  * truncated, so this file never measures text.
  */
-import { layoutCard, layoutSet } from './shareCardLayout.js';
-import { HAND } from './chalkTheme.js';
+import { layoutCard, layoutSet, CARD_FACES } from './shareCardLayout.js';
+import { TEXT } from './chalkTheme.js';
 
+// Faces come from CARD_FACES (the server reads the same constant). The sans file is a lining-figure build of
+// Alegreya Sans (scripts/buildLiningFont.py); if it never loads, the app's own Alegreya Sans, then a generic face, draws.
 const STACK = {
-  hand: HAND,
-  sans: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+  hand: `"${CARD_FACES.hand}", cursive`,
+  sans: `"${CARD_FACES.sans}", ${TEXT}`,
 };
+const LINING_FILES = [[400, '/fonts/alegreya-sans-lining-latin-400-normal.woff'], [500, '/fonts/alegreya-sans-lining-latin-500-normal.woff']];
+let liningAdded = false;
 
-/** Waits for the handwriting font (a fallback face is drawn instead if it never arrives). */
+function addLiningFaces() {
+  if (liningAdded || typeof FontFace === 'undefined') return;
+  liningAdded = true;
+  for (const [weight, url] of LINING_FILES) {
+    document.fonts.add(new FontFace(CARD_FACES.sans, `url(${url}) format('woff')`, { weight: String(weight), style: 'normal' }));
+  }
+}
+
+/** Registers and waits for the card faces: Caveat 700 and Alegreya Sans Lining 400 and 500 (a fallback face is drawn if one never arrives). */
 export async function ensureFonts() {
   try {
     if (typeof document === 'undefined' || !document.fonts) return;
-    await Promise.all([document.fonts.load(`700 40px ${HAND}`), document.fonts.load(`400 40px ${HAND}`)]);
+    addLiningFaces();
+    await Promise.all([
+      document.fonts.load(`700 40px ${STACK.hand}`),
+      document.fonts.load(`400 40px ${STACK.sans}`),
+      document.fonts.load(`500 40px ${STACK.sans}`),
+    ]);
     await document.fonts.ready;
-  } catch { /* fall back to the system cursive face */ }
+  } catch { /* fall back to the app's own faces */ }
 }
 
 function roundedPath(ctx, x, y, w, h, r) {

@@ -3514,6 +3514,22 @@ and name exactly as they are.
   "title": "Share cards in the app's type: Caveat titles and Alegreya Sans text on browser and server cards together",
   "category": "design",
   "design_surface": "Share cards (link preview, portrait, tall, set of three), browser canvas and server satori",
+  "public_surface": {
+    "module": "src.data.shareCardLayout",
+    "adds": [
+      "CARD_FACES { hand: 'Caveat', sans: 'Alegreya Sans Lining' } shared by browser and server renderers",
+      "lining Alegreya Sans 400/500 woff files in public/fonts and functions/fonts with the OFL licence"
+    ]
+  },
+  "acceptance_criteria": [
+    {"id": "AC-1", "given": "src/data/shareCardCanvas.js and functions/src/share/*.ts (not tests)", "when": "scanned for system-ui, -apple-system, Segoe UI, Roboto, a quoted Inter, Georgia, Palatino, JetBrains", "then": "the scan returns 0 hits, and the LOOK-6 contract exception for shareCardCanvas.js is removed"},
+    {"id": "AC-2", "given": "functions/fonts/", "when": "listed", "then": "it holds the Caveat file(s), alegreya-sans-lining 400 and 500 woff files, LICENSE-alegreya-sans.txt and LICENSE-caveat.txt, and no inter-* file; the public/fonts and functions/fonts copies of the lining files are byte-equal"},
+    {"id": "AC-3", "given": "the card layout for every built-in in share-cards.json in every format (preview, portrait, tall, set)", "when": "its text primitives are read", "then": "hand text is only the name lines, Ingredients, Method and Neural Flavor; every other primitive is sans at weight 400 or 500"},
+    {"id": "AC-4", "given": "the same layouts", "when": "each text primitive's width is measured from the bundled woff at its size", "then": "no primitive is wider than its box"},
+    {"id": "AC-5", "given": "the same layouts and a user recipe with amounts 1⅔ oz, ⅓ oz and ½ oz", "when": "text is checked against the face's character map", "then": "every character exists in its face, ⅓ and ⅔ print as 1/3 and 2/3 (1⅔ oz as 1 2/3 oz), and ½ stays"},
+    {"id": "AC-6", "given": "the same layouts", "when": "their text is read", "then": "no primitive except the link is all capitals with three or more letters, and none contains ' · ' built by the layout"},
+    {"id": "AC-7", "given": "the two lining woff files", "when": "parsed", "then": "digits 0-9 map to the tabular lining glyphs and the family name is Alegreya Sans Lining"}
+  ],
   "passes": false,
   "description": "Follow-up to LOOK-6 (owner default D2, 2026-11-23). Today the browser cards (src/data/shareCardCanvas.js) draw Caveat and the system stack; the server cards (functions/src/share/card.ts) draw Caveat and bundled Inter, so they already disagree. Change both together: bundle Alegreya Sans 400/500 woff files with licences in functions/fonts (Caveat is already bundled), update the face map in card.ts and the canvas faces (the steady face replaces Inter and the system stack), regenerate through scripts/buildShareIndex.mjs, and look at every card format. Remove shareCardCanvas.js from LOOK-6's banned-face exception. Deploying functions is the owner's call.",
   "acceptance": [
@@ -3554,6 +3570,56 @@ and name exactly as they are.
     "grep in the report: pill and border patterns in src/components before and after, with what remains and why",
     "Each listed screen has exactly one filled primary action (screenshot per screen)",
     "Before-and-after screenshots at 375 px and desktop width of each listed screen, checked against ~/.claude/design-criteria.md item by item",
+    "No behaviour change: existing tests pass, changed only where they asserted a class or border, each named; npm run gate green; nothing deployed"
+  ]
+}
+```
+
+```json
+{
+  "id": "LOOK-8",
+  "title": "Logo: keep the name and the chef's hat, redraw the atom as something from a kitchen",
+  "category": "design",
+  "design_surface": "The logo (ChalkLogo, AnimatedLogo) wherever it appears: landing page, loading, share cards, favicon/app icons if they use it",
+  "passes": false,
+  "description": "Owner decision LOOK-LOGO, 2026-11-23: 'Redraw the atom' (options were keep both, redraw the atom, rename). The name 'Neural Flavor' and the chef's hat with 'Nf' stay. The Rutherford atom under the hat (and its animated electrons) is replaced by a kitchen object in the same chalk line style, colours and proportions, so the logo reads as a kitchen chalkboard rather than a tech lab. Owner addition, 2026-11-23: 'try also the chef hat but add a lab item. a beaker with a chef hat on top' — so one candidate is the hat on a chalk-drawn beaker (a lab item, kept on purpose by the owner). Brief first (ralph-designer) with three or four candidate drawings rendered for the owner to pick from; nothing built before the pick. Then replace it everywhere the logo is drawn (find every use, including share cards and any icon files), keep the reduced-motion behaviour sensible for whatever animation replaces the electrons, and keep the landing page layout from LOOK-5.",
+  "acceptance": [
+    "The owner picked one of the rendered candidates; the pick is recorded in DESIGN.md and BACKLOG.md",
+    "No atom remains in the logo anywhere it is drawn (grep and screenshots)",
+    "The hat and 'Nf' are unchanged (diff of those paths)",
+    "Before-and-after screenshots at 375 px and desktop of the landing page and loading state; npm run gate green; nothing deployed without the owner's go-ahead"
+  ]
+}
+```
+
+```json
+{
+  "id": "LOOK-9",
+  "title": "The other labs get the LOOK-7 treatment: fewer boxes and pills, one filled button per view",
+  "category": "design",
+  "design_surface": "Sauce Lab (menu and sauce card), Wine Lab, Cookbook (menu and dish card), Pairing Lab, and the pieces LOOK-7 left boxed: Add a picture (PictureField), cooking-method chips (RecipeCookingMethod), HelpBubble, the share sheet, the Flavor Profiles card ground",
+  "public_surface": {
+    "module": "src.components",
+    "adds": [
+      "data-primary=\"true\" on the one filled button per view in the Sauce Lab, Cookbook card and share sheet",
+      "dish-story-drawing svg stand-in for sauces without a photo; Filters control on the Sauce and Wine menus"
+    ]
+  },
+  "acceptance_criteria": [
+    {"id": "AC-1", "given": "the Sauce menu, the pantry, a sauce card and the Bolognese card with an empty kitchen, and the share sheet for a built-in dish, each rendered", "when": "[data-primary=\"true\"] is queried", "then": "exactly one element matches, a button with a solid accent background; and zero match on the Wine list and card, the Cookbook menu, a Cookbook card with everything owned, the Pairing Lab board and peek, an open HelpBubble"},
+    {"id": "AC-2", "given": "the same renders, with a cuisine, colour, country, kind, cooking method and share format selected", "when": "backgrounds are read", "then": "no element other than the primary has an accent background, and selected controls have aria-pressed or aria-selected true and no filled background"},
+    {"id": "AC-3", "given": "the Sauce and Wine menus", "when": "sauce-row and wine-row-* elements are read", "then": "each has no border, no box-shadow, no background image and a min height of at least 44 px"},
+    {"id": "AC-4", "given": "the Bolognese Cookbook card", "when": "it is rendered", "then": "its root has no border and no box-shadow, a Back control closes it and Escape closes it, and recipe-ingredients li and pair-card-* buttons have no border, no background and no rounded-full"},
+    {"id": "AC-5", "given": "a sauce with no photo, a sauce with no story, and a sauce whose photo fails", "when": "the card is rendered", "then": "a dish-story-drawing svg shows and no empty frame; a sauce whose photo loads shows the photo and no drawing; PairingModeCard shows an svg drawing and no coloured initial disc"},
+    {"id": "AC-6", "given": "the listed source files (SauceBrowse, SaucePairings, SaucePantryPanel, SauceSuggestionDeck, WineLab, CookbookLab, PairingLab, PairingModeCard, PictureField, RecipePicture, RecipeCookingMethod, HelpBubble, ShareSheet, OwnShare, ShareImages, ShareReport, RecipeFlavorProfilesCard)", "when": "scanned as text", "then": "no outlineColor: CHALK_CREAM, no 2px double, no borderRadius: 14 in PairingLab, and every pill shape is a dot or bar or in tests/contracts/LOOK-9/allowlist.json with a reason"},
+    {"id": "AC-7", "given": "the Sauce and Wine menus", "when": "rendered", "then": "no cuisine or colour chip is visible until Filters is pressed (aria-expanded false then true), and choosing a chip still filters"}
+  ],
+  "passes": false,
+  "description": "Owner, 2026-11-23: 'i think the other labs need to go through the same look-7 process as cocktails went through'. Apply the rules LOOK-7 set and design/DESIGN.md now records (CONTROL_RADIUS 8, textAction, primaryBtn, AddRow, Chip with accent border when selected, FOCUS token, data-primary on the one filled button): a border only on something you can tap or that holds state; sections separated by space and chalk rules; no frame around an opened card; one filled primary per view and none where nothing comes first; secondary actions as text controls; plain lists as text, not pills; selected = accent outline, not fill; list rows at least 44 px with no stripes or glow; family or cuisine colour only on the name and its drawing; focus colour token everywhere. Same process as LOOK-7: brief first (ralph-designer) with measured before counts per surface, the proposed primary per view with reasons, and one before-and-after mock (a Sauce Lab card or a Cookbook dish card) for the owner; then blind tests and the build.",
+  "acceptance": [
+    "grep in the report: pill and border patterns in each listed surface before and after, with what remains and why",
+    "Each main view has at most one filled primary (data-primary), exactly one where the brief names one (tests)",
+    "Before-and-after screenshots at 375 px and desktop width of each listed surface, checked against ~/.claude/design-criteria.md",
     "No behaviour change: existing tests pass, changed only where they asserted a class or border, each named; npm run gate green; nothing deployed"
   ]
 }

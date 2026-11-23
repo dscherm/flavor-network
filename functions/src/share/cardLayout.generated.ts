@@ -362,6 +362,9 @@ export function flavorGrid(bars, { scale, colors } = {}) {
 
 
 export const SITE_NAME = 'Neural Flavor';
+
+/** The two faces cards are drawn in, by name: both renderers read this and nothing else names a face. */
+export const CARD_FACES = { hand: 'Caveat', sans: 'Alegreya Sans Lining' };
 export const CHART_CAPTION = 'flavor chart: a visual guide';
 export const MORE_AT_LINK = (n) => `+${n} more at the link`;
 
@@ -384,7 +387,7 @@ const KIND_WORD = { cocktail: 'Cocktail', sauce: 'Sauce', dish: 'Dish' };
 // ---- deterministic text measuring (no DOM): per-character width, in em ------------------------
 const NARROW = new Set([' ', 'i', 'l', 'j', '.', ',', ':', ';', "'", '’', '!', '|', '`']);
 const MIDDLE = new Set(['f', 't', 'r', 'I', '(', ')', '-', '/', '[', ']', '·', '…']);
-const WIDE = new Set(['m', 'w', 'M', 'W', '@', '%', '½']);
+const WIDE = new Set(['m', 'w', 'M', 'W', '@', '%', '½', '¼', '¾']);
 
 function emWidth(ch) {
   if (NARROW.has(ch)) return 0.3;
@@ -461,15 +464,20 @@ export function fitName(name, { size, maxW, font = 'hand', weight = 700, minScal
 // ---- builders ------------------------------------------------------------------------------------
 const lineH = (size, lh) => Math.round(size * lh);
 
-function text(prims, { x, y, w, text: t, size, weight = 400, color = PALETTE.cream, font = 'sans', align = 'left', lh = 1.25 }) {
+export const STEADY_SCALE = 1.08;
+const FRAC = { '⅓': '1/3', '⅔': '2/3', '⅛': '1/8', '⅜': '3/8', '⅝': '5/8', '⅞': '7/8', '⅕': '1/5', '⅖': '2/5', '⅗': '3/5', '⅘': '4/5', '⅙': '1/6', '⅚': '5/6' };
+export const plainFractions = (t) => String(t).replace(/(\d)([⅓⅔⅛⅜⅝⅞⅕⅖⅗⅘⅙⅚])/g, '$1 $2').replace(/[⅓⅔⅛⅜⅝⅞⅕⅖⅗⅘⅙⅚]/g, (c) => FRAC[c]);
+function text(prims, { x, y, w, text: t0, size, weight = 400, color = PALETTE.cream, font = 'sans', align = 'left', lh = 1.25 }) {
+  const t = plainFractions(t0).replace(/[⠀​-‍⁠﻿]/g, '');
   const h = lineH(size, lh);
-  prims.push({ type: 'text', x: Math.round(x), y: Math.round(y), w: Math.round(w), h, text: t, size, weight, color, font, align });
+  const drawn = font === 'sans' ? Math.round(size * STEADY_SCALE) : size;
+  prims.push({ type: 'text', x: Math.round(x), y: Math.round(y), w: Math.round(w), h, text: t, size: drawn, weight, color, font, align });
   return h;
 }
 
 const kindLabel = (recipe) => {
   const word = KIND_WORD[recipe.kind] || 'Recipe';
-  return recipe.category ? `${word} · ${recipe.category}` : word;
+  return recipe.category ? `${recipe.category} ${word.toLowerCase()}` : word;
 };
 
 const cleanLines = (recipe) => (Array.isArray(recipe.lines) ? recipe.lines : []).filter((l) => l && (l.label || l.key));
@@ -509,24 +517,24 @@ function footer(fr, link, page) {
   let linkSize = linkSize0;
   let linkLines = [linkText];
   const lo = Math.round(linkSize0 * 0.7);
-  while (linkSize > lo && textWidth(linkText, linkSize, { weight: 600 }) > w) linkSize -= 1;
-  if (textWidth(linkText, linkSize, { weight: 600 }) > w) {
+  while (linkSize > lo && textWidth(linkText, linkSize, { weight: 500 }) > w) linkSize -= 1;
+  if (textWidth(linkText, linkSize, { weight: 500 }) > w) {
     linkSize = linkSize0 - 6;
     const cut = linkText.lastIndexOf('/', Math.floor(linkText.length * 0.7));
-    linkLines = cut > 0 ? [linkText.slice(0, cut + 1), linkText.slice(cut + 1)] : wrapText(linkText, linkSize, { weight: 600 }, w, 2);
+    linkLines = cut > 0 ? [linkText.slice(0, cut + 1), linkText.slice(cut + 1)] : wrapText(linkText, linkSize, { weight: 500 }, w, 2);
   }
   const linkH = lineH(linkSize, 1.3);
-  const sameRow = linkLines.length === 1 && siteW + 40 + textWidth(linkText, linkSize, { weight: 600 }) + pageW <= w;
+  const sameRow = linkLines.length === 1 && siteW + 40 + textWidth(linkText, linkSize, { weight: 500 }) + pageW <= w;
   const siteH = lineH(siteSize, 1.1);
   const height = sameRow ? Math.max(siteH, linkH) : siteH + 6 + linkH * linkLines.length;
   const y = fr.bottom - height;
   fr.prims.push({ type: 'line', x1: fr.x0, y1: y - 14, x2: fr.x1, y2: y - 14, color: PALETTE.rail, width: 2 });
   if (sameRow) {
     text(fr.prims, { x: fr.x0, y: y + (height - siteH) / 2, w: siteW + 8, text: SITE_NAME, size: siteSize, weight: 700, font: 'hand', color: PALETTE.accent, lh: 1.1 });
-    text(fr.prims, { x: fr.x0 + siteW + 40, y: y + (height - linkH) / 2, w: w - siteW - 40 - pageW, text: linkText, size: linkSize, weight: 600, color: PALETTE.cream, align: 'right' });
+    text(fr.prims, { x: fr.x0 + siteW + 40, y: y + (height - linkH) / 2, w: w - siteW - 40 - pageW, text: linkText, size: linkSize, weight: 500, color: PALETTE.cream, align: 'right' });
   } else {
     text(fr.prims, { x: fr.x0, y, w: siteW + 8, text: SITE_NAME, size: siteSize, weight: 700, font: 'hand', color: PALETTE.accent, lh: 1.1 });
-    linkLines.forEach((ln, i) => text(fr.prims, { x: fr.x0, y: y + siteH + 6 + i * linkH, w, text: ln, size: linkSize, weight: 600, color: PALETTE.cream }));
+    linkLines.forEach((ln, i) => text(fr.prims, { x: fr.x0, y: y + siteH + 6 + i * linkH, w, text: ln, size: linkSize, weight: 500, color: PALETTE.cream }));
   }
   if (pageText) text(fr.prims, { x: fr.x1 - pageW, y: y + (sameRow ? (height - siteH) / 2 : 0), w: pageW, text: pageText, size: small ? 24 : 30, color: PALETTE.sub, align: 'right' });
   return y - 14;
@@ -558,12 +566,12 @@ function noteBlock(bars, { x, w, size, maxLines, strip, caption }) {
   const strips = flavorStrips(bars);
   const prims = [];
   const colorOf = new Map(note.words.map((wd) => [wd.label.toLowerCase(), wd.color || PALETTE.accent]));
-  const o = { font: 'hand', weight: 400 };
+  const o = { font: 'sans', weight: 400 };
   const lines = wrapText(note.text, size, o, w, maxLines);
-  const lh = lineH(size, 1.2);
+  const lh = lineH(size, 1.3);
   let y = 0;
   lines.forEach((ln) => {
-    text(prims, { x, y, w, text: ln, size, weight: 400, font: 'hand', color: PALETTE.cream, lh: 1.2 });
+    text(prims, { x, y, w, text: ln, size, weight: 400, font: 'sans', color: PALETTE.cream, lh: 1.3 });
     prims[prims.length - 1].runs = noteRuns(ln, colorOf);
     y += lh;
   });
@@ -573,7 +581,7 @@ function noteBlock(bars, { x, w, size, maxLines, strip, caption }) {
   const trackW = w - labelW;
   for (const [title, row] of [['Taste', strips.taste], ['Aroma', strips.aroma]]) {
     if (!row.segments.length) continue;
-    text(prims, { x, y: y + Math.round((strip.h - lineH(strip.label, 1.2)) / 2), w: labelW - 12, text: title.toUpperCase(), size: strip.label, weight: 600, color: PALETTE.sub, lh: 1.2 });
+    text(prims, { x, y: y + Math.round((strip.h - lineH(strip.label, 1.2)) / 2), w: labelW - 12, text: title, size: strip.label, weight: 400, color: PALETTE.sub, lh: 1.2 });
     prims.push({ type: 'rect', x: trackX, y, w: trackW, h: strip.h, fill: 'rgba(255,255,255,0.07)', radius: 3 });
     let sx = trackX;
     row.segments.forEach((sg, i) => {
@@ -617,7 +625,7 @@ function wheelPrims(fr, bars, cx, cy, R, labelSize) {
     const bx = align === 'left' ? px : align === 'right' ? px - boxW : px - boxW / 2;
     text(fr.prims, { x: bx, y: py - lh / 2 + (sn > 0.3 ? lh * 0.4 : sn < -0.3 ? -lh * 0.4 : 0), w: boxW, text: wg.label, size: labelSize, color: PALETTE.cream, align, lh: 1.2 });
   }
-  text(fr.prims, { x: cx - R - 40, y: cy + R + labelSize * 1.9, w: 2 * R + 80, text: 'Left side: tastes. The rest: aromas.', size: Math.max(18, labelSize - 4), color: PALETTE.sub, align: 'center', lh: 1.2 });
+  text(fr.prims, { x: fr.x0, y: cy + R + labelSize * 1.9, w: fr.x1 - fr.x0, text: 'Left side: tastes. The rest: aromas.', size: Math.max(18, labelSize - 4), color: PALETTE.sub, align: 'center', lh: 1.2 });
 }
 
 /** Moves the primitives from index `from` on down by dy. */
@@ -670,7 +678,7 @@ function ingredientRows(fr, y, yMax, recipe, { x, w, size, row, amountW }) {
     const l = lines[i];
     const ry = y + i * row;
     const amount = l.amount || '';
-    if (amount) text(fr.prims, { x, y: ry, w: amountW, text: ellipsize(amount, size, { weight: 600 }, amountW), size, weight: 600, color: l.suggested ? PALETTE.sub : PALETTE.accent, align: 'right', lh: row / size });
+    if (amount) text(fr.prims, { x, y: ry, w: amountW, text: ellipsize(amount, size, { weight: 500 }, amountW), size, weight: 500, color: l.suggested ? PALETTE.sub : PALETTE.accent, align: 'right', lh: row / size });
     text(fr.prims, { x: nameX, y: ry, w: nameW, text: ellipsize(l.label || l.key, size, {}, nameW), size, color: PALETTE.cream, lh: row / size });
     fr.prims.push({ type: 'line', x1: x, y1: ry + row - 2, x2: x + w, y2: ry + row - 2, color: PALETTE.rail, width: 1, dash: [6, 6] });
   }
@@ -701,7 +709,7 @@ function methodBlock(fr, y, yMax, steps, { x, w, size, lh, gap }) {
   let cy = y;
   const drawBlock = (b, maxLines) => {
     const ls = b.lines.length > maxLines ? [...b.lines.slice(0, maxLines - 1), ellipsize(b.lines.slice(maxLines - 1).join(' '), size, o, w - numW)] : b.lines;
-    text(fr.prims, { x, y: cy, w: numW, text: b.n, size, weight: 600, color: PALETTE.accent, lh });
+    text(fr.prims, { x, y: cy, w: numW, text: b.n, size, weight: 500, color: PALETTE.accent, lh });
     ls.forEach((ln, k) => text(fr.prims, { x: x + numW, y: cy + k * row, w: w - numW, text: ln, size, color: PALETTE.cream, lh }));
     cy += ls.length * row + gap;
   };
@@ -721,13 +729,13 @@ function header(fr, recipe, { nameSize, align = 'left', maxLines = 2 }) {
   let y = fr.top;
   const w = fr.x1 - fr.x0;
   const labelSize = fr.format === 'preview' ? 24 : 30;
-  y += text(fr.prims, { x: fr.x0, y, w, text: ellipsize(kindLabel(recipe).toUpperCase(), labelSize, {}, w), size: labelSize, weight: 600, color: PALETTE.sub, align, lh: 1.3 }) + 6;
+  y += text(fr.prims, { x: fr.x0, y, w, text: ellipsize(kindLabel(recipe), labelSize, {}, w), size: labelSize, weight: 400, color: PALETTE.sub, align, lh: 1.3 }) + 6;
   const fit = fitName(recipe.name, { size: nameSize, maxW: w, maxLines });
   fit.lines.forEach((ln) => { y += text(fr.prims, { x: fr.x0, y, w, text: ln, size: fit.size, weight: 700, font: 'hand', color: PALETTE.cream, align, lh: 1.05 }); });
   return y;
 }
 
-const subline = (recipe) => [recipe.meta, recipe.glass ? `Glass: ${recipe.glass}` : '', recipe.garnish ? `Garnish: ${recipe.garnish}` : ''].filter(Boolean).join(' · ');
+const subline = (recipe) => [recipe.meta, recipe.glass ? `Glass: ${recipe.glass}` : '', recipe.garnish ? `Garnish: ${recipe.garnish}` : ''].filter(Boolean).join('   ');
 
 /**
  * The link-preview card without a chart: nothing sits on the right, so the name and ingredients use the
@@ -776,7 +784,7 @@ function previewWithPicture(fr, r, bars, sub, footerTop, pic) {
   const MIN = 150;
   let b = null;
   // The note keeps its size when the picture can still be MIN tall; otherwise it tightens before the picture shrinks.
-  for (const [size, maxLines] of [[40, 4], [34, 3], [30, 3]]) {
+  for (const [size, maxLines] of [[34, 4], [30, 3], [26, 3]]) {
     b = noteBlock(bars, { x: cx, w: cw, size, maxLines, strip: { labelW: 92, h: 14, label: 20, gap: 12 }, caption: 24 });
     if (!b || b.height + GAP + MIN <= avail) break;
   }
@@ -809,7 +817,7 @@ function singleCard(format, r, bars, link, page, opt = {}) {
     picturePrims(fr.prims, opt.pic, fr.x1 - thumb.size, fr.top + 4, thumb.size, thumb.size);
     y = Math.max(y, fr.top + 4 + thumb.size + 18);
   }
-  const blk = noteBlock(bars, { x: fr.x0, w, size: tall ? 56 : 52, maxLines: 3, strip: { labelW: 120, h: tall ? 20 : 18, label: tall ? 26 : 24, gap: 14 }, caption: 30 });
+  const blk = noteBlock(bars, { x: fr.x0, w, size: tall ? 46 : 44, maxLines: 3, strip: { labelW: 120, h: tall ? 20 : 18, label: tall ? 26 : 24, gap: 14 }, caption: 30 });
   const row = tall ? 52 : 46;
   const gap = blk ? 36 : 0;
   const from = fr.prims.length;
@@ -844,7 +852,7 @@ export function layoutCard({ format = 'portrait', recipe, bars, link = '', page 
     ingredientRows(fr, y, footerTop - 8, r, { x: fr.x0, w: colW, size: 28, row: 38, amountW: 215 });
     const cx = fr.x0 + colW + 48;
     const cw = fr.x1 - cx;
-    const b = noteBlock(bars, { x: cx, w: cw, size: 40, maxLines: 4, strip: { labelW: 92, h: 14, label: 20, gap: 12 }, caption: 24 });
+    const b = noteBlock(bars, { x: cx, w: cw, size: 34, maxLines: 4, strip: { labelW: 92, h: 14, label: 20, gap: 12 }, caption: 24 });
     const cy = Math.max(fr.top + 30, Math.round((fr.top + footerTop - b.height) / 2));
     place(fr, b, cy);
     return finish(`${format}`, fr);
@@ -877,8 +885,8 @@ export function layoutSet({ format = 'portrait', recipe, bars, link = '' }) {
   const labelSize = 32;
   const nameBlock = names.lines.length * lineH(names.size, 1.05);
   const n = totalLines(r);
-  const info = [n ? `${n} ingredient${n === 1 ? '' : 's'}` : '', subline(r)].filter(Boolean).join(' · ');
-  const blk = noteBlock(bars, { x: a.x0, w, size: tall ? 60 : 54, maxLines: 3, strip: { labelW: 130, h: 22, label: 28, gap: 14 }, caption: 30 });
+  const info = [n ? `${n} ingredient${n === 1 ? '' : 's'}` : '', subline(r)].filter(Boolean).join('   ');
+  const blk = noteBlock(bars, { x: a.x0, w, size: tall ? 50 : 46, maxLines: 3, strip: { labelW: 130, h: 22, label: 28, gap: 14 }, caption: 30 });
   // The wheel takes what the text leaves: its radius shrinks (down to 100) rather than run into the footer.
   const head = labelSize * 1.3 + 8 + nameBlock + (info ? 52 : 0);
   const room = aFoot - a.top - 40 - head - (blk ? blk.height + 44 : 0);
@@ -894,7 +902,7 @@ export function layoutSet({ format = 'portrait', recipe, bars, link = '' }) {
     picturePrims(a.prims, pic, Math.round(a.x0 + (w - picBox.w) / 2), y, picBox.w, picBox.h);
     y += picH;
   }
-  y += text(a.prims, { x: a.x0, y, w, text: ellipsize(kindLabel(r).toUpperCase(), labelSize, {}, w), size: labelSize, weight: 600, color: PALETTE.sub, align: 'center', lh: 1.3 }) + 8;
+  y += text(a.prims, { x: a.x0, y, w, text: ellipsize(kindLabel(r), labelSize, {}, w), size: labelSize, weight: 400, color: PALETTE.sub, align: 'center', lh: 1.3 }) + 8;
   names.lines.forEach((ln) => { y += text(a.prims, { x: a.x0, y, w, text: ln, size: names.size, weight: 700, font: 'hand', color: PALETTE.cream, align: 'center', lh: 1.05 }); });
   if (info) y += text(a.prims, { x: a.x0, y: y + 10, w, text: ellipsize(info, 30, {}, w), size: 30, color: PALETTE.dim, align: 'center' }) + 42;
   if (blk) {
@@ -941,6 +949,6 @@ export function layoutSiteCard({ link = 'neuralflavor.web.app' } = {}) {
   let y = 190;
   y += text(fr.prims, { x: fr.x0, y, w, text: name.lines[0], size: name.size, weight: 700, font: 'hand', color: PALETTE.accent, align: 'center', lh: 1.05 }) + 14;
   y += text(fr.prims, { x: fr.x0, y, w, text: 'Cocktails, sauces and dishes, built from what pairs well', size: 32, color: PALETTE.cream, align: 'center' }) + 24;
-  text(fr.prims, { x: fr.x0, y, w, text: link, size: 28, weight: 600, color: PALETTE.dim, align: 'center' });
+  text(fr.prims, { x: fr.x0, y, w, text: link, size: 28, weight: 500, color: PALETTE.dim, align: 'center' });
   return finish('site', fr);
 }

@@ -6,7 +6,7 @@
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { layoutCard, layoutSiteCard, SHARE_CHARTS_ENABLED } from './cardLayout.generated';
+import { layoutCard, layoutSiteCard, SHARE_CHARTS_ENABLED, CARD_FACES } from './cardLayout.generated';
 import type { CardPicture } from './picture';
 
 export const CANONICAL_HOST = 'neuralflavor.web.app';
@@ -84,7 +84,7 @@ export function layoutFor(data: CardData | null, link: string) {
 interface Prim { type: string; [k: string]: any }
 interface LayoutCard { width: number; height: number; background: { inner: string; mid: string; outer: string }; primitives: Prim[] }
 
-const FAMILY = { hand: 'Caveat', sans: 'Inter' } as const;
+const FAMILY = CARD_FACES;
 
 export function toSatori(card: LayoutCard) {
   const children = card.primitives.map((p) => {
@@ -123,7 +123,7 @@ export function toSatori(card: LayoutCard) {
       props: {
         style: {
           position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: justify,
-          left: p.x, top: p.y, width: p.w, height: p.h, fontFamily: FAMILY[p.font as 'hand' | 'sans'] || 'Inter',
+          left: p.x, top: p.y, width: p.w, height: p.h, fontFamily: FAMILY[p.font as 'hand' | 'sans'] || CARD_FACES.sans,
           fontSize: p.size, fontWeight: p.weight, color: p.color, whiteSpace: 'nowrap', overflow: 'hidden',
         },
         children: Array.isArray(p.runs) && p.runs.length
@@ -152,17 +152,17 @@ export function toSatori(card: LayoutCard) {
 }
 
 // ---- default renderer --------------------------------------------------------------------------------
-type FontSpec = { name: string; data: Buffer; weight: 400 | 600 | 700; style: 'normal' };
+type FontSpec = { name: string; data: Buffer; weight: 400 | 500 | 700; style: 'normal' };
 let fontCache: FontSpec[] | null = null;
 function fonts(): FontSpec[] {
   if (fontCache) return fontCache;
   const dir = join(__dirname, '..', '..', 'fonts');
-  const f = (file: string, name: string, weight: 400 | 600 | 700): FontSpec => ({ name, data: readFileSync(join(dir, file)), weight, style: 'normal' });
+  const f = (file: string, name: string, weight: 400 | 500 | 700): FontSpec => ({ name, data: readFileSync(join(dir, file)), weight, style: 'normal' });
   fontCache = [
-    f('caveat-latin-400-normal.woff', 'Caveat', 400),
-    f('caveat-latin-700-normal.woff', 'Caveat', 700),
-    f('inter-latin-400-normal.woff', 'Inter', 400),
-    f('inter-latin-600-normal.woff', 'Inter', 600),
+    f('caveat-latin-400-normal.woff', CARD_FACES.hand, 400),
+    f('caveat-latin-700-normal.woff', CARD_FACES.hand, 700),
+    f('alegreya-sans-lining-latin-400-normal.woff', CARD_FACES.sans, 400),
+    f('alegreya-sans-lining-latin-500-normal.woff', CARD_FACES.sans, 500),
   ];
   return fontCache;
 }

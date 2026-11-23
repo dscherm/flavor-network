@@ -118,8 +118,8 @@ describe('flavorDisplay: the share cards follow the rule', () => {
     it(`${format}: the tasting note with Taste and Aroma strips, nothing capped and no fainter-notes line`, () => {
       const card = layoutCard({ format, recipe, bars, link: 'x/y' });
       const texts = labelsIn(card);
-      expect(texts).toContain('TASTE');
-      expect(texts).toContain('AROMA');
+      expect(texts).toContain('Taste');
+      expect(texts).toContain('Aroma');
       expect(card.primitives.some((p) => p.type === 'text' && p.runs)).toBe(true);
       expect(texts.some((t) => t.includes('fainter'))).toBe(false);
     });
@@ -131,7 +131,7 @@ describe('flavorDisplay: the share cards follow the rule', () => {
   });
   it('a card with no bars has no chart and no headings', () => {
     const card = layoutCard({ format: 'preview', recipe, bars: [], link: 'x/y' });
-    expect(labelsIn(card)).not.toContain('TASTE');
+    expect(labelsIn(card)).not.toContain('Taste');
   });
   it('the functions copy inlines the same rule (no import left)', () => {
     const gen = readFileSync('functions/src/share/cardLayout.generated.ts', 'utf8');

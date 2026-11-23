@@ -80,7 +80,11 @@ In code (LOOK-6, 2026-11-23): `src/data/chalkTheme.js` names the faces once: `HA
 `LOGO_HAND` (the logo's "Nf"), and `TYPE` (display, heading, drawn, body, control, small; body, control and small set
 lining tabular figures). Files load from `src/fonts.js` (self-hosted `@fontsource`, latin, Alegreya Sans 400 and 500,
 Caveat 400 and 700). `font-synthesis: none` on the body, so a weight that is not loaded is never faked. No system,
-Inter, Roboto, Georgia or bare generic stack remains in `src/` (one dated exception: the share-card canvas, LOOK-6b).
+Inter, Roboto, Georgia or bare generic stack remains in `src/`.
+Share cards (LOOK-6b, 2026-11-23) are images, not screens: both renderers read `CARD_FACES` in `src/data/shareCardLayout.js`
+(Caveat 700 for the name, "Ingredients", "Method" and the signature; "Alegreya Sans Lining" 400 and 500 for everything else).
+"Alegreya Sans Lining" is the same OFL font with the digits mapped to its lining tabular glyphs (a canvas cannot ask for them),
+built by `scripts/buildLiningFont.py` into `public/fonts/` and `functions/fonts/`; it is for canvas and server images only.
 Input text is at least 16 px so iOS does not zoom.
 
 ## 4. Components allowed

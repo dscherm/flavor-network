@@ -56,8 +56,8 @@ describe('the tasting note on every card', () => {
     });
     it(`${name}: Taste and Aroma strips, a label on exactly the segments flavorStrips marks`, () => {
       const all = texts(card).map((t) => t.text);
-      expect(all).toContain('TASTE');
-      expect(all).toContain('AROMA');
+      expect(all).toContain('Taste');
+      expect(all).toContain('Aroma');
       for (const row of [strips.taste, strips.aroma]) {
         for (const s of row.segments) expect(all.includes(s.label)).toBe(s.labelled);
       }
@@ -95,7 +95,7 @@ describe('the set cover keeps the wheel clear of the footer', () => {
 });
 
 describe('cards with no chart are unchanged by CHART-4', () => {
-  it('layouts with no bars hash to what they were before the tasting note (checked identical to the previous layout)', () => {
+  it('layouts with no bars hash to what they were before the tasting note (re-pinned by LOOK-6b: new faces, sizes, weights and kind label)', () => {
     const big = { ...rec, garnish: 'orange', name: 'A really quite extraordinarily long recipe name indeed', lines: Array.from({ length: 12 }, (_, i) => ({ label: `thing ${i}`, amount: `${i} g` })), lineCount: 14 };
     const h = createHash('sha256');
     for (const r of [{ ...rec, garnish: 'orange' }, big]) {
@@ -104,7 +104,7 @@ describe('cards with no chart are unchanged by CHART-4', () => {
         for (const f of ['portrait', 'tall']) h.update(JSON.stringify(layoutSet({ format: f, recipe: r, bars, link: 'x.com/r/a' })));
       }
     }
-    expect(h.digest('hex')).toBe('39b36d90c8afb3c6c8dd4d84fdf2c77aae6ea96d9c59582ed4a2b0b8302b3b9d');
+    expect(h.digest('hex')).toBe('ac5480f37cec9aac432378adbf979c63e67c1750c9c820b48376ee5714c17024');
   });
 });
 

@@ -34,7 +34,6 @@ const EXTS = ['.js', '.jsx', '.css', '.ts', '.tsx'];
 
 const AC1_EXCEPTIONS = new Set([
   // Brief D2 (owner, 2026-11-23): share cards change in LOOK-6b; until then this file keeps its stack.
-  'src/data/shareCardCanvas.js',
 ]);
 const CHALK_THEME = 'src/data/chalkTheme.js';
 
@@ -211,7 +210,9 @@ describe('LOOK-6 type: banned faces, face literals, generics, old tokens, font l
   // Covers: AC-2
   it('AC-2: Alegreya Sans and Caveat are named only in chalkTheme.js and the one font-loading module', () => {
     const loaders = fontLoaders();
-    const allowed = new Set([CHALK_THEME, ...(loaders.length === 1 ? loaders : [])]);
+    // src/data/shareCardLayout.js names its own faces in CARD_FACES (LOOK-6b): the card layout must be
+    // self-contained because scripts/buildShareIndex.mjs copies it into the functions package.
+    const allowed = new Set([CHALK_THEME, 'src/data/shareCardLayout.js', ...(loaders.length === 1 ? loaders : [])]);
     const files = stripFontsource(FILES).filter((f) => !allowed.has(f.file));
     const hits = scan(files, FACE_LITERALS);
     expect(hits, `face names outside chalkTheme.js / the font module:\n${hits.join('\n')}`).toEqual([]);

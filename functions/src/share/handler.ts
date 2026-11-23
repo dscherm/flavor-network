@@ -176,7 +176,8 @@ function fallbackHtml(t: Tags): string {
 <html lang="en"><head><meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 ${tagBlock(t)}
-</head><body style="font-family:sans-serif;padding:2rem;background:#0d1f38;color:#f4efe0">
+<style>@font-face{font-family:"Alegreya Sans Lining";src:url(/fonts/alegreya-sans-lining-latin-400-normal.woff) format("woff");font-weight:400}</style>
+</head><body style="font-family:'Alegreya Sans Lining','Alegreya Sans',sans-serif;padding:2rem;background:#0d1f38;color:#f4efe0">
 <p>${escapeHtml(SITE_NAME)} could not load this page just now.</p>
 <p><a style="color:#f4efe0" href="/">Go to ${escapeHtml(SITE_NAME)}</a></p>
 </body></html>`;
