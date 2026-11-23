@@ -44,7 +44,9 @@ const LOADER_CSS = `
 }`;
 
 /** The glass on its own (no page chrome). */
-export function ChalkGlass({ size = 88, color = '#e11d48' }) {
+export const WINE_RED = '#e11d48';
+
+export function ChalkGlass({ size = 88, color = WINE_RED }) {
   const clip = `fn-glass-${useId().replace(/:/g, '')}`;
   const bowl = 'M30 14 Q27 52 50 60 Q73 52 70 14 Z';
   return (
@@ -128,7 +130,7 @@ function Art({ size, children }) {
 
 const SHELF = 'M8 92 L92 92';
 
-function CocktailArt({ c, size }) {
+function CocktailArt({ c, size, shelf = true }) {
   return (
     <Art size={size}>
       {/* coupe with a cherry and a lime wheel */}
@@ -140,7 +142,7 @@ function CocktailArt({ c, size }) {
       <circle cx="71" cy="10" r="5" fill="#dc2626" />
       <circle cx="28" cy="27" r="9" fill="#84cc16" fillOpacity="0.35" />
       <Chalk d="M19 27 A9 9 0 0 1 37 27" c="#bef264" w={2} />
-      <Chalk d={SHELF} c={CHALK_SUB} w={2} />
+      {shelf && <Chalk d={SHELF} c={CHALK_SUB} w={2} />}
     </Art>
   );
 }
@@ -159,7 +161,7 @@ function SauceArt({ c, size }) {
     </Art>
   );
 }
-function WineArt({ c, size }) {
+function WineArt({ c, size, shelf = true }) {
   return (
     <Art size={size}>
       {/* bottle + glass */}
@@ -169,7 +171,7 @@ function WineArt({ c, size }) {
       <path d="M50 46 Q51 62 66 64 Q81 62 82 46 Z" fill={c} fillOpacity="0.75" />
       <Chalk d="M48 24 Q46 62 66 66 Q86 62 84 24 Z" c={CHALK_CREAM} />
       <Chalk d="M66 66 L66 88 M54 90 Q66 85 78 90" c={CHALK_CREAM} />
-      <Chalk d={SHELF} c={CHALK_SUB} w={2} />
+      {shelf && <Chalk d={SHELF} c={CHALK_SUB} w={2} />}
     </Art>
   );
 }
@@ -224,9 +226,9 @@ const LAB_ART = {
 };
 
 /** Chalk drawing for a lab id (cocktail/sauce/wine/cookbook/pairing/recipe). */
-export function LabArt({ id, accent = CHALK_CREAM, size = 76 }) {
+export function LabArt({ id, accent = CHALK_CREAM, size = 76, shelf = true }) {
   const Cmp = LAB_ART[id];
-  return Cmp ? <Cmp c={accent} size={size} /> : null;
+  return Cmp ? <Cmp c={accent} size={size} shelf={shelf} /> : null;
 }
 
 // ── Make-screen drawings ──────────────────────────────────────────────
@@ -741,6 +743,144 @@ export function IngredientGlyph({ category, color = CHALK_DIM, size = 16 }) {
     <svg width={size} height={size} viewBox="0 0 18 18" aria-hidden="true" data-testid="ingredient-glyph" data-kind={kind} style={{ flexShrink: 0 }}>
       <path d={d} fill="none" stroke={color} strokeOpacity="0.3" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
       <path d={d} fill="none" stroke={color} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+// Per-spirit bottle geometry — the silhouette varies by booze so the shelf
+// reads like a real back bar (square-shouldered gin, broad whiskey, round
+// rum, slim vodka, long-neck tequila, squat liqueur, sloped champagne…).
+// All bottles stand on the shelf at base=103; y grows downward.
+const BOTTLE_BASE = 103;
+// bodyW = half-width at base · bodyTopW = half-width where the body meets the
+// shoulder (taper) · bodyStyle: 'straight'|'taper'|'bulge' · punt: concave base
+// (wine) · labelAngle: degrees to tilt the paper label.
+const BOTTLE_PARAMS = {
+  gin:      { bodyW: 15, bodyTopW: 15, bodyTop: 54, neckW: 5,   shoulderTop: 44, capW: 6.5, capTop: 16, capBot: 24, shoulder: 'square', labelAngle: -15, labelMode: 'skew', scale: 0.9 },
+  whiskey:  { bodyW: 19, bodyTopW: 17, bodyTop: 60, neckW: 5.5, shoulderTop: 50, capW: 7.5, capTop: 24, capBot: 32, shoulder: 'round',  bodyStyle: 'taper' },
+  rum:      { bodyW: 17, bodyTopW: 14, bodyTop: 58, neckW: 5.5, shoulderTop: 46, capW: 7,   capTop: 20, capBot: 28, shoulder: 'round',  bodyStyle: 'bulge' },
+  vodka:    { bodyW: 13, bodyTopW: 13, bodyTop: 50, neckW: 4.5, shoulderTop: 40, capW: 6,   capTop: 14, capBot: 22, shoulder: 'sloped', labelAngle: -13, labelMode: 'skew' },
+  tequila:  { bodyW: 21, bodyTopW: 20, bodyTop: 70, neckW: 6.5, shoulderTop: 58, capW: 8.5, capTop: 36, capBot: 44, shoulder: 'round' }, // squat — a touch longer + wider, upright label
+  liqueur:  { bodyW: 18, bodyTopW: 16, bodyTop: 66, neckW: 6,   shoulderTop: 56, capW: 8,   capTop: 30, capBot: 38, shoulder: 'round',  bodyStyle: 'bulge' },
+  vermouth: { bodyW: 12, bodyTopW: 12, bodyTop: 50, neckW: 4.5, shoulderTop: 36, capW: 6,   capTop: 14, capBot: 22, shoulder: 'sloped' },
+  wine:     { bodyW: 13, bodyTopW: 13, bodyTop: 56, neckW: 4.5, shoulderTop: 46, capW: 5.5, capTop: 14, capBot: 20, shoulder: 'round',  punt: true }, // long neck + punt
+  other:    { bodyW: 16, bodyTopW: 15, bodyTop: 56, neckW: 5.5, shoulderTop: 48, capW: 6.5, capTop: 24, capBot: 32, shoulder: 'round' },
+};
+
+/**
+ * Render a chalk bottle silhouette for a spirit, centered at `cx`, standing
+ * on the shelf at y≈103. Returns SVG elements (liquid fill + chalk outline +
+ * a paper label bearing the spirit's name). Dashed stroke when inactive,
+ * solid when active.
+ */
+function bottleMark(spirit, cx, color, stroke, active, name) {
+  const p = BOTTLE_PARAMS[spirit] || BOTTLE_PARAMS.other;
+  const { bodyW, bodyTop, neckW, shoulderTop, capW, capTop, capBot, shoulder } = p;
+  const bodyTopW = p.bodyTopW ?? bodyW;
+  const bodyStyle = p.bodyStyle || 'straight';
+  const base = BOTTLE_BASE;
+  const midY = (base + bodyTop) / 2;
+
+  // Body walls — straight, tapered (narrower at shoulder) or bulged (rounder).
+  const leftWall = bodyStyle === 'bulge'
+    ? `Q ${cx - bodyW - 3} ${midY} ${cx - bodyTopW} ${bodyTop}`
+    : `L ${cx - bodyTopW} ${bodyTop}`;
+  const rightWall = bodyStyle === 'bulge'
+    ? `Q ${cx + bodyW + 3} ${midY} ${cx + bodyW} ${base}`
+    : `L ${cx + bodyW} ${base}`;
+
+  // Shoulders — from body-top width up to the neck.
+  const leftShoulder =
+    shoulder === 'square' ? `L ${cx - bodyTopW} ${shoulderTop} L ${cx - neckW} ${shoulderTop}`
+    : shoulder === 'round' ? `Q ${cx - bodyTopW} ${shoulderTop} ${cx - neckW} ${shoulderTop}`
+    : `L ${cx - neckW} ${shoulderTop}`; // sloped — long diagonal (champagne/slim)
+  const rightShoulder =
+    shoulder === 'square' ? `L ${cx + bodyTopW} ${shoulderTop} L ${cx + bodyTopW} ${bodyTop}`
+    : shoulder === 'round' ? `Q ${cx + bodyTopW} ${shoulderTop} ${cx + bodyTopW} ${bodyTop}`
+    : `L ${cx + bodyTopW} ${bodyTop}`;
+
+  // Base — flat, or a concave punt (wine).
+  const bottom = p.punt ? `Q ${cx} ${base - 6} ${cx - bodyW} ${base}` : '';
+
+  const outline = [
+    `M ${cx - bodyW} ${base}`,
+    leftWall,
+    leftShoulder,
+    `L ${cx - neckW} ${capBot}`,
+    `L ${cx - capW} ${capBot}`,
+    `L ${cx - capW} ${capTop}`,
+    `L ${cx + capW} ${capTop}`,
+    `L ${cx + capW} ${capBot}`,
+    `L ${cx + neckW} ${capBot}`,
+    `L ${cx + neckW} ${shoulderTop}`,
+    rightShoulder,
+    rightWall,
+    bottom,
+    'Z',
+  ].join(' ');
+
+  const innerW = Math.min(bodyW, bodyTopW) - 2;
+  const fillY = bodyTop + 7;
+  const fillBot = base - (p.punt ? 4 : 1);
+  const liquid = `M ${cx - innerW} ${fillY} L ${cx + innerW} ${fillY} L ${cx + innerW} ${fillBot} L ${cx - innerW} ${fillBot} Z`;
+
+  // Paper label across the lower body — cream stock, ink text, optionally
+  // tilted. A real pasted-on bottle label rather than a chalk outline.
+  // 'rotate' spins the whole label (corners may overhang the walls);
+  // 'skew' shears it into a rhombus whose left/right edges stay vertical
+  // and flush to the bottle walls (corners never drift past the outline).
+  const angle = p.labelAngle || 0;
+  const labelMode = p.labelMode || 'rotate';
+  // Rotated labels get a little extra width to span the tilt; skewed ones
+  // stay exactly body-width so the vertical edges hug the walls.
+  const ext = angle && labelMode === 'rotate' ? 6 : 0;
+  const labelW = (Math.min(bodyW, bodyTopW) - 1.5) * 2 + ext;
+  const labelH = 19;
+  const labelCY = bodyTop + (base - bodyTop) * 0.52;
+  const labelTop = labelCY - labelH / 2;
+  const labelLeft = cx - labelW / 2;
+  const labelTransform = !angle ? undefined
+    : labelMode === 'skew' ? `translate(${cx} 0) skewY(${angle}) translate(${-cx} 0)`
+    : `rotate(${angle} ${cx} ${labelCY})`;
+  return (<>
+    <path d={liquid} fill={color} fillOpacity={active ? 0.62 : 0.34} stroke="none" />
+    <path d={outline} fill="none" stroke={stroke} strokeWidth={active ? 2.4 : 1.6}
+      strokeDasharray={active ? '0' : '5 3'} strokeLinejoin="round" strokeLinecap="round" />
+    {/* the paper label (tilted for some spirits) */}
+    <g transform={labelTransform}>
+      <rect x={labelLeft} y={labelTop} width={labelW} height={labelH} rx="2.5"
+        fill={CHALK_CREAM} fillOpacity={active ? 0.96 : 0.85}
+        stroke={stroke} strokeWidth="1" strokeOpacity={active ? 0.95 : 0.6} />
+      {name && (
+        <text x={cx} y={labelCY + 0.5} textAnchor="middle" dominantBaseline="central"
+          fontSize="16" fontFamily={FONT} fontWeight="700" fill="#211e18"
+          textLength={labelW - 6} lengthAdjust="spacingAndGlyphs" pointerEvents="none">{name}</text>
+      )}
+    </g>
+  </>);
+}
+
+/**
+ * ChalkBottle — one spirit's bottle as a standalone <svg> (the Cocktail menu's
+ * back-bar silhouette, moved here so the landing page can stand it on its own
+ * shelf). `scale` is drawing units to pixels; the spirit's own size tweak
+ * (gin is held smaller) is applied inside. With `x` and `y` it is placed in a
+ * parent <svg> so the bottle's centre line sits at x and its base on y.
+ */
+export function ChalkBottle({ spirit, label, color, stroke, active = false, scale = 1, x, y, ...rest }) {
+  const s = scale * (BOTTLE_PARAMS[spirit]?.scale ?? 1);
+  const pos = x !== undefined && y !== undefined ? { x: x - 30 * s, y: y - 94 * s } : {};
+  return (
+    <svg
+      viewBox="-30 10 60 100"
+      width={60 * s}
+      height={100 * s}
+      overflow="visible"
+      aria-hidden="true"
+      focusable="false"
+      {...pos}
+      {...rest}
+    >
+      {bottleMark(spirit, 0, color, stroke || color, active, label)}
     </svg>
   );
 }

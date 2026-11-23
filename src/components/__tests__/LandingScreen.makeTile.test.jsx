@@ -45,10 +45,12 @@ describe('LandingScreen — the labs under the logo (2026-11-07)', () => {
     expect(onModeSelect.mock.calls.map((c) => c[0])).toEqual(['make', 'wine']);
   });
 
-  it('two columns on phones, three on wider screens', () => {
-    const { container } = render(<LandingScreen onModeSelect={vi.fn()} />);
-    const grid = container.querySelector('.grid');
-    expect(grid.className).toMatch(/grid-cols-2/);
-    expect(grid.className).toMatch(/sm:grid-cols-3/);
+  it('the labs are one written list on phones, two columns of three on wider screens (LOOK-5)', () => {
+    render(<LandingScreen onModeSelect={vi.fn()} />);
+    const board = screen.getByRole('list', { name: 'The labs' });
+    expect(board.querySelectorAll(':scope > li')).toHaveLength(6);
+    expect(board.className).toMatch(/md:grid-cols-2/);
+    expect(board.className).toMatch(/md:grid-rows-3/);
+    expect(board.className).toMatch(/md:grid-flow-col/);
   });
 });

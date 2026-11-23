@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Landing Menu Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;600&family=Caveat:wght@700&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* LOOK-5 mock (design phase). Roles from design/DESIGN.md section 1; the illustration inks are
+   the existing drawings' own colours, copied from ChalkLogo.jsx, chalkArt.jsx and cocktailBaseSpirit.js. */
+:root {
+  --slate: #0a0a0a;
+  --slate-hi: #1c1c1c;
+  --slate-lo: #050505;
+  --chalk: #f5efde;
+  --chalk-muted: #bdb6a3;
+  --chalk-faint: #8a8478;
+  --rail: #4a4a4a;
+  --accent: #e8c97a;
+  --focus: #4f9eff;
+  /* logo (ChalkLogo.jsx, unchanged) */
+  --logo-orange: #f2a93b;
+  --logo-sage: #8fa274;
+  --logo-nucleus-hi: #ffe08a;
+  --logo-nucleus-lo: #c9761c;
+  --logo-nucleus-ring: #ffd27a;
+  /* shelf bottles (COCKTAIL_SPIRIT_COLORS, as on the Cocktail menu's spirit shelf) */
+  --ink-gin: #9ccb7a;
+  --ink-whiskey: #d99a4e;
+  --ink-rum: #c2703a;
+  --ink-vodka: #aec3d6;
+  --ink-vermouth: #b06a86;
+  --label-ink: #211e18;
+  /* drawings (chalkArt.jsx) */
+  --art-drink: #7dd3fc;
+  --art-cherry: #dc2626;
+  --art-lime: #84cc16;
+  --art-lime-rind: #bef264;
+  --art-sauce: #b91c1c;
+  --art-pencil: #fbbf24;
+  --art-wine: #e11d48;
+  --art-ribbon: #bdb6a3;
+  --art-node-1: #f472b6;
+  --art-node-2: #fbbf24;
+  --art-node-3: #a3e635;
+  --art-node-4: #60a5fa;
+  --art-node-5: #c084fc;
+  --font-hand: "Kalam", cursive;
+  --font-text: "Alegreya Sans", sans-serif;
+  --chalk-shadow: 0 0 1px rgb(245 239 222 / 0.5), 0 0 3px rgb(245 239 222 / 0.2);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background-color: var(--slate);
+  background-image: radial-gradient(ellipse at 50% 30%, var(--slate-hi) 0%, var(--slate) 70%, var(--slate-lo) 100%);
+  background-attachment: fixed;
+  color: var(--chalk);
+  font-family: var(--font-text);
+  min-height: 100vh;
+}
+.fn-logo-electron { display: inline; }
+@media (prefers-reduced-motion: reduce) { .fn-logo-electron { display: none; } }
+.nowrap { white-space: nowrap; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+.page {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: max(env(safe-area-inset-top), 16px) 16px calc(env(safe-area-inset-bottom) + 24px);
+  display: flex; flex-direction: column; align-items: center;
+}
+.shelf { display: block; width: 100%; height: auto; overflow: visible; }
+.shelf--desk { display: none; }
+.line {
+  margin: 12px 0 0;
+  font-family: var(--font-hand);
+  font-size: 22px; font-weight: 400; line-height: 1.25;
+  color: var(--chalk);
+  text-shadow: var(--chalk-shadow);
+  text-align: center;
+  max-width: 30ch;
+}
+.board { list-style: none; margin: 24px 0 0; padding: 0; width: 100%; max-width: 480px; }
+.board li { margin: 0; }
+.item {
+  all: unset; box-sizing: border-box; cursor: pointer;
+  display: grid; grid-template-columns: 44px 1fr; align-items: center; column-gap: 12px;
+  width: 100%; min-height: 60px; padding: 8px 4px;
+  border-radius: 6px;
+}
+.item:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.icon { width: 44px; height: 44px; }
+.words { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.name {
+  position: relative; align-self: flex-start;
+  font-family: var(--font-hand); font-size: 22px; line-height: 1.15; font-weight: 400;
+  color: var(--chalk); text-shadow: var(--chalk-shadow);
+}
+.sub { font-size: 16px; line-height: 1.3; color: var(--chalk-muted); }
+.underline { position: absolute; left: -2px; bottom: -5px; width: calc(100% + 4px); height: 6px; color: var(--chalk-muted); opacity: 0; }
+.item:hover .underline { opacity: 0.8; }
+.item:hover .sub { color: var(--chalk); }
+.rule { display: block; width: 100%; height: 4px; margin: 0; }
+
+@media (min-width: 768px) {
+  .page { padding-top: 40px; }
+  .shelf--phone { display: none; }
+  .shelf--desk { display: block; }
+  .line { font-size: 32px; margin-top: 16px; max-width: none; }
+  .board {
+    max-width: 880px; margin-top: 40px;
+    display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(3, auto); grid-auto-flow: column;
+    column-gap: 64px; position: relative;
+  }
+  .board::before {
+    content: ""; position: absolute; left: calc(50% - 1px); top: 8px; bottom: 8px; width: 2px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 200' preserveAspectRatio='none'%3E%3Cpath d='M2 2 Q1.2 60 2.2 100 T1.8 198' fill='none' stroke='%234a4a4a' stroke-width='1.4' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  }
+  .board li:nth-child(3) .rule { display: none; }
+  .item { min-height: 68px; grid-template-columns: 48px 1fr; column-gap: 16px; }
+  .icon { width: 48px; height: 48px; }
+  .name { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<main class="page" data-testid="landing-screen">
+  <h1 class="sr-only">Neural Flavor</h1>
+  <svg class="shelf shelf--phone" viewBox="-180 -102 360 216" role="img" aria-label="Neural Flavor" data-testid="landing-shelf">
+<title>Neural Flavor</title>
+<path d="M-176 104 Q-88 103.1 0 104.3 T176 103.8" fill="none" stroke="var(--chalk-muted)" stroke-opacity="0.8" stroke-width="3.5" stroke-linecap="round"/><path d="M-170 108.6 Q-88 109.3 0 108.4 T170 108.9" fill="none" stroke="var(--rail)" stroke-opacity="0.7" stroke-width="2" stroke-linecap="round"/>
+<g transform="translate(-150 104) scale(0.72) translate(0 -104)"><g transform="translate(0 104) scale(1.85) translate(0 -104)">
+  <path d="M -12 65 L 12 65 L 12 102 L -12 102 Z" fill="var(--ink-rum)" fill-opacity="0.62"/>
+  <path d="M -17 103 Q -20 80.5 -14 58 Q -14 46 -5.5 46 L -5.5 28 L -7 28 L -7 20 L 7 20 L 7 28 L 5.5 28 L 5.5 46 Q 14 46 14 58 Q 20 80.5 17 103 Z" fill="none" stroke="var(--ink-rum)" stroke-opacity="0.25" stroke-width="5.3" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M -17 103 Q -20 80.5 -14 58 Q -14 46 -5.5 46 L -5.5 28 L -7 28 L -7 20 L 7 20 L 7 28 L 5.5 28 L 5.5 46 Q 14 46 14 58 Q 20 80.5 17 103 Z" fill="none" stroke="var(--ink-rum)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+  <g><rect x="-12.5" y="71.9" width="25" height="19" rx="2.5" fill="var(--chalk)" fill-opacity="0.92" stroke="var(--ink-rum)" stroke-width="1"/>
+  <text x="0" y="81.9" text-anchor="middle" dominant-baseline="central" font-size="15" font-family="Kalam, cursive" font-weight="700" fill="var(--label-ink)" textLength="19" lengthAdjust="spacingAndGlyphs">Rum</text></g>
+</g>
+</g>
+<svg x="-131" y="47.2" width="62" height="62" viewBox="0 0 100 100" overflow="visible"><path d="M22 50 L78 50 L75 82 Q74 88 68 88 L32 88 Q26 88 25 82 Z" fill="var(--art-sauce)" fill-opacity="0.8"/><path d="M18 44 L82 44 L77 84 Q76 90 69 90 L31 90 Q24 90 23 84 Z" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="5.72" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 44 L82 44 L77 84 Q76 90 69 90 L31 90 Q24 90 23 84 Z" fill="none" stroke="var(--chalk)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M82 50 L97 46" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="7.04" stroke-linecap="round" stroke-linejoin="round"/><path d="M82 50 L97 46" fill="none" stroke="var(--chalk)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M36 34 Q30 26 36 18 Q42 10 36 4" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M36 34 Q30 26 36 18 Q42 10 36 4" fill="none" stroke="var(--chalk)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M52 36 Q46 28 52 20 Q58 12 52 6" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M52 36 Q46 28 52 20 Q58 12 52 6" fill="none" stroke="var(--chalk)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M66 34 Q60 26 66 18" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M66 34 Q60 26 66 18" fill="none" stroke="var(--chalk)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M58 56 L70 26" fill="none" stroke="var(--chalk-muted)" stroke-opacity="0.25" stroke-width="5.28" stroke-linecap="round" stroke-linejoin="round"/><path d="M58 56 L70 26" fill="none" stroke="var(--chalk-muted)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<svg x="-72.85714285714286" y="-100" width="145.71428571428572" height="204" viewBox="0 16 200 280" overflow="visible">
+<defs>
+<radialGradient id="nuc-p" cx="38%" cy="35%" r="70%"><stop offset="0%" stop-color="var(--logo-nucleus-hi)"/><stop offset="60%" stop-color="var(--logo-orange)"/><stop offset="100%" stop-color="var(--logo-nucleus-lo)"/></radialGradient>
+<filter id="rough-p" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.2"/></filter>
+</defs>
+<g filter="url(#rough-p)">
+<path d="M70 96 C48 100 32 88 36 70 C39 52 56 44 72 50 C73 34 90 28 100 28 C110 28 127 34 128 50 C144 44 161 52 164 70 C168 88 152 100 130 96" fill="var(--chalk)" fill-opacity="0.05"/>
+<path d="M70 98 L68 136 Q100 141 132 136 L130 98 Q100 104 70 98 Z" fill="var(--chalk)" fill-opacity="0.07"/>
+<path d="M72 50 Q80 64 78 84 M128 50 Q120 64 122 84 M100 36 Q97 50 100 66" fill="none" stroke="var(--chalk)" stroke-opacity="0.132" stroke-width="3.84" stroke-linecap="round" stroke-linejoin="round"/><path d="M72 50 Q80 64 78 84 M128 50 Q120 64 122 84 M100 36 Q97 50 100 66" fill="none" stroke="var(--chalk)" stroke-opacity="0.6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M76 101 L75 137 M83 102 L82 138 M117 102 L118 138 M124 101 L125 137" fill="none" stroke="var(--chalk)" stroke-opacity="0.11" stroke-width="3.12" stroke-linecap="round" stroke-linejoin="round"/><path d="M76 101 L75 137 M83 102 L82 138 M117 102 L118 138 M124 101 L125 137" fill="none" stroke="var(--chalk)" stroke-opacity="0.5" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M69 130 Q100 135 131 130" fill="none" stroke="var(--chalk)" stroke-opacity="0.099" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"/><path d="M69 130 Q100 135 131 130" fill="none" stroke="var(--chalk)" stroke-opacity="0.45" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M70 96 C48 100 32 88 36 70 C39 52 56 44 72 50 C73 34 90 28 100 28 C110 28 127 34 128 50 C144 44 161 52 164 70 C168 88 152 100 130 96" fill="none" stroke="var(--chalk)" stroke-opacity="0.22" stroke-width="7.68" stroke-linecap="round" stroke-linejoin="round"/><path d="M70 96 C48 100 32 88 36 70 C39 52 56 44 72 50 C73 34 90 28 100 28 C110 28 127 34 128 50 C144 44 161 52 164 70 C168 88 152 100 130 96" fill="none" stroke="var(--chalk)" stroke-opacity="1" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M70 96 Q100 103 130 96" fill="none" stroke="var(--chalk)" stroke-opacity="0.187" stroke-width="5.28" stroke-linecap="round" stroke-linejoin="round"/><path d="M70 96 Q100 103 130 96" fill="none" stroke="var(--chalk)" stroke-opacity="0.85" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M70 98 L68 136 Q100 141 132 136 L130 98 Q100 104 70 98 Z" fill="none" stroke="var(--chalk)" stroke-opacity="0.22" stroke-width="7.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M70 98 L68 136 Q100 141 132 136 L130 98 Q100 104 70 98 Z" fill="none" stroke="var(--chalk)" stroke-opacity="1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="100" y="128" text-anchor="middle" fill="var(--logo-orange)" style="font-family:Caveat, cursive;font-size:32px;font-weight:700">Nf</text>
+<g transform="rotate(88 100 218)"><path d="M30 218 a70 25 0 1 0 140 0 a70 25 0 1 0 -140 0" fill="none" stroke="var(--logo-orange)" stroke-opacity="0.22" stroke-width="8.16" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 218 a70 25 0 1 0 140 0 a70 25 0 1 0 -140 0" fill="none" stroke="var(--logo-orange)" stroke-opacity="1" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><circle class="fn-logo-electron" r="3.6" fill="var(--chalk)"><animateMotion dur="8s" repeatCount="indefinite" path="M30 218 a70 25 0 1 0 140 0 a70 25 0 1 0 -140 0"/></circle></g>
+<g transform="rotate(-28 100 218)"><path d="M30 218 a70 25 0 1 0 140 0 a70 25 0 1 0 -140 0" fill="none" stroke="var(--logo-sage)" stroke-opacity="0.22" stroke-width="8.16" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 218 a70 25 0 1 0 140 0 a70 25 0 1 0 -140 0" fill="none" stroke="var(--logo-sage)" stroke-opacity="1" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><circle class="fn-logo-electron" r="3.6" fill="var(--chalk)"><animateMotion dur="7s" repeatCount="indefinite" path="M30 218 a70 25 0 1 0 140 0 a70 25 0 1 0 -140 0"/></circle></g>
+<g transform="rotate(32 100 218)"><path d="M30 218 a70 25 0 1 0 140 0 a70 25 0 1 0 -140 0" fill="none" stroke="var(--logo-sage)" stroke-opacity="0.22" stroke-width="8.16" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 218 a70 25 0 1 0 140 0 a70 25 0 1 0 -140 0" fill="none" stroke="var(--logo-sage)" stroke-opacity="1" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><circle class="fn-logo-electron" r="3.6" fill="var(--chalk)"><animateMotion dur="9s" repeatCount="indefinite" path="M30 218 a70 25 0 1 0 140 0 a70 25 0 1 0 -140 0"/></circle></g>
+<circle cx="100" cy="218" r="16" fill="var(--logo-orange)" fill-opacity="0.25"/>
+<circle cx="100" cy="218" r="12" fill="url(#nuc-p)"/>
+<path d="M88 218 a12 12 0 1 0 24 0 a12 12 0 1 0 -24 0" fill="none" stroke="var(--logo-nucleus-ring)" stroke-opacity="0.154" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"/><path d="M88 218 a12 12 0 1 0 24 0 a12 12 0 1 0 -24 0" fill="none" stroke="var(--logo-nucleus-ring)" stroke-opacity="0.7" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</svg>
+<svg x="69" y="50.8" width="58" height="58" viewBox="0 0 100 100" overflow="visible"><path d="M26 34 Q50 64 74 34 Z" fill="var(--art-drink)" fill-opacity="0.7"/><path d="M18 28 L82 28 Q50 72 18 28 Z" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="5.72" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 28 L82 28 Q50 72 18 28 Z" fill="none" stroke="var(--chalk)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M50 58 L50 88 M36 90 Q50 85 64 90" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="5.72" stroke-linecap="round" stroke-linejoin="round"/><path d="M50 58 L50 88 M36 90 Q50 85 64 90" fill="none" stroke="var(--chalk)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M60 30 L70 12" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M60 30 L70 12" fill="none" stroke="var(--chalk)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="71" cy="10" r="5" fill="var(--art-cherry)"/><circle cx="28" cy="27" r="9" fill="var(--art-lime)" fill-opacity="0.35"/><path d="M19 27 A9 9 0 0 1 37 27" fill="none" stroke="var(--art-lime-rind)" stroke-opacity="0.25" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 27 A9 9 0 0 1 37 27" fill="none" stroke="var(--art-lime-rind)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<g transform="translate(152 104) scale(0.78) translate(0 -104)"><g transform="translate(0 104) scale(1.85) translate(0 -104)">
+  <path d="M -10 57 L 10 57 L 10 102 L -10 102 Z" fill="var(--ink-vermouth)" fill-opacity="0.62"/>
+  <path d="M -12 103 L -12 50 L -4.5 36 L -4.5 22 L -6 22 L -6 14 L 6 14 L 6 22 L 4.5 22 L 4.5 36 L 12 50 L 12 103 Z" fill="none" stroke="var(--ink-vermouth)" stroke-opacity="0.25" stroke-width="5.3" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M -12 103 L -12 50 L -4.5 36 L -4.5 22 L -6 22 L -6 14 L 6 14 L 6 22 L 4.5 22 L 4.5 36 L 12 50 L 12 103 Z" fill="none" stroke="var(--ink-vermouth)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+  <g><rect x="-10.5" y="68.06" width="21" height="19" rx="2.5" fill="var(--chalk)" fill-opacity="0.92" stroke="var(--ink-vermouth)" stroke-width="1"/>
+  <text x="0" y="78.06" text-anchor="middle" dominant-baseline="central" font-size="15" font-family="Kalam, cursive" font-weight="700" fill="var(--label-ink)" textLength="15" lengthAdjust="spacingAndGlyphs">Vermouth</text></g>
+</g>
+</g>
+</svg>
+  <svg class="shelf shelf--desk" viewBox="-340 -152 680 266" role="img" aria-label="Neural Flavor">
+<title>Neural Flavor</title>
+<path d="M-334 104 Q-167 103.1 0 104.3 T334 103.8" fill="none" stroke="var(--chalk-muted)" stroke-opacity="0.8" stroke-width="3.5" stroke-linecap="round"/><path d="M-328 108.6 Q-167 109.3 0 108.4 T328 108.9" fill="none" stroke="var(--rail)" stroke-opacity="0.7" stroke-width="2" stroke-linecap="round"/>
+<g transform="translate(-292 104) scale(0.95) translate(0 -104)"><g transform="translate(0 104) scale(1.85) translate(0 -104)">
+  <path d="M -11 57 L 11 57 L 11 102 L -11 102 Z" fill="var(--ink-vodka)" fill-opacity="0.62"/>
+  <path d="M -13 103 L -13 50 L -4.5 40 L -4.5 22 L -6 22 L -6 14 L 6 14 L 6 22 L 4.5 22 L 4.5 40 L 13 50 L 13 103 Z" fill="none" stroke="var(--ink-vodka)" stroke-opacity="0.25" stroke-width="5.3" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M -13 103 L -13 50 L -4.5 40 L -4.5 22 L -6 22 L -6 14 L 6 14 L 6 22 L 4.5 22 L 4.5 40 L 13 50 L 13 103 Z" fill="none" stroke="var(--ink-vodka)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+  <g transform="translate(0 0) skewY(-13) translate(0 0)"><rect x="-11.5" y="68.06" width="23" height="19" rx="2.5" fill="var(--chalk)" fill-opacity="0.92" stroke="var(--ink-vodka)" stroke-width="1"/>
+  <text x="0" y="78.06" text-anchor="middle" dominant-baseline="central" font-size="15" font-family="Kalam, cursive" font-weight="700" fill="var(--label-ink)" textLength="17" lengthAdjust="spacingAndGlyphs">Vodka</text></g>
+</g>
+</g>
+<g transform="translate(-224 104) scale(0.95) translate(0 -104)"><g transform="translate(0 104) scale(1.85) translate(0 -104)">
+  <path d="M -15 67 L 15 67 L 15 102 L -15 102 Z" fill="var(--ink-whiskey)" fill-opacity="0.62"/>
+  <path d="M -19 103 L -17 60 Q -17 50 -5.5 50 L -5.5 32 L -7.5 32 L -7.5 24 L 7.5 24 L 7.5 32 L 5.5 32 L 5.5 50 Q 17 50 17 60 L 19 103 Z" fill="none" stroke="var(--ink-whiskey)" stroke-opacity="0.25" stroke-width="5.3" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M -19 103 L -17 60 Q -17 50 -5.5 50 L -5.5 32 L -7.5 32 L -7.5 24 L 7.5 24 L 7.5 32 L 5.5 32 L 5.5 50 Q 17 50 17 60 L 19 103 Z" fill="none" stroke="var(--ink-whiskey)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+  <g><rect x="-15.5" y="72.86" width="31" height="19" rx="2.5" fill="var(--chalk)" fill-opacity="0.92" stroke="var(--ink-whiskey)" stroke-width="1"/>
+  <text x="0" y="82.86" text-anchor="middle" dominant-baseline="central" font-size="15" font-family="Kalam, cursive" font-weight="700" fill="var(--label-ink)" textLength="25" lengthAdjust="spacingAndGlyphs">Whiskey</text></g>
+</g>
+</g>
+<svg x="-186" y="27.400000000000006" width="84" height="84" viewBox="0 0 100 100" overflow="visible"><path d="M22 50 L78 50 L75 82 Q74 88 68 88 L32 88 Q26 88 25 82 Z" fill="var(--art-sauce)" fill-opacity="0.8"/><path d="M18 44 L82 44 L77 84 Q76 90 69 90 L31 90 Q24 90 23 84 Z" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="5.72" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 44 L82 44 L77 84 Q76 90 69 90 L31 90 Q24 90 23 84 Z" fill="none" stroke="var(--chalk)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M82 50 L97 46" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="7.04" stroke-linecap="round" stroke-linejoin="round"/><path d="M82 50 L97 46" fill="none" stroke="var(--chalk)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M36 34 Q30 26 36 18 Q42 10 36 4" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M36 34 Q30 26 36 18 Q42 10 36 4" fill="none" stroke="var(--chalk)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M52 36 Q46 28 52 20 Q58 12 52 6" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M52 36 Q46 28 52 20 Q58 12 52 6" fill="none" stroke="var(--chalk)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M66 34 Q60 26 66 18" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M66 34 Q60 26 66 18" fill="none" stroke="var(--chalk)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M58 56 L70 26" fill="none" stroke="var(--chalk-muted)" stroke-opacity="0.25" stroke-width="5.28" stroke-linecap="round" stroke-linejoin="round"/><path d="M58 56 L70 26" fill="none" stroke="var(--chalk-muted)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<svg x="-90.71428571428571" y="-150" width="181.42857142857142" height="254" viewBox="0 16 200 280" overflow="visible">
+<defs>
+<radialGradient id="nuc-d" cx="38%" cy="35%" r="70%"><stop offset="0%" stop-color="var(--logo-nucleus-hi)"/><stop offset="60%" stop-color="var(--logo-orange)"/><stop offset="100%" stop-color="var(--logo-nucleus-lo)"/></radialGradient>
+<filter id="rough-d" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.2"/></filter>
+</defs>
+<g filter="url(#rough-d)">
+<path d="M70 96 C48 100 32 88 36 70 C39 52 56 44 72 50 C73 34 90 28 100 28 C110 28 127 34 128 50 C144 44 161 52 164 70 C168 88 152 100 130 96" fill="var(--chalk)" fill-opacity="0.05"/>
+<path d="M70 98 L68 136 Q100 141 132 136 L130 98 Q100 104 70 98 Z" fill="var(--chalk)" fill-opacity="0.07"/>
+<path d="M72 50 Q80 64 78 84 M128 50 Q120 64 122 84 M100 36 Q97 50 100 66" fill="none" stroke="var(--chalk)" stroke-opacity="0.132" stroke-width="3.84" stroke-linecap="round" stroke-linejoin="round"/><path d="M72 50 Q80 64 78 84 M128 50 Q120 64 122 84 M100 36 Q97 50 100 66" fill="none" stroke="var(--chalk)" stroke-opacity="0.6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M76 101 L75 137 M83 102 L82 138 M117 102 L118 138 M124 101 L125 137" fill="none" stroke="var(--chalk)" stroke-opacity="0.11" stroke-width="3.12" stroke-linecap="round" stroke-linejoin="round"/><path d="M76 101 L75 137 M83 102 L82 138 M117 102 L118 138 M124 101 L125 137" fill="none" stroke="var(--chalk)" stroke-opacity="0.5" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M69 130 Q100 135 131 130" fill="none" stroke="var(--chalk)" stroke-opacity="0.099" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"/><path d="M69 130 Q100 135 131 130" fill="none" stroke="var(--chalk)" stroke-opacity="0.45" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M70 96 C48 100 32 88 36 70 C39 52 56 44 72 50 C73 34 90 28 100 28 C110 28 127 34 128 50 C144 44 161 52 164 70 C168 88 152 100 130 96" fill="none" stroke="var(--chalk)" stroke-opacity="0.22" stroke-width="7.68" stroke-linecap="round" stroke-linejoin="round"/><path d="M70 96 C48 100 32 88 36 70 C39 52 56 44 72 50 C73 34 90 28 100 28 C110 28 127 34 128 50 C144 44 161 52 164 70 C168 88 152 100 130 96" fill="none" stroke="var(--chalk)" stroke-opacity="1" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M70 96 Q100 103 130 96" fill="none" stroke="var(--chalk)" stroke-opacity="0.187" stroke-width="5.28" stroke-linecap="round" stroke-linejoin="round"/><path d="M70 96 Q100 103 130 96" fill="none" stroke="var(--chalk)" stroke-opacity="0.85" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M70 98 L68 136 Q100 141 132 136 L130 98 Q100 104 70 98 Z" fill="none" stroke="var(--chalk)" stroke-opacity="0.22" stroke-width="7.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M70 98 L68 136 Q100 141 132 136 L130 98 Q100 104 70 98 Z" fill="none" stroke="var(--chalk)" stroke-opacity="1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="100" y="128" text-anchor="middle" fill="var(--logo-orange)" style="font-family:Caveat, cursive;font-size:32px;font-weight:700">Nf</text>
+<g transform="rotate(88 100 218)"><path d="M30 218 a70 25 0 1 0 140 0 a70 25 0 1 0 -140 0" fill="none" stroke="var(--logo-orange)" stroke-opacity="0.22" stroke-width="8.16" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 218 a70 25 0 1 0 140 0 a70 25 0 1 0 -140 0" fill="none" stroke="var(--logo-orange)" stroke-opacity="1" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><circle class="fn-logo-electron" r="3.6" fill="var(--chalk)"><animateMotion dur="8s" repeatCount="indefinite" path="M30 218 a70 25 0 1 0 140 0 a70 25 0 1 0 -140 0"/></circle></g>
+<g transform="rotate(-28 100 218)"><path d="M30 218 a70 25 0 1 0 140 0 a70 25 0 1 0 -140 0" fill="none" stroke="var(--logo-sage)" stroke-opacity="0.22" stroke-width="8.16" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 218 a70 25 0 1 0 140 0 a70 25 0 1 0 -140 0" fill="none" stroke="var(--logo-sage)" stroke-opacity="1" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><circle class="fn-logo-electron" r="3.6" fill="var(--chalk)"><animateMotion dur="7s" repeatCount="indefinite" path="M30 218 a70 25 0 1 0 140 0 a70 25 0 1 0 -140 0"/></circle></g>
+<g transform="rotate(32 100 218)"><path d="M30 218 a70 25 0 1 0 140 0 a70 25 0 1 0 -140 0" fill="none" stroke="var(--logo-sage)" stroke-opacity="0.22" stroke-width="8.16" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 218 a70 25 0 1 0 140 0 a70 25 0 1 0 -140 0" fill="none" stroke="var(--logo-sage)" stroke-opacity="1" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><circle class="fn-logo-electron" r="3.6" fill="var(--chalk)"><animateMotion dur="9s" repeatCount="indefinite" path="M30 218 a70 25 0 1 0 140 0 a70 25 0 1 0 -140 0"/></circle></g>
+<circle cx="100" cy="218" r="16" fill="var(--logo-orange)" fill-opacity="0.25"/>
+<circle cx="100" cy="218" r="12" fill="url(#nuc-d)"/>
+<path d="M88 218 a12 12 0 1 0 24 0 a12 12 0 1 0 -24 0" fill="none" stroke="var(--logo-nucleus-ring)" stroke-opacity="0.154" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"/><path d="M88 218 a12 12 0 1 0 24 0 a12 12 0 1 0 -24 0" fill="none" stroke="var(--logo-nucleus-ring)" stroke-opacity="0.7" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</svg>
+<svg x="100" y="31" width="80" height="80" viewBox="0 0 100 100" overflow="visible"><path d="M26 34 Q50 64 74 34 Z" fill="var(--art-drink)" fill-opacity="0.7"/><path d="M18 28 L82 28 Q50 72 18 28 Z" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="5.72" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 28 L82 28 Q50 72 18 28 Z" fill="none" stroke="var(--chalk)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M50 58 L50 88 M36 90 Q50 85 64 90" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="5.72" stroke-linecap="round" stroke-linejoin="round"/><path d="M50 58 L50 88 M36 90 Q50 85 64 90" fill="none" stroke="var(--chalk)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M60 30 L70 12" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M60 30 L70 12" fill="none" stroke="var(--chalk)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="71" cy="10" r="5" fill="var(--art-cherry)"/><circle cx="28" cy="27" r="9" fill="var(--art-lime)" fill-opacity="0.35"/><path d="M19 27 A9 9 0 0 1 37 27" fill="none" stroke="var(--art-lime-rind)" stroke-opacity="0.25" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 27 A9 9 0 0 1 37 27" fill="none" stroke="var(--art-lime-rind)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<g transform="translate(216 104) scale(0.95) translate(0 -104)"><g transform="translate(0 104) scale(1.85) translate(0 -104)">
+  <path d="M -12 65 L 12 65 L 12 102 L -12 102 Z" fill="var(--ink-rum)" fill-opacity="0.62"/>
+  <path d="M -17 103 Q -20 80.5 -14 58 Q -14 46 -5.5 46 L -5.5 28 L -7 28 L -7 20 L 7 20 L 7 28 L 5.5 28 L 5.5 46 Q 14 46 14 58 Q 20 80.5 17 103 Z" fill="none" stroke="var(--ink-rum)" stroke-opacity="0.25" stroke-width="5.3" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M -17 103 Q -20 80.5 -14 58 Q -14 46 -5.5 46 L -5.5 28 L -7 28 L -7 20 L 7 20 L 7 28 L 5.5 28 L 5.5 46 Q 14 46 14 58 Q 20 80.5 17 103 Z" fill="none" stroke="var(--ink-rum)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+  <g><rect x="-12.5" y="71.9" width="25" height="19" rx="2.5" fill="var(--chalk)" fill-opacity="0.92" stroke="var(--ink-rum)" stroke-width="1"/>
+  <text x="0" y="81.9" text-anchor="middle" dominant-baseline="central" font-size="15" font-family="Kalam, cursive" font-weight="700" fill="var(--label-ink)" textLength="19" lengthAdjust="spacingAndGlyphs">Rum</text></g>
+</g>
+</g>
+<g transform="translate(290 104) scale(0.95) translate(0 -104)"><g transform="translate(0 104) scale(1.665) translate(0 -104)">
+  <path d="M -13 61 L 13 61 L 13 102 L -13 102 Z" fill="var(--ink-gin)" fill-opacity="0.62"/>
+  <path d="M -15 103 L -15 54 L -15 44 L -5 44 L -5 24 L -6.5 24 L -6.5 16 L 6.5 16 L 6.5 24 L 5 24 L 5 44 L 15 44 L 15 54 L 15 103 Z" fill="none" stroke="var(--ink-gin)" stroke-opacity="0.25" stroke-width="5.3" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M -15 103 L -15 54 L -15 44 L -5 44 L -5 24 L -6.5 24 L -6.5 16 L 6.5 16 L 6.5 24 L 5 24 L 5 44 L 15 44 L 15 54 L 15 103 Z" fill="none" stroke="var(--ink-gin)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+  <g transform="translate(0 0) skewY(-15) translate(0 0)"><rect x="-13.5" y="69.98" width="27" height="19" rx="2.5" fill="var(--chalk)" fill-opacity="0.92" stroke="var(--ink-gin)" stroke-width="1"/>
+  <text x="0" y="79.98" text-anchor="middle" dominant-baseline="central" font-size="15" font-family="Kalam, cursive" font-weight="700" fill="var(--label-ink)" textLength="21" lengthAdjust="spacingAndGlyphs">Gin</text></g>
+</g>
+</g>
+</svg>
+  <p class="line"><span class="nowrap">Start with what you have.</span> <span class="nowrap">Find what goes with it.</span></p>
+  <ul class="board" aria-label="The labs">
+<li>
+  <button type="button" class="item" data-mode="make" data-testid="landing-tile-make">
+    <svg class="icon" viewBox="0 0 100 100" aria-hidden="true" focusable="false" overflow="visible"><path d="M20 14 L74 14 L74 90 L20 90 Z" fill="var(--chalk-muted)" fill-opacity="0.2"/><path d="M20 14 L74 14 L74 90 L20 90 Z" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="5.72" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 14 L74 14 L74 90 L20 90 Z" fill="none" stroke="var(--chalk)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 24 Q20 20 26 24" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="3.52" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 24 Q20 20 26 24" fill="none" stroke="var(--chalk)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 36 Q20 32 26 36" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="3.52" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 36 Q20 32 26 36" fill="none" stroke="var(--chalk)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 48 Q20 44 26 48" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="3.52" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 48 Q20 44 26 48" fill="none" stroke="var(--chalk)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 60 Q20 56 26 60" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="3.52" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 60 Q20 56 26 60" fill="none" stroke="var(--chalk)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 72 Q20 68 26 72" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="3.52" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 72 Q20 68 26 72" fill="none" stroke="var(--chalk)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 84 Q20 80 26 84" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="3.52" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 84 Q20 80 26 84" fill="none" stroke="var(--chalk)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M34 30 L64 30 M34 42 L64 42 M34 54 L56 54" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="3.96" stroke-linecap="round" stroke-linejoin="round"/><path d="M34 30 L64 30 M34 42 L64 42 M34 54 L56 54" fill="none" stroke="var(--chalk)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M58 86 L88 46 L96 52 L66 92 Z" fill="var(--art-pencil)" fill-opacity="0.8"/><path d="M58 86 L88 46 L96 52 L66 92 Z M58 86 L56 96 L66 92" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M58 86 L88 46 L96 52 L66 92 Z M58 86 L56 96 L66 92" fill="none" stroke="var(--chalk)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span class="words"><span class="name">Recipe Lab<svg class="underline" viewBox="0 0 100 6" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M2 3.6 Q30 1.6 60 3 T98 2.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg></span><span class="sub">Cook from your kitchen, or invent</span></span>
+  </button><svg class="rule" viewBox="0 0 300 4" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M3 2.2 Q70 1 150 2.1 T297 1.6" fill="none" stroke="var(--rail)" stroke-width="1.4" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
+</li>
+<li>
+  <button type="button" class="item" data-mode="cocktail" data-testid="landing-tile-cocktail">
+    <svg class="icon" viewBox="0 0 100 100" aria-hidden="true" focusable="false" overflow="visible"><path d="M26 34 Q50 64 74 34 Z" fill="var(--art-drink)" fill-opacity="0.7"/><path d="M18 28 L82 28 Q50 72 18 28 Z" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="5.72" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 28 L82 28 Q50 72 18 28 Z" fill="none" stroke="var(--chalk)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M50 58 L50 88 M36 90 Q50 85 64 90" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="5.72" stroke-linecap="round" stroke-linejoin="round"/><path d="M50 58 L50 88 M36 90 Q50 85 64 90" fill="none" stroke="var(--chalk)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M60 30 L70 12" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M60 30 L70 12" fill="none" stroke="var(--chalk)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="71" cy="10" r="5" fill="var(--art-cherry)"/><circle cx="28" cy="27" r="9" fill="var(--art-lime)" fill-opacity="0.35"/><path d="M19 27 A9 9 0 0 1 37 27" fill="none" stroke="var(--art-lime-rind)" stroke-opacity="0.25" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 27 A9 9 0 0 1 37 27" fill="none" stroke="var(--art-lime-rind)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 92 L92 92" fill="none" stroke="var(--chalk-faint)" stroke-opacity="0.25" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 92 L92 92" fill="none" stroke="var(--chalk-faint)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span class="words"><span class="name">Cocktail Lab<svg class="underline" viewBox="0 0 100 6" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M2 3.6 Q30 1.6 60 3 T98 2.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg></span><span class="sub">Mix, riff or invent a drink</span></span>
+  </button><svg class="rule" viewBox="0 0 300 4" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M3 2.2 Q79 1.9 150 2.1 T297 1.9000000000000001" fill="none" stroke="var(--rail)" stroke-width="1.4" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
+</li>
+<li>
+  <button type="button" class="item" data-mode="sauce" data-testid="landing-tile-sauce">
+    <svg class="icon" viewBox="0 0 100 100" aria-hidden="true" focusable="false" overflow="visible"><path d="M22 50 L78 50 L75 82 Q74 88 68 88 L32 88 Q26 88 25 82 Z" fill="var(--art-sauce)" fill-opacity="0.8"/><path d="M18 44 L82 44 L77 84 Q76 90 69 90 L31 90 Q24 90 23 84 Z" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="5.72" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 44 L82 44 L77 84 Q76 90 69 90 L31 90 Q24 90 23 84 Z" fill="none" stroke="var(--chalk)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M82 50 L97 46" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="7.04" stroke-linecap="round" stroke-linejoin="round"/><path d="M82 50 L97 46" fill="none" stroke="var(--chalk)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M36 34 Q30 26 36 18 Q42 10 36 4" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M36 34 Q30 26 36 18 Q42 10 36 4" fill="none" stroke="var(--chalk)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M52 36 Q46 28 52 20 Q58 12 52 6" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M52 36 Q46 28 52 20 Q58 12 52 6" fill="none" stroke="var(--chalk)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M66 34 Q60 26 66 18" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M66 34 Q60 26 66 18" fill="none" stroke="var(--chalk)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M58 56 L70 26" fill="none" stroke="var(--chalk-muted)" stroke-opacity="0.25" stroke-width="5.28" stroke-linecap="round" stroke-linejoin="round"/><path d="M58 56 L70 26" fill="none" stroke="var(--chalk-muted)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span class="words"><span class="name">Sauce Lab<svg class="underline" viewBox="0 0 100 6" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M2 3.6 Q30 1.6 60 3 T98 2.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg></span><span class="sub">The mother sauces and beyond</span></span>
+  </button><svg class="rule" viewBox="0 0 300 4" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M3 2.2 Q88 1 150 2.1 T297 2.2" fill="none" stroke="var(--rail)" stroke-width="1.4" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
+</li>
+<li>
+  <button type="button" class="item" data-mode="wine" data-testid="landing-tile-wine">
+    <svg class="icon" viewBox="0 0 100 100" aria-hidden="true" focusable="false" overflow="visible"><path d="M14 52 L32 52 L32 88 L14 88 Z" fill="var(--art-wine)" fill-opacity="0.35"/><path d="M19 10 L27 10 L27 30 Q34 36 34 46 L34 88 Q34 90 32 90 L14 90 Q12 90 12 88 L12 46 Q12 36 19 30 Z" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="5.72" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 10 L27 10 L27 30 Q34 36 34 46 L34 88 Q34 90 32 90 L14 90 Q12 90 12 88 L12 46 Q12 36 19 30 Z" fill="none" stroke="var(--chalk)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 56 L34 56 L34 74 L12 74 Z" fill="var(--chalk)" fill-opacity="0.18"/><path d="M50 46 Q51 62 66 64 Q81 62 82 46 Z" fill="var(--art-wine)" fill-opacity="0.75"/><path d="M48 24 Q46 62 66 66 Q86 62 84 24 Z" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="5.72" stroke-linecap="round" stroke-linejoin="round"/><path d="M48 24 Q46 62 66 66 Q86 62 84 24 Z" fill="none" stroke="var(--chalk)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M66 66 L66 88 M54 90 Q66 85 78 90" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="5.72" stroke-linecap="round" stroke-linejoin="round"/><path d="M66 66 L66 88 M54 90 Q66 85 78 90" fill="none" stroke="var(--chalk)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 92 L92 92" fill="none" stroke="var(--chalk-faint)" stroke-opacity="0.25" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 92 L92 92" fill="none" stroke="var(--chalk-faint)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span class="words"><span class="name">Wine Lab<svg class="underline" viewBox="0 0 100 6" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M2 3.6 Q30 1.6 60 3 T98 2.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg></span><span class="sub">A wine for any dish</span></span>
+  </button><svg class="rule" viewBox="0 0 300 4" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M3 2.2 Q97 1.9 150 2.1 T297 1.6" fill="none" stroke="var(--rail)" stroke-width="1.4" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
+</li>
+<li>
+  <button type="button" class="item" data-mode="cookbook" data-testid="landing-tile-cookbook">
+    <svg class="icon" viewBox="0 0 100 100" aria-hidden="true" focusable="false" overflow="visible"><path d="M50 26 Q34 18 12 22 L12 80 Q34 76 50 84 Z" fill="var(--chalk-muted)" fill-opacity="0.22"/><path d="M50 26 Q66 18 88 22 L88 80 Q66 76 50 84 Z" fill="var(--chalk-muted)" fill-opacity="0.32"/><path d="M50 26 Q34 18 12 22 L12 80 Q34 76 50 84 Q66 76 88 80 L88 22 Q66 18 50 26 Z M50 26 L50 84" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="5.72" stroke-linecap="round" stroke-linejoin="round"/><path d="M50 26 Q34 18 12 22 L12 80 Q34 76 50 84 Q66 76 88 80 L88 22 Q66 18 50 26 Z M50 26 L50 84" fill="none" stroke="var(--chalk)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 36 L42 38 M20 46 L42 48 M20 56 L36 57" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="3.96" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 36 L42 38 M20 46 L42 48 M20 56 L36 57" fill="none" stroke="var(--chalk)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M58 38 L80 36 M58 48 L80 46" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="3.96" stroke-linecap="round" stroke-linejoin="round"/><path d="M58 38 L80 36 M58 48 L80 46" fill="none" stroke="var(--chalk)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="69" cy="62" r="7" fill="none" stroke="var(--chalk)" stroke-width="1.8"/><path d="M70 80 L70 96 L74 92 L78 96 L78 79" fill="var(--art-ribbon)" stroke="var(--chalk)" stroke-width="1.5" stroke-linejoin="round"/></svg>
+    <span class="words"><span class="name">Cookbook<svg class="underline" viewBox="0 0 100 6" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M2 3.6 Q30 1.6 60 3 T98 2.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg></span><span class="sub">83 dishes, start to finish</span></span>
+  </button><svg class="rule" viewBox="0 0 300 4" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M3 2.2 Q106 1 150 2.1 T297 1.9000000000000001" fill="none" stroke="var(--rail)" stroke-width="1.4" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
+</li>
+<li>
+  <button type="button" class="item" data-mode="pairing" data-testid="landing-tile-pairing">
+    <svg class="icon" viewBox="0 0 100 100" aria-hidden="true" focusable="false" overflow="visible"><path d="M50 52 L20 22" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="5.28" stroke-linecap="round" stroke-linejoin="round"/><path d="M50 52 L20 22" fill="none" stroke="var(--chalk)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M50 52 L80 20" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="3.08" stroke-linecap="round" stroke-linejoin="round"/><path d="M50 52 L80 20" fill="none" stroke="var(--chalk)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M50 52 L88 62" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="5.28" stroke-linecap="round" stroke-linejoin="round"/><path d="M50 52 L88 62" fill="none" stroke="var(--chalk)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M50 52 L56 90" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="3.08" stroke-linecap="round" stroke-linejoin="round"/><path d="M50 52 L56 90" fill="none" stroke="var(--chalk)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M50 52 L14 74" fill="none" stroke="var(--chalk)" stroke-opacity="0.25" stroke-width="5.28" stroke-linecap="round" stroke-linejoin="round"/><path d="M50 52 L14 74" fill="none" stroke="var(--chalk)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 22 Q50 6 80 20" fill="none" stroke="var(--chalk-faint)" stroke-opacity="0.25" stroke-width="2.64" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 22 Q50 6 80 20" fill="none" stroke="var(--chalk-faint)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="22" r="8" fill="var(--art-node-1)" fill-opacity="0.85"/><circle cx="20" cy="22" r="8" fill="none" stroke="var(--chalk)" stroke-width="1.6"/><circle cx="80" cy="20" r="8" fill="var(--art-node-2)" fill-opacity="0.85"/><circle cx="80" cy="20" r="8" fill="none" stroke="var(--chalk)" stroke-width="1.6"/><circle cx="88" cy="62" r="8" fill="var(--art-node-3)" fill-opacity="0.85"/><circle cx="88" cy="62" r="8" fill="none" stroke="var(--chalk)" stroke-width="1.6"/><circle cx="56" cy="90" r="8" fill="var(--art-node-4)" fill-opacity="0.85"/><circle cx="56" cy="90" r="8" fill="none" stroke="var(--chalk)" stroke-width="1.6"/><circle cx="14" cy="74" r="8" fill="var(--art-node-5)" fill-opacity="0.85"/><circle cx="14" cy="74" r="8" fill="none" stroke="var(--chalk)" stroke-width="1.6"/><ellipse cx="50" cy="52" rx="17" ry="12" fill="var(--slate)"/><ellipse cx="50" cy="52" rx="17" ry="12" fill="var(--chalk-muted)" fill-opacity="0.25" stroke="var(--chalk)" stroke-width="2.6"/></svg>
+    <span class="words"><span class="name">Pairing Lab<svg class="underline" viewBox="0 0 100 6" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M2 3.6 Q30 1.6 60 3 T98 2.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg></span><span class="sub">What goes with what</span></span>
+  </button>
+</li>
+  </ul>
+</main>
+</body>
+</html>

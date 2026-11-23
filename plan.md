@@ -3447,6 +3447,22 @@ and name exactly as they are.
   "title": "Landing page: lead with the shelf, no stats boast, the labs as a written menu board",
   "category": "design",
   "design_surface": "Landing page (start screen with the six lab doors)",
+  "public_surface": {
+    "module": "src.components.LandingScreen",
+    "adds": [
+      "LandingScreen menu-board layout (six landing-tile-{id} buttons, shelf drawing aria-hidden, line, loading and consent states)",
+      "ChalkBottle exported from src/components/chalkArt.jsx"
+    ]
+  },
+  "acceptance_criteria": [
+    {"id": "AC-1", "given": "LandingScreen rendered at rest", "when": "its buttons are queried", "then": "there are exactly six, with data-mode in the order make, cocktail, sauce, wine, cookbook, pairing, and data-testid landing-tile-{id}"},
+    {"id": "AC-2", "given": "LandingScreen rendered at rest", "when": "its text is read", "then": "it contains no '2.2M', no '68,417' and no 'molecular', and contains 'Start with what you have. Find what goes with it.'"},
+    {"id": "AC-3", "given": "src/components/LandingScreen.jsx as text", "when": "it is scanned", "then": "it has no accent field on the lab list, no 'left-0 top-0 bottom-0 w-1' stripe, no box-shadow or boxShadow, and no fn-shimmer"},
+    {"id": "AC-4", "given": "LandingScreen rendered with isLoading and picked='wine'", "when": "its buttons are inspected", "then": "the wine button has aria-busy='true', the other five are disabled, and an element with role='status' is present"},
+    {"id": "AC-5", "given": "LandingScreen rendered at rest", "when": "Tab is pressed six times from the start of the page", "then": "focus visits the six lab buttons in order and nothing in the shelf drawing takes focus"},
+    {"id": "AC-6", "given": "LandingScreen rendered with analytics consent unanswered, then with consent answered", "when": "the page is inspected", "then": "a bottom spacer element (data-testid landing-consent-spacer) is present while unanswered and absent once answered"},
+    {"id": "AC-7", "given": "src/components/chalkArt.jsx", "when": "ChalkBottle is imported and rendered", "then": "it renders an svg, and CocktailBrowse.jsx no longer defines its own bottleMark"}
+  ],
   "passes": false,
   "description": "After LOOK-4. Today: the chef's hat and the atom logo, then 'Built on 2.2M recipes, 68,417 pairings, and real molecular chemistry.', then six identical rounded cards each with a coloured left stripe that means nothing. The stats line is a stock opener and it overclaims (the project measured the molecular model as weak per ingredient, and charts now come from hand-tuned tables; see .claude/.chemdataset-status.md). Change: cut the stats line (if a line stays, it says what the app does for a cook in plain words, offered in the report); give the page one dominant thing drawn from what the app owns, the glass and bottle shelf of the Cocktail menu or an equivalent chalk drawing of the six labs, rather than six equal boxes; the six labs read as items written on a menu board (name and drawn icon, separated by space and chalk rules, no box around each, no coloured stripes), each still a 44 px target. The logo and the name 'Neural Flavor' stay exactly as they are (open decision, see this section's header). The analytics banner and the loading line keep working. Write a short design brief first (ralph-designer) and show the owner one rendered mock before building.",
   "acceptance": [
