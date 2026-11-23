@@ -3596,7 +3596,7 @@ and name exactly as they are.
     {"id": "AC-5", "given": "public/icons/icon-192.png, icon-512.png, icon-512-maskable.png and apple-touch-icon.png", "when": "their sizes are read", "then": "each exists at its stated pixel size and differs from its pre-LOOK-8 bytes"},
     {"id": "AC-6", "given": "public/fn-logo-chalk.png", "when": "checked", "then": "it no longer exists"}
   ],
-  "passes": false,
+  "passes": true,
   "description": "Owner decision LOOK-LOGO, 2026-11-23: 'Redraw the atom' (options were keep both, redraw the atom, rename). The name 'Neural Flavor' and the chef's hat with 'Nf' stay. The Rutherford atom under the hat (and its animated electrons) is replaced by a kitchen object in the same chalk line style, colours and proportions, so the logo reads as a kitchen chalkboard rather than a tech lab. Owner addition, 2026-11-23: 'try also the chef hat but add a lab item. a beaker with a chef hat on top' — so one candidate is the hat on a chalk-drawn beaker (a lab item, kept on purpose by the owner). Brief first (ralph-designer) with three or four candidate drawings rendered for the owner to pick from; nothing built before the pick. Then replace it everywhere the logo is drawn (find every use, including share cards and any icon files), keep the reduced-motion behaviour sensible for whatever animation replaces the electrons, and keep the landing page layout from LOOK-5.",
   "acceptance": [
     "The owner picked one of the rendered candidates; the pick is recorded in DESIGN.md and BACKLOG.md",
