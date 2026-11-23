@@ -3430,7 +3430,7 @@ and name exactly as they are.
     {"id": "AC-6", "given": "each named export of ChalkIcons.jsx", "when": "it is rendered with a title prop, or with aria-hidden", "then": "it returns an accessible name equal to the title, or exactly no accessible name when aria-hidden"},
     {"id": "AC-7", "given": "each named export of ChalkIcons.jsx", "when": "its markup is rendered", "then": "the stroke or fill contains currentColor"}
   ],
-  "passes": false,
+  "passes": true,
   "description": "After LOOK-3. Emoji stand in for icons (sparkle on 'Invent a cocktail' and the other Invent buttons, 14 uses; 🔀 on 'Riff on this'; 🛒 on the shopping buttons; 🍾 on 'Only what I have' and 'My bar'; others found by grep), and the bottom tab bar uses stock line icons, a system font and a blue 'Sign in' that matches nothing else. Draw one small icon set in the app's chalk line style (same stroke and wobble as the lab icons on the landing page; SVG components in one file), only for places where an icon is the convention (back, close, share, shopping list, search, the tab bar) or where it carries meaning a word cannot: Invent gets a drawn shaker or whisk, never a sparkle. Where a word alone is clearer, drop the emoji and keep the word. The tab bar is redrawn in chalk on the slate with the app's type and token colours; the current tab is the only place the accent colour appears there. Each icon has an accessible name or sits next to its label.",
   "acceptance": [
     "grep in the report: emoji used as icons in src/components before and after; after is 0 or each remaining one named with the reason",
