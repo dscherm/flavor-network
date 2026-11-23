@@ -3627,7 +3627,7 @@ and name exactly as they are.
     {"id": "AC-4", "given": "ChalkLogo rendered with motion and with reduced motion", "when": "bubbles are read", "then": "bubbles animate with motion, are still under reduced motion, and none overlaps the label's box"},
     {"id": "AC-5", "given": "public/favicon.svg and the four PNG icons", "when": "read", "then": "favicon.svg uses #5b9fd6 and not #f2a93b for the liquid, and each PNG differs from its LOOK-8 bytes at the same pixel size"}
   ],
-  "passes": false,
+  "passes": true,
   "description": "Owner, 2026-11-23: 'make the liquid in the beaker a different color for the logo. place the \"Nf\" on the beaker in the center inside a solid chalk white box cterned on the beaker bottle'; picked Chalk blue #5b9fd6 from four rendered options (docs/prototypes/logo-flask-colours.html, report .schermness/reports/LOOK-8-rev2-design.md). Slate ink for Nf (designer's comparison). Hat band keeps band, pleats and hem with no letters. Ticks and label patch removed; bubbles rise at the sides, never through the label. Small cut: label with Nf at 64 px, plain cream block at 32, dropped at 16. Re-render favicon.svg, icons and logo.png with scripts/build-logo-icons.mjs. Supersedes LOOK-8's AC-2 position of Nf on the hat and its colour rule.",
   "acceptance": [
     "Owner's pick recorded in DESIGN.md; tests updated by the test author for the new spec",
