@@ -49,7 +49,8 @@ describe('LOOK-8 AC-4: favicon.svg draws the flask with the hat, no atom', () =>
     }
     expect(text, 'the flask is not named (data-part="flask", an id or a comment)').toMatch(/flask/i);
     expect(text.toLowerCase()).toContain('#8fa274');
-    expect(text.toLowerCase()).toContain('#f2a93b');
+    // The orange-liquid check is superseded by LOOK-8b (owner, 2026-11-23): the liquid is chalk blue #5b9fd6,
+    // asserted in tests/contracts/LOOK-8b/icons.contract.test.js.
   });
 });
 

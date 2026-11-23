@@ -1,0 +1,9 @@
+{
+  "source": "public/icons at 148809c (LOOK-8, before LOOK-8b)",
+  "sha256": {
+    "icon-192.png": "8325e7ceafc1be033e2c77591a6c1f1095cc4f6023f81f9592a0b8c4112caf03",
+    "icon-512.png": "85bf3f58617e61a552540cd43963597a39a6f6e9eb87a235cefe26007e6b8149",
+    "icon-512-maskable.png": "e3215002bf341970bb289df677d22f5dc15e7c4704af89ed279eecc528f25f23",
+    "apple-touch-icon.png": "7813accfb2d2686224ddecb60f98e9105723151138abbb7c2406fe19906bfdca"
+  }
+}

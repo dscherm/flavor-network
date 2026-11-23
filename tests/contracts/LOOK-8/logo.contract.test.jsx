@@ -152,7 +152,9 @@ describe('LOOK-8 AC-2: hat and Nf unchanged, flask added', () => {
   });
 
   // Covers: AC-2
-  it('draws Nf in Caveat 700, orange, at (100, 128), size 32', () => {
+  // Position (y=128 on the hat band), size 32 and orange fill superseded by LOOK-8b (owner, 2026-11-23):
+  // Nf now sits on a cream label on the flask in slate ink; see tests/contracts/LOOK-8b.
+  it('draws Nf in Caveat 700, centred on x=100', () => {
     const { container } = render(<ChalkLogo title="Neural Flavor" />);
     const nf = nfText(container);
     expect(nf, 'no <text> with Nf').toBeTruthy();
@@ -160,9 +162,6 @@ describe('LOOK-8 AC-2: hat and Nf unchanged, flask added', () => {
     const w = String(attrOrStyle(nf, 'font-weight', 'fontWeight'));
     expect(w === 'bold' ? '700' : w).toBe('700');
     expect(nf.getAttribute('x')).toBe('100');
-    expect(nf.getAttribute('y')).toBe('128');
-    expect(String(attrOrStyle(nf, 'fill', 'fill')).toLowerCase()).toBe('#f2a93b');
-    expect(String(attrOrStyle(nf, 'font-size', 'fontSize'))).toMatch(/^32(px)?$/);
   });
 
   // Covers: AC-2
@@ -181,7 +180,9 @@ describe('LOOK-8 AC-2: hat and Nf unchanged, flask added', () => {
   });
 
   // Covers: AC-2
-  it('keeps the logo colours only: cream, orange and sage', () => {
+  // Colour set superseded by LOOK-8b (owner, 2026-11-23): orange is no longer required; the liquid is chalk
+  // blue #5b9fd6 and Nf is slate ink #0a0a0a. LOOK-8b AC-3 pins the exact set.
+  it('keeps the logo colours only: cream, sage, chalk blue and slate (orange tolerated until LOOK-8b lands)', () => {
     const { container } = render(<ChalkLogo title="Neural Flavor" />);
     const svg = container.querySelector('svg');
     const bad = [];
@@ -190,7 +191,7 @@ describe('LOOK-8 AC-2: hat and Nf unchanged, flask added', () => {
       for (const a of ['fill', 'stroke']) {
         const v = (el.getAttribute(a) || '').toLowerCase().trim();
         if (!v || v === 'none' || v === 'currentcolor' || v.startsWith('url(')) continue;
-        if (!['#f5efde', '#f2a93b', '#8fa274'].includes(v)) bad.push(`${el.tagName} ${a}=${v}`);
+        if (!['#f5efde', '#f2a93b', '#8fa274', '#5b9fd6', '#0a0a0a'].includes(v)) bad.push(`${el.tagName} ${a}=${v}`);
       }
     }
     expect(bad).toEqual([]);

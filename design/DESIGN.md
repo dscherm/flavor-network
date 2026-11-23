@@ -29,7 +29,7 @@ LOOK-6 moves the roles into one token block; until then each entry names where i
 | Error | #f87171 (proposed; no role exists today) | none | Failed save, failed scan, invalid input. Today the error text reuses the accent, see Never |
 | Recipe card paper | #f4ecd8, edge #e4d8bd | `chalkTheme.js` `CARD_CREAM`, `CARD_CREAM_EDGE` | Cookbook recipe card only |
 | Recipe card ink | #2e2a22, sub #6b6353 | `chalkTheme.js` `CARD_INK`, `CARD_INK_SUB` | Text on the recipe card paper |
-| Illustration inks (LOOK-5, owner approved 2026-11-23) | Spirit colours (`COCKTAIL_SPIRIT_COLORS`), the bottle-label ink #211e18, the fills inside the lab drawings (drink #7dd3fc, cherry #dc2626, lime #84cc16 / #bef264, sauce #b91c1c, pencil #fbbf24, wine #e11d48, pairing nodes) and the logo's own colours | `cocktailBaseSpirit.js`, `chalkArt.jsx` (`WINE_RED`, the drawing functions, `bottleMark`), `ChalkLogo.jsx` | The colours inside a chalk drawing. Never on chrome, text, borders or controls |
+| Illustration inks (LOOK-5, owner approved 2026-11-23) | Spirit colours (`COCKTAIL_SPIRIT_COLORS`), the bottle-label ink #211e18, the fills inside the lab drawings (drink #7dd3fc, cherry #dc2626, lime #84cc16 / #bef264, sauce #b91c1c, pencil #fbbf24, wine #e11d48, pairing nodes) and the logo's own colours (liquid chalk blue #5b9fd6, `LOGO_LIQUID`, LOOK-8b) | `cocktailBaseSpirit.js`, `chalkArt.jsx` (`WINE_RED`, the drawing functions, `bottleMark`), `ChalkLogo.jsx` | The colours inside a chalk drawing. Never on chrome, text, borders or controls |
 
 Data colours (a chart's meaning only; never used for chrome, buttons or headings). The one exception is the family
 colours: a family's identity, used ONLY on that family's drawn glass or vessel, its name, and its list rows. Never on a

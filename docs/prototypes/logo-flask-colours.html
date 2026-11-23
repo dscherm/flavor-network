@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flask Liquid Colours</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Alegreya+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --slate: #0a0a0a;
+    --cream: #f5efde;
+    --dim: #bdb6a3;
+    --sub: #8a8478;
+    --rail: #4a4a4a;
+    --sage: #8fa274;
+    --orange: #f2a93b;          /* the current liquid, for comparison only */
+    --claret: #c0394f;
+    --blue: #5b9fd6;
+    --chartreuse: #c9c23a;
+    --plum: #9b5bb5;
+    --hand: "Caveat", cursive;
+    --text: "Alegreya Sans", sans-serif;
+  }
+  /* The logo lives on slate in every theme, so this page has one ground. */
+  html, body { background: var(--slate); color: var(--cream); margin: 0; }
+  body { font-family: var(--text); font-size: 16px; line-height: 1.5; padding: 32px 16px 64px; }
+  main { max-width: 1240px; margin: 0 auto; }
+  h1 { font-family: var(--hand); font-size: 40px; font-weight: 700; margin: 0 0 4px; }
+  h2 { font-family: var(--hand); font-size: 30px; font-weight: 700; margin: 0; }
+  p.lede { color: var(--dim); max-width: 62ch; margin: 0 0 40px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 48px 32px; }
+  .opt { border-top: 1px solid var(--rail); padding-top: 16px; }
+  .opt .hex { font-size: 13px; color: var(--sub); font-variant-numeric: tabular-nums; }
+  .opt .why { color: var(--dim); font-size: 15px; margin: 6px 0 12px; min-height: 4.5em; }
+  .swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -2px; margin-right: 6px; }
+  .landing { display: flex; justify-content: center; }
+  .landing svg { height: 390px; width: auto; max-width: 100%; }
+  .small { display: flex; align-items: flex-end; gap: 20px; margin-top: 20px; flex-wrap: wrap; }
+  .small figure { margin: 0; text-align: center; }
+  .small figcaption { font-size: 12px; color: var(--sub); margin-top: 4px; }
+  .tile { display: block; }
+  canvas.px { image-rendering: pixelated; display: block; }
+  section.ink { margin-top: 72px; }
+  section.ink .row { display: flex; flex-wrap: wrap; gap: 40px; margin-top: 16px; align-items: flex-end; }
+  section.ink figure { margin: 0; text-align: center; }
+  section.ink .big svg { height: 300px; width: auto; }
+  .rec { font-family: var(--hand); font-size: 22px; color: var(--cream); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Neural Flavor: flask liquid, rev. 2</h1>
+  <p class="lede">"Nf" moves off the hat band onto a filled chalk label centred on the flask body. Four
+  liquid colours, each at landing size and in the small cut LOOK-8 shipped for icons (square, hat at 62% on the neck,
+  thick lines). In the small cut the label is enlarged and carries "Nf" at 64 px, is a plain cream block at 32, and
+  goes at 16. The second row is the same three as real pixels, enlarged.</p>
+
+  <div class="grid" id="grid"></div>
+
+  <section class="ink">
+    <h2>Ink on the label</h2>
+    <p class="lede" style="margin-bottom:0">The recommended liquid (claret) with three inks for "Nf": slate, the
+    liquid's own colour, and the old orange.</p>
+    <div class="row" id="ink"></div>
+  </section>
+</main>
+
+<script>
+const css = getComputedStyle(document.documentElement);
+const v = n => css.getPropertyValue(n).trim();
+const CREAM = v('--cream'), SAGE = v('--sage'), SLATE = v('--slate');
+
+const OPTIONS = [
+  { key: 'claret', name: 'Claret', op: 0.72,
+    why: 'Red wine, beetroot, a pan sauce. The warmest food colour after orange, and the complement of the sage glass, so the liquid stands clear of it.' },
+  { key: 'blue', name: 'Chalk blue', op: 0.62,
+    why: 'The coolest of the four and the most separate from cream and sage on slate. Least "food": a blue liquid in a flask leans to the chemistry set.' },
+  { key: 'chartreuse', name: 'Chartreuse', op: 0.62,
+    why: 'The herbal liqueur, olive oil, a green sauce. Ties to the Cocktail Lab. Brightest at 16 px, but it sits nearest the sage glass in hue.' },
+  { key: 'plum', name: 'Plum', op: 0.78,
+    why: 'Blackberry, plum, a reduced port. Rich and unusual on slate, but the darkest: at 60% it sinks, so it is filled stronger and still reads dimmest small.' },
+];
+
+let uid = 0;
+const chalk = (d, c, w, opacity = 1, halo = 2.4) =>
+  `<path d="${d}" fill="none" stroke="${c}" stroke-opacity="${0.22 * opacity}" stroke-width="${w * halo}" stroke-linecap="round" stroke-linejoin="round"/>` +
+  `<path d="${d}" fill="none" stroke="${c}" stroke-opacity="${opacity}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+
+/* Paths are ChalkLogo.jsx's, unchanged except: no "Nf" on the band (three centre pleats added so the band
+   is not bare), the liquid raised from y 228 to y 206, the two lower ticks and the label patch removed,
+   bubbles moved to the sides of the label, and the label added. */
+function logo({ liquid, op = 0.62, ink = SLATE, k = 1, label = 'text', labelScale = 1, ground = false }) {
+  const id = 'r' + (uid++);
+  const puffs = 'M70 96 C48 100 32 88 36 70 C39 52 56 44 72 50 C73 34 90 28 100 28 C110 28 127 34 128 50 C144 44 161 52 164 70 C168 88 152 100 130 96';
+  const gather = 'M70 96 Q100 103 130 96';
+  const lobes = 'M72 50 Q80 64 78 84 M128 50 Q120 64 122 84 M100 36 Q97 50 100 66';
+  const band = 'M70 98 L68 136 Q100 141 132 136 L130 98 Q100 104 70 98 Z';
+  const pleats = 'M76 101 L75 137 M83 102 L82 138 M117 102 L118 138 M124 101 L125 137 M92 103 L91.5 139 M100 104 L100 140 M108 103 L108.5 139';
+  const hem = 'M69 130 Q100 135 131 130';
+  // Liquid: surface at y 206, where the cone is x 69.5..130.5.
+  const liquidPath = 'M69.5 206 Q100 211 130.5 206 L160 274 Q164 284 150 284 L50 284 Q36 284 40 274 Z';
+  const bubbles = [[64, 278, 3.4], [136, 270, 3], [132, 281, 2.4]];
+  // Label centred on the flask body (cone y 178..286, x 40..160) at (100, 236).
+  const lw = 52 * labelScale, lh = 40 * labelScale, cx = 100, cy = label === 'text' && labelScale > 1 ? 240 : 236;
+  const lx = cx - lw / 2, ly = cy - lh / 2;
+  const fs = 36 * labelScale;
+  const labelSvg = label === 'none' ? '' :
+    `<rect data-part="label" x="${lx}" y="${ly}" width="${lw}" height="${lh}" rx="${3 * labelScale}" fill="${CREAM}"/>` +
+    chalk(`M${lx} ${ly} H${lx + lw} V${ly + lh} H${lx} Z`, CREAM, 1.4 * k, 0.9) +
+    (label === 'text'
+      ? `<text x="${cx}" y="${cy + fs * 0.3}" text-anchor="middle" fill="${ink}" style="font-family:var(--hand);font-size:${fs}px;font-weight:700">Nf</text>`
+      : '');
+  const tilePad = ground ? `<rect x="-14" y="16" width="228" height="280" rx="${280 * 6 / 32}" fill="${SLATE}" stroke="${v('--rail')}" stroke-width="${ground === 'edge' ? 3 : 0}"/>` : '';
+  return `<svg viewBox="${ground ? '-14 16 228 280' : '0 16 200 280'}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Neural Flavor">
+  ${tilePad}
+  <defs><filter id="${id}" x="-5%" y="-5%" width="110%" height="110%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2"/></filter></defs>
+  <g filter="url(#${id})">
+    <path d="${puffs}" fill="${CREAM}" fill-opacity="0.05"/>
+    <path d="${band}" fill="${CREAM}" fill-opacity="0.07"/>
+    ${k < 2 ? chalk(lobes, CREAM, 1.6 * k, 0.6) : ''}
+    ${k < 2 ? chalk(pleats, CREAM, 1.3 * k, 0.5) : ''}
+    ${k < 2 ? chalk(hem, CREAM, 1.2 * k, 0.45) : ''}
+    ${chalk(puffs, CREAM, 3.2 * k)}
+    ${chalk(gather, CREAM, 2.2 * k, 0.85)}
+    ${chalk(band, CREAM, 3 * k)}
+    <path d="${liquidPath}" fill="${liquid}" fill-opacity="${op}"/>
+    ${chalk('M69.5 206 Q100 211 130.5 206', liquid, 2.2 * k, 0.95)}
+    ${k < 2 ? bubbles.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${CREAM}" fill-opacity="0.85"/>`).join('') : ''}
+    ${k < 2 ? chalk('M126 192 L144 236', CREAM, 1.3 * k, 0.4) : ''}
+    ${labelSvg}
+    ${chalk('M76 144 Q81 145 82 150 L82 178 L40 272 Q35 286 52 286 L148 286 Q165 286 160 272 L118 178 L118 150 Q119 145 124 144', SAGE, 3.4 * k)}
+  </g></svg>`;
+}
+
+/* The small cut, as LOOK-8 shipped it in public/favicon.svg: square viewBox -9 74 218 218, the hat at 62% seated
+   on the neck, no rough filter, no halo, no fine lines, strokes x1.6 at 64, x2.4 at 32, x3.8 at 16.
+   New here: the label. At 64 it is enlarged 1.25x and carries "Nf"; at 32 it is a cream block; at 16 it goes. */
+const SMALL = { 64: { k: 1.6, label: 'text' }, 32: { k: 2.4, label: 'box' }, 16: { k: 3.8, label: 'none' } };
+const LBL64 = { w: 65, h: 50, cx: 100, cy: 242, fs: 45 };
+function smallCut({ liquid, op, ink = SLATE, size, text = true }) {
+  const { k, label } = SMALL[size];
+  const line = (d, c, w) => `<path d="${d}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const puffs = 'M70 96 C48 100 32 88 36 70 C39 52 56 44 72 50 C73 34 90 28 100 28 C110 28 127 34 128 50 C144 44 161 52 164 70 C168 88 152 100 130 96';
+  const band = 'M70 98 L68 136 Q100 141 132 136 L130 98 Q100 104 70 98 Z';
+  const L = label === 'text' ? LBL64 : { w: 52, h: 40, cx: 100, cy: 238 };
+  const lbl = label === 'none' ? '' :
+    `<rect x="${L.cx - L.w / 2}" y="${L.cy - L.h / 2}" width="${L.w}" height="${L.h}" rx="4" fill="${CREAM}"/>` +
+    (label === 'text' && text ? `<text x="${L.cx}" y="${L.cy + L.fs * 0.3}" text-anchor="middle" fill="${ink}" style="font-family:var(--hand);font-size:${L.fs}px;font-weight:700">Nf</text>` : '');
+  return `<svg viewBox="-9 74 218 218" xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" role="img" aria-label="Neural Flavor">
+  <rect x="-9" y="74" width="218" height="218" rx="41" fill="${SLATE}"/>
+  <path d="M69.5 206 Q100 211 130.5 206 L160 274 Q164 284 150 284 L50 284 Q36 284 40 274 Z" fill="${liquid}" fill-opacity="${op}"/>
+  ${line('M69.5 206 Q100 211 130.5 206', liquid, 2.2 * k)}
+  ${lbl}
+  ${line('M76 144 Q81 145 82 150 L82 178 L40 272 Q35 286 52 286 L148 286 Q165 286 160 272 L118 178 L118 150 Q119 145 124 144', SAGE, 3.4 * k)}
+  <g transform="translate(100 148) scale(0.62) translate(-100 -140)">
+    <path d="${puffs}" fill="${CREAM}" fill-opacity="0.05"/><path d="${band}" fill="${CREAM}" fill-opacity="0.07"/>
+    ${line(puffs, CREAM, 3.2 * k)}${line('M70 96 Q100 103 130 96', CREAM, 2.2 * k)}${line(band, CREAM, 3 * k)}
+  </g></svg>`;
+}
+
+function smallSet(o) {
+  const liquid = v('--' + o.key);
+  let html = [64, 32, 16].map(s =>
+    `<figure><div class="tile">${smallCut({ liquid, op: o.op, size: s })}</div><figcaption>${s} px</figcaption></figure>`).join('');
+  html += [64, 32, 16].map(s =>
+    `<figure><canvas class="px" data-src="${s}" data-key="${o.key}" width="${s}" height="${s}" style="width:${s * (s === 64 ? 2 : 4)}px;height:${s * (s === 64 ? 2 : 4)}px"></canvas><figcaption>${s} px, real pixels x${s === 64 ? 2 : 4}</figcaption></figure>`).join('');
+  return html;
+}
+
+const grid = document.getElementById('grid');
+grid.innerHTML = OPTIONS.map(o => `
+  <article class="opt">
+    <h2><span class="swatch" style="background:var(--${o.key})"></span>${o.name}</h2>
+    <div class="hex">${v('--' + o.key)}, filled at ${Math.round(o.op * 100)}%</div>
+    <p class="why">${o.why}</p>
+    <div class="landing">${logo({ liquid: v('--' + o.key), op: o.op })}</div>
+    <div class="small">${smallSet(o)}</div>
+  </article>`).join('');
+
+// Real pixels: the SVG drawn into a canvas at its true size. An SVG image cannot use the page's web font, so at
+// 64 px "Nf" is drawn onto the canvas with the loaded Caveat, at the same place.
+function paintPixels(cv, liquid, op, ink = SLATE) {
+  const s = +cv.dataset.src;
+  const img = new Image();
+  img.onload = () => {
+    const c = cv.getContext('2d');
+    c.drawImage(img, 0, 0, s, s);
+    if (s === 64) {
+      const f = s / 218;
+      c.fillStyle = ink;
+      c.textAlign = 'center';
+      c.font = `700 ${LBL64.fs * f}px Caveat`;
+      c.fillText('Nf', (LBL64.cx + 9) * f, (LBL64.cy + LBL64.fs * 0.3 - 74) * f);
+    }
+  };
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(smallCut({ liquid, op, size: s, text: false }));
+}
+document.fonts.load('700 20px Caveat').then(() => {
+  document.querySelectorAll('canvas.px').forEach(cv => {
+    if (cv.dataset.ink) { paintPixels(cv, v('--claret'), 0.72, cv.dataset.ink); return; }
+    const o = OPTIONS.find(x => x.key === cv.dataset.key);
+    paintPixels(cv, v('--' + o.key), o.op);
+  });
+});
+
+const claret = v('--claret');
+document.getElementById('ink').innerHTML = [
+  ['Slate ink (recommended)', SLATE],
+  ['Liquid-colour ink', claret],
+  ['Orange ink', v('--orange')],
+].map(([n, ink]) => `<figure>
+    <div class="big">${logo({ liquid: claret, op: 0.72, ink })}</div>
+    <div style="display:flex;justify-content:center;align-items:flex-end;margin-top:8px">${smallCut({ liquid: claret, op: 0.72, ink, size: 64 })}<canvas class="px" data-src="64" data-ink="${ink}" width="64" height="64" style="width:128px;height:128px;margin-left:16px"></canvas></div>
+    <figcaption class="rec">${n}</figcaption></figure>`).join('');
+</script>
+</body>
+</html>

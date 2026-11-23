@@ -3609,6 +3609,35 @@ and name exactly as they are.
 
 ```json
 {
+  "id": "LOOK-8b",
+  "title": "Logo revision: chalk-blue liquid, Nf on a white label centred on the flask",
+  "category": "design",
+  "design_surface": "The logo (ChalkLogo) and the icons drawn from it",
+  "public_surface": {
+    "module": "src.components.ChalkLogo",
+    "adds": [
+      "Nf in slate ink on a filled chalk-white label centred on the flask body; hat band without letters",
+      "chalk-blue flask liquid as a token in src/data/chalkTheme.js"
+    ]
+  },
+  "acceptance_criteria": [
+    {"id": "AC-1", "given": "ChalkLogo rendered", "when": "the Nf text is read", "then": "it sits inside the data-part=\"flask\" group on a filled label element marked data-part=\"label\" with a cream fill, centred on the flask axis (x=100), in Caveat 700 with slate ink #0a0a0a"},
+    {"id": "AC-2", "given": "ChalkLogo rendered", "when": "the hat is read", "then": "the hat d strings from hatPaths.json are still present and no text element sits outside the flask"},
+    {"id": "AC-3", "given": "ChalkLogo rendered", "when": "the liquid is read", "then": "its fill is the chalk-blue token #5b9fd6 and no element uses the old orange liquid; rendered colours are only cream #f5efde, sage #8fa274, chalk blue #5b9fd6 and slate #0a0a0a (outside filter/defs/style/title)"},
+    {"id": "AC-4", "given": "ChalkLogo rendered with motion and with reduced motion", "when": "bubbles are read", "then": "bubbles animate with motion, are still under reduced motion, and none overlaps the label's box"},
+    {"id": "AC-5", "given": "public/favicon.svg and the four PNG icons", "when": "read", "then": "favicon.svg uses #5b9fd6 and not #f2a93b for the liquid, and each PNG differs from its LOOK-8 bytes at the same pixel size"}
+  ],
+  "passes": false,
+  "description": "Owner, 2026-11-23: 'make the liquid in the beaker a different color for the logo. place the \"Nf\" on the beaker in the center inside a solid chalk white box cterned on the beaker bottle'; picked Chalk blue #5b9fd6 from four rendered options (docs/prototypes/logo-flask-colours.html, report .schermness/reports/LOOK-8-rev2-design.md). Slate ink for Nf (designer's comparison). Hat band keeps band, pleats and hem with no letters. Ticks and label patch removed; bubbles rise at the sides, never through the label. Small cut: label with Nf at 64 px, plain cream block at 32, dropped at 16. Re-render favicon.svg, icons and logo.png with scripts/build-logo-icons.mjs. Supersedes LOOK-8's AC-2 position of Nf on the hat and its colour rule.",
+  "acceptance": [
+    "Owner's pick recorded in DESIGN.md; tests updated by the test author for the new spec",
+    "Landing page at 375 px and desktop and the icons looked at; npm run gate green; nothing deployed"
+  ]
+}
+```
+
+```json
+{
   "id": "LOOK-9",
   "title": "The other labs get the LOOK-7 treatment: fewer boxes and pills, one filled button per view",
   "category": "design",
