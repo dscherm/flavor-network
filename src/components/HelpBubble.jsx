@@ -21,6 +21,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Close } from './ChalkIcons.jsx';
 
+import { HAND, TEXT } from '../data/chalkTheme.js';
 // Variant palettes. 'light' matches HelpButton.jsx (dark translucent + cyan
 // accent on the network UI); 'chalk' matches the chalkboard cards
 // (RecipeFlavorProfilesCard / IngredientProfileCard).
@@ -30,7 +31,6 @@ const VARIANTS = {
     pop: { background: '#12121aF2', border: '1px solid #2a2a3a', color: '#d8dae0' },
     title: '#67e8f9',
     sub: '#9aa0ac',
-    font: 'inherit',
     shadow: '0 6px 24px rgba(0,0,0,0.5)',
     titleSize: 17,
     bodySize: 15,
@@ -44,12 +44,9 @@ const VARIANTS = {
     },
     title: '#f5efde',
     sub: '#bdb6a3',
-    font: 'Caveat, cursive',
     shadow: '0 8px 24px rgba(0,0,0,0.55)',
-    // Caveat is a handwriting face — it reads ~30% smaller than a sans at
-    // the same px, so the chalk variant uses larger sizes for legibility.
-    titleSize: 23,
-    bodySize: 19,
+    titleSize: 22,
+    bodySize: 16,
   },
 };
 
@@ -104,7 +101,7 @@ export default function HelpBubble({
         <span
           aria-hidden="true"
           className="inline-flex items-center justify-center rounded-full"
-          style={{ width: 24, height: 24, fontFamily: v.font }}
+          style={{ width: 24, height: 24, fontFamily: TEXT }}
         >
           ?
         </span>
@@ -126,7 +123,7 @@ export default function HelpBubble({
         >
           <div className="flex items-start justify-between gap-2 mb-1">
             {title && (
-              <h4 className="font-semibold" style={{ color: v.title, fontFamily: v.font, fontSize: v.titleSize, lineHeight: 1.2, margin: 0 }}>
+              <h4 className="font-semibold" style={{ color: v.title, fontFamily: HAND, fontSize: v.titleSize, lineHeight: 1.2, margin: 0 }}>
                 {title}
               </h4>
             )}
@@ -144,7 +141,7 @@ export default function HelpBubble({
           {lines.map((line, i) => (
             <p
               key={i}
-              style={{ color: i === 0 && !title ? v.title : 'inherit', fontFamily: v.font, fontSize: v.bodySize, margin: '0 0 5px', lineHeight: 1.4 }}
+              style={{ color: i === 0 && !title ? v.title : 'inherit', fontFamily: TEXT, fontSize: v.bodySize, margin: '0 0 5px', lineHeight: 1.4 }}
             >
               {line}
             </p>

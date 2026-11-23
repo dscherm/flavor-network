@@ -32,6 +32,8 @@
     "test:rules": "firebase emulators:exec --only firestore --project demo-neuralflavor \"vitest run --config vitest.rules.config.js\""
   },
   "dependencies": {
+    "@fontsource/alegreya-sans": "^5.2.8",
+    "@fontsource/caveat": "^5.2.8",
     "@google/generative-ai": "^0.24.1",
     "@rdkit/rdkit": "^2025.3.4-1.0.0",
     "cors": "^2.8.5",

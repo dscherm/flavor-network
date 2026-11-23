@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Close } from './ChalkIcons.jsx';
-import { FONT, CHALK_CREAM, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_CREAM, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
 import { TASTE_COLORS as TASTE_PALETTE, TASTE_WORD_NOTES } from '../utils/color.js';
 
 /**
@@ -66,12 +66,12 @@ export default function HowItWorks({
         <div data-testid="howitworks-overlay" className="fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm" style={{ zIndex: 200 }}>
           <div className="rounded-xl shadow-2xl max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto" style={{ ...chalkSurfaceStyle(), border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}>
             <div className="flex justify-between items-center p-4 border-b border-[#4a4a4a]">
-              <h2 className="text-2xl" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>How NeuFlavor works</h2>
+              <h2 className="text-2xl" style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>How NeuFlavor works</h2>
               <button onClick={close} aria-label="Close" className="text-[#8a8478] hover:text-[#f5efde]"><Close size={20} /></button>
             </div>
             <div className="p-4 space-y-4 text-sm text-[#e8e2d0]">
               <section>
-                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Two ways to start</h3>
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Two ways to start</h3>
                 <p>A cooking companion built on real recipe data. From the opening screen you
                    pick how you want to work:</p>
                 <p className="mt-2"><strong className="text-[#f5efde]">The Labs</strong> —
@@ -83,7 +83,7 @@ export default function HowItWorks({
               </section>
 
               <section>
-                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Make a recipe</h3>
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Make a recipe</h3>
                 <p>Start four ways: <strong className="text-[#f5efde]">from scratch</strong>,
                    <strong className="text-[#f5efde]"> from a photo</strong>,
                    <strong className="text-[#f5efde]"> from a web link</strong> (we read the page
@@ -93,7 +93,7 @@ export default function HowItWorks({
               </section>
 
               <section data-testid="howitworks-gestures">
-                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Explore the pairing map</h3>
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Explore the pairing map</h3>
                 <p className="text-xs text-[#bdb6a3] mb-2">The flavor network — open it from the
                    card below, or "See in the network →" inside the Pairing Lab — is a 3D map
                    where each dot is an ingredient and dots that pair often sit close together.
@@ -122,7 +122,7 @@ export default function HowItWorks({
               </section>
 
               <section>
-                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Where the data comes from</h3>
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Where the data comes from</h3>
                 <p>Pairings come from how ingredients are actually used together — we analyzed
                    <strong> 2.2 million recipes</strong> (RecipeNLG) plus TheMealDB and
                    TheCocktailDB into <strong>3,674 ingredients</strong> and tens of thousands of
@@ -135,7 +135,7 @@ export default function HowItWorks({
               </section>
 
               <section>
-                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Recipe Lab</h3>
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Recipe Lab</h3>
                 <p>A notebook where you build a dish ingredient by ingredient. The
                    <strong> Flavor Profiles</strong> card is a swipeable per-axis carousel —
                    one page per taste (sweet/sour/bitter/salty/umami/heat) and aroma
@@ -148,7 +148,7 @@ export default function HowItWorks({
               </section>
 
               <section>
-                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>The Labs</h3>
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>The Labs</h3>
                 <p>The <strong className="text-[#f5efde]">Labs</strong> tile opens a panel of
                    kitchens. <strong>Cocktail</strong> (<strong>426 drinks</strong>) groups by
                    family with a back-bar of signature glasses and spirit bottles;
@@ -167,7 +167,7 @@ export default function HowItWorks({
               </section>
 
               <section>
-                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Explore the flavor network</h3>
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Explore the flavor network</h3>
                 <p>Everything above is built on one map: a network of every ingredient, linked by
                    how often they meet in real recipes and the flavor compounds they share. Open it
                    to roam the whole graph.</p>
@@ -202,7 +202,7 @@ export default function HowItWorks({
                     })()}
                   </svg>
                   <div className="px-3 py-2 flex items-center justify-between">
-                    <span style={{ fontFamily: FONT, color: CHALK_CREAM, fontSize: 18 }}>Open the flavor network</span>
+                    <span style={{ fontFamily: TEXT, color: CHALK_CREAM, fontSize: 18 }}>Open the flavor network</span>
                     <span style={{ color: '#bdb6a3' }}>→</span>
                   </div>
                 </button>

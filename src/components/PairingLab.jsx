@@ -26,10 +26,15 @@ import {
 import { buildPairingCardProps } from '../data/pairingCardData.js';
 import { Close } from './ChalkIcons.jsx';
 import {
-  FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, chalkSurfaceStyle,
+  TEXT,
+  HAND,
+  CHALK_CREAM,
+  CHALK_DIM,
+  CHALK_SUB,
+  CHALK_RAIL,
+  chalkSurfaceStyle,
 } from '../data/chalkTheme.js';
 
-const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 const PROV_LABEL = {
   chemistry: 'shared chemistry',
   cuisine: 'culinary tradition',
@@ -56,7 +61,7 @@ function strengthTier(strength, thr) {
 }
 
 const chip = (border = CHALK_RAIL) => ({
-  fontFamily: FONT, fontSize: 17, padding: '2px 12px', borderRadius: 14,
+  fontFamily: TEXT, fontSize: 17, padding: '2px 12px', borderRadius: 14,
   border: `1px solid ${border}`, background: '#0a0a0a', color: CHALK_CREAM, cursor: 'pointer',
 });
 
@@ -153,7 +158,7 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
       {/* Header — title + Surprise + search */}
       <div style={{ padding: '10px 12px 6px', borderBottom: `1px solid ${CHALK_RAIL}` }}>
         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-          <div style={{ fontFamily: FONT, fontSize: 26, lineHeight: 1, color: CHALK_CREAM }}>Pairing Lab</div>
+          <div style={{ fontFamily: HAND, fontSize: 26, lineHeight: 1, color: CHALK_CREAM }}>Pairing Lab</div>
           <button
             type="button" data-testid="surprise-btn" aria-pressed={surprise}
             onClick={() => setSurprise((s) => !s)}
@@ -189,7 +194,7 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
               key={l} type="button" role="tab" aria-selected={active}
               onClick={() => setLens(l)} data-testid={`lens-${l}`}
               style={{
-                fontFamily: FONT, fontSize: 18, padding: '2px 12px', borderRadius: 14, flexShrink: 0,
+                fontFamily: TEXT, fontSize: 18, padding: '2px 12px', borderRadius: 14, flexShrink: 0,
                 border: `1px solid ${active ? CHALK_CREAM : CHALK_RAIL}`,
                 background: active ? CHALK_CREAM : 'transparent',
                 color: active ? '#0a0a0a' : CHALK_DIM, cursor: 'pointer',
@@ -202,11 +207,11 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
       </div>
 
       {/* Insight line + axis caption */}
-      <div data-testid="lens-insight" style={{ fontFamily: SANS, fontSize: 13, color: CHALK_DIM, padding: '0 12px 2px', minHeight: 18 }}>
+      <div data-testid="lens-insight" style={{ fontFamily: TEXT, fontSize: 13, color: CHALK_DIM, padding: '0 12px 2px', minHeight: 18 }}>
         {insight}
       </div>
       {axisCaption && (
-        <div data-testid="axis-caption" style={{ fontFamily: SANS, fontSize: 12, color: CHALK_SUB, padding: '0 12px 6px' }}>
+        <div data-testid="axis-caption" style={{ fontFamily: TEXT, fontSize: 12, color: CHALK_SUB, padding: '0 12px 6px' }}>
           {axisCaption}
         </div>
       )}
@@ -245,11 +250,11 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
         <div data-testid="network-teaser" style={{ borderTop: `1px solid ${CHALK_RAIL}`, padding: '6px 12px', background: 'rgba(10,10,10,0.5)' }}>
           {!netOpen ? (
             <button type="button" data-testid="network-teaser-toggle" onClick={() => setNetOpen(true)}
-              style={{ background: 'none', border: 'none', color: CHALK_DIM, fontFamily: SANS, fontSize: 12, cursor: 'pointer', padding: 0 }}>
+              style={{ background: 'none', border: 'none', color: CHALK_DIM, fontFamily: TEXT, fontSize: 12, cursor: 'pointer', padding: 0 }}>
               Where do these pairings come from?
             </button>
           ) : (
-            <div style={{ fontFamily: SANS, fontSize: 12, color: CHALK_DIM, lineHeight: 1.5 }} data-testid="network-teaser-body">
+            <div style={{ fontFamily: TEXT, fontSize: 12, color: CHALK_DIM, lineHeight: 1.5 }} data-testid="network-teaser-body">
               <div style={{ marginBottom: 4 }}>
                 Stand on one ingredient — twist the lens to see its partners by aroma, taste, cuisine or season.
                 Tap a partner to move to it; press and hold for its details.
@@ -273,7 +278,7 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
       {/* Build-a-plate tray */}
       {tray.length > 0 && (
         <div data-testid="tray-bar" style={{ borderTop: `1px solid ${CHALK_RAIL}`, padding: '8px 12px', background: 'rgba(10,10,10,0.6)' }}>
-          <div style={{ fontFamily: SANS, fontSize: 12, color: CHALK_SUB, marginBottom: 4 }}>
+          <div style={{ fontFamily: TEXT, fontSize: 12, color: CHALK_SUB, marginBottom: 4 }}>
             Your plate · {tray.length} pick{tray.length === 1 ? '' : 's'}: {tray.join(', ')} — send to a lab to build with them:
           </div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
@@ -308,7 +313,7 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
             />
             <div
               data-testid="peek-insight"
-              style={{ fontFamily: SANS, fontSize: 12, color: CHALK_DIM, textAlign: 'center', maxWidth: 360 }}
+              style={{ fontFamily: TEXT, fontSize: 12, color: CHALK_DIM, textAlign: 'center', maxWidth: 360 }}
             >
               {peek === center
                 ? `${peek} — its own flavor profile.`
@@ -333,8 +338,8 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
 
 const bannerStyle = {
   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-  padding: '6px 12px', fontFamily: SANS, fontSize: 13, color: CHALK_CREAM,
+  padding: '6px 12px', fontFamily: TEXT, fontSize: 13, color: CHALK_CREAM,
   background: 'rgba(245,239,222,0.06)', borderBottom: `1px solid ${CHALK_RAIL}`,
 };
 const bannerX = { background: 'none', border: 'none', color: CHALK_DIM, fontSize: 18, cursor: 'pointer' };
-const emptyStyle = { alignSelf: 'center', fontFamily: SANS, color: CHALK_SUB, padding: 24, textAlign: 'center' };
+const emptyStyle = { alignSelf: 'center', fontFamily: TEXT, color: CHALK_SUB, padding: 24, textAlign: 'center' };

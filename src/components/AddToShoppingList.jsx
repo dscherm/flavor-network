@@ -18,10 +18,9 @@ import { canonicalKey, emptyList } from '../data/shoppingList.js';
 import { usage } from '../data/usageEvents.js';
 import { loadUnitSystem } from '../data/shoppingUnits.js';
 import { addTicked, askAgainText, countOptional, shopRecipeUsage, summaryText } from '../data/shoppingRecipes.js';
-import { FONT, CHALK_CREAM, CHALK_DIM } from '../data/chalkTheme.js';
+import { TEXT, CHALK_CREAM, CHALK_DIM } from '../data/chalkTheme.js';
 import { Basket } from './ChalkIcons.jsx';
 
-const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 const FOCUS = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
 
 export default function AddToShoppingList({ recipe, missing, better = [], optional = [], list, onChange, onOpen = null, color = '#a3e635' }) {
@@ -59,7 +58,7 @@ export default function AddToShoppingList({ recipe, missing, better = [], option
     <>
       <button type="button" ref={buttonRef} onClick={click} data-testid="what-do-i-need-add-shopping"
         className={`px-3 rounded-lg border min-h-[44px] inline-flex items-center gap-1 ${FOCUS}`}
-        style={{ fontFamily: FONT, fontSize: 18, borderColor: `${color}88`, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
+        style={{ fontFamily: TEXT, fontSize: 18, borderColor: `${color}88`, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
         <Basket size={20} />
         Add to shopping list
       </button>
@@ -67,14 +66,14 @@ export default function AddToShoppingList({ recipe, missing, better = [], option
         <div role="alertdialog" aria-labelledby="add-shop-ask" data-testid="what-do-i-need-add-ask"
           className="basis-full rounded-xl p-3 mt-1" style={{ border: `1.5px solid ${CHALK_CREAM}`, background: 'rgba(10,10,10,0.6)' }}
           onKeyDown={(e) => { if (e.key === 'Escape') { setAsk(false); buttonRef.current?.focus(); } }}>
-          <p id="add-shop-ask" style={{ fontFamily: SANS, fontSize: 14, color: CHALK_CREAM }}>{askAgainText(recipe.name)}</p>
+          <p id="add-shop-ask" style={{ fontFamily: TEXT, fontSize: 14, color: CHALK_CREAM }}>{askAgainText(recipe.name)}</p>
           <div className="mt-2 flex gap-2">
             <button type="button" ref={cancelRef} onClick={() => { setAsk(false); buttonRef.current?.focus(); }} data-testid="what-do-i-need-add-cancel"
-              className={`min-h-[44px] px-4 rounded-lg ${FOCUS}`} style={{ fontFamily: SANS, fontSize: 14, border: `1.5px solid ${CHALK_DIM}`, color: CHALK_CREAM, fontWeight: 600, outlineColor: CHALK_CREAM }}>
+              className={`min-h-[44px] px-4 rounded-lg ${FOCUS}`} style={{ fontFamily: TEXT, fontSize: 14, border: `1.5px solid ${CHALK_DIM}`, color: CHALK_CREAM, fontWeight: 600, outlineColor: CHALK_CREAM }}>
               Cancel
             </button>
             <button type="button" onClick={() => commit(true)} data-testid="what-do-i-need-add-again"
-              className={`min-h-[44px] px-4 rounded-lg ${FOCUS}`} style={{ fontFamily: SANS, fontSize: 14, border: `1.5px solid ${CHALK_DIM}`, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
+              className={`min-h-[44px] px-4 rounded-lg ${FOCUS}`} style={{ fontFamily: TEXT, fontSize: 14, border: `1.5px solid ${CHALK_DIM}`, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
               Add it again
             </button>
           </div>
@@ -82,13 +81,13 @@ export default function AddToShoppingList({ recipe, missing, better = [], option
       )}
       <div role="status" aria-live="polite" className="basis-full" data-testid="what-do-i-need-add-summary">
         {done && (
-          <p style={{ fontFamily: SANS, fontSize: 13, color: CHALK_CREAM }}>
+          <p style={{ fontFamily: TEXT, fontSize: 13, color: CHALK_CREAM }}>
             {done}
             {onOpen && (
               <>
                 {' '}
                 <button type="button" onClick={onOpen} data-testid="what-do-i-need-open-list"
-                  className={`underline underline-offset-4 min-h-[44px] px-1 ${FOCUS}`} style={{ color: CHALK_CREAM, fontFamily: SANS, fontSize: 14, outlineColor: CHALK_CREAM }}>
+                  className={`underline underline-offset-4 min-h-[44px] px-1 ${FOCUS}`} style={{ color: CHALK_CREAM, fontFamily: TEXT, fontSize: 14, outlineColor: CHALK_CREAM }}>
                   Open list
                 </button>
               </>

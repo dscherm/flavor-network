@@ -13,7 +13,8 @@
     @apply bg-neural-bg text-neural-text antialiased;
     margin: 0;
     overflow: hidden;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-variant-numeric: lining-nums tabular-nums;
+    font-synthesis: none;
   }
 
   #root {

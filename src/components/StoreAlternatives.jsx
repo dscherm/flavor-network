@@ -25,11 +25,10 @@ import { createPortal } from 'react-dom';
 import { alternativesFor, needsRoles, KIND_LABEL } from '../data/shoppingAlternatives.js';
 import { makeHas } from '../data/shoppingList.js';
 import { getCocktailRoles } from '../data/ingredientRoles.js';
-import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_RAIL } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_RAIL } from '../data/chalkTheme.js';
 
-const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 const FOCUS = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
-const btn = { fontFamily: SANS, fontSize: 14, color: CHALK_CREAM, border: `1.5px solid ${CHALK_DIM}`, background: 'transparent', outlineColor: CHALK_CREAM };
+const btn = { fontFamily: TEXT, fontSize: 14, color: CHALK_CREAM, border: `1.5px solid ${CHALK_DIM}`, background: 'transparent', outlineColor: CHALK_CREAM };
 
 export default function StoreAlternatives({ item, sauce = false, main = null, swaps, names = null, stock, loadRoles = getCocktailRoles, onPick, onUseHave, onClose }) {
   const sheet = useRef(null);
@@ -91,25 +90,25 @@ export default function StoreAlternatives({ item, sauce = false, main = null, sw
         className="w-full rounded-xl p-4"
         style={{ maxWidth: 440, background: '#161a17', border: `1px solid ${CHALK_RAIL}`, boxSizing: 'border-box', color: CHALK_CREAM }}
       >
-        <h2 id="store-alt-title" style={{ fontFamily: FONT, fontSize: 24 }}>{title}</h2>
-        <p style={{ fontFamily: SANS, fontSize: 13, color: CHALK_DIM, marginTop: 2 }}>
+        <h2 id="store-alt-title" style={{ fontFamily: HAND, fontSize: 24 }}>{title}</h2>
+        <p style={{ fontFamily: TEXT, fontSize: 13, color: CHALK_DIM, marginTop: 2 }}>
           The closest I know, not a guarantee. Nothing changes until you tap.
         </p>
 
-        {loading && <p role="status" style={{ fontFamily: SANS, fontSize: 14, color: CHALK_DIM, marginTop: 12 }}>Looking for alternatives…</p>}
+        {loading && <p role="status" style={{ fontFamily: TEXT, fontSize: 14, color: CHALK_DIM, marginTop: 12 }}>Looking for alternatives…</p>}
 
         {!loading && known && (
           <ul data-testid="store-alt-list" aria-label="Alternatives" className="mt-3">
             {alternatives.map((a) => (
               <li key={a.key} data-testid={`store-alt-${a.key}`} className="py-2" style={{ borderTop: `1px solid ${CHALK_RAIL}55` }}>
-                <p data-testid={`store-alt-kind-${a.key}`} style={{ fontFamily: SANS, fontSize: 13, color: CHALK_DIM }}>{KIND_LABEL[a.kind] || KIND_LABEL.swap}</p>
-                <div style={{ fontFamily: SANS, fontSize: 17 }}>
+                <p data-testid={`store-alt-kind-${a.key}`} style={{ fontFamily: TEXT, fontSize: 13, color: CHALK_DIM }}>{KIND_LABEL[a.kind] || KIND_LABEL.swap}</p>
+                <div style={{ fontFamily: TEXT, fontSize: 17 }}>
                   {a.kind === 'make' ? [a.key, ...a.plus].join(' + ') : a.label}
                   {a.have && <span data-testid={`store-alt-have-${a.key}`} style={{ color: CHALK_CREAM, fontSize: 13, marginLeft: 8, border: `1px solid ${CHALK_DIM}`, borderRadius: 999, padding: '1px 8px' }}>you have this</span>}
                 </div>
-                <p style={{ fontFamily: SANS, fontSize: 14, color: CHALK_DIM }}>{a.useText}</p>
-                {a.amountNote && <p data-testid={`store-alt-amount-${a.key}`} style={{ fontFamily: SANS, fontSize: 14, color: CHALK_DIM }}>Amount: {a.amountNote}.</p>}
-                {a.note && <p data-testid={`store-alt-note-${a.key}`} style={{ fontFamily: SANS, fontSize: 14, color: CHALK_DIM }}>{a.note.charAt(0).toUpperCase() + a.note.slice(1)}.</p>}
+                <p style={{ fontFamily: TEXT, fontSize: 14, color: CHALK_DIM }}>{a.useText}</p>
+                {a.amountNote && <p data-testid={`store-alt-amount-${a.key}`} style={{ fontFamily: TEXT, fontSize: 14, color: CHALK_DIM }}>Amount: {a.amountNote}.</p>}
+                {a.note && <p data-testid={`store-alt-note-${a.key}`} style={{ fontFamily: TEXT, fontSize: 14, color: CHALK_DIM }}>{a.note.charAt(0).toUpperCase() + a.note.slice(1)}.</p>}
                 <button
                   type="button"
                   data-testid={a.have ? `store-alt-use-have-${a.key}` : `store-alt-pick-${a.key}`}
@@ -128,20 +127,20 @@ export default function StoreAlternatives({ item, sauce = false, main = null, sw
 
         {!loading && !known && none && (
           <div data-testid="store-alt-nothing" style={{ marginTop: 12 }}>
-            <p data-testid={none.same ? 'store-alt-same' : undefined} style={{ fontFamily: SANS, fontSize: 15 }}>{none.same || `Nothing really replaces ${item.label}.`}</p>
-            {none.reason && <p style={{ fontFamily: SANS, fontSize: 14, color: CHALK_DIM }}>{none.reason.charAt(0).toUpperCase() + none.reason.slice(1)}.</p>}
+            <p data-testid={none.same ? 'store-alt-same' : undefined} style={{ fontFamily: TEXT, fontSize: 15 }}>{none.same || `Nothing really replaces ${item.label}.`}</p>
+            {none.reason && <p style={{ fontFamily: TEXT, fontSize: 14, color: CHALK_DIM }}>{none.reason.charAt(0).toUpperCase() + none.reason.slice(1)}.</p>}
           </div>
         )}
 
         {!loading && !known && !none && (
-          <p data-testid="store-alt-none" style={{ fontFamily: SANS, fontSize: 15, marginTop: 12 }}>
+          <p data-testid="store-alt-none" style={{ fontFamily: TEXT, fontSize: 15, marginTop: 12 }}>
             No stand-in I&apos;d trust for {item.label}.
           </p>
         )}
 
         {!loading && withheld.length > 0 && (
           <ul data-testid="store-alt-withheld" aria-label="Left out" className="mt-2">
-            {withheld.map((w) => <li key={w.key} style={{ fontFamily: SANS, fontSize: 13, color: CHALK_DIM }}>{w.reason}</li>)}
+            {withheld.map((w) => <li key={w.key} style={{ fontFamily: TEXT, fontSize: 13, color: CHALK_DIM }}>{w.reason}</li>)}
           </ul>
         )}
 

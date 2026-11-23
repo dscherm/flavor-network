@@ -14,7 +14,7 @@
  */
 import { useEffect, useRef } from 'react';
 import { Close } from './ChalkIcons.jsx';
-import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB } from '../data/chalkTheme.js';
 
 const ANCHOR_CLASSES = {
   tl:     'top-[calc(var(--nav-h,72px)+1rem)] left-4',
@@ -63,7 +63,7 @@ export default function TourPopup({
       }}
     >
       <div className="flex items-start justify-between gap-3 mb-2">
-        <h3 className="text-xl" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{stage.title}</h3>
+        <h3 className="text-xl" style={{ fontFamily: HAND, color: CHALK_CREAM }}>{stage.title}</h3>
         <div className="flex items-center gap-2 whitespace-nowrap">
           <span className="text-[12px]" style={{ color: CHALK_SUB }}>
             {stageIdx + 1}/{totalStages}
@@ -132,7 +132,7 @@ export default function TourPopup({
             type="button"
             onClick={onSkip}
             className="text-[13px] underline transition-colors"
-            style={{ fontFamily: FONT, color: CHALK_DIM }}
+            style={{ fontFamily: TEXT, color: CHALK_DIM }}
           >
             Skip tour
           </button>
@@ -142,7 +142,7 @@ export default function TourPopup({
             onClick={onAdvance}
             className="px-4 py-2 rounded-lg text-base text-white border-2 transition-colors hover:brightness-110"
             style={{
-              fontFamily: FONT,
+              fontFamily: TEXT,
               background: stage.accent,
               borderColor: stage.accent,
             }}

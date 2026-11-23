@@ -17,8 +17,9 @@
 import { useEffect, useState } from 'react';
 import RecipePicture from './RecipePicture.jsx';
 import PictureView, { blobFromStored, usePictureData } from './PictureView.jsx';
-import { SANS, CHALK_CREAM, CHALK_DIM, ACCENT, btn } from './inventUi.jsx';
+import { CHALK_CREAM, CHALK_DIM, ACCENT, btn } from './inventUi.jsx';
 
+import { TEXT } from '../data/chalkTheme.js';
 const tap = { minHeight: 44 };
 
 export default function PictureField({ kind = 'dish', value, onChange, item = null, color, filter, load, testid = 'picture-field', initialPhoto = null }) {
@@ -63,7 +64,7 @@ export default function PictureField({ kind = 'dish', value, onChange, item = nu
         </div>
       ) : (
         <div>
-          <p className="text-[14px] mb-2" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+          <p className="text-[14px] mb-2" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
             A picture for this recipe. A photo is turned into a chalk drawing on this device; the photo itself is never kept or sent.
           </p>
           <RecipePicture key={seed?.kind === 'chalk' ? 'chalk' : 'other'} kind={kind} value={seed} color={color} filter={filter} initialPhoto={initialPhoto} onChange={(v) => onChange(v === undefined ? null : v)} />

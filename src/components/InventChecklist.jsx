@@ -16,9 +16,10 @@
  * Test ids: {p} root, {p}-item-{slotId} (data-done, data-required), {p}-tag-{slotId} (unticked parts only: 'needed' / 'optional'), {p}-open-{slotId} (unticked parts only),
  * {p}-why-{slotId}, {p}-options-{slotId}, {p}-option (data-key), {p}-none-{slotId}.
  */
-import { Chip, heading, small, SANS, FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL } from './inventUi.jsx';
+import { Chip, heading, small, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL } from './inventUi.jsx';
 import { Checkbox } from './ChalkIcons.jsx';
 
+import { TEXT } from '../data/chalkTheme.js';
 export default function InventChecklist({
   title, items = [], onOpen, openId = null, optionsFor = () => [], onPick, labels = {}, testidPrefix = 'checklist',
 }) {
@@ -38,10 +39,10 @@ export default function InventChecklist({
             <>
               <span className="w-6 flex justify-center flex-shrink-0" style={{ color: it.done ? CHALK_CREAM : CHALK_SUB }}><Checkbox size={20} checked={!!it.done} /><span className="sr-only">{it.done ? 'done' : 'still needed'}</span></span>
               <span className="flex-1 min-w-0">
-                <span className="block text-[20px] truncate" style={{ fontFamily: FONT, color: it.done ? CHALK_CREAM : CHALK_DIM }}>
+                <span className="block text-[20px] truncate" style={{ fontFamily: TEXT, color: it.done ? CHALK_CREAM : CHALK_DIM }}>
                   {it.label}
                   {it.done ? (it.key ? <span style={{ color: CHALK_SUB }}> — {it.key}</span> : null)
-                    : <span data-testid={`${p}-tag-${it.slotId}`} className="text-[12px] ml-2" style={{ fontFamily: SANS, color: CHALK_SUB }}>{tag}</span>}
+                    : <span data-testid={`${p}-tag-${it.slotId}`} className="text-[12px] ml-2" style={{ fontFamily: TEXT, color: CHALK_SUB }}>{tag}</span>}
                 </span>
               </span>
             </>
@@ -61,7 +62,7 @@ export default function InventChecklist({
               {open && (
                 <div className="px-2 pb-2" data-testid={`${p}-options-${it.slotId}`}>
                   {options.length === 0
-                    ? <p className="text-[13px]" style={{ fontFamily: SANS, color: CHALK_DIM }} data-testid={`${p}-none-${it.slotId}`}>{L.none}</p>
+                    ? <p className="text-[13px]" style={{ fontFamily: TEXT, color: CHALK_DIM }} data-testid={`${p}-none-${it.slotId}`}>{L.none}</p>
                     : (
                       <div className="flex flex-wrap gap-1.5">
                         {options.map((o) => <Chip key={o.key} item={o} testid={`${p}-option`} haveLabel={L.have} onClick={() => onPick(it.slotId, o.key)} />)}

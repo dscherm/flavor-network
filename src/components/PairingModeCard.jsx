@@ -31,8 +31,8 @@ import FlavorWheel from './FlavorWheel.jsx';
 import { ingredientNoteBars, wheelAxisFor } from '../data/pairingCardData.js';
 import { NO_CHART_LINE, axisColor } from '../data/recipeProfileAnalysis.js';
 
-const FONT_HAND = "Caveat, cursive";
 
+import { HAND, TEXT } from '../data/chalkTheme.js';
 // ── Chalkboard palette ─────────────────────────────────────────────
 // Near-black slate with the chalk-dust radial wash that gives real
 // chalkboards their lit-from-center look. Cream-chalk text with a soft
@@ -79,7 +79,7 @@ function HeroDisc({ node }) {
         color: '#0a0a0f',
         fontSize: 26,
         fontWeight: 700,
-        fontFamily: FONT_HAND,
+        fontFamily: HAND,
       }}
       aria-hidden="true"
     >
@@ -101,14 +101,14 @@ function MenuTable({ rows }) {
         <React.Fragment key={r.label}>
           <span
             className="text-[13px] self-center text-right"
-            style={{ color: CHALK_DIM, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
+            style={{ color: CHALK_DIM, fontFamily: TEXT, textShadow: CHALK_TEXT_SHADOW }}
             data-testid={`pairing-card-row-${r.label.toLowerCase()}`}
           >
             {r.label}
           </span>
           <span
             className="text-[14px] self-center"
-            style={{ color: r.valueColor || CHALK_CREAM, fontFamily: FONT_HAND, lineHeight: 1.1, textShadow: CHALK_TEXT_SHADOW }}
+            style={{ color: r.valueColor || CHALK_CREAM, fontFamily: TEXT, lineHeight: 1.1, textShadow: CHALK_TEXT_SHADOW }}
           >
             {r.value}
           </span>
@@ -127,7 +127,7 @@ function ChipStrip({ label, items, color, id = label.toLowerCase() }) {
     >
       <span
         className="text-[13px] flex-shrink-0 w-[68px] text-right"
-        style={{ color: CHALK_DIM, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
+        style={{ color: CHALK_DIM, fontFamily: TEXT, textShadow: CHALK_TEXT_SHADOW }}
       >
         {label}
       </span>
@@ -166,7 +166,7 @@ function CompoundList({ compounds }) {
     >
       <span
         className="text-[13px]"
-        style={{ color: '#86efac', fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
+        style={{ color: '#86efac', fontFamily: TEXT, textShadow: CHALK_TEXT_SHADOW }}
       >
         Shared aroma compounds ({compounds.length})
       </span>
@@ -206,7 +206,7 @@ function AnalysisBlock({ analysis }) {
     >
       <p
         className="text-[19px] leading-snug"
-        style={{ color: CHALK_CREAM, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
+        style={{ color: CHALK_CREAM, fontFamily: TEXT, textShadow: CHALK_TEXT_SHADOW }}
       >
         {analysis}
       </p>
@@ -231,7 +231,7 @@ function NotesWheel({ node, filterType, chosenAxis }) {
       {bars.length === 0 ? (
         <p
           className="text-center text-[16px]"
-          style={{ color: CHALK_SUB, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
+          style={{ color: CHALK_SUB, fontFamily: TEXT, textShadow: CHALK_TEXT_SHADOW }}
           data-testid="pairing-card-no-chart"
         >
           {NO_CHART_LINE}
@@ -247,7 +247,7 @@ function NotesWheel({ node, filterType, chosenAxis }) {
       {leaning && (
         <div
           className="text-[16px] italic"
-          style={{ color: CHALK_DIM, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
+          style={{ color: CHALK_DIM, fontFamily: TEXT, textShadow: CHALK_TEXT_SHADOW }}
         >
           Leaning <span style={{ color: wedge ? axisColor(wedge) : '#86e7f5' }}>{leaning}</span>
         </div>
@@ -274,7 +274,7 @@ export default function PairingModeCard({
         style={{ background: CHALK_BG, border: `2px double ${CHALK_BORDER_OUTER}` }}
         data-testid="pairing-card-empty"
       >
-        <span style={{ color: CHALK_SUB, fontFamily: FONT_HAND }} className="text-base">No pairing</span>
+        <span style={{ color: CHALK_SUB, fontFamily: TEXT }} className="text-base">No pairing</span>
       </div>
     );
   }
@@ -319,7 +319,7 @@ export default function PairingModeCard({
         className="text-center leading-none"
         style={{
           color: CHALK_CREAM,
-          fontFamily: FONT_HAND,
+          fontFamily: HAND,
           fontSize: 30,
           textShadow: CHALK_TEXT_SHADOW,
           letterSpacing: '0.01em',
@@ -331,7 +331,7 @@ export default function PairingModeCard({
       {typeof strength === 'number' && strength > 0 && (
         <div
           className="text-[13px]"
-          style={{ color: CHALK_DIM, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
+          style={{ color: CHALK_DIM, fontFamily: TEXT, textShadow: CHALK_TEXT_SHADOW }}
         >
           Pair strength {strength.toFixed(2)}
         </div>
@@ -339,7 +339,7 @@ export default function PairingModeCard({
       {fb && (
         <div
           className="text-[15px] tracking-wide"
-          style={{ color: CHALK_CREAM, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
+          style={{ color: CHALK_CREAM, fontFamily: TEXT, textShadow: CHALK_TEXT_SHADOW }}
           data-testid="pairing-card-fb"
           title="Listed as a pairing in The Flavor Bible"
         >

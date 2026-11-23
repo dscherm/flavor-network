@@ -165,4 +165,5 @@ Left in place on purpose:
 
 ## The app stops looking AI-made (2026-11-22, LOOK-1 to 7)
 - LOOK-6 typefaces DECIDED by the owner, 2026-11-22: pairing B from docs/prototypes/type-specimens.html, "B: Kalam + Alegreya". Kalam for titles and hand-drawn moments; Alegreya Sans for body, ingredients, method, buttons and inputs. Recorded in design/DESIGN.md.
+- LOOK-6 hand REVERTED by the owner, 2026-11-23: "go back to the previous font for the chalk handwriting (not Kalam)". Caveat stays the chalk hand (titles and drawn moments only); Alegreya Sans stays the steady face.
 - LOOK-LOGO open: the name "Neural Flavor" and the atom logo read as a tech lab against the chalkboard kitchen. Options and costs are in the plan.md section header for LOOK-1 to 7. Nothing decided; LOOK-5 leaves both unchanged.

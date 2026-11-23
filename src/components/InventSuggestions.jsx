@@ -14,8 +14,9 @@
  * Test ids: {p} root, {p}-item (each chip, data-key), {p}-info (the small i beside it: opens the ingredient card), {p}-deck (the deck button), {p}-empty.
  */
 import { IngredientInfoButton } from './IngredientCardProvider.jsx';
-import { Chip, btn, heading, SANS, CHALK_SUB } from './inventUi.jsx';
+import { Chip, btn, heading, CHALK_SUB } from './inventUi.jsx';
 
+import { TEXT } from '../data/chalkTheme.js';
 export default function InventSuggestions({ title, items = [], onAdd, onDeck, emptyText, labels = {}, testidPrefix = 'suggest' }) {
   const p = testidPrefix;
   if (!items.length && !emptyText) return null;
@@ -23,7 +24,7 @@ export default function InventSuggestions({ title, items = [], onAdd, onDeck, em
     <div data-testid={p} className="min-w-0">
       {title && <p className="mb-1" style={heading}>{title}</p>}
       {items.length === 0
-        ? <p className="text-[14px]" style={{ fontFamily: SANS, color: CHALK_SUB }} data-testid={`${p}-empty`}>{emptyText}</p>
+        ? <p className="text-[14px]" style={{ fontFamily: TEXT, color: CHALK_SUB }} data-testid={`${p}-empty`}>{emptyText}</p>
         : (
           <div className="flex flex-wrap gap-1.5">
             {items.map((it) => (

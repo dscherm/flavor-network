@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { placeLabels, ringRadii } from '../pairingLabelLayout.js';
 
-const measure = (t) => t.length * 8; // ~Caveat 16px
+const measure = (t) => t.length * 8; // ~Alegreya Sans 16px
 const overlaps = (a, b) => Math.min(a.x1, b.x1) > Math.max(a.x0, b.x0) && Math.min(a.y1, b.y1) > Math.max(a.y0, b.y0);
 
 const NAMES = ['tomato sauce', 'tomato paste', 'parmesan', 'white wine', 'red pepper', 'chicken stock',

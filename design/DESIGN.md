@@ -65,21 +65,23 @@ tall and wide. At 375 px nothing scrolls sideways. Bars: `--nav-h`, `--tab-bar-h
 
 ## 3. Type roles
 
-Faces are NOT chosen yet. The owner chooses from rendered specimens (`docs/prototypes/type-specimens.html`); the choice
-is recorded here and in BACKLOG.md under LOOK-6.
+Faces chosen by the owner: Alegreya Sans for steady text (2026-11-22, specimens in `docs/prototypes/type-specimens.html`);
+the chalk hand stays Caveat (2026-11-23: "go back to the previous font for the chalk handwriting (not Kalam)").
 
 | Role | Face | Size and weight | Used for |
 |---|---|---|---|
-| Display | Kalam (chalk hand; owner, 2026-11-22) | 32 px / 400 | Page and card titles, the hand-drawn moments |
-| Heading | Kalam (chalk hand; owner, 2026-11-22) | 22 px / 400 | Section headings, in sentence case |
+| Display | Caveat (chalk hand; owner, 2026-11-23) | 32 px / 700 | Page and card titles, the hand-drawn moments |
+| Heading | Caveat (chalk hand; owner, 2026-11-23) | 22 px / 700 | Section headings, in sentence case |
 | Body | Alegreya Sans (steady face; owner, 2026-11-22) | 16 px / 400, line 1.5, measure under 80 characters | Ingredients, method steps, descriptions, inputs |
-| Control | Alegreya Sans (steady face; owner, 2026-11-22) | 16 px / 600 | Button and chip text |
+| Control | Alegreya Sans (steady face; owner, 2026-11-22) | 16 px / 500 (Alegreya Sans has no 600; owner default D3, 2026-11-23) | Button and chip text |
 | Small print | Alegreya Sans (steady face; owner, 2026-11-22) | 13 px / 400, in Faint chalk | Credits, counts, sources |
 
-Today (what the code does, for LOOK-6 to replace): `Caveat, cursive` (`chalkTheme.js` `FONT`; link in `index.html`) sets
-titles, buttons, list rows, ingredients and method; `SANS` in `inventUi.jsx` is `system-ui, -apple-system, "Segoe UI",
-sans-serif`; other stacks found in `src/`: `system-ui, sans-serif`, `sans-serif`, and `Georgia, serif`. All of those
-stacks are removed, not tokenised. Input text is at least 16 px so iOS does not zoom.
+In code (LOOK-6, 2026-11-23): `src/data/chalkTheme.js` names the faces once: `HAND` (Caveat), `TEXT` (Alegreya Sans),
+`LOGO_HAND` (the logo's "Nf"), and `TYPE` (display, heading, drawn, body, control, small; body, control and small set
+lining tabular figures). Files load from `src/fonts.js` (self-hosted `@fontsource`, latin, Alegreya Sans 400 and 500,
+Caveat 400 and 700). `font-synthesis: none` on the body, so a weight that is not loaded is never faked. No system,
+Inter, Roboto, Georgia or bare generic stack remains in `src/` (one dated exception: the share-card canvas, LOOK-6b).
+Input text is at least 16 px so iOS does not zoom.
 
 ## 4. Components allowed
 

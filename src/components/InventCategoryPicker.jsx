@@ -14,9 +14,10 @@
  *   testidPrefix  default 'category'
  * Test ids: {p} root, {p}-toggle, {p}-option-{id} (aria-pressed), {p}-none.
  */
-import { btn, SANS, FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT } from './inventUi.jsx';
+import { btn, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT } from './inventUi.jsx';
 import { ChevronDown, ChevronUp } from './ChalkIcons.jsx';
 
+import { TEXT } from '../data/chalkTheme.js';
 export default function InventCategoryPicker({
   title, options = [], value = null, onChange, open = false, onToggle, labels = {}, testidPrefix = 'category',
 }) {
@@ -30,8 +31,8 @@ export default function InventCategoryPicker({
         style={{ border: `1px solid ${(value === id || (id == null && value == null)) ? ACCENT : CHALK_RAIL}`, background: (value === id || (id == null && value == null)) ? `${ACCENT}22` : 'transparent' }}>
         {art ? <span className="flex-shrink-0" aria-hidden="true">{art}</span> : null}
         <span className="flex-1 min-w-0">
-          <span className="block text-[18px]" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{label}</span>
-          {blurb ? <span className="block text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>{blurb}</span> : null}
+          <span className="block text-[18px]" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>{label}</span>
+          {blurb ? <span className="block text-[12px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>{blurb}</span> : null}
         </span>
       </button>
     </li>

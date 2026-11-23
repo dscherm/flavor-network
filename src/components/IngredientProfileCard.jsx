@@ -24,8 +24,8 @@ import { profilePair } from '../data/profileGridPair.js';
 import FlavorGrid from './FlavorGrid.jsx';
 import { IngredientName } from './IngredientCardProvider.jsx';
 
-const FONT_HAND = 'Caveat, cursive';
 
+import { HAND, TEXT } from '../data/chalkTheme.js';
 // ── Chalkboard palette (copied from PairingModeCard) ───────────────
 const CHALK_BG = `
   radial-gradient(ellipse at center, #1c1c1c 0%, #0a0a0a 75%, #050505 100%),
@@ -62,7 +62,7 @@ export default function IngredientProfileCard({
         style={{ background: CHALK_BG, border: `2px double ${CHALK_BORDER_OUTER}` }}
         data-testid="ingredient-card-empty"
       >
-        <span style={{ color: CHALK_SUB, fontFamily: FONT_HAND }} className="text-base">
+        <span style={{ color: CHALK_SUB, fontFamily: TEXT }} className="text-base">
           No suggestion
         </span>
       </div>
@@ -91,7 +91,7 @@ export default function IngredientProfileCard({
         className="text-center leading-none"
         style={{
           color: CHALK_CREAM,
-          fontFamily: FONT_HAND,
+          fontFamily: HAND,
           fontSize: 'clamp(22px, 4.5vw, 38px)',
           textShadow: CHALK_TEXT_SHADOW,
           letterSpacing: '0.01em',
@@ -115,7 +115,7 @@ export default function IngredientProfileCard({
           id="ingredient-card-caption"
           data-testid="ingredient-card-caption"
           className="text-center mt-2"
-          style={{ fontFamily: FONT_HAND, fontSize: 'clamp(17px, 3.4vw, 24px)', color: CHALK_CREAM, textShadow: CHALK_TEXT_SHADOW }}
+          style={{ fontFamily: TEXT, fontSize: 'clamp(17px, 3.4vw, 24px)', color: CHALK_CREAM, textShadow: CHALK_TEXT_SHADOW }}
         >
           {pair.text}
         </figcaption>
@@ -129,7 +129,7 @@ export default function IngredientProfileCard({
           backgroundColor: 'rgba(16,78,51,0.55)',
           borderColor: 'rgba(110,231,183,0.45)',
           color: '#bbf7d0',
-          fontFamily: FONT_HAND,
+          fontFamily: TEXT,
           fontSize: 'clamp(16px, 3.2vw, 22px)',
           textShadow: CHALK_TEXT_SHADOW,
           minHeight: 48,

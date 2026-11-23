@@ -25,8 +25,9 @@
 import { useState } from 'react';
 import { IngredientName, IngredientInfoButton } from './IngredientCardProvider.jsx';
 import { Close } from './ChalkIcons.jsx';
-import { TextAdd, Chip, btn, inputStyle, heading, small, SANS, FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT } from './inventUi.jsx';
+import { TextAdd, Chip, btn, inputStyle, heading, small, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT } from './inventUi.jsx';
 
+import { TEXT } from '../data/chalkTheme.js';
 export const DEFAULTS = {
   title: 'Your ingredients',
   empty: 'Nothing yet. Add what you want in it.',
@@ -68,10 +69,10 @@ function Line({ line, p, L, onRemove, onAmount, replacementsFor, onReplace, onRe
       <div className="flex items-center gap-2 min-w-0">
         <AmountBox line={line} p={p} L={L} onAmount={onAmount} />
         <span className="flex-1 min-w-0">
-          <span className="block text-[20px]" style={{ fontFamily: FONT, color: CHALK_CREAM }}>
+          <span className="block text-[20px]" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>
             <IngredientName name={line.key} testid={`${p}-name-${line.key}`} style={NAME_BLOCK}>{line.key}</IngredientName>
           </span>
-          <span className="block text-[11px] -mt-1.5" style={{ fontFamily: SANS, color: CHALK_SUB }}>
+          <span className="block text-[11px] -mt-1.5" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
             {[line.have ? L.haveIt : '', line.source === 'search' ? L.fromSearch : '', line.note || ''].filter(Boolean).join(', ')}
           </span>
         </span>
@@ -80,14 +81,14 @@ function Line({ line, p, L, onRemove, onAmount, replacementsFor, onReplace, onRe
       </div>
       {missing && (
         <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} data-testid={`${p}-need-${line.key}`}
-          className="mt-1 min-h-[44px] px-3 rounded-lg text-left" style={{ fontFamily: SANS, fontSize: 14, color: ACCENT, border: `1px dashed ${CHALK_RAIL}` }}>
+          className="mt-1 min-h-[44px] px-3 rounded-lg text-left" style={{ fontFamily: TEXT, fontSize: 14, color: ACCENT, border: `1px dashed ${CHALK_RAIL}` }}>
           {open ? L.close : L.need}
         </button>
       )}
       {missing && open && (
         <div className="mt-2" data-testid={`${p}-replacements-${line.key}`}>
           {options.length === 0
-            ? <p className="text-[13px]" style={{ fontFamily: SANS, color: CHALK_DIM }} data-testid={`${p}-no-replacements-${line.key}`}>{L.noReplacements}</p>
+            ? <p className="text-[13px]" style={{ fontFamily: TEXT, color: CHALK_DIM }} data-testid={`${p}-no-replacements-${line.key}`}>{L.noReplacements}</p>
             : (
               <div className="flex flex-wrap gap-1.5">
                 {options.map((o) => (
@@ -118,7 +119,7 @@ export default function InventList({
     <div data-testid={p} className="min-w-0">
       <p className="mb-1" style={heading}>{L.title}</p>
       {lines.length === 0
-        ? <p className="text-[14px] mb-2" style={{ fontFamily: SANS, color: CHALK_SUB }} data-testid={`${p}-empty`}>{L.empty}</p>
+        ? <p className="text-[14px] mb-2" style={{ fontFamily: TEXT, color: CHALK_SUB }} data-testid={`${p}-empty`}>{L.empty}</p>
         : (
           <ul className="flex flex-col gap-1.5 mb-2" data-testid={`${p}-lines`}>
             {lines.map((l) => (

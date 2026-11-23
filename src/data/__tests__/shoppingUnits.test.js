@@ -65,7 +65,7 @@ describe('what is stored stays what was entered', () => {
 });
 
 describe('rounding is one a cook can measure', () => {
-  const FRAC = /[¼½¾⅓⅔⅛]/g;
+  const FRAC = /[¼½¾⅓⅔⅛]|\d\/\d/g;
   const check = (text) => {
     const body = text.replace(/^about /, '');
     expect(body).not.toMatch(/\d\.\d/);
@@ -83,7 +83,7 @@ describe('rounding is one a cook can measure', () => {
     }
   });
   it('tiny amounts do not round to nothing', () => {
-    expect(formatAmount([{ qty: 1, unit: 'g' }], 'us')).toBe('about ⅛ oz');
+    expect(formatAmount([{ qty: 1, unit: 'g' }], 'us')).toBe('about 1/8 oz');
     expect(formatAmount([{ qty: 1, unit: 'ml' }], 'us')).toBe('about ¼ tsp');
     expect(formatAmount([{ qty: 0.1, unit: 'tsp' }], 'metric')).toBe('about 1 ml');
   });
@@ -93,7 +93,7 @@ describe('rounding is one a cook can measure', () => {
     expect(formatAmount([{ qty: 100, unit: 'g' }], 'us')).toBe('about 3½ oz');
     expect(formatAmount([{ qty: 15, unit: 'ml' }], 'us')).toBe('about 1 tbsp');
     expect(formatAmount([{ qty: 120, unit: 'ml' }], 'us')).toBe('about ½ cup');
-    expect(formatAmount([{ qty: 80, unit: 'ml' }], 'us')).toBe('about ⅓ cup');
+    expect(formatAmount([{ qty: 80, unit: 'ml' }], 'us')).toBe('about 1/3 cup');
   });
   it('metric steps', () => {
     expect(formatAmount([{ qty: 1, unit: 'oz' }], 'metric')).toBe('about 30 g');

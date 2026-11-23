@@ -4,6 +4,7 @@ import { useState } from 'react';
 import RecipePicture from '../components/RecipePicture.jsx';
 import { PictureArt, allPictureIds, pictureLabel } from '../components/pictureArt.jsx';
 
+import { TEXT } from '../data/chalkTheme.js';
 const SIZES = [24, 64, 120];
 const NEW_IDS = allPictureIds().filter((id) => !id.startsWith('dish:'));
 
@@ -12,7 +13,7 @@ export default function PictureDevPage() {
   const [value, setValue] = useState(null);
   const shown = value?.kind === 'chalk' ? { ...value, blob: undefined } : value;
   return (
-    <div style={{ position: 'fixed', inset: 0, overflow: 'auto', background: '#1c1c1c', color: '#f5efde', padding: 16, boxSizing: 'border-box', fontFamily: 'sans-serif' }}>
+    <div style={{ position: 'fixed', inset: 0, overflow: 'auto', background: '#1c1c1c', color: '#f5efde', padding: 16, boxSizing: 'border-box', fontFamily: TEXT }}>
       <h1 style={{ fontSize: 18 }}>Picture dev harness</h1>
       <div id="sheet">
         {[...NEW_IDS, 'dish:pasta', 'dish:soup', 'nope:unknown'].map((id) => (

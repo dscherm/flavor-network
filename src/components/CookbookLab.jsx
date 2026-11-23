@@ -46,8 +46,17 @@ import { parseQuery, matchItem } from '../data/ingredientSearch.js';
 import { IngredientName } from './IngredientCardProvider.jsx';
 import { recipeSeedFromSearch } from '../data/inventSearch.js';
 import {
-  FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle,
-  CARD_CREAM, CARD_INK, CARD_INK_SUB,
+  TEXT,
+  HAND,
+  CHALK_CREAM,
+  CHALK_DIM,
+  CHALK_SUB,
+  CHALK_RAIL,
+  CHALK_SHADOW,
+  chalkSurfaceStyle,
+  CARD_CREAM,
+  CARD_INK,
+  CARD_INK_SUB,
 } from '../data/chalkTheme.js';
 
 const BUILT_IN_DISH_IDS = new Set(SEED_RECIPES.map((r) => r.id));
@@ -129,7 +138,7 @@ function RecipeCard({ recipe, onClick }) {
         {recipe._userSaved && recipe.picture ? <PictureView picture={recipe.picture} itemId={recipe._savedId} size={66} color={color} testid="yours-row-picture" /> : <DishArt kind={kind} accent={color} size={66} />}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-[22px] leading-tight" style={{ fontFamily: FONT, color: CARD_INK }}>{recipe.name}</span>
+        <span className="block text-[22px] leading-tight" style={{ fontFamily: TEXT, color: CARD_INK }}>{recipe.name}</span>
         <span className="flex items-center gap-1.5 mt-0.5 text-[11px] font-medium" style={{ color: CARD_INK_SUB }}>
           <span className="inline-block rounded-full flex-shrink-0" style={{ width: 8, height: 8, background: color }} aria-hidden="true" />
           {recipe.cuisine}
@@ -151,7 +160,7 @@ function MetaGlyph({ kind, color = CHALK_DIM }) {
   return <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" style={{ flexShrink: 0 }}>{inner}</svg>;
 }
 
-const SECTION_LABEL = { fontFamily: FONT, fontSize: '22px', fontWeight: 400, color: CHALK_CREAM, textShadow: CHALK_SHADOW };
+const SECTION_LABEL = { fontFamily: HAND, fontSize: '22px', fontWeight: 400, color: CHALK_CREAM, textShadow: CHALK_SHADOW };
 
 // DESIGN-3: the popup leads with pictures — dish drawing, meta as
 // icon+number, the profile radar — then ingredient chips, the method
@@ -240,10 +249,10 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
         <div className="flex items-start gap-3 p-4 pb-3" style={{ borderBottom: `1.5px solid ${color}55` }} data-testid="recipe-head">
           {recipe._userSaved && recipe.picture ? <PictureView picture={recipe.picture} itemId={recipe._savedId} size={96} color={color} testid="yours-detail-picture" /> : <DishArt kind={kind} accent={color} size={76} />}
           <div className="min-w-0 flex-1">
-            <h2 className="text-[32px] leading-none mb-1.5" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>{recipe.name}</h2>
+            <h2 className="text-[32px] leading-none mb-1.5" style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>{recipe.name}</h2>
             <span
               className="text-[14px] px-2.5 py-0.5 rounded-full border inline-flex items-center gap-1.5"
-              style={{ fontFamily: FONT, color: CHALK_CREAM, borderColor: `${color}99`, background: `${color}22` }}
+              style={{ fontFamily: TEXT, color: CHALK_CREAM, borderColor: `${color}99`, background: `${color}22` }}
             >
               <span className="inline-block rounded-full" style={{ width: 9, height: 9, background: color }} aria-hidden="true" />
               {recipe.cuisine}
@@ -288,7 +297,7 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
           </div>
           {flavorRecipe && <FlavorProfileSection toggle={flavorToggle} recipe={flavorRecipe} nodes={nodes} className="!mt-2" />}
           {recipe.description && (
-            <p className="leading-snug" style={{ fontFamily: FONT, fontSize: '19px', color: CHALK_DIM }}>{recipe.description}</p>
+            <p className="leading-snug" style={{ fontFamily: TEXT, fontSize: '19px', color: CHALK_DIM }}>{recipe.description}</p>
           )}
 
           {/* 1b — STORIES-1: photo + background from Wikipedia, leading the card */}
@@ -301,7 +310,7 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
               <FlavorWheel bars={flavorProfile.bars} testidPrefix="recipe-wheel" maxWidth={300} />
             </div>
           ) : (
-            <p className="italic text-center" style={{ fontFamily: FONT, fontSize: '16px', color: CHALK_SUB }} data-testid="recipe-profile">
+            <p className="italic text-center" style={{ fontFamily: TEXT, fontSize: '16px', color: CHALK_SUB }} data-testid="recipe-profile">
               {NO_CHART_LINE}
             </p>
           )}
@@ -323,7 +332,7 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
                   {details?.amounts?.[n] && (
                     <span className="text-[12px]" style={{ color: CHALK_DIM }}>{details.amounts[n]}</span>
                   )}
-                  <span style={{ fontFamily: FONT, fontSize: '18px', lineHeight: 1.1, color: ok ? CHALK_CREAM : CHALK_SUB }}>
+                  <span style={{ fontFamily: TEXT, fontSize: '18px', lineHeight: 1.1, color: ok ? CHALK_CREAM : CHALK_SUB }}>
                     <IngredientName name={n} loose tall testid="cookbook-ingredient-link">{n}</IngredientName>
                   </span>
                 </li>
@@ -349,14 +358,14 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
                 className="w-full flex items-center justify-between gap-2 rounded-lg px-3 py-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
                 style={{ border: `1px dashed ${color}88`, background: 'rgba(255,255,255,0.03)' }}
               >
-                <span style={{ fontFamily: FONT, fontSize: '20px', color: CHALK_CREAM }}>Method ({steps.length} steps)</span>
+                <span style={{ fontFamily: TEXT, fontSize: '20px', color: CHALK_CREAM }}>Method ({steps.length} steps)</span>
                 <span aria-hidden="true" style={{ color, lineHeight: 0 }}>{methodOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}</span>
               </button>
               {methodOpen && (
                 <ol id={`method-${recipe.id}`} className="space-y-2 mt-3">
                   {steps.map((step, i) => (
                     <li key={i} className="flex gap-3 text-[15px] leading-snug" style={{ color: CHALK_CREAM }}>
-                      <span className="flex-shrink-0 text-[22px] leading-none" style={{ fontFamily: FONT, color }}>{i + 1}.</span>
+                      <span className="flex-shrink-0 text-[22px] leading-none" style={{ fontFamily: TEXT, color }}>{i + 1}.</span>
                       <span>{step}</span>
                     </li>
                   ))}
@@ -383,7 +392,7 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
                     style={{ background: `${color}14`, border: `1px solid ${color}66` }}
                   >
                     <LabArt id={p.key} accent={p.accent} size={54} />
-                    <span style={{ fontFamily: FONT, fontSize: '19px', color: CHALK_CREAM, lineHeight: 1 }}>{p.label}</span>
+                    <span style={{ fontFamily: TEXT, fontSize: '19px', color: CHALK_CREAM, lineHeight: 1 }}>{p.label}</span>
                   </button>
                 ))}
               </div>
@@ -396,7 +405,7 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
                 type="button"
                 onClick={() => onOpenRecipeLab('recipe', recipe.ingredients)}
                 className="px-4 py-2.5 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
-                style={{ fontFamily: FONT, fontSize: '18px', color: '#0a0a0a', background: CHALK_CREAM, border: `1px solid ${CHALK_CREAM}` }}
+                style={{ fontFamily: TEXT, fontSize: '18px', color: '#0a0a0a', background: CHALK_CREAM, border: `1px solid ${CHALK_CREAM}` }}
               >
                 Open in the Recipe Notebook
               </button>
@@ -406,7 +415,7 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
                 type="button"
                 onClick={() => onOpenInNetwork(matched[0] || recipe.ingredients[0])}
                 className="px-4 py-2.5 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
-                style={{ fontFamily: FONT, fontSize: '18px', color: CHALK_CREAM, background: `${color}22`, border: `1px solid ${color}88` }}
+                style={{ fontFamily: TEXT, fontSize: '18px', color: CHALK_CREAM, background: `${color}22`, border: `1px solid ${color}88` }}
               >
                 See its pairings in 3D
               </button>
@@ -521,7 +530,7 @@ export default function CookbookLab({
     <div className="inline-flex flex-col items-center">
       <button type="button" onClick={() => onInventThis(inventSeed.seed)} data-testid="cookbook-invent-this"
         className="px-4 py-1 rounded-full border min-h-[44px] text-[17px] inline-flex items-center gap-1"
-        style={{ fontFamily: FONT, borderColor: CHALK_CREAM, color: CHALK_CREAM }}>
+        style={{ fontFamily: TEXT, borderColor: CHALK_CREAM, color: CHALK_CREAM }}>
         <Whisk size={20} />
         Invent this
       </button>
@@ -561,17 +570,17 @@ export default function CookbookLab({
             aria-label="Back to Make"
             data-testid="cookbook-picker-breadcrumb"
             className="mb-3 inline-flex items-center gap-1 px-3 py-1 text-sm rounded-full transition-colors"
-            style={{ fontFamily: FONT, border: `1px solid ${CHALK_RAIL}`, background: 'rgba(255,255,255,0.04)', color: CHALK_DIM }}
+            style={{ fontFamily: TEXT, border: `1px solid ${CHALK_RAIL}`, background: 'rgba(255,255,255,0.04)', color: CHALK_DIM }}
           >
             Back
           </button>
         )}
         <div className="mb-1">
-          <h1 className="text-4xl sm:text-5xl text-center" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>
+          <h1 className="text-4xl sm:text-5xl text-center" style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>
             Cookbook
           </h1>
         </div>
-        <p className="text-center text-base mb-6" style={{ fontFamily: FONT, color: CHALK_SUB }}>
+        <p className="text-center text-base mb-6" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
           {isMakePicker
             ? 'Pick one to start cooking'
             : `${SEED_RECIPES.length} hand-curated dishes spanning ${SEED_CUISINE_COUNT} culinary traditions`}
@@ -588,7 +597,7 @@ export default function CookbookLab({
             aria-label="Search dishes by name or ingredient"
             data-testid="cookbook-search"
             className="w-full pr-2.5 py-1.5 rounded-md focus:outline-none text-[16px]"
-            style={{ paddingLeft: 32, fontFamily: FONT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
+            style={{ paddingLeft: 32, fontFamily: TEXT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
           />
           </div>
           {searchTerms.length > 0 && filtered.length > 0 && (
@@ -605,7 +614,7 @@ export default function CookbookLab({
         <div className="flex flex-col gap-3 mb-6">
           {/* Cuisine cookbook shelf */}
           <div>
-            <span className="text-[13px]" style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif', color: CHALK_SUB }}>Cuisines</span>
+            <span className="text-[13px]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>Cuisines</span>
             {(() => {
               const books = [{ key: null, label: 'All' }, ...cuisines.map((c) => ({ key: c, label: c }))];
               const SLOT = 88;
@@ -633,7 +642,7 @@ export default function CookbookLab({
                         <line x1={cx - 19} y1={top + 13} x2={cx + 19} y2={top + 13} stroke={stroke} strokeWidth="1.4" strokeOpacity="0.8" />
                         <line x1={cx - 19} y1={SHELF_Y - 13} x2={cx + 19} y2={SHELF_Y - 13} stroke={stroke} strokeWidth="1.4" strokeOpacity="0.8" />
                         <g transform={`translate(${cx - 13} ${top + 6})`} pointerEvents="none"><KitchenIcon kind={iconKind} color={stroke} size={26} /></g>
-                        <text transform={`rotate(-90 ${cx} ${mid + 12})`} x={cx} y={mid + 12} textAnchor="middle" fontSize="20" fontFamily="Caveat, cursive" fontWeight="700" fill={active ? CHALK_CREAM : color} textLength={h - 66} lengthAdjust="spacingAndGlyphs" pointerEvents="none">{b.label}</text>
+                        <text transform={`rotate(-90 ${cx} ${mid + 12})`} x={cx} y={mid + 12} textAnchor="middle" fontSize="20" fontFamily={HAND} fontWeight="700" fill={active ? CHALK_CREAM : color} textLength={h - 66} lengthAdjust="spacingAndGlyphs" pointerEvents="none">{b.label}</text>
                       </g>
                     );
                   })}
@@ -644,7 +653,7 @@ export default function CookbookLab({
           </div>
           {/* Dish-type — icon-only (no bubbles), label underneath */}
           <div>
-            <span className="text-[13px] block text-center" style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif', color: CHALK_SUB }}>Kind of dish</span>
+            <span className="text-[13px] block text-center" style={{ fontFamily: TEXT, color: CHALK_SUB }}>Kind of dish</span>
             <div className="flex flex-wrap items-end justify-center gap-4 sm:gap-6 mt-2">
               {[{ key: null, label: 'All', kind: 'dot' }, ...clusters.map((c) => ({ key: c, label: c, kind: typeIconKind(c) }))].map((t) => {
                 const active = t.key === null ? !clusterFilter : clusterFilter === t.key;
@@ -662,7 +671,7 @@ export default function CookbookLab({
                     <KitchenIcon kind={t.kind} color={color} size={56} />
                     <span
                       className="text-[19px] capitalize leading-none pb-0.5"
-                      style={{ fontFamily: FONT, color, borderBottom: active ? `2px solid ${CHALK_CREAM}` : '2px solid transparent' }}
+                      style={{ fontFamily: TEXT, color, borderBottom: active ? `2px solid ${CHALK_CREAM}` : '2px solid transparent' }}
                     >
                       {t.label}
                     </span>
@@ -674,12 +683,12 @@ export default function CookbookLab({
         </div>
 
         {filtered.length === 0 && searchTerms.length > 0 && inventButton ? (
-          <div className="text-center py-10" data-testid="cookbook-invent-empty" style={{ fontFamily: FONT, color: CHALK_CREAM }}>
+          <div className="text-center py-10" data-testid="cookbook-invent-empty" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>
             <p className="text-[20px] mb-3">No dish here has {searchTerms.join(' + ')} — invent one?</p>
             {inventButton}
           </div>
         ) : filtered.length === 0 ? (
-          <p className="text-center text-base py-12" style={{ fontFamily: FONT, color: CHALK_SUB }}>
+          <p className="text-center text-base py-12" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
             No recipes match your filters.
           </p>
         ) : (
@@ -690,7 +699,7 @@ export default function CookbookLab({
           </div>
         )}
 
-        <p className="text-center text-[13px] mt-3" style={{ fontFamily: FONT, color: CHALK_SUB }}>
+        <p className="text-center text-[13px] mt-3" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
           Tap a card for the full recipe.
         </p>
       </div>

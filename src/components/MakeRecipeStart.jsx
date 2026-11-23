@@ -4,7 +4,8 @@ import { functions } from '../firebase.js';
 import { matchRecipeIngredients } from '../data/parseRecipeIngredient.js';
 import useAuth from '../hooks/useAuth.js';
 import {
-  FONT,
+  TEXT,
+  HAND,
   CHALK_CREAM,
   CHALK_DIM,
   CHALK_SUB,
@@ -36,7 +37,7 @@ const slatePanelStyle = {
 
 // Chalk cream primary action button style.
 const creamButtonStyle = {
-  fontFamily: FONT,
+  fontFamily: TEXT,
   color: '#0a0a0a',
   background: CHALK_CREAM,
   border: `1px solid ${CHALK_CREAM}`,
@@ -579,10 +580,10 @@ export default function MakeRecipeStart({
           <MakeArt kind={c.glyph} accent={c.accent} size={lead ? 76 : 44} />
         </div>
         <div className="flex-1 min-w-0">
-          <div className={lead ? 'text-[28px] leading-tight' : 'text-xl'} style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>
+          <div className={lead ? 'text-[28px] leading-tight' : 'text-xl'} style={{ fontFamily: TEXT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>
             {c.title}
           </div>
-          <div className={lead ? 'text-lg mt-0.5' : 'text-base'} style={{ fontFamily: FONT, color: CHALK_DIM }}>
+          <div className={lead ? 'text-lg mt-0.5' : 'text-base'} style={{ fontFamily: TEXT, color: CHALK_DIM }}>
             {subtitleFor(c)}
           </div>
         </div>
@@ -603,11 +604,11 @@ export default function MakeRecipeStart({
       <header className="w-full max-w-md text-center mb-4" data-testid="recipe-lab-header">
         <h1
           className="inline-block text-5xl pb-1.5"
-          style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW, borderBottom: `2px solid ${CHALK_DIM}88` }}
+          style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW, borderBottom: `2px solid ${CHALK_DIM}88` }}
         >
           Recipe Lab
         </h1>
-        <p className="text-lg mt-1.5" style={{ fontFamily: FONT, color: CHALK_SUB }}>
+        <p className="text-lg mt-1.5" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
           What's in your kitchen? Cook it, or build something new.
         </p>
         <button
@@ -615,7 +616,7 @@ export default function MakeRecipeStart({
           onClick={handleOpenNotebook}
           data-testid="recipe-lab-open-notebook"
           className="mt-1 min-h-[44px] px-3 text-lg underline underline-offset-4 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-          style={{ fontFamily: FONT, color: CHALK_DIM, outlineColor: CHALK_CREAM }}
+          style={{ fontFamily: TEXT, color: CHALK_DIM, outlineColor: CHALK_CREAM }}
         >
           Open my notebook
         </button>
@@ -629,7 +630,7 @@ export default function MakeRecipeStart({
           >
             <h2
               className="text-2xl mb-1"
-              style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}
+              style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}
             >
               Use this photo?
             </h2>
@@ -652,7 +653,7 @@ export default function MakeRecipeStart({
                 onClick={handlePickAnother}
                 data-testid="make-photo-preview-pick-another"
                 className="text-base underline"
-                style={{ fontFamily: FONT, color: CHALK_DIM }}
+                style={{ fontFamily: TEXT, color: CHALK_DIM }}
               >
                 Pick another
               </button>
@@ -671,7 +672,7 @@ export default function MakeRecipeStart({
         {stage === STAGE.CARDS && !pickedFile && (
           <>
             {LEAD_CARDS.map((c) => renderCard(c, true))}
-            <p className="text-center text-lg -mb-1 mt-1" style={{ fontFamily: FONT, color: CHALK_SUB }} data-testid="make-secondary-label">
+            <p className="text-center text-lg -mb-1 mt-1" style={{ fontFamily: TEXT, color: CHALK_SUB }} data-testid="make-secondary-label">
               …or start from a recipe you already have
             </p>
             {CARDS.map((c) => renderCard(c, false))}
@@ -706,7 +707,7 @@ export default function MakeRecipeStart({
           <div data-testid="make-weblink-input" className="rounded-xl p-5 sm:p-6" style={slatePanelStyle}>
             <h2
               className="text-2xl mb-2"
-              style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}
+              style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}
             >
               Paste a recipe URL
             </h2>
@@ -755,7 +756,7 @@ export default function MakeRecipeStart({
                 className="rounded-lg p-4 mb-4"
                 style={{ border: `1px solid ${CHALK_RAIL}`, background: 'rgba(0,0,0,0.15)' }}
               >
-                <div className="text-base mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM }}>
+                <div className="text-base mb-1" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>
                   Sign in to import from a link
                 </div>
                 <p className="text-sm mb-3" style={{ color: CHALK_DIM }}>
@@ -803,7 +804,7 @@ export default function MakeRecipeStart({
                 type="button"
                 onClick={resetWebLink}
                 className="text-base underline"
-                style={{ fontFamily: FONT, color: CHALK_DIM }}
+                style={{ fontFamily: TEXT, color: CHALK_DIM }}
                 data-testid="make-weblink-back"
               >
                 Back
@@ -823,7 +824,7 @@ export default function MakeRecipeStart({
 
         {stage === STAGE.PARSING && (
           <div data-testid="make-weblink-parsing" className="rounded-xl p-6 text-center" style={slatePanelStyle}>
-            <div className="text-2xl mb-2" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Fetching recipe…</div>
+            <div className="text-2xl mb-2" style={{ fontFamily: TEXT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Fetching recipe…</div>
             <div className="text-xs break-all" style={{ color: CHALK_SUB }}>{url}</div>
           </div>
         )}
@@ -850,14 +851,14 @@ export default function MakeRecipeStart({
               boxShadow: 'inset 0 0 0 1px #6a6a6a55, 0 8px 24px rgba(0,0,0,0.55)',
             }}
           >
-            <h2 className="text-xl mb-2" style={{ fontFamily: FONT, color: '#fda4af' }}>Couldn't import that URL</h2>
+            <h2 className="text-xl mb-2" style={{ fontFamily: HAND, color: '#fda4af' }}>Couldn't import that URL</h2>
             <p className="text-sm mb-3 text-rose-100/80">{errorMessage}</p>
             <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => setStage(STAGE.URL_INPUT)}
                 className="px-3 py-1.5 rounded-md bg-rose-500/30 hover:bg-rose-500/50 text-rose-100 text-base"
-                style={{ fontFamily: FONT }}
+                style={{ fontFamily: TEXT }}
                 data-testid="make-weblink-error-retry"
               >
                 Try a different URL
@@ -866,7 +867,7 @@ export default function MakeRecipeStart({
                 type="button"
                 onClick={resetWebLink}
                 className="text-base text-rose-100/70 hover:text-rose-50 underline"
-                style={{ fontFamily: FONT }}
+                style={{ fontFamily: TEXT }}
               >
                 Back to picker
               </button>
@@ -878,7 +879,7 @@ export default function MakeRecipeStart({
           <div data-testid="make-weblink-preview" className="rounded-xl p-5 sm:p-6" style={slatePanelStyle}>
             <h2
               className="text-2xl mb-1"
-              style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}
+              style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}
             >
               {parsed?.title || 'Recipe'}
             </h2>
@@ -930,7 +931,7 @@ export default function MakeRecipeStart({
                     />
                     <div className="flex-1 min-w-0">
                       <div className="truncate" style={{ color: CHALK_CREAM }}>{m.input}</div>
-                      <p className="mt-1 text-[13px]" style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif', color: CHALK_SUB }}>Saved as</p>
+                      <p className="mt-1 text-[13px]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>Saved as</p>
                       <div className="flex items-center gap-2">
                         <input
                           type="text"
@@ -977,7 +978,7 @@ export default function MakeRecipeStart({
                 type="button"
                 onClick={resetWebLink}
                 className="text-base underline"
-                style={{ fontFamily: FONT, color: CHALK_DIM }}
+                style={{ fontFamily: TEXT, color: CHALK_DIM }}
               >
                 Cancel
               </button>

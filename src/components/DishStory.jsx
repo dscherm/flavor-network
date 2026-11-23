@@ -12,7 +12,7 @@
  */
 import { useEffect, useState } from 'react';
 import { loadDishStories, storyFor } from '../data/dishStories.js';
-import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW } from '../data/chalkTheme.js';
+import { HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW } from '../data/chalkTheme.js';
 
 const NOUN = { recipe: 'dish', sauce: 'sauce', cocktail: 'drink', wine: 'wine' };
 const BOX_H = 200; // px — tallest the photo box gets
@@ -53,7 +53,7 @@ export default function DishStory({ kind = 'recipe', storyKey, name, story: give
 
   return (
     <section className={`mt-3 ${className}`} data-testid="dish-story" aria-label={`About this ${noun}`}>
-      <h3 style={{ fontFamily: FONT, fontSize: 22, fontWeight: 400, margin: '0 0 12px', color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>
+      <h3 style={{ fontFamily: HAND, fontSize: 22, fontWeight: 400, margin: '0 0 12px', color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>
         About this {noun}
       </h3>
 

@@ -1,3 +1,4 @@
+import { TEXT } from '../data/chalkTheme.js';
 /**
  * FlavorGrid — the fixed grid chart: six tastes in a row, then eleven aromas in rows of six and five. Every note
  * always sits in the same place. A filled dot in the note's colour grows with the note (area follows the score);
@@ -10,7 +11,6 @@
  *   showLabels  true: a label under every cell (absent ones dimmed). An array/Set of axes: labels under only those.
  *   title       optional small heading above the grid ("Now")
  */
-const FONT = 'Caveat, cursive';
 const CREAM = '#f5efde';
 const DIM = '#8a8478';
 const FAINT = '#6a6a6a';
@@ -46,7 +46,7 @@ function Cell({ c, mark, label }) {
       </svg>
       <span
         className="leading-none text-center whitespace-nowrap"
-        style={{ fontFamily: FONT, fontSize: 11, height: 11, color: c.on || mark ? CREAM : DIM, opacity: c.on || mark ? 1 : 0.55 }}
+        style={{ fontFamily: TEXT, fontSize: 11, height: 11, color: c.on || mark ? CREAM : DIM, opacity: c.on || mark ? 1 : 0.55 }}
         data-testid={label ? 'flavor-grid-label' : undefined}
       >
         {label ? c.label : ' '}
@@ -62,11 +62,11 @@ export default function FlavorGrid({ grid, marks = null, showLabels = false, tit
   let at = 0;
   for (const n of grid.rows) { rows.push(grid.cells.slice(at, at + n)); at += n; }
   const heading = (t) => (
-    <div className="text-left" style={{ fontFamily: FONT, fontSize: 13, color: DIM }}>{t}</div>
+    <div className="text-left" style={{ fontFamily: TEXT, fontSize: 13, color: DIM }}>{t}</div>
   );
   return (
     <div className="w-full min-w-0" data-testid={testId}>
-      {title && <div className="text-center mb-1" style={{ fontFamily: FONT, fontSize: 'clamp(15px, 3.6vw, 20px)', color: CREAM, lineHeight: 1.05 }}>{title}</div>}
+      {title && <div className="text-center mb-1" style={{ fontFamily: TEXT, fontSize: 'clamp(15px, 3.6vw, 20px)', color: CREAM, lineHeight: 1.05 }}>{title}</div>}
       {rows.map((cells, r) => (
         <div key={r}>
           {r === 0 && heading('Taste')}

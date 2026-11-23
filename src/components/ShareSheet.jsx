@@ -24,8 +24,9 @@ import { absoluteShareUrl, shareTargetUrls, shareTextFor, SHARE_OWN_ENABLED } fr
 import ShareImages from './ShareImages.jsx';
 import { Share, Close } from './ChalkIcons.jsx';
 import { usage } from '../data/usageEvents.js';
-import { SANS, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT, btn, heading } from './inventUi.jsx';
+import { CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT, btn, heading } from './inventUi.jsx';
 
+import { TEXT } from '../data/chalkTheme.js';
 const NETWORKS = [
   { key: 'x', label: 'X' },
   { key: 'facebook', label: 'Facebook' },
@@ -103,7 +104,7 @@ export function ShareSheet({ open, onClose, recipe, link = '', ownItem = false, 
         {ownItem ? (
           ownSlot !== undefined ? ownSlot : (
             <div className="mt-3" data-testid="share-own">
-              <p className="text-[15px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+              <p className="text-[15px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
                 To share your own recipe it first needs a public link.
               </p>
               <button type="button" onClick={onPublish} disabled={!onPublish} data-testid="share-publish"
@@ -123,18 +124,18 @@ export function ShareSheet({ open, onClose, recipe, link = '', ownItem = false, 
             <button type="button" onClick={copy} data-testid="share-copy" className="w-full rounded-lg px-4" style={row}>
               Copy link
             </button>
-            <p role="status" data-testid="share-copy-status" className="text-[14px] min-h-[1.25rem]" style={{ fontFamily: SANS, color: ACCENT }}>
+            <p role="status" data-testid="share-copy-status" className="text-[14px] min-h-[1.25rem]" style={{ fontFamily: TEXT, color: ACCENT }}>
               {copied ? 'Link copied' : ''}
             </p>
             {copyFailed && (
               <div data-testid="share-copy-fallback">
-                <label className="block text-[13px] mb-1" style={{ fontFamily: SANS, color: CHALK_SUB }} htmlFor="share-link-field">
+                <label className="block text-[13px] mb-1" style={{ fontFamily: TEXT, color: CHALK_SUB }} htmlFor="share-link-field">
                   Could not copy. Select the link below:
                 </label>
                 <input id="share-link-field" readOnly value={url} data-testid="share-link-field"
                   onFocus={(e) => e.target.select()} onClick={(e) => e.target.select()}
                   className="w-full min-w-0 rounded-lg px-3"
-                  style={{ fontFamily: SANS, fontSize: 16, color: CHALK_CREAM, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, ...tap }} />
+                  style={{ fontFamily: TEXT, fontSize: 16, color: CHALK_CREAM, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, ...tap }} />
               </div>
             )}
             <div className="grid grid-cols-2 gap-2">

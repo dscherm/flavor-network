@@ -24,6 +24,7 @@ import { computeAccentPlacement } from '../data/accentPlacement.js';
 import { bucketColor } from '../data/briscionePalette.js';
 import useIsMobile from '../hooks/useIsMobile.js';
 
+import { TEXT } from '../data/chalkTheme.js';
 const TAU = Math.PI * 2;
 const AROMA_AXES = ['fruity', 'floral', 'green', 'woody', 'spicy', 'creamy'];
 const RING_AXES_FULL = ['taste', 'season', 'cuisine', 'method'];
@@ -502,7 +503,7 @@ export default function WedgeGridFlavorWheel({
             y={l.y}
             fill={T.ringAxisLabel}
             fontSize={Math.max(7, size * 0.022)}
-            fontFamily="Georgia, serif"
+            fontFamily={TEXT}
             style={{ pointerEvents: 'none', letterSpacing: '0.08em', userSelect: 'none' }}
           >
             {l.label}
@@ -519,7 +520,7 @@ export default function WedgeGridFlavorWheel({
             dominantBaseline="central"
             fill={l.color}
             fontSize={aromaLabelFontSize}
-            fontFamily="Georgia, serif"
+            fontFamily={TEXT}
             fontWeight={500}
             style={{ pointerEvents: 'none', textTransform: 'capitalize', letterSpacing: '0.06em', userSelect: 'none' }}
           >

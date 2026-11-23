@@ -33,6 +33,7 @@ import { isSuggestable } from '../data/curation/suggestable.js';
 import PairingModeCard from './PairingModeCard.jsx';
 import { hydrateNode, buildAnalysis, sharedCompoundsFor } from '../data/pairingCardData.js';
 
+import { TEXT } from '../data/chalkTheme.js';
 const FILTER_CYCLE = ['taste', 'aroma', 'season', 'cuisine'];
 const SWIPE_THRESHOLD = 50;
 
@@ -320,7 +321,7 @@ export default function PairingMode({
             color: '#bbf7d0',
             background: 'rgba(16, 78, 51, 0.45)',
             border: '1.5px solid rgba(110, 231, 183, 0.45)',
-            fontFamily: 'Caveat, cursive',
+            fontFamily: TEXT,
             fontSize: 17,
             textShadow: '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)',
           }}

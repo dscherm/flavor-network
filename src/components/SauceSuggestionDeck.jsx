@@ -22,7 +22,7 @@ import FlavorGrid from './FlavorGrid.jsx';
 import { Close, ChevronLeft, ChevronRight } from './ChalkIcons.jsx';
 import { formatPairedVia, formatMatchBadge } from '../data/recipePairingMatch.js';
 
-const FONT_HAND = 'Caveat, cursive';
+import { HAND, TEXT } from '../data/chalkTheme.js';
 const SWIPE_THRESHOLD = 50; // px — mirror SuggestionCardDeck / PairingMode
 
 // ── Chalkboard palette (copied from IngredientProfileCard) ─────────
@@ -73,7 +73,7 @@ function SauceCard({ name, profile, recipeName, similarity, matchedAromas, paire
         className="text-center leading-none"
         style={{
           color: CHALK_CREAM,
-          fontFamily: FONT_HAND,
+          fontFamily: HAND,
           fontSize: 'clamp(22px, 4.5vw, 38px)',
           textShadow: CHALK_TEXT_SHADOW,
           letterSpacing: '0.01em',
@@ -85,12 +85,12 @@ function SauceCard({ name, profile, recipeName, similarity, matchedAromas, paire
 
       <p
         className="text-center"
-        style={{ color: CHALK_DIM, fontFamily: FONT_HAND, fontSize: 'clamp(13px, 2.8vw, 18px)', textShadow: CHALK_TEXT_SHADOW }}
+        style={{ color: CHALK_DIM, fontFamily: TEXT, fontSize: 'clamp(13px, 2.8vw, 18px)', textShadow: CHALK_TEXT_SHADOW }}
       >
         Goes with {recipeName}
       </p>
       {badge ? (
-        <p className="text-center" style={{ color: CHALK_SUB, fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif', fontSize: 13 }}>{badge}</p>
+        <p className="text-center" style={{ color: CHALK_SUB, fontFamily: TEXT, fontSize: 13 }}>{badge}</p>
       ) : null}
 
       {/* The sauce's own profile: tastes and aromas in the one fixed grid. */}
@@ -104,7 +104,7 @@ function SauceCard({ name, profile, recipeName, similarity, matchedAromas, paire
             <span
               key={`${p.item}|${p.recipe}`}
               className="px-2 py-px rounded-full border"
-              style={{ borderColor: CHALK_SUB, color: CHALK_DIM, fontFamily: FONT_HAND, fontSize: 'clamp(11px, 2.4vw, 14px)' }}
+              style={{ borderColor: CHALK_SUB, color: CHALK_DIM, fontFamily: TEXT, fontSize: 'clamp(11px, 2.4vw, 14px)' }}
             >
               {formatPairedVia(p)}
             </span>
@@ -118,7 +118,7 @@ function SauceCard({ name, profile, recipeName, similarity, matchedAromas, paire
             <span
               key={a}
               className="px-2 py-px rounded-full border"
-              style={{ borderColor: CHALK_SUB, color: CHALK_DIM, fontFamily: FONT_HAND, fontSize: 'clamp(11px, 2.4vw, 14px)' }}
+              style={{ borderColor: CHALK_SUB, color: CHALK_DIM, fontFamily: TEXT, fontSize: 'clamp(11px, 2.4vw, 14px)' }}
             >
               {formatAromaKey(a)}
             </span>
@@ -134,7 +134,7 @@ function SauceCard({ name, profile, recipeName, similarity, matchedAromas, paire
           backgroundColor: 'rgba(16,78,51,0.55)',
           borderColor: 'rgba(110,231,183,0.45)',
           color: '#bbf7d0',
-          fontFamily: FONT_HAND,
+          fontFamily: TEXT,
           fontSize: 'clamp(16px, 3.2vw, 22px)',
           textShadow: CHALK_TEXT_SHADOW,
           minHeight: 48,
@@ -236,11 +236,11 @@ export default function SauceSuggestionDeck({
           data-testid="sauce-deck-back"
           aria-label="Back to recipe"
           className="min-h-[44px] px-3 rounded-lg border border-[#3a3a3a] text-[#bdb6a3] hover:text-[#f5efde] hover:bg-white/5"
-          style={{ fontFamily: FONT_HAND, fontSize: 17 }}
+          style={{ fontFamily: TEXT, fontSize: 17 }}
         >
           Back
         </button>
-        <span className="text-[22px] text-[#f5efde] text-center flex-1 px-2" style={{ fontFamily: FONT_HAND }}>
+        <span className="text-[22px] text-[#f5efde] text-center flex-1 px-2" style={{ fontFamily: TEXT }}>
           Sauces for {recipeName}
         </span>
         <button onClick={onClose} aria-label="Close" className="min-h-[44px] text-[#8a8478] hover:text-[#f5efde] px-2"><Close size={20} /></button>
@@ -248,7 +248,7 @@ export default function SauceSuggestionDeck({
 
       <div className="flex flex-col items-center justify-center overflow-y-auto px-3 py-3" style={{ flex: 1 }}>
         {cards.length === 0 && (
-          <p className="text-center text-base text-[#8a8478] py-6" style={{ fontFamily: FONT_HAND }}>No matched sauces to show.</p>
+          <p className="text-center text-base text-[#8a8478] py-6" style={{ fontFamily: TEXT }}>No matched sauces to show.</p>
         )}
 
         {card && (

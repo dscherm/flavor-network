@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { TEXT } from '../data/chalkTheme.js';
 
 /**
  * TrainingTraceModal — first-launch onboarding modal that replays the
@@ -151,10 +152,10 @@ export default function TrainingTraceModal({ isOpen, onClose }) {
             <svg viewBox={`0 0 ${W} ${H}`} className="w-full mb-3">
               <line x1="30" y1={H - 25} x2={W - 20} y2={H - 25} stroke="#2a2a3a" strokeWidth="1" />
               <line x1="30" y1="15" x2="30" y2={H - 25} stroke="#2a2a3a" strokeWidth="1" />
-              <text x="6" y="20" style={{ font: '10px ui-monospace, monospace' }} className="fill-gray-500">{maxLoss.toFixed(2)}</text>
-              <text x="6" y={H - 25} style={{ font: '10px ui-monospace, monospace' }} className="fill-gray-500">{minLoss.toFixed(2)}</text>
-              <text x="30" y={H - 8} style={{ font: '10px ui-monospace, monospace' }} className="fill-gray-500">ep 1</text>
-              <text x={W - 50} y={H - 8} style={{ font: '10px ui-monospace, monospace' }} className="fill-gray-500">ep {trace.frames[trace.frames.length - 1].epoch}</text>
+              <text x="6" y="20" style={{ fontFamily: TEXT, fontSize: 10, fontVariantNumeric: 'lining-nums tabular-nums' }} className="fill-gray-500">{maxLoss.toFixed(2)}</text>
+              <text x="6" y={H - 25} style={{ fontFamily: TEXT, fontSize: 10, fontVariantNumeric: 'lining-nums tabular-nums' }} className="fill-gray-500">{minLoss.toFixed(2)}</text>
+              <text x="30" y={H - 8} style={{ fontFamily: TEXT, fontSize: 10, fontVariantNumeric: 'lining-nums tabular-nums' }} className="fill-gray-500">ep 1</text>
+              <text x={W - 50} y={H - 8} style={{ fontFamily: TEXT, fontSize: 10, fontVariantNumeric: 'lining-nums tabular-nums' }} className="fill-gray-500">ep {trace.frames[trace.frames.length - 1].epoch}</text>
               <polyline
                 fill="none"
                 stroke="#7c3aed"
@@ -167,7 +168,7 @@ export default function TrainingTraceModal({ isOpen, onClose }) {
 
             <svg viewBox={`0 0 ${embW} ${embH}`} className="w-full">
               <rect x="0" y="0" width={embW} height={embH} fill="#0a0a0f" />
-              <text x="8" y="14" style={{ font: '10px ui-monospace, monospace' }} className="fill-gray-500">
+              <text x="8" y="14" style={{ fontFamily: TEXT, fontSize: 10, fontVariantNumeric: 'lining-nums tabular-nums' }} className="fill-gray-500">
                 2D PCA of compound embeddings · {trace.compound_labels.length} dots
               </text>
               {frame.embeddings.map(([x, y], i) => {

@@ -2,11 +2,17 @@ import { useEffect, useState } from 'react';
 import AnimatedLogo from './AnimatedLogo.jsx';
 import { hapticMedium } from '../utils/native.js';
 import { ChalkBottle, ChalkLoader, LabArt, WINE_RED } from './chalkArt.jsx';
-import { ACCENT, SANS } from './inventUi.jsx';
+import { ACCENT } from './inventUi.jsx';
 import { COCKTAIL_SPIRIT_COLORS } from '../data/cocktailBaseSpirit.js';
 import { getConsent, subscribeConsent } from '../data/usage.js';
 import {
-  FONT, CHALK_CREAM, CHALK_DIM, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle,
+  TEXT,
+  HAND,
+  CHALK_CREAM,
+  CHALK_DIM,
+  CHALK_RAIL,
+  CHALK_SHADOW,
+  chalkSurfaceStyle,
 } from '../data/chalkTheme.js';
 
 /**
@@ -131,7 +137,7 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
         ) : (
           <p
             className="mt-3 md:mt-4 text-center text-[22px] md:text-[32px] leading-tight"
-            style={{ color: CHALK_CREAM, fontFamily: FONT, textShadow: CHALK_SHADOW }}
+            style={{ color: CHALK_CREAM, fontFamily: HAND, textShadow: CHALK_SHADOW }}
           >
             <span className="whitespace-nowrap">Start with what you have.</span>{' '}
             <span className="whitespace-nowrap">Find what goes with it.</span>
@@ -175,7 +181,7 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
                     <span className="flex flex-col gap-[2px] min-w-0">
                       <span
                         className="relative self-start text-[22px] md:text-[26px] leading-[1.15]"
-                        style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}
+                        style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}
                       >
                         {tile.label}
                         <svg
@@ -191,7 +197,7 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
                       </span>
                       <span
                         className="text-base leading-[1.3] text-[color:var(--sub)] group-hover:text-[color:var(--hi)]"
-                        style={{ fontFamily: SANS }}
+                        style={{ fontFamily: TEXT }}
                       >
                         {tile.subheadline}
                       </span>

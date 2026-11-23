@@ -55,7 +55,7 @@ import { kitchenKey } from '../data/myKitchen.js';
 import { nearestSauces } from '../data/sauceSimilarity.js';
 import { winesForSauce, proteinIngredient } from '../data/sauceWines.js';
 import { loadWineStyles, familyColor } from '../data/wineStyles.js';
-import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, CARD_INK, chalkSurfaceStyle } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, CARD_INK, chalkSurfaceStyle } from '../data/chalkTheme.js';
 import { SauceVessel } from './sauceVessels.jsx';
 import { WineGlass } from './wineGlasses.jsx';
 import InventStart from './InventStart.jsx';
@@ -72,7 +72,6 @@ import HelpBubble from './HelpBubble.jsx';
 import { useInventUsage } from '../hooks/useUsage.js';
 import { noteTypedIngredient } from '../data/usageIngredient.js';
 
-const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 const FOCUS = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
 const PROTEINS_SHOWN = 12;
 const NEED = 'you’d need';
@@ -273,14 +272,14 @@ export default function InventSauce({
   const family = style ? familyById.get(style.familyId) : null;
   const color = family?.color || CHALK_DIM;
   const chip = (active) => ({
-    fontFamily: FONT,
+    fontFamily: TEXT,
     color: active ? CARD_INK : CHALK_CREAM,
     background: active ? CHALK_CREAM : 'transparent',
     borderColor: CHALK_RAIL,
     outlineColor: CHALK_CREAM,
   });
-  const actionBtn = { fontFamily: FONT, fontSize: 18, borderColor: CHALK_RAIL, color: CHALK_CREAM, outlineColor: CHALK_CREAM };
-  const sub = (txt) => <p className="text-[13px] mb-1" style={{ fontFamily: SANS, color: CHALK_SUB }}>{txt}</p>;
+  const actionBtn = { fontFamily: TEXT, fontSize: 18, borderColor: CHALK_RAIL, color: CHALK_CREAM, outlineColor: CHALK_CREAM };
+  const sub = (txt) => <p className="text-[13px] mb-1" style={{ fontFamily: TEXT, color: CHALK_SUB }}>{txt}</p>;
 
   return (
     <IngredientBuilderScope onAdd={(k) => { add(k); }} has={(k) => lineViews.some((l) => l.key === k)} addLabel="Add to this sauce">
@@ -289,7 +288,7 @@ export default function InventSauce({
       data-testid={P} role="dialog" aria-label="Invent a sauce">
       <div className="w-full max-w-[560px] flex items-center justify-between mb-2">
         <button type="button" onClick={onClose} data-testid={`${P}-close`}
-          className={`px-3 py-2 rounded-lg min-h-[44px] min-w-[44px] ${FOCUS}`} style={{ fontFamily: FONT, fontSize: 18, border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
+          className={`px-3 py-2 rounded-lg min-h-[44px] min-w-[44px] ${FOCUS}`} style={{ fontFamily: TEXT, fontSize: 18, border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
           Back
         </button>
       </div>
@@ -297,7 +296,7 @@ export default function InventSauce({
       <div className="w-full max-w-[560px] min-w-0 rounded-2xl px-4 py-4 flex flex-col gap-4" style={{ border: `2px double ${CHALK_RAIL}`, background: 'rgba(255,255,255,0.025)' }}>
         <div>
           <div className="flex items-center justify-center gap-1">
-            <h2 className="text-center text-[34px] leading-tight" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }}>Invent a sauce</h2>
+            <h2 className="text-center text-[34px] leading-tight" style={{ fontFamily: HAND, textShadow: CHALK_SHADOW }}>Invent a sauce</h2>
             <HelpBubble variant="chalk" label="How this works" testId={`${P}-source-help`}
               body={kitchen.length
                 ? `From your pantry (${kitchen.length} item${kitchen.length === 1 ? '' : 's'}) first.`
@@ -334,7 +333,7 @@ export default function InventSauce({
               value={styleId} onChange={pickStyle} open={pickerOpen} onToggle={() => setPickerOpen((o) => !o)}
               labels={{ none: 'No particular technique', noneBlurb: 'Choose your own ingredients; we suggest as you go.' }} />
 
-            <label className="flex items-center gap-2 min-h-[44px] min-w-[44px] cursor-pointer text-[15px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+            <label className="flex items-center gap-2 min-h-[44px] min-w-[44px] cursor-pointer text-[15px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
               <input type="checkbox" checked={pantryOnly} onChange={(e) => setPantryOnly(e.target.checked)}
                 data-testid={`${P}-pantry-only`} className="w-5 h-5" style={{ accentColor: CHALK_CREAM }} />
               Only what I have (no shopping)
@@ -369,26 +368,26 @@ export default function InventSauce({
                 <div className="flex items-center gap-3 mb-2">
                   <SauceVessel familyName={family?.name || ''} color={color} size={56} testid={`${P}-vessel`} />
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-[24px] leading-tight" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }} data-testid={`${P}-technique`}>{style.label}</h3>
-                    <p className="text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+                    <h3 className="text-[24px] leading-tight" style={{ fontFamily: HAND, textShadow: CHALK_SHADOW }} data-testid={`${P}-technique`}>{style.label}</h3>
+                    <p className="text-[12px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
                       {sauce.description}{protein ? `, for ${protein}` : ''}
                     </p>
                   </div>
                 </div>
 
                 {sauce.need.length > 0 && (
-                  <p className="mb-2 text-[13px]" style={{ fontFamily: SANS, color: CHALK_DIM }} data-testid={`${P}-shopping`}>
+                  <p className="mb-2 text-[13px]" style={{ fontFamily: TEXT, color: CHALK_DIM }} data-testid={`${P}-shopping`}>
                     You’d need: {sauce.need.join(', ')}.
                   </p>
                 )}
 
-                <h4 className="text-[22px]" style={{ fontFamily: FONT, fontWeight: 400, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Method</h4>
-                <p className="text-[13px] mb-1" style={{ fontFamily: SANS, color: CHALK_SUB }}>{sauce.technique}</p>
-                <p className="text-[14px] leading-snug" style={{ fontFamily: SANS, color: CHALK_CREAM }} data-testid={`${P}-method`}>
+                <h4 className="text-[22px]" style={{ fontFamily: HAND, fontWeight: 400, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Method</h4>
+                <p className="text-[13px] mb-1" style={{ fontFamily: TEXT, color: CHALK_SUB }}>{sauce.technique}</p>
+                <p className="text-[14px] leading-snug" style={{ fontFamily: TEXT, color: CHALK_CREAM }} data-testid={`${P}-method`}>
                   {sauce.method || 'Add the parts it still needs to see the method.'}
                 </p>
-                <p className="mt-2 text-[13px]" style={{ fontFamily: SANS, color: CHALK_DIM }} data-testid={`${P}-why`}>{sauce.why}</p>
-                <p className="mt-1 text-[11px]" style={{ fontFamily: SANS, color: CHALK_SUB }} data-testid={`${P}-honest`}>
+                <p className="mt-2 text-[13px]" style={{ fontFamily: TEXT, color: CHALK_DIM }} data-testid={`${P}-why`}>{sauce.why}</p>
+                <p className="mt-1 text-[11px]" style={{ fontFamily: TEXT, color: CHALK_SUB }} data-testid={`${P}-honest`}>
                   An idea from what pairs, not a tested recipe — taste and adjust.
                 </p>
 
@@ -396,24 +395,24 @@ export default function InventSauce({
                   <div className="mt-3 flex items-center gap-2.5" data-testid={`${P}-wine`}>
                     <WineGlass family={wine.wine.family} color={familyColor(styles?.families, wine.wine.family)} size={36} />
                     <div className="min-w-0">
-                      <div className="text-[18px]" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{wine.wine.name}</div>
-                      <div className="text-[15px]" style={{ fontFamily: FONT, color: CHALK_DIM }}>With {protein}</div>
-                      {wine.reason ? <div className="text-[13px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>{wine.reason}</div> : null}
+                      <div className="text-[18px]" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>{wine.wine.name}</div>
+                      <div className="text-[15px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>With {protein}</div>
+                      {wine.reason ? <div className="text-[13px]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>{wine.reason}</div> : null}
                     </div>
                   </div>
                 )}
 
                 {nearest.length > 0 && (
                   <div className="mt-3" data-testid={`${P}-nearest`}>
-                    <p className="text-[13px] mb-1" style={{ fontFamily: SANS, color: CHALK_SUB }}>Closest sauce on the menu</p>
+                    <p className="text-[13px] mb-1" style={{ fontFamily: TEXT, color: CHALK_SUB }}>Closest sauce on the menu</p>
                     {nearest.map((x) => {
                       const fam = familyById.get(x.sauce.family_id);
                       return (
                         <button key={x.sauce.name} type="button" onClick={() => onSelectSauce?.(x.sauce.name)}
                           className={`w-full text-left flex items-center gap-2 py-0.5 min-h-[44px] rounded-md ${FOCUS}`} style={{ outlineColor: CHALK_CREAM }}>
                           <SauceVessel familyName={fam?.name || ''} color={fam?.color || CHALK_DIM} size={30} />
-                          <span className="text-[19px]" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{x.sauce.name}</span>
-                          <span className="text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>{Math.round(x.similarity * 100)}% alike</span>
+                          <span className="text-[19px]" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>{x.sauce.name}</span>
+                          <span className="text-[12px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>{Math.round(x.similarity * 100)}% alike</span>
                         </button>
                       );
                     })}
@@ -439,7 +438,7 @@ export default function InventSauce({
                 <button type="button" data-testid={`${P}-notebook`}
                   onClick={() => onOpenRecipeLab([...keys, ...(protein ? [proteinIngredient(protein)] : [])])}
                   className={`px-3 py-2 rounded-lg min-h-[44px] ${FOCUS}`}
-                  style={{ fontFamily: FONT, fontSize: 18, color: CARD_INK, background: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
+                  style={{ fontFamily: TEXT, fontSize: 18, color: CARD_INK, background: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
                   Open in the Recipe Notebook
                 </button>
               )}

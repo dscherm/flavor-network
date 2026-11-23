@@ -10,14 +10,15 @@
  *   testidPrefix   default 'hint'
  * Test ids: {p} root, {p}-accept, {p}-dismiss.
  */
-import { btn, SANS, CHALK_CREAM, CHALK_DIM, ACCENT } from './inventUi.jsx';
+import { btn, CHALK_CREAM, CHALK_DIM, ACCENT } from './inventUi.jsx';
 
+import { TEXT } from '../data/chalkTheme.js';
 export default function InventCategoryHint({ label, blurb, onAccept, onDismiss, labels = {}, testidPrefix = 'hint' }) {
   const L = { lead: 'This looks like', accept: 'Use it', dismiss: 'Not now', ...labels };
   const p = testidPrefix;
   return (
     <div data-testid={p} role="status" className="rounded-lg px-3 py-2 min-w-0" style={{ border: `1px dashed ${ACCENT}` }}>
-      <p className="text-[15px] mb-2" style={{ fontFamily: SANS, color: CHALK_CREAM }}>
+      <p className="text-[15px] mb-2" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>
         {L.lead} <strong>{label}</strong>{blurb ? <span style={{ color: CHALK_DIM }}> — {blurb}</span> : null}. Use it?
       </p>
       <div className="flex gap-1.5 flex-wrap">

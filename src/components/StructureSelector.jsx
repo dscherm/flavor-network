@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-const FONT = 'Caveat, cursive';
+import { TEXT } from '../data/chalkTheme.js';
 const PENCIL = '#5a4a2a';
 const PENCIL_LIGHT = '#8a7a5a';
 const BG = '#fefae0';
@@ -164,7 +164,7 @@ export default function StructureSelector({ mode, selected, onSelect }) {
   }, [structures, open]);
 
   return (
-    <div ref={containerRef} className="relative" style={{ fontFamily: FONT }}>
+    <div ref={containerRef} className="relative" style={{ fontFamily: TEXT }}>
       <button
         onClick={() => setOpen(v => !v)}
         className="flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-colors"

@@ -23,9 +23,8 @@ import { CountryFlag, ChalkLoader } from './chalkArt.jsx';
 import { WineGlass } from './wineGlasses.jsx';
 import { liftColor } from '../data/drinkColor.js';
 import { parseQuery, matchItem } from '../data/ingredientSearch.js';
-import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
 
-const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 
 const COLOUR_CHIPS = [
   { key: null, label: 'All' },
@@ -45,7 +44,7 @@ function chipMatches(wine, key) {
 
 function ProfileHeading({ children, color = CHALK_CREAM }) {
   return (
-    <h3 style={{ color, fontFamily: FONT, fontSize: 22, fontWeight: 400, marginTop: 24, marginBottom: 12, textShadow: CHALK_SHADOW }}>
+    <h3 style={{ color, fontFamily: HAND, fontSize: 22, fontWeight: 400, marginTop: 24, marginBottom: 12, textShadow: CHALK_SHADOW }}>
       {children}
     </h3>
   );
@@ -74,15 +73,15 @@ export function WineProfileSections({ wine, color, reviewEntry = null }) {
         <ul className="flex-1 min-w-[180px] max-w-full flex flex-col gap-1.5" data-testid="wine-aroma-families" aria-label="Aroma families">
           {profile.aromaFamilies.map((f) => (
             <li key={f.id} className="flex flex-col">
-              <div className="flex items-baseline gap-2" style={{ fontFamily: FONT, fontSize: 18, color: CHALK_CREAM }}>
+              <div className="flex items-baseline gap-2" style={{ fontFamily: TEXT, fontSize: 18, color: CHALK_CREAM }}>
                 <span className="inline-block rounded-full flex-shrink-0" style={{ width: 9, height: 9, background: f.color }} aria-hidden="true" />
                 <span>{f.label}</span>
-                <span className="ml-auto text-[11px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>{Math.round(f.share * 100)}%</span>
+                <span className="ml-auto text-[11px]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>{Math.round(f.share * 100)}%</span>
               </div>
               <div className="h-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }} aria-hidden="true">
                 <div className="h-1.5 rounded-full" style={{ width: `${Math.max(8, f.share * 100)}%`, background: f.color }} />
               </div>
-              <div className="text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>{f.tags.join(', ')}</div>
+              <div className="text-[12px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>{f.tags.join(', ')}</div>
             </li>
           ))}
         </ul>
@@ -90,14 +89,14 @@ export function WineProfileSections({ wine, color, reviewEntry = null }) {
 
       {reviewed && (
         <div className="mt-2" data-testid="wine-review-aromas">
-          <div className="text-[12px] mb-1" style={{ fontFamily: SANS, color: CHALK_SUB }}>
+          <div className="text-[12px] mb-1" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
             What {reviewed.reviews.toLocaleString()} critics' reviews mention most:
           </div>
           <div className="flex flex-wrap gap-1.5">
             {reviewed.families.map((f) => (
               <span key={f.family} className="px-2 py-0.5 rounded-full border"
-                style={{ fontFamily: FONT, fontSize: 16, color: CHALK_CREAM, borderColor: `${color}88`, background: `${color}1a` }}>
-                {f.family} <span style={{ fontFamily: SANS, fontSize: 11, color: CHALK_DIM }}>{Math.round(f.share * 100)}%</span>
+                style={{ fontFamily: TEXT, fontSize: 16, color: CHALK_CREAM, borderColor: `${color}88`, background: `${color}1a` }}>
+                {f.family} <span style={{ fontFamily: TEXT, fontSize: 11, color: CHALK_DIM }}>{Math.round(f.share * 100)}%</span>
               </span>
             ))}
           </div>
@@ -108,20 +107,20 @@ export function WineProfileSections({ wine, color, reviewEntry = null }) {
       <ul className="flex flex-col gap-2" data-testid="wine-food-mapping">
         {mapping.rules.map((r) => (
           <li key={r.id} data-testid={`wine-rule-${r.id}`} className="flex flex-col gap-0.5">
-            <div style={{ fontFamily: FONT, fontSize: 19, color: CHALK_CREAM, lineHeight: 1.25 }}>
+            <div style={{ fontFamily: TEXT, fontSize: 19, color: CHALK_CREAM, lineHeight: 1.25 }}>
               <span className="px-1.5 mr-1.5 rounded border text-[11px] align-middle whitespace-nowrap"
-                style={{ fontFamily: SANS, color: CHALK_DIM, borderColor: `${color}88`, background: `${color}1a` }}>{r.trait}</span>
+                style={{ fontFamily: TEXT, color: CHALK_DIM, borderColor: `${color}88`, background: `${color}1a` }}>{r.trait}</span>
               {r.text}
             </div>
             {r.examples.length > 0 && (
-              <div className="text-[12px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>e.g. {r.examples.join(', ')}</div>
+              <div className="text-[12px]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>e.g. {r.examples.join(', ')}</div>
             )}
           </li>
         ))}
         {mapping.bridges.length > 0 && (
-          <li data-testid="wine-rule-bridges" style={{ fontFamily: FONT, fontSize: 19, color: CHALK_CREAM, lineHeight: 1.25 }}>
+          <li data-testid="wine-rule-bridges" style={{ fontFamily: TEXT, fontSize: 19, color: CHALK_CREAM, lineHeight: 1.25 }}>
             <span className="px-1.5 mr-1.5 rounded border text-[11px] align-middle whitespace-nowrap"
-              style={{ fontFamily: SANS, color: CHALK_DIM, borderColor: `${color}88`, background: `${color}1a` }}>aromas</span>
+              style={{ fontFamily: TEXT, color: CHALK_DIM, borderColor: `${color}88`, background: `${color}1a` }}>aromas</span>
             Echo {mapping.bridges.join('; ')}
           </li>
         )}
@@ -131,7 +130,7 @@ export function WineProfileSections({ wine, color, reviewEntry = null }) {
           <ProfileHeading>Avoid</ProfileHeading>
           <ul className="flex flex-col gap-2" data-testid="wine-avoid">
             {mapping.avoid.map((a) => (
-              <li key={a.id} className="flex gap-2" style={{ fontFamily: FONT, fontSize: 18, color: CHALK_DIM, lineHeight: 1.25 }}>
+              <li key={a.id} className="flex gap-2" style={{ fontFamily: TEXT, fontSize: 18, color: CHALK_DIM, lineHeight: 1.25 }}>
                 <span>{a.text}</span>
               </li>
             ))}
@@ -159,16 +158,16 @@ function WineRow({ wine, color, onSelect, reasons = null, badge = null }) {
       <WineGlass family={wine.family} color={color} size={50} />
       <div className="flex-1 min-w-0 flex flex-col gap-1">
       <div className="flex items-baseline gap-2">
-        <span className="flex-1 min-w-0 truncate text-[20px]" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>{wine.name}</span>
+        <span className="flex-1 min-w-0 truncate text-[20px]" style={{ fontFamily: TEXT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>{wine.name}</span>
         {badge && (
           <span className="text-[10px] px-1.5 py-px rounded border flex-shrink-0" style={{ color: CHALK_CREAM, borderColor: `${color}aa` }}>{badge}</span>
         )}
       </div>
-      <div className="text-[11px] flex items-baseline gap-3 min-w-0" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+      <div className="text-[11px] flex items-baseline gap-3 min-w-0" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
         <span className="truncate"><CountryFlag country={wine.country} height={10} /> {wine.area ? `${wine.area}, ${wine.country}` : wine.region}</span>
         <span className="truncate">{wine.grapes.join(', ')}</span>
       </div>
-      <div className="text-[11px] flex flex-wrap gap-x-3" style={{ fontFamily: SANS, color: CHALK_SUB }} aria-label={`body ${wine.body}, acidity ${wine.acidity}, tannin ${wine.tannin}, sweetness ${wine.sweetness} out of 5`}>
+      <div className="text-[11px] flex flex-wrap gap-x-3" style={{ fontFamily: TEXT, color: CHALK_SUB }} aria-label={`body ${wine.body}, acidity ${wine.acidity}, tannin ${wine.tannin}, sweetness ${wine.sweetness} out of 5`}>
         <span>body <span style={{ color: CHALK_DIM }}>{dots(wine.body)}</span></span>
         <span>acid <span style={{ color: CHALK_DIM }}>{dots(wine.acidity)}</span></span>
         <span>tannin <span style={{ color: CHALK_DIM }}>{dots(wine.tannin)}</span></span>
@@ -177,7 +176,7 @@ function WineRow({ wine, color, onSelect, reasons = null, badge = null }) {
       {reasons && reasons.length > 0 && (
         <div className="flex flex-wrap gap-1" data-testid="wine-match-reasons">
           {reasons.map((r) => (
-            <span key={r} className="text-[11px] px-1.5 py-px rounded-full border" style={{ fontFamily: SANS, color: CHALK_DIM, borderColor: `${CHALK_RAIL}` }}>{r}</span>
+            <span key={r} className="text-[11px] px-1.5 py-px rounded-full border" style={{ fontFamily: TEXT, color: CHALK_DIM, borderColor: `${CHALK_RAIL}` }}>{r}</span>
           ))}
         </div>
       )}
@@ -196,10 +195,10 @@ function WineShelf({ families, counts, active, onPick }) {
   return (
     <div className="px-4 pt-1 pb-2 max-w-4xl mx-auto" data-testid="wine-shelf">
       <div className="flex items-baseline justify-between mb-1 min-h-[32px]">
-        <span className="text-[22px]" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Families</span>
+        <span className="text-[22px]" style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Families</span>
         {active && (
           <button type="button" onClick={() => onPick(null)} className="text-[15px] underline underline-offset-2 min-h-[32px] px-1"
-            style={{ fontFamily: FONT, color: CHALK_DIM }} data-testid="wine-shelf-clear">
+            style={{ fontFamily: TEXT, color: CHALK_DIM }} data-testid="wine-shelf-clear">
             All wines
           </button>
         )}
@@ -229,11 +228,11 @@ function WineShelf({ families, counts, active, onPick }) {
               <span aria-hidden="true" className="block w-full" style={{ borderTop: `3px solid ${CHALK_DIM}cc`, borderBottom: `2px solid ${CHALK_RAIL}99`, height: 7 }} />
               <span
                 className="mt-1.5 text-[15px] leading-[1.05] text-center px-1.5 py-0.5 rounded-sm max-w-full min-h-[2.3em] flex items-center justify-center"
-                style={{ ...fade, fontFamily: FONT, color: ink, border: `1px dashed ${ink}99`, background: `${fam.color}1a`, transform: `rotate(${i % 2 ? 5 : -5}deg)`, textShadow: CHALK_SHADOW, boxShadow: on ? `0 0 10px ${fam.color}66` : `0 0 8px ${fam.color}33` }}
+                style={{ ...fade, fontFamily: TEXT, color: ink, border: `1px dashed ${ink}99`, background: `${fam.color}1a`, transform: `rotate(${i % 2 ? 5 : -5}deg)`, textShadow: CHALK_SHADOW, boxShadow: on ? `0 0 10px ${fam.color}66` : `0 0 8px ${fam.color}33` }}
               >
                 {fam.name}
               </span>
-              <span className="text-[12px] mt-1" style={{ ...fade, fontFamily: FONT, color: CHALK_DIM }}>{count}</span>
+              <span className="text-[12px] mt-1" style={{ ...fade, fontFamily: TEXT, color: CHALK_DIM }}>{count}</span>
             </button>
           );
         })}
@@ -356,11 +355,11 @@ export default function WineLab({
         <div className="sticky top-0 z-30 px-4 py-3 flex items-center gap-2 backdrop-blur-md" style={{ background: '#0a0a0aE6', borderBottom: `1px solid ${CHALK_RAIL}66` }}>
           {onBackToRecipe && (
             <button type="button" onClick={onBackToRecipe} data-testid="wine-matches-back"
-              className="px-3 py-1.5 rounded-lg text-[15px]" style={{ fontFamily: FONT, color: CHALK_CREAM, border: `1px solid ${CHALK_RAIL}` }}>
+              className="px-3 py-1.5 rounded-lg text-[15px]" style={{ fontFamily: TEXT, color: CHALK_CREAM, border: `1px solid ${CHALK_RAIL}` }}>
               Back to the {matchesContext?.returnTab === 'sauce' ? 'sauce' : 'recipe'}
             </button>
           )}
-          <span className="flex-1 text-[22px] truncate" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }}>Wines for {matchesContext.recipeName}</span>
+          <span className="flex-1 text-[22px] truncate" style={{ fontFamily: HAND, textShadow: CHALK_SHADOW }}>Wines for {matchesContext.recipeName}</span>
           <button type="button" onClick={onExitMatches} className="text-[13px] underline underline-offset-2 flex-shrink-0" style={{ color: CHALK_DIM }}>
             Whole list
           </button>
@@ -378,7 +377,7 @@ export default function WineLab({
             </li>
           ))}
           {matchesContext.items.length === 0 && (
-            <li className="text-center py-10" style={{ fontFamily: FONT, color: CHALK_SUB }}>No wine data for this recipe yet.</li>
+            <li className="text-center py-10" style={{ fontFamily: TEXT, color: CHALK_SUB }}>No wine data for this recipe yet.</li>
           )}
         </ul>
         {card}
@@ -391,7 +390,7 @@ export default function WineLab({
     return (
       failed ? (
         <div className="flex items-center justify-center w-full h-full pt-10" style={chalkSurfaceStyle()}>
-          <p className="text-base" style={{ fontFamily: FONT, color: CHALK_SUB }}>Could not load the wine list.</p>
+          <p className="text-base" style={{ fontFamily: TEXT, color: CHALK_SUB }}>Could not load the wine list.</p>
         </div>
       ) : <ChalkLoader label="Uncorking the wine list…" color="#9f1239" />
     );
@@ -401,10 +400,10 @@ export default function WineLab({
     <div className="absolute inset-x-0 top-0 overflow-y-auto" style={{ bottom: 'var(--tab-bar-h)', paddingTop: 'env(safe-area-inset-top, 0px)', ...chalkSurfaceStyle(), color: CHALK_CREAM }} data-wine-browse-root>
       <div className="px-4 pt-5 pb-2 max-w-4xl mx-auto text-center">
         <div className="inline-flex items-center gap-1">
-          <h1 className="text-5xl" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }}>Wine list</h1>
+          <h1 className="text-5xl" style={{ fontFamily: HAND, textShadow: CHALK_SHADOW }}>Wine list</h1>
           <HelpBubble variant="chalk" label="How this works" body="To pair a wine with a dish, open the dish in the Cookbook and tap Matching wines." testId="wine-list-help" />
         </div>
-        <p className="text-[13px] mt-1" style={{ fontFamily: SANS, color: CHALK_SUB }}>{wines.length} styles</p>
+        <p className="text-[13px] mt-1" style={{ fontFamily: TEXT, color: CHALK_SUB }}>{wines.length} styles</p>
       </div>
 
       <WineShelf families={families} counts={familyCounts} active={family} onPick={setFamily} />
@@ -417,7 +416,7 @@ export default function WineLab({
           placeholder="Search wine, grape, aroma or food — e.g. salmon"
           aria-label="Search wines by name, grape, aroma or food"
           className="w-full px-2.5 py-1.5 rounded-md focus:outline-none text-[16px] mb-1.5"
-          style={{ fontFamily: FONT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
+          style={{ fontFamily: TEXT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
         />
         <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter by colour">
           {COLOUR_CHIPS.map((c) => {
@@ -425,7 +424,7 @@ export default function WineLab({
             return (
               <button key={String(c.key)} type="button" aria-pressed={active} onClick={() => setColour(active ? null : c.key)}
                 className="px-3 py-0.5 rounded-full text-[15px] border"
-                style={{ fontFamily: FONT, color: active ? '#0a0a0a' : CHALK_CREAM, background: active ? CHALK_CREAM : 'rgba(255,255,255,0.04)', borderColor: active ? CHALK_CREAM : `${CHALK_RAIL}99` }}>
+                style={{ fontFamily: TEXT, color: active ? '#0a0a0a' : CHALK_CREAM, background: active ? CHALK_CREAM : 'rgba(255,255,255,0.04)', borderColor: active ? CHALK_CREAM : `${CHALK_RAIL}99` }}>
                 {c.label}
               </button>
             );
@@ -439,7 +438,7 @@ export default function WineLab({
                 data-testid={`wine-country-${c.country}`}
                 onClick={() => { setCountry(active ? null : c.country); setArea(null); }}
                 className="px-2.5 py-0.5 rounded-full text-[14px] border whitespace-nowrap flex-shrink-0"
-                style={{ fontFamily: FONT, color: active ? '#0a0a0a' : CHALK_CREAM, background: active ? CHALK_CREAM : 'rgba(255,255,255,0.04)', borderColor: active ? CHALK_CREAM : `${CHALK_RAIL}99` }}>
+                style={{ fontFamily: TEXT, color: active ? '#0a0a0a' : CHALK_CREAM, background: active ? CHALK_CREAM : 'rgba(255,255,255,0.04)', borderColor: active ? CHALK_CREAM : `${CHALK_RAIL}99` }}>
                 <CountryFlag country={c.country} height={11} /> {c.country} {c.count}
               </button>
             );
@@ -453,7 +452,7 @@ export default function WineLab({
                 <button key={a.area} type="button" aria-pressed={active}
                   onClick={() => setArea(active ? null : a.area)}
                   className="px-2.5 py-0.5 rounded-full text-[13px] border whitespace-nowrap flex-shrink-0"
-                  style={{ fontFamily: SANS, color: active ? '#0a0a0a' : CHALK_DIM, background: active ? CHALK_DIM : 'transparent', borderColor: `${CHALK_RAIL}99` }}>
+                  style={{ fontFamily: TEXT, color: active ? '#0a0a0a' : CHALK_DIM, background: active ? CHALK_DIM : 'transparent', borderColor: `${CHALK_RAIL}99` }}>
                   {a.area} {a.count}
                 </button>
               );
@@ -484,8 +483,8 @@ export default function WineLab({
             <section key={c.country} className="mb-6" data-testid={`wine-country-section-${c.country}`}>
               <header className="flex items-center gap-2.5 mb-2 py-1.5" style={{ borderTop: `1.5px solid ${CHALK_RAIL}`, borderBottom: `1.5px solid ${CHALK_RAIL}` }}>
                 <CountryFlag country={c.country} height={20} />
-                <h2 className="text-[32px] leading-none" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>{c.country}</h2>
-                <span className="text-[13px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>{members.length} wines</span>
+                <h2 className="text-[32px] leading-none" style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>{c.country}</h2>
+                <span className="text-[13px]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>{members.length} wines</span>
               </header>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 ml-3">
                 {members.map((w) => (
@@ -502,8 +501,8 @@ export default function WineLab({
             <section key={fam.id} className="mb-6" data-testid={`wine-family-${fam.id}`}>
               <header className="flex items-center gap-2.5 mb-2 py-1.5" style={{ borderTop: `1.5px solid ${fam.color}66`, borderBottom: `1.5px solid ${fam.color}66` }}>
                 <WineGlass family={fam.id} color={fam.color} size={44} testid={`wine-family-glass-${fam.id}`} />
-                <h2 className="text-[32px] leading-none" style={{ fontFamily: FONT, color: fam.color, textShadow: CHALK_SHADOW }}>{fam.name}</h2>
-                <span className="text-[13px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>{members.length} wines</span>
+                <h2 className="text-[32px] leading-none" style={{ fontFamily: HAND, color: fam.color, textShadow: CHALK_SHADOW }}>{fam.name}</h2>
+                <span className="text-[13px]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>{members.length} wines</span>
               </header>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 ml-3">
                 {members.map((w) => (
@@ -514,7 +513,7 @@ export default function WineLab({
           );
         })}
         {visible.length === 0 && (
-          <div className="text-center text-base py-12" style={{ fontFamily: FONT, color: CHALK_SUB }}>
+          <div className="text-center text-base py-12" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
             No wines match.{' '}
             <button type="button" onClick={() => { setSearch(''); setColour(null); setCountry(null); setArea(null); setFamily(null); }} className="underline underline-offset-2" style={{ color: CHALK_DIM }}>Reset</button>
           </div>

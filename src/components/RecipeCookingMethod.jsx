@@ -8,9 +8,8 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import { loadDirectionsIndex, retrieveCookingMethods } from '../ml/directionsRuntime.js';
-import { FONT, CHALK_CREAM, CHALK_SUB, CHALK_RAIL } from '../data/chalkTheme.js';
+import { TEXT, CHALK_CREAM, CHALK_SUB, CHALK_RAIL } from '../data/chalkTheme.js';
 
-const FONT_FAMILY = 'Caveat, cursive';
 const MIN_BOWL = 3;
 
 let _vocabPromise = null;
@@ -51,7 +50,7 @@ export default function RecipeCookingMethod({ bowlNames = [], chalk = false, sel
   if (chalk) {
     return (
       <div data-testid="cooking-method-chips">
-        <div className="text-[13px] mb-1" style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif', color: CHALK_SUB }}>
+        <div className="text-[13px] mb-1" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
           Likely cooking method{methods.length === 1 ? '' : 's'}
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -68,7 +67,7 @@ export default function RecipeCookingMethod({ bowlNames = [], chalk = false, sel
                 title={`${Math.round(m.frac * 100)}% of similar recipes`}
                 className="inline-flex items-center gap-1 px-3 py-1 rounded-full border min-h-[44px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                 style={{
-                  fontFamily: FONT, fontSize: 17, textTransform: 'capitalize', borderColor: CHALK_RAIL, outlineColor: CHALK_CREAM,
+                  fontFamily: TEXT, fontSize: 17, textTransform: 'capitalize', borderColor: CHALK_RAIL, outlineColor: CHALK_CREAM,
                   color: on ? '#0a0a0a' : CHALK_CREAM, background: on ? CHALK_CREAM : 'transparent',
                 }}
               >
@@ -93,7 +92,7 @@ export default function RecipeCookingMethod({ bowlNames = [], chalk = false, sel
             title={`${Math.round(m.frac * 100)}% of similar recipes`}
             className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full"
             style={{
-              fontFamily: FONT_FAMILY,
+              fontFamily: TEXT,
               fontSize: 15,
               color: '#5a4a2a',
               background: '#f0e8d0',

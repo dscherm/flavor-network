@@ -32,8 +32,9 @@ import { sharedPictureField } from '../data/pictureField.js';
 import { barsFor } from '../data/shareCardData.js';
 import { loadLabelNodes } from '../data/sharedLoaders.js';
 import { usage } from '../data/usageEvents.js';
-import { SANS, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT, btn, heading, inputStyle } from './inventUi.jsx';
+import { CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT, btn, heading, inputStyle } from './inventUi.jsx';
 
+import { TEXT } from '../data/chalkTheme.js';
 export { ShareOwnContext };
 
 const tap = { minHeight: 44 };
@@ -59,8 +60,8 @@ async function barsForItem(item, kind, nodes) {
 function SignIn({ auth }) {
   return (
     <div className="mt-3" data-testid="own-signin">
-      <p className="text-[16px]" style={{ fontFamily: SANS, color: CHALK_CREAM }}>Sign in to share a recipe you made</p>
-      <p className="text-[14px] mt-1" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+      <p className="text-[16px]" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>Sign in to share a recipe you made</p>
+      <p className="text-[14px] mt-1" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
         A shared recipe gets a public link, so it is tied to your account. You can take it down at any time.
       </p>
       <div className="mt-3 flex flex-col gap-2">
@@ -69,7 +70,7 @@ function SignIn({ auth }) {
         <button type="button" onClick={auth?.loginWithApple} data-testid="own-signin-apple" className="w-full rounded-lg px-4"
           style={{ ...btn({ background: 'rgba(255,255,255,0.05)' }), ...tap }}>Sign in with Apple</button>
       </div>
-      {auth?.authError && <p role="alert" className="mt-2 text-[14px]" style={{ fontFamily: SANS, color: '#fda4af' }}>{auth.authError}</p>}
+      {auth?.authError && <p role="alert" className="mt-2 text-[14px]" style={{ fontFamily: TEXT, color: '#fda4af' }}>{auth.authError}</p>}
     </div>
   );
 }
@@ -78,12 +79,12 @@ function Preview({ doc, picture }) {
   return (
     <section data-testid="own-preview" aria-label="What will be public" className="mt-3 rounded-lg p-3 min-w-0"
       style={{ border: `1px solid ${CHALK_RAIL}`, background: 'rgba(255,255,255,0.03)' }}>
-      <p className="text-[13px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>This will be public</p>
+      <p className="text-[13px]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>This will be public</p>
       <p data-testid="own-preview-name" className="break-words" style={{ ...heading, fontSize: 24 }}>{doc.name}</p>
       {picture ? <div className="my-2" data-testid="own-preview-picture">{picture}</div> : null}
       <ul className="mt-1 overflow-y-auto" style={{ maxHeight: 160 }} role="list">
         {doc.lines.map((l, i) => (
-          <li key={`${l.key}-${i}`} data-testid="own-preview-line" className="flex gap-2 py-0.5 min-w-0 text-[15px]" style={{ fontFamily: SANS }}>
+          <li key={`${l.key}-${i}`} data-testid="own-preview-line" className="flex gap-2 py-0.5 min-w-0 text-[15px]" style={{ fontFamily: TEXT }}>
             <span className="w-20 flex-shrink-0 text-right" style={{ color: ACCENT }}>{l.amount}</span>
             <span className="min-w-0 break-words" style={{ color: CHALK_CREAM }}>{l.key}</span>
           </li>
@@ -91,10 +92,10 @@ function Preview({ doc, picture }) {
       </ul>
       {doc.method ? (
         <p data-testid="own-preview-method" className="mt-2 text-[14px] whitespace-pre-wrap break-words overflow-y-auto"
-          style={{ fontFamily: SANS, color: CHALK_DIM, maxHeight: 112 }}>{doc.method}</p>
+          style={{ fontFamily: TEXT, color: CHALK_DIM, maxHeight: 112 }}>{doc.method}</p>
       ) : null}
-      {doc.glass ? <p className="mt-1 text-[14px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>Glass: {doc.glass}</p> : null}
-      <p data-testid="own-by-shown" className="mt-2 text-[14px]" style={{ fontFamily: SANS, color: CHALK_CREAM }}>
+      {doc.glass ? <p className="mt-1 text-[14px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>Glass: {doc.glass}</p> : null}
+      <p data-testid="own-by-shown" className="mt-2 text-[14px]" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>
         {doc.by ? `Shared by ${doc.by}` : 'No name is shown'}
       </p>
     </section>
@@ -103,14 +104,14 @@ function Preview({ doc, picture }) {
 
 function NameChoice({ choice, onChoice, nick, onNick, first }) {
   const radio = (id, label, testid, disabled = false) => (
-    <label className="flex items-center gap-2 rounded-lg px-3" style={{ ...tap, border: `1px solid ${choice === id ? ACCENT : CHALK_RAIL}`, opacity: disabled ? 0.5 : 1, fontFamily: SANS, fontSize: 16, color: CHALK_CREAM }}>
+    <label className="flex items-center gap-2 rounded-lg px-3" style={{ ...tap, border: `1px solid ${choice === id ? ACCENT : CHALK_RAIL}`, opacity: disabled ? 0.5 : 1, fontFamily: TEXT, fontSize: 16, color: CHALK_CREAM }}>
       <input type="radio" name="own-by" checked={choice === id} disabled={disabled} onChange={() => onChoice(id)} data-testid={testid} />
       <span className="min-w-0 break-words">{label}</span>
     </label>
   );
   return (
     <fieldset className="mt-3 flex flex-col gap-2 min-w-0" style={{ border: 0, padding: 0, margin: 0 }}>
-      <legend className="text-[14px] mb-1" style={{ fontFamily: SANS, color: CHALK_DIM }}>Show a name with it?</legend>
+      <legend className="text-[14px] mb-1" style={{ fontFamily: TEXT, color: CHALK_DIM }}>Show a name with it?</legend>
       {radio('none', "Don't show a name", 'own-by-none')}
       {radio('first', first ? `My first name (${first})` : 'My first name (not available)', 'own-by-first', !first)}
       {radio('nick', 'A nickname', 'own-by-nick')}
@@ -184,7 +185,7 @@ function PublishStep({ kind, item, ctx, onPublished, getDb }) {
   };
 
   if (!doc) {
-    return <p data-testid="own-status" role="alert" className="mt-3 text-[15px]" style={{ fontFamily: SANS, color: '#fda4af' }}>
+    return <p data-testid="own-status" role="alert" className="mt-3 text-[15px]" style={{ fontFamily: TEXT, color: '#fda4af' }}>
       Add a name and at least one ingredient before sharing this.
     </p>;
   }
@@ -195,14 +196,14 @@ function PublishStep({ kind, item, ctx, onPublished, getDb }) {
         <PictureField kind={PAGE_KIND[kind]} value={picture} onChange={setPicture} item={item} testid="own-picture-field" />
       </div>
       <NameChoice choice={choice} onChoice={setChoice} nick={nick} onNick={setNick} first={first} />
-      <p className="mt-3 text-[13px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>
+      <p className="mt-3 text-[13px]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
         Anyone with the link can read this. It is a copy: editing your recipe later will not change it.
       </p>
       <button type="button" onClick={create} disabled={busy || needsNick} data-testid="own-create" className="mt-2 w-full rounded-lg px-4"
         style={{ ...btn({ background: `${ACCENT}33` }), ...tap, opacity: busy || needsNick ? 0.55 : 1 }}>
         {busy ? 'Creating...' : 'Create link'}
       </button>
-      {error && <p role="alert" data-testid="own-status" className="mt-2 text-[14px]" style={{ fontFamily: SANS, color: '#fda4af' }}>{error}</p>}
+      {error && <p role="alert" data-testid="own-status" className="mt-2 text-[14px]" style={{ fontFamily: TEXT, color: '#fda4af' }}>{error}</p>}
     </div>
   );
 }
@@ -257,11 +258,11 @@ export function OwnShareButton({ kind, item, label = 'Share', className = '', st
         <ShareSheet open={open} onClose={() => setOpen(false)} recipe={{ kind: recipe.kind, name: recipe.name }} link={link} own
           imagesSlot={(
             <>
-              <p data-testid="own-live" className="text-[14px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+              <p data-testid="own-live" className="text-[14px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
                 Your link is live. Take it down any time from Profile, under Shared links.
               </p>
               {fresh?.pictureReason ? (
-                <p role="status" data-testid="own-picture-note" className="text-[14px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>{fresh.pictureReason}</p>
+                <p role="status" data-testid="own-picture-note" className="text-[14px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>{fresh.pictureReason}</p>
               ) : null}
               <ShareImages link={link} recipe={recipe} bars={fresh ? fresh.bars : undefined} picture={cardPicture} />
             </>

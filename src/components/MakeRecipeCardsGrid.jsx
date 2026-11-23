@@ -14,7 +14,7 @@
 import React from 'react';
 import { Close } from './ChalkIcons.jsx';
 
-const FONT_HAND = 'Caveat, cursive';
+import { HAND, TEXT } from '../data/chalkTheme.js';
 const CHALK_BG = `
   radial-gradient(ellipse at center, #1c1c1c 0%, #0a0a0a 75%, #050505 100%),
   #0a0a0a
@@ -48,7 +48,7 @@ function HeroDisc({ node, size = 48 }) {
         color: '#0a0a0f',
         fontSize: size * 0.5,
         fontWeight: 700,
-        fontFamily: FONT_HAND,
+        fontFamily: TEXT,
       }}
       aria-hidden="true"
     >
@@ -97,7 +97,7 @@ function PortionCard({ node, portion, onChange, onSuggest, recipeCount }) {
     >
       <label
         className="text-[13px] text-center"
-        style={{ color: CHALK_DIM, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
+        style={{ color: CHALK_DIM, fontFamily: TEXT, textShadow: CHALK_TEXT_SHADOW }}
       >
         Portion
       </label>
@@ -110,7 +110,7 @@ function PortionCard({ node, portion, onChange, onSuggest, recipeCount }) {
         className="w-full text-center bg-transparent outline-none border-0"
         style={{
           color: CHALK_CREAM,
-          fontFamily: FONT_HAND,
+          fontFamily: TEXT,
           fontSize: 17,
           textShadow: CHALK_TEXT_SHADOW,
           borderBottom: `1px dotted ${CHALK_DIM}66`,
@@ -126,7 +126,7 @@ function PortionCard({ node, portion, onChange, onSuggest, recipeCount }) {
           color: canSuggest ? CHALK_CREAM : CHALK_SUB,
           background: canSuggest ? 'rgba(134, 239, 172, 0.10)' : 'rgba(255,255,255,0.03)',
           border: `1px solid ${canSuggest ? '#6ee7b7' : CHALK_SUB}55`,
-          fontFamily: FONT_HAND,
+          fontFamily: TEXT,
           fontSize: 14,
           textShadow: CHALK_TEXT_SHADOW,
           cursor: canSuggest ? 'pointer' : 'not-allowed',
@@ -168,7 +168,7 @@ function IngredientCard({ node, onTap, onRemove }) {
             color: CHALK_SUB,
             background: 'rgba(0,0,0,0.4)',
             border: `1px solid ${CHALK_SUB}55`,
-            fontFamily: FONT_HAND,
+            fontFamily: TEXT,
           }}
         >
           <Close size={16} />
@@ -179,7 +179,7 @@ function IngredientCard({ node, onTap, onRemove }) {
         className="text-center mt-2"
         style={{
           color: CHALK_CREAM,
-          fontFamily: FONT_HAND,
+          fontFamily: HAND,
           fontSize: 20,
           lineHeight: 1.05,
           textShadow: CHALK_TEXT_SHADOW,
@@ -190,7 +190,7 @@ function IngredientCard({ node, onTap, onRemove }) {
       {cuisine && (
         <span
           className="text-[11px] mt-1"
-          style={{ color: CHALK_DIM, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
+          style={{ color: CHALK_DIM, fontFamily: TEXT, textShadow: CHALK_TEXT_SHADOW }}
         >
           {cuisine}
         </span>
@@ -232,19 +232,19 @@ export default function MakeRecipeCardsGrid({
       >
         <p
           className="text-2xl mb-1"
-          style={{ color: CHALK_CREAM, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
+          style={{ color: CHALK_CREAM, fontFamily: HAND, textShadow: CHALK_TEXT_SHADOW }}
         >
           Today's specials —
         </p>
         <p
           className="text-base"
-          style={{ color: CHALK_DIM, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
+          style={{ color: CHALK_DIM, fontFamily: TEXT, textShadow: CHALK_TEXT_SHADOW }}
         >
           tap "+ Add" above to chalk your first ingredient on the board.
         </p>
         <p
           className="text-sm leading-snug max-w-md mt-3"
-          style={{ color: CHALK_SUB, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
+          style={{ color: CHALK_SUB, fontFamily: TEXT, textShadow: CHALK_TEXT_SHADOW }}
           data-testid="make-recipe-brainstorm-note"
         >
           Use Make a Recipe as a tool to brainstorm — explore ingredient

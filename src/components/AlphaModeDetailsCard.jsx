@@ -39,7 +39,7 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { getNeighborsEnriched } from '../data/graph.js';
 
-const FONT = 'Caveat, cursive';
+import { HAND, TEXT } from '../data/chalkTheme.js';
 const CHALK_BG = `
   radial-gradient(ellipse at center, #1c1c1c 0%, #0a0a0a 75%, #050505 100%),
   #0a0a0a
@@ -309,7 +309,7 @@ function ViewDots({ viewIdx, onPick }) {
 function FocalTagRow({ focalName, tags, color, activeTag, onPickTag, noun }) {
   if (!Array.isArray(tags) || tags.length === 0) {
     return (
-      <div className="text-center mb-3" style={{ color: CHALK_SUB, fontFamily: FONT, fontSize: FS_CAPTION }}
+      <div className="text-center mb-3" style={{ color: CHALK_SUB, fontFamily: TEXT, fontSize: FS_CAPTION }}
         data-testid="alpha-focal-tags-empty">
         No {noun} data for {focalName}.
       </div>
@@ -328,7 +328,7 @@ function FocalTagRow({ focalName, tags, color, activeTag, onPickTag, noun }) {
             color: activeTag == null ? '#0a0a0a' : color,
             background: activeTag == null ? color : `${color}14`,
             borderColor: `${color}66`,
-            fontFamily: FONT,
+            fontFamily: TEXT,
             fontSize: FS_CHIP,
             ...TEXT_OUTLINE,
           }}
@@ -350,7 +350,7 @@ function FocalTagRow({ focalName, tags, color, activeTag, onPickTag, noun }) {
                 background: isActive ? color : `${color}14`,
                 borderColor: `${color}66`,
                 boxShadow: isActive ? `0 0 10px ${color}aa` : 'none',
-                fontFamily: FONT,
+                fontFamily: TEXT,
                 fontSize: FS_CHIP,
                 ...TEXT_OUTLINE,
               }}
@@ -360,7 +360,7 @@ function FocalTagRow({ focalName, tags, color, activeTag, onPickTag, noun }) {
           );
         })}
       </div>
-      <span className="uppercase tracking-wider" style={{ color: CHALK_SUB, fontFamily: FONT, fontSize: FS_SUB }}>
+      <span className="uppercase tracking-wider" style={{ color: CHALK_SUB, fontFamily: TEXT, fontSize: FS_SUB }}>
         {activeTag != null
           ? `Pairings sharing "${activeTag}"`
           : `Tap a ${noun} to isolate its pairings`}
@@ -395,7 +395,7 @@ function AffinityCarousel({ focalName, focalNode, view, pairings, revealed, onTa
           fill="none" stroke={`${color}66`} strokeWidth={1.25} strokeDasharray="3 3" />
         {pairings.length === 0 && (
           <text x={RING_CENTER} y={RING_CENTER + 44} textAnchor="middle" fontSize={15}
-            fill={CHALK_SUB} style={{ fontFamily: FONT }}>
+            fill={CHALK_SUB} style={{ fontFamily: TEXT }}>
             No pairings share this signal.
           </text>
         )}
@@ -422,7 +422,7 @@ function AffinityCarousel({ focalName, focalNode, view, pairings, revealed, onTa
                   <rect x={x - 70} y={y + 12} width={140} height={28} rx={5}
                     fill="#0a0a0a" stroke={color} strokeWidth={1.25} />
                   <text x={x} y={y + 31} textAnchor="middle" fontSize={18} fill={CHALK_CREAM}
-                    style={{ fontFamily: FONT, textShadow: CHALK_TEXT_SHADOW }}>
+                    style={{ fontFamily: TEXT, textShadow: CHALK_TEXT_SHADOW }}>
                     {p.name}
                   </text>
                 </g>
@@ -437,12 +437,12 @@ function AffinityCarousel({ focalName, focalNode, view, pairings, revealed, onTa
           fill={color} stroke="#fff" strokeWidth={2} />
         <text x={RING_CENTER} y={RING_CENTER - 3} textAnchor="middle" fontSize={15}
           fontWeight={700} fill="#0a0a0a" stroke={CHALK_CREAM} strokeWidth={0.65}
-          paintOrder="stroke" style={{ fontFamily: FONT }}>
+          paintOrder="stroke" style={{ fontFamily: TEXT }}>
           {focalName}
         </text>
         <text x={RING_CENTER} y={RING_CENTER + 14} textAnchor="middle" fontSize={11}
           fill="#0a0a0a" stroke={CHALK_CREAM} strokeWidth={0.5}
-          paintOrder="stroke" style={{ fontFamily: FONT }}>
+          paintOrder="stroke" style={{ fontFamily: TEXT }}>
           {view?.label}
         </text>
       </svg>
@@ -568,10 +568,10 @@ export default function AlphaModeDetailsCard({
         <button type="button" onClick={() => onExit?.()}
           data-testid="alpha-details-back"
           className="px-3 py-2 rounded-lg"
-          style={{ color: CHALK_CREAM, background: 'rgba(255,255,255,0.04)', border: `1px solid ${CHALK_BORDER_INNER}`, fontFamily: FONT, fontSize: FS_CAPTION, textShadow: CHALK_TEXT_SHADOW }}>
+          style={{ color: CHALK_CREAM, background: 'rgba(255,255,255,0.04)', border: `1px solid ${CHALK_BORDER_INNER}`, fontFamily: TEXT, fontSize: FS_CAPTION, textShadow: CHALK_TEXT_SHADOW }}>
           ← Back
         </button>
-        <span style={{ color: CHALK_DIM, fontFamily: FONT, fontSize: FS_SUB, textShadow: CHALK_TEXT_SHADOW }}>
+        <span style={{ color: CHALK_DIM, fontFamily: TEXT, fontSize: FS_SUB, textShadow: CHALK_TEXT_SHADOW }}>
           α-mode · ingredient
         </span>
       </div>
@@ -579,7 +579,7 @@ export default function AlphaModeDetailsCard({
       <div className="w-full max-w-[544px] flex-1 min-h-0 flex flex-col rounded-2xl px-5 py-4 mb-3 overflow-y-auto"
         style={{ maxHeight: '69vh', background: 'rgba(255,255,255,0.025)', border: `2px double ${CHALK_BORDER_OUTER}`, boxShadow: `inset 0 0 0 1px ${CHALK_BORDER_INNER}55, 0 8px 24px rgba(0,0,0,0.55)` }}>
         <h2 className="text-center mb-2 flex-shrink-0"
-          style={{ color: CHALK_CREAM, fontFamily: FONT, fontSize: FS_FOCAL, textShadow: CHALK_TEXT_SHADOW, letterSpacing: '0.01em', lineHeight: 1.05, WebkitTextStroke: '1px rgba(8,8,8,0.55)', paintOrder: 'stroke fill' }}>
+          style={{ color: CHALK_CREAM, fontFamily: HAND, fontSize: FS_FOCAL, textShadow: CHALK_TEXT_SHADOW, letterSpacing: '0.01em', lineHeight: 1.05, WebkitTextStroke: '1px rgba(8,8,8,0.55)', paintOrder: 'stroke fill' }}>
           {focalName}
         </h2>
 
@@ -591,22 +591,22 @@ export default function AlphaModeDetailsCard({
           <button type="button" onClick={goPrev}
             data-testid="alpha-carousel-prev"
             className="px-3 py-1 rounded-md"
-            style={{ color: CHALK_CREAM, background: 'rgba(255,255,255,0.04)', border: `1px solid ${view.color}55`, fontFamily: FONT, fontSize: FS_LENS, lineHeight: 1, textShadow: CHALK_TEXT_SHADOW }}>
+            style={{ color: CHALK_CREAM, background: 'rgba(255,255,255,0.04)', border: `1px solid ${view.color}55`, fontFamily: TEXT, fontSize: FS_LENS, lineHeight: 1, textShadow: CHALK_TEXT_SHADOW }}>
             ←
           </button>
           <div className="flex flex-col items-center">
             <span data-testid="alpha-lens-title"
-              style={{ color: view.color, fontFamily: FONT, fontSize: FS_LENS, textShadow: `0 0 6px ${view.color}55`, ...TEXT_OUTLINE }}>
+              style={{ color: view.color, fontFamily: TEXT, fontSize: FS_LENS, textShadow: `0 0 6px ${view.color}55`, ...TEXT_OUTLINE }}>
               {view.label}
             </span>
-            <span className="uppercase tracking-wider" style={{ color: CHALK_SUB, fontFamily: FONT, fontSize: FS_SUB }}>
+            <span className="uppercase tracking-wider" style={{ color: CHALK_SUB, fontFamily: TEXT, fontSize: FS_SUB }}>
               {viewIdx + 1} / {VIEWS.length} · swipe to change
             </span>
           </div>
           <button type="button" onClick={goNext}
             data-testid="alpha-carousel-next"
             className="px-3 py-1 rounded-md"
-            style={{ color: CHALK_CREAM, background: 'rgba(255,255,255,0.04)', border: `1px solid ${view.color}55`, fontFamily: FONT, fontSize: FS_LENS, lineHeight: 1, textShadow: CHALK_TEXT_SHADOW }}>
+            style={{ color: CHALK_CREAM, background: 'rgba(255,255,255,0.04)', border: `1px solid ${view.color}55`, fontFamily: TEXT, fontSize: FS_LENS, lineHeight: 1, textShadow: CHALK_TEXT_SHADOW }}>
             →
           </button>
         </div>
@@ -618,7 +618,7 @@ export default function AlphaModeDetailsCard({
           {view.id === 'surprising' ? (
             <div className="text-center mb-3 uppercase tracking-wider"
               data-testid="alpha-surprising-hint"
-              style={{ color: view.color, fontFamily: FONT, fontSize: FS_SUB }}>
+              style={{ color: view.color, fontFamily: TEXT, fontSize: FS_SUB }}>
               Strong pairings · no obvious flavor overlap
             </div>
           ) : (
@@ -647,11 +647,11 @@ export default function AlphaModeDetailsCard({
         {/* Plain-language explanation of what the ring is showing */}
         <p className="text-center mt-1 mb-0.5 flex-shrink-0 leading-snug"
           data-testid="alpha-pairing-blurb"
-          style={{ color: CHALK_DIM, fontFamily: FONT, fontSize: FS_CAPTION, textShadow: CHALK_TEXT_SHADOW, maxWidth: '34rem', marginInline: 'auto' }}>
+          style={{ color: CHALK_DIM, fontFamily: TEXT, fontSize: FS_CAPTION, textShadow: CHALK_TEXT_SHADOW, maxWidth: '34rem', marginInline: 'auto' }}>
           {blurbText}
         </p>
         <span className="block text-center uppercase tracking-wider flex-shrink-0"
-          style={{ color: CHALK_SUB, fontFamily: FONT, fontSize: FS_SUB, textShadow: CHALK_TEXT_SHADOW }}>
+          style={{ color: CHALK_SUB, fontFamily: TEXT, fontSize: FS_SUB, textShadow: CHALK_TEXT_SHADOW }}>
           Tap to name · double-tap to inspect
         </span>
       </div>
@@ -663,7 +663,7 @@ export default function AlphaModeDetailsCard({
           color: '#bbf7d0',
           background: 'rgba(16, 78, 51, 0.55)',
           border: '1.5px solid rgba(110, 231, 183, 0.45)',
-          fontFamily: FONT,
+          fontFamily: TEXT,
           fontSize: FS_LENS,
           textShadow: CHALK_TEXT_SHADOW,
         }}>

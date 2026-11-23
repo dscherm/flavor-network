@@ -17,8 +17,9 @@
  */
 import FlavorSwipe from './FlavorSwipe.jsx';
 import { groupBars } from '../data/flavorDisplay.js';
-import { heading, small, SANS, CHALK_CREAM, CHALK_SUB } from './inventUi.jsx';
+import { heading, small, CHALK_CREAM, CHALK_SUB } from './inventUi.jsx';
 
+import { TEXT } from '../data/chalkTheme.js';
 export default function InventFlavorProfile({ profile, title = 'Flavor profile', labels = {}, testidPrefix = 'profile' }) {
   const L = {
     empty: 'Add ingredients with flavor data to see a profile.',
@@ -35,7 +36,7 @@ export default function InventFlavorProfile({ profile, title = 'Flavor profile',
     return (
       <div data-testid={p} className="min-w-0">
         <p className="mb-1" style={heading}>{title}</p>
-        <p className="text-[14px]" style={{ fontFamily: SANS, color: CHALK_SUB }} data-testid={`${p}-empty`}>{profile.summary || 'Not enough flavor data for a chart yet.'}</p>
+        <p className="text-[14px]" style={{ fontFamily: TEXT, color: CHALK_SUB }} data-testid={`${p}-empty`}>{profile.summary || 'Not enough flavor data for a chart yet.'}</p>
       </div>
     );
   }
@@ -43,11 +44,11 @@ export default function InventFlavorProfile({ profile, title = 'Flavor profile',
     <div data-testid={p} className="min-w-0">
       <p className="mb-1" style={heading}>{title}</p>
       {bars.length === 0
-        ? <p className="text-[14px]" style={{ fontFamily: SANS, color: CHALK_SUB }} data-testid={`${p}-empty`}>{L.empty}</p>
+        ? <p className="text-[14px]" style={{ fontFamily: TEXT, color: CHALK_SUB }} data-testid={`${p}-empty`}>{L.empty}</p>
         : (
           <FlavorSwipe bars={profile.bars} testidPrefix={p} />
         )}
-      {bars.length === 0 && profile?.summary ? <p className="mt-2 text-[14px]" style={{ fontFamily: SANS, color: CHALK_CREAM }} data-testid={`${p}-summary`}>{profile.summary}</p> : null}
+      {bars.length === 0 && profile?.summary ? <p className="mt-2 text-[14px]" style={{ fontFamily: TEXT, color: CHALK_CREAM }} data-testid={`${p}-summary`}>{profile.summary}</p> : null}
       {uncounted.length > 0 && (
         <p className="mt-1 text-[12px]" style={small} data-testid={`${p}-uncounted`}>{L.uncounted}: {uncounted.join(', ')}</p>
       )}

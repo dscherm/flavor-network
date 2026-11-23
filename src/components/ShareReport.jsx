@@ -7,8 +7,9 @@
  */
 import { useState } from 'react';
 import { buildReport, recordReport, reportsLeft, REPORT_LIMIT_MESSAGE, REPORT_REASONS, NOTE_MAX } from '../data/shareReport.js';
-import { SANS, CHALK_CREAM, CHALK_DIM, CHALK_RAIL, ACCENT, btn, inputStyle } from './inventUi.jsx';
+import { CHALK_CREAM, CHALK_DIM, CHALK_RAIL, ACCENT, btn, inputStyle } from './inventUi.jsx';
 
+import { TEXT } from '../data/chalkTheme.js';
 const tap = { minHeight: 44 };
 
 async function defaultSend(report) {
@@ -25,12 +26,12 @@ export default function ShareReport({ shareId, sendReport = defaultSend, now }) 
   const [sent, setSent] = useState(false);
 
   if (sent) {
-    return <p role="status" data-testid="report-thanks" className="text-[14px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>Thanks. The report was sent.</p>;
+    return <p role="status" data-testid="report-thanks" className="text-[14px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>Thanks. The report was sent.</p>;
   }
   if (!open) {
     return (
       <button type="button" data-testid="report-open" onClick={() => setOpen(true)}
-        className="inline-flex items-center underline text-[14px] px-1" style={{ ...tap, fontFamily: SANS, color: CHALK_DIM, background: 'none', border: 0 }}>
+        className="inline-flex items-center underline text-[14px] px-1" style={{ ...tap, fontFamily: TEXT, color: CHALK_DIM, background: 'none', border: 0 }}>
         Report
       </button>
     );
@@ -52,8 +53,8 @@ export default function ShareReport({ shareId, sendReport = defaultSend, now }) 
 
   return (
     <section data-testid="report-sheet" aria-label="Report this recipe" className="rounded-lg p-4" style={{ border: `1px solid ${CHALK_RAIL}` }}>
-      <p className="text-[15px]" style={{ fontFamily: SANS, color: CHALK_CREAM }}>What is wrong with this recipe?</p>
-      <label className="block mt-2 text-[14px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+      <p className="text-[15px]" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>What is wrong with this recipe?</p>
+      <label className="block mt-2 text-[14px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
         Reason
         <select data-testid="report-reason" value={reason} onChange={(e) => setReason(e.target.value)}
           className="block w-full mt-1 rounded-lg px-3" style={{ ...inputStyle, ...tap }}>
@@ -61,15 +62,15 @@ export default function ShareReport({ shareId, sendReport = defaultSend, now }) 
           {REPORT_REASONS.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
         </select>
       </label>
-      <label className="block mt-3 text-[14px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+      <label className="block mt-3 text-[14px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
         Note (optional)
         <textarea data-testid="report-note" value={note} maxLength={NOTE_MAX} rows={3} onChange={(e) => setNote(e.target.value)}
           className="block w-full mt-1 rounded-lg px-3 py-2" style={inputStyle} />
       </label>
-      <p className="mt-1 text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+      <p className="mt-1 text-[12px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
         Reports are anonymous. We do not store who sent them. {note.length}/{NOTE_MAX}
       </p>
-      {msg && <p role="alert" data-testid="report-error" className="mt-2 text-[14px]" style={{ fontFamily: SANS, color: '#fda4af' }}>{msg}</p>}
+      {msg && <p role="alert" data-testid="report-error" className="mt-2 text-[14px]" style={{ fontFamily: TEXT, color: '#fda4af' }}>{msg}</p>}
       <div className="mt-3 flex gap-2">
         <button type="button" data-testid="report-send" disabled={busy} onClick={submit}
           className="inline-flex items-center justify-center rounded-lg px-4" style={{ ...btn({ background: `${ACCENT}55`, borderColor: ACCENT }), ...tap }}>

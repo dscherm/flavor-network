@@ -19,6 +19,7 @@
  * IngredientBuilderScope wraps a builder: names inside it offer "Add to this recipe" (onAdd) and know what is
  * already in the recipe (has).
  */
+import { Info } from './ChalkIcons.jsx';
 import { createContext, lazy, Suspense, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { resolveCardIngredient } from '../data/ingredientCard.js';
 
@@ -172,8 +173,8 @@ export function IngredientInfoButton({ name, loose = false, onAdd, onSwap, swapF
   return (
     <button type="button" onClick={open} aria-label={`About ${name}`} data-testid={testid} data-ingredient-info={name}
       className={`inline-flex items-center justify-center rounded-full flex-shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${className}`.trim()}
-      style={{ minWidth: 44, minHeight: 44, background: 'none', border: 'none', color: '#bdb6a3', fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 18, cursor: 'pointer', outlineColor: '#f5efde', ...style }}>
-      <span aria-hidden="true" className="rounded-full inline-flex items-center justify-center" style={{ width: 22, height: 22, border: '1px solid #8a8478' }}>i</span>
+      style={{ minWidth: 44, minHeight: 44, background: 'none', border: 'none', color: '#bdb6a3', cursor: 'pointer', outlineColor: '#f5efde', ...style }}>
+      <Info size={20} />
     </button>
   );
 }

@@ -20,10 +20,11 @@
  *   pictureNote     one plain line shown after a save when the picture could not be kept (the item itself is saved)
  * Test ids: {p} root, {p}-name, {p}-save, {p}-reason, {p}-status.
  */
-import { btn, inputStyle, SANS, CHALK_CREAM, CHALK_DIM, ACCENT } from './inventUi.jsx';
+import { btn, inputStyle, CHALK_CREAM, CHALK_DIM, ACCENT } from './inventUi.jsx';
 import { OwnShareButton } from './OwnShare.jsx';
 import PictureField from './PictureField.jsx';
 
+import { TEXT } from '../data/chalkTheme.js';
 export default function InventNameSave({
   name = '', onName, placeholder = 'Name it', canSave = false, disabledReason = 'Add a name and at least two ingredients.',
   saveLabel = 'Save', onSave, status = 'idle', message = '', maxLength = 80, testidPrefix = 'namesave', shareItem = null, onNameCommit, pictureField = null, pictureNote = '',
@@ -41,13 +42,13 @@ export default function InventNameSave({
         style={btn({ background: disabled ? 'transparent' : `${ACCENT}33`, opacity: disabled ? 0.55 : 1, color: CHALK_CREAM })}>
         {saving ? 'Saving…' : saveLabel}
       </button>
-      {!canSave && !saving && <p className="text-[13px]" style={{ fontFamily: SANS, color: CHALK_DIM }} data-testid={`${p}-reason`}>{disabledReason}</p>}
+      {!canSave && !saving && <p className="text-[13px]" style={{ fontFamily: TEXT, color: CHALK_DIM }} data-testid={`${p}-reason`}>{disabledReason}</p>}
       {shown && status !== 'idle' && status !== 'saving' && (
-        <p role={status === 'error' ? 'alert' : 'status'} className="text-[14px]" style={{ fontFamily: SANS, color: status === 'error' ? ACCENT : CHALK_CREAM }}
+        <p role={status === 'error' ? 'alert' : 'status'} className="text-[14px]" style={{ fontFamily: TEXT, color: status === 'error' ? ACCENT : CHALK_CREAM }}
           data-testid={`${p}-status`} data-status={status}>{shown}</p>
       )}
       {status === 'saved' && pictureNote && (
-        <p role="status" data-testid={`${p}-picture-note`} className="text-[14px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>{pictureNote}</p>
+        <p role="status" data-testid={`${p}-picture-note`} className="text-[14px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>{pictureNote}</p>
       )}
       {status === 'saved' && shareItem?.item && (
         <OwnShareButton kind={shareItem.kind} item={shareItem.item} testid={`${p}-share`} className="w-full" />

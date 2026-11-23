@@ -30,14 +30,13 @@ import { buildPairingIndex, rankByPairing } from '../data/recipePairingMatch.js'
 import { recipeTakesSauce } from '../data/sauceRecommendation.js';
 import HelpBubble from './HelpBubble.jsx';
 import { Close, ChevronLeft, ChevronRight } from './ChalkIcons.jsx';
-const SANS_STACK = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 import { curateCodexRaw } from '../data/cocktailCodexV2.js';
 import { groupBars, selectAxes, hiddenLine } from '../data/flavorDisplay.js';
 import FlavorWheel from './FlavorWheel.jsx';
 import { ingredientMarks } from '../data/flavorMarks.js';
 import { IngredientName } from './IngredientCardProvider.jsx';
 // CK-14: fold the duplicated chalkboard palette onto the shared theme.
-import { FONT, CHALK_BG, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL as CHALK_BORDER_OUTER } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_BG, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL as CHALK_BORDER_OUTER } from '../data/chalkTheme.js';
 
 const CHALK_BORDER_INNER = '#6a6a6a';
 const CHALK_TEXT_SHADOW = '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)';
@@ -103,7 +102,7 @@ function Chip({ name, delta, onTap }) {
       style={{
         minHeight: 40, paddingTop: 5, paddingBottom: 5,
         background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT,
-        fontFamily: FONT, fontSize: 16, textShadow: CHALK_TEXT_SHADOW,
+        fontFamily: TEXT, fontSize: 16, textShadow: CHALK_TEXT_SHADOW,
       }}
       title={`Add ${name}`}
     >
@@ -137,14 +136,14 @@ function EnhanceCard({ name, node, onTap }) {
     >
       <span
         className="flex items-center justify-center rounded-full"
-        style={{ width: 38, height: 38, backgroundColor: fill, boxShadow: `0 0 10px ${fill}66`, color: '#0a0a0f', fontSize: 19, fontWeight: 700, fontFamily: FONT }}
+        style={{ width: 38, height: 38, backgroundColor: fill, boxShadow: `0 0 10px ${fill}66`, color: '#0a0a0f', fontSize: 19, fontWeight: 700, fontFamily: TEXT }}
         aria-hidden="true"
       >
         {ch}
       </span>
       <span
         className="text-center leading-tight"
-        style={{ color: CHALK_CREAM, fontFamily: FONT, fontSize: 15, lineHeight: 1.05, textShadow: CHALK_TEXT_SHADOW }}
+        style={{ color: CHALK_CREAM, fontFamily: TEXT, fontSize: 15, lineHeight: 1.05, textShadow: CHALK_TEXT_SHADOW }}
       >
         {name}
       </span>
@@ -170,19 +169,19 @@ function FlavorBarChart({ scores, all = false, onToggleAll }) {
   }, [scores, all]);
 
   if (shown.length === 0) {
-    return <p className="text-sm py-2" style={{ fontFamily: FONT, color: CHALK_SUB }}>No flavor signal yet.</p>;
+    return <p className="text-sm py-2" style={{ fontFamily: TEXT, color: CHALK_SUB }}>No flavor signal yet.</p>;
   }
   return (
     <div className="flex flex-col gap-2" data-testid="profiles-overview-bars">
       {groups.map((g) => (
         <div key={g.id} data-testid={`overview-group-${g.id}`}>
-          <p className="text-[13px] mb-1" style={{ fontFamily: SANS_STACK, color: CHALK_SUB }}>{g.title}</p>
+          <p className="text-[13px] mb-1" style={{ fontFamily: TEXT, color: CHALK_SUB }}>{g.title}</p>
           <div className="flex flex-col gap-2">
             {g.bars.map((r) => (
               <div key={r.axis} className="flex items-center gap-2" data-testid="overview-bar" data-axis={r.axis}>
                 <span
                   className="text-base capitalize flex-shrink-0 text-right"
-                  style={{ fontFamily: FONT, color: axisColor(r.axis), width: 84, textShadow: CHALK_TEXT_SHADOW }}
+                  style={{ fontFamily: TEXT, color: axisColor(r.axis), width: 84, textShadow: CHALK_TEXT_SHADOW }}
                 >
                   {axisLabel(r.axis)}
                 </span>
@@ -192,7 +191,7 @@ function FlavorBarChart({ scores, all = false, onToggleAll }) {
                     style={{ width: `${Math.max(2, r.width)}%`, background: axisColor(r.axis) }}
                   />
                 </div>
-                <span className="text-sm flex-shrink-0 tabular-nums" style={{ fontFamily: FONT, color: CHALK_DIM, width: 36 }}>
+                <span className="text-sm flex-shrink-0 tabular-nums" style={{ fontFamily: TEXT, color: CHALK_DIM, width: 36 }}>
                   {Math.round(r.share * 100)}%
                 </span>
               </div>
@@ -201,7 +200,7 @@ function FlavorBarChart({ scores, all = false, onToggleAll }) {
         </div>
       ))}
       {(hidden > 0 || all) && (
-        <p className="text-sm flex items-center gap-3" style={{ fontFamily: FONT, color: CHALK_DIM }}>
+        <p className="text-sm flex items-center gap-3" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
           {hidden > 0 && <span data-testid="overview-hidden">{hiddenLine(hidden)}</span>}
           {(canShowAll || all) && (
             <button type="button" onClick={onToggleAll} data-testid="overview-showall" aria-pressed={all} className="underline min-h-[36px]" style={{ color: CHALK_CREAM }}>
@@ -396,11 +395,11 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
           data-testid="profiles-back"
           aria-label="Back"
           className="min-h-[44px] px-3 rounded-lg border border-[#3a3a3a] hover:bg-white/5"
-          style={{ fontFamily: FONT, fontSize: 17, color: CHALK_DIM }}
+          style={{ fontFamily: TEXT, fontSize: 17, color: CHALK_DIM }}
         >
           Back
         </button>
-        <span className="text-[22px] text-center flex-1 px-2" style={{ fontFamily: FONT, color: CHALK_CREAM }}>Flavor notes</span>
+        <span className="text-[22px] text-center flex-1 px-2" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>Flavor notes</span>
         <div className="flex items-center gap-0.5">
           <HelpBubble
             variant="chalk"
@@ -420,25 +419,25 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
 
       <div className="px-4 pb-2 overflow-y-auto" style={{ flex: 1 }}>
         {!drawn && (
-          <p className="text-base py-6 text-center" data-testid="profiles-no-chart" style={{ fontFamily: FONT, color: CHALK_SUB }}>
+          <p className="text-base py-6 text-center" data-testid="profiles-no-chart" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
             {bowlNames.length === 0 ? 'Add ingredients with flavor data to see profiles.' : NO_CHART_LINE}
           </p>
         )}
 
         {drawn && isOverview && (
           <div data-testid="profiles-overview">
-            <h3 className="text-2xl mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_TEXT_SHADOW }}>Overview</h3>
-            <p className="text-sm mb-2" style={{ fontFamily: FONT, color: CHALK_DIM }}>
+            <h3 className="text-2xl mb-1" style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_TEXT_SHADOW }}>Overview</h3>
+            <p className="text-sm mb-2" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
               {overview.weighted ? 'Flavor balance, weighted by amount' : 'Flavor balance — add amounts to weight it'}
             </p>
             <FlavorBarChart scores={overview.scores} all={showAll} onToggleAll={() => setShowAll((v) => !v)} />
-            <p className="text-xs mt-1" data-testid="profiles-note" style={{ fontFamily: FONT, color: CHALK_DIM }}>
+            <p className="text-xs mt-1" data-testid="profiles-note" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
               Built from taste labels and aroma notes for each ingredient, weighted by amount. A guide, not a taste test.
             </p>
             <p
               className="text-base mt-3"
               data-testid="profiles-description"
-              style={{ fontFamily: FONT, color: CHALK_CREAM, lineHeight: 1.45, textShadow: CHALK_TEXT_SHADOW }}
+              style={{ fontFamily: TEXT, color: CHALK_CREAM, lineHeight: 1.45, textShadow: CHALK_TEXT_SHADOW }}
             >
               {description}
             </p>
@@ -447,18 +446,18 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
 
         {drawn && isMap && (
           <div className="flex flex-col items-center">
-            <h3 className="text-2xl self-start mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_TEXT_SHADOW }}>Flavor map</h3>
+            <h3 className="text-2xl self-start mb-1" style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_TEXT_SHADOW }}>Flavor map</h3>
             <div style={{ width: 'min(100%, 60vh)' }}>
               <FlavorWheel bars={wheelBars} testidPrefix="flavor-map" marks={marks} />
             </div>
-            <p className="text-sm mt-1 text-center" style={{ fontFamily: FONT, color: CHALK_DIM }}>The recipe's flavor on a fixed wheel; each dot is one ingredient, near the notes it has most of</p>
+            <p className="text-sm mt-1 text-center" style={{ fontFamily: TEXT, color: CHALK_DIM }}>The recipe's flavor on a fixed wheel; each dot is one ingredient, near the notes it has most of</p>
           </div>
         )}
 
         {!isMap && !isPairings && axis && (
           <div>
             <div className="flex items-baseline gap-2">
-              <h3 className="text-2xl capitalize" style={{ fontFamily: FONT, color: axisColor(axis), textShadow: CHALK_TEXT_SHADOW }}>{axisLabel(axis)}</h3>
+              <h3 className="text-2xl capitalize" style={{ fontFamily: HAND, color: axisColor(axis), textShadow: CHALK_TEXT_SHADOW }}>{axisLabel(axis)}</h3>
               <span className="text-sm" style={{ color: CHALK_DIM }}>{Math.round(scores[axis] * 100)}%</span>
             </div>
             {/* score bar */}
@@ -466,7 +465,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
               <div className="h-2 rounded-full" style={{ width: `${Math.min(100, scores[axis] * 100)}%`, background: axisColor(axis) }} />
             </div>
             {drivers[axis]?.length > 0 && (
-              <p className="text-sm mb-1 flex flex-wrap items-center gap-x-1" style={{ fontFamily: FONT, color: CHALK_DIM }}>
+              <p className="text-sm mb-1 flex flex-wrap items-center gap-x-1" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
                 Driven by:
                 <span className="inline-flex flex-wrap items-center" style={{ color: CHALK_CREAM }} data-testid="axis-drivers">
                   {drivers[axis].map((d, i) => (
@@ -475,11 +474,11 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
                 </span>
               </p>
             )}
-            <p className="text-base mb-2" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{axisInsight(axis, scores[axis])}</p>
+            <p className="text-base mb-2" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>{axisInsight(axis, scores[axis])}</p>
 
             {boost.length > 0 && (
               <div className="mb-1.5">
-                <p className="text-[13px] mb-0.5" style={{ fontFamily: SANS_STACK, color: CHALK_SUB }}>For more {axisLabel(axis).toLowerCase()}</p>
+                <p className="text-[13px] mb-0.5" style={{ fontFamily: TEXT, color: CHALK_SUB }}>For more {axisLabel(axis).toLowerCase()}</p>
                 <div className="flex gap-1 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
                   {boost.map((b) => <Chip key={`b-${b.name}`} name={b.name} delta={b.delta} onTap={addWithQty} />)}
                 </div>
@@ -487,7 +486,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
             )}
             {temper.length > 0 && (
               <div>
-                <p className="text-[13px] mb-0.5" style={{ fontFamily: SANS_STACK, color: CHALK_SUB }}>To balance it</p>
+                <p className="text-[13px] mb-0.5" style={{ fontFamily: TEXT, color: CHALK_SUB }}>To balance it</p>
                 <div className="flex gap-1 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
                   {temper.map((t) => <Chip key={`t-${t.name}`} name={t.name} onTap={addWithQty} />)}
                 </div>
@@ -498,9 +497,9 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
 
         {drawn && isEnhance && (
           <div data-testid="profiles-enhance">
-            <h3 className="text-2xl mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_TEXT_SHADOW }}>Enhance</h3>
+            <h3 className="text-2xl mb-1" style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_TEXT_SHADOW }}>Enhance</h3>
             {enhanceRows.length === 0 ? (
-              <p className="text-base py-4" style={{ fontFamily: FONT, color: CHALK_SUB }}>
+              <p className="text-base py-4" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
                 Tap-to-add suggestions appear here once the recipe model has loaded.
               </p>
             ) : (
@@ -509,7 +508,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
                   <div key={`enh-${a}`} data-testid="enhance-axis" data-axis={a}>
                     {bst.length > 0 && (
                       <>
-                        <p className="text-base mb-1" style={{ fontFamily: FONT, color: axisColor(a), textShadow: CHALK_TEXT_SHADOW }}>
+                        <p className="text-base mb-1" style={{ fontFamily: TEXT, color: axisColor(a), textShadow: CHALK_TEXT_SHADOW }}>
                           More {axisLabel(a).toLowerCase()}? Try…
                         </p>
                         <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
@@ -519,7 +518,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
                     )}
                     {tmp.length > 0 && (
                       <>
-                        <p className="text-[13px] mt-1.5 mb-1" style={{ fontFamily: SANS_STACK, color: CHALK_SUB }}>
+                        <p className="text-[13px] mt-1.5 mb-1" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
                           Tone down {axisLabel(a).toLowerCase()}
                         </p>
                         <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
@@ -536,11 +535,11 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
 
         {isPairings && (
           <div>
-            <h3 className="text-2xl mb-2" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_TEXT_SHADOW }}>Pairs well with</h3>
+            <h3 className="text-2xl mb-2" style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_TEXT_SHADOW }}>Pairs well with</h3>
             {dishes.length > 0 && (
               <div className="mb-2">
-                <p className="text-[13px] mb-0.5" style={{ fontFamily: SANS_STACK, color: CHALK_SUB }}>Similar dishes</p>
-                <ul className="text-base flex flex-col gap-2" style={{ fontFamily: FONT, color: CHALK_CREAM }}>
+                <p className="text-[13px] mb-0.5" style={{ fontFamily: TEXT, color: CHALK_SUB }}>Similar dishes</p>
+                <ul className="text-base flex flex-col gap-2" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>
                   {dishes.map((d) => <li key={d}>{d}</li>)}
                 </ul>
               </div>
@@ -549,7 +548,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
                 Cocktail Lab. Falls back to the generic button if no matches. */}
             {onFindCocktail && (
               <div className="mb-2">
-                <p className="text-[13px] mb-0.5" style={{ fontFamily: SANS_STACK, color: CHALK_SUB }}>Cocktails</p>
+                <p className="text-[13px] mb-0.5" style={{ fontFamily: TEXT, color: CHALK_SUB }}>Cocktails</p>
                 {cocktailMatches.length > 0 ? (
                   <div className="flex flex-wrap gap-1.5" data-testid="pairings-cocktail-names">
                     {cocktailMatches.map(({ item, similarity }) => (
@@ -557,7 +556,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
                         key={item.name}
                         onClick={onFindCocktail}
                         className="min-h-[40px] px-3 rounded-full border"
-                        style={{ fontFamily: FONT, fontSize: 16, background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT, textShadow: CHALK_TEXT_SHADOW }}
+                        style={{ fontFamily: TEXT, fontSize: 16, background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT, textShadow: CHALK_TEXT_SHADOW }}
                         title={`${Math.round((similarity || 0) * 100)}% match — open in Cocktail Lab`}
                       >
                         {item.name}
@@ -565,7 +564,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
                     ))}
                   </div>
                 ) : (
-                  <button onClick={onFindCocktail} className="min-h-[44px] px-4 rounded-full border" style={{ fontFamily: FONT, fontSize: 16, background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT, textShadow: CHALK_TEXT_SHADOW }}>Find cocktails</button>
+                  <button onClick={onFindCocktail} className="min-h-[44px] px-4 rounded-full border" style={{ fontFamily: TEXT, fontSize: 16, background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT, textShadow: CHALK_TEXT_SHADOW }}>Find cocktails</button>
                 )}
               </div>
             )}
@@ -573,15 +572,15 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
             {/* 🍷 Wines — opens the Wine Lab's matches for this recipe. */}
             {onFindWine && recipeType !== 'drink' && (
               <div className="mb-2">
-                <p className="text-[13px] mb-0.5" style={{ fontFamily: SANS_STACK, color: CHALK_SUB }}>Wine</p>
-                <button onClick={onFindWine} data-testid="pairings-find-wines" className="min-h-[44px] px-4 rounded-full border" style={{ fontFamily: FONT, fontSize: 16, background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT, textShadow: CHALK_TEXT_SHADOW }}>Find wines</button>
+                <p className="text-[13px] mb-0.5" style={{ fontFamily: TEXT, color: CHALK_SUB }}>Wine</p>
+                <button onClick={onFindWine} data-testid="pairings-find-wines" className="min-h-[44px] px-4 rounded-full border" style={{ fontFamily: TEXT, fontSize: 16, background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT, textShadow: CHALK_TEXT_SHADOW }}>Find wines</button>
               </div>
             )}
 
             {/* 🥣 Sauces — gated by recipeTakesSauce; best-pairing names. */}
             {onFindSauce && recipeTakesSauce(recipeType) && (
               <div>
-                <p className="text-[13px] mb-0.5" style={{ fontFamily: SANS_STACK, color: CHALK_SUB }}>Sauces</p>
+                <p className="text-[13px] mb-0.5" style={{ fontFamily: TEXT, color: CHALK_SUB }}>Sauces</p>
                 {sauceMatches.length > 0 ? (
                   <div className="flex flex-wrap gap-1.5" data-testid="pairings-sauce-names">
                     {sauceMatches.map(({ item, similarity }) => (
@@ -589,7 +588,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
                         key={item.name}
                         onClick={onFindSauce}
                         className="min-h-[40px] px-3 rounded-full border"
-                        style={{ fontFamily: FONT, fontSize: 16, background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT, textShadow: CHALK_TEXT_SHADOW }}
+                        style={{ fontFamily: TEXT, fontSize: 16, background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT, textShadow: CHALK_TEXT_SHADOW }}
                         title={`${Math.round((similarity || 0) * 100)}% match — open in Sauce Lab`}
                       >
                         {item.name}
@@ -597,7 +596,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
                     ))}
                   </div>
                 ) : (
-                  <button onClick={onFindSauce} className="min-h-[44px] px-4 rounded-full border" style={{ fontFamily: FONT, fontSize: 16, background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT, textShadow: CHALK_TEXT_SHADOW }}>Find sauces</button>
+                  <button onClick={onFindSauce} className="min-h-[44px] px-4 rounded-full border" style={{ fontFamily: TEXT, fontSize: 16, background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT, textShadow: CHALK_TEXT_SHADOW }}>Find sauces</button>
                 )}
               </div>
             )}
@@ -609,7 +608,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
         <div
           data-testid="profiles-swipe-hint"
           className="text-center pb-1 flex-shrink-0 animate-pulse"
-          style={{ fontFamily: FONT, fontSize: 15, color: CHALK_SUB }}
+          style={{ fontFamily: TEXT, fontSize: 15, color: CHALK_SUB }}
         >
           Swipe or use the arrows to explore every flavor page
         </div>

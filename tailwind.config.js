@@ -15,7 +15,7 @@ export default {
         },
       },
       fontFamily: {
-        mono: ['"JetBrains Mono"', 'monospace'],
+        sans: ['"Alegreya Sans"', 'sans-serif'],
       },
       boxShadow: {
         glow: '0 0 20px rgba(79, 143, 255, 0.3)',

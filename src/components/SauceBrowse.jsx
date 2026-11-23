@@ -1,13 +1,20 @@
 import { useMemo, useState } from 'react';
 import { useNoResultSearch } from '../hooks/useUsage.js';
 import {
-  FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle,
+  TEXT,
+  HAND,
+  CHALK_CREAM,
+  CHALK_DIM,
+  CHALK_SUB,
+  CHALK_RAIL,
+  CHALK_SHADOW,
+  chalkSurfaceStyle,
 } from '../data/chalkTheme.js';
 import { parseQuery, matchItem, buildIngredientVocab } from '../data/ingredientSearch.js';
 import { popColor, sauceVesselFor, vesselMark } from './sauceVessels.jsx';
 import { UNCATEGORISED } from '../data/savedInventions.js';
 import PictureView from './PictureView.jsx';
-import { SANS } from './inventUi.jsx';
+
 import { Whisk, Search } from './ChalkIcons.jsx';
 
 /**
@@ -150,7 +157,7 @@ export default function SauceBrowse({
     <div className="inline-flex flex-col items-start">
       <button type="button" onClick={() => onInventThis(searchTerm.trim())} data-testid="sauce-invent-this"
         className="px-4 py-1 rounded-full border min-h-[44px] text-[17px] inline-flex items-center gap-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-        style={{ fontFamily: FONT, borderColor: CHALK_CREAM, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
+        style={{ fontFamily: TEXT, borderColor: CHALK_CREAM, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
         <Whisk size={20} />
         Invent this
       </button>
@@ -163,7 +170,7 @@ export default function SauceBrowse({
   if (!codexData) {
     return (
       <div className="flex items-center justify-center w-full h-full pt-10" style={chalkSurfaceStyle()}>
-        <p className="text-base" style={{ fontFamily: FONT, color: CHALK_SUB }}>Chalking up the board…</p>
+        <p className="text-base" style={{ fontFamily: TEXT, color: CHALK_SUB }}>Chalking up the board…</p>
       </div>
     );
   }
@@ -208,7 +215,7 @@ export default function SauceBrowse({
           </svg>
         )}
         <span className="flex-1 min-w-0">
-          <span className="block truncate text-[20px]" style={{ fontFamily: FONT, color: isSelected ? CHALK_CREAM : popColor(fam.color), textShadow: `0 0 6px ${fam.color}66, ${CHALK_SHADOW}` }}>{s.name}</span>
+          <span className="block truncate text-[20px]" style={{ fontFamily: TEXT, color: isSelected ? CHALK_CREAM : popColor(fam.color), textShadow: `0 0 6px ${fam.color}66, ${CHALK_SHADOW}` }}>{s.name}</span>
           {searchHits?.get(s.name)?.length > 0 && (
             <span className="block truncate text-[11px]" style={{ color: CHALK_DIM }} data-search-hit>
               with {searchHits.get(s.name).join(', ')}
@@ -240,7 +247,7 @@ export default function SauceBrowse({
       <div className="px-4 pt-5 pb-2 max-w-4xl mx-auto text-center">
         <h1
           className="inline-block text-5xl sm:text-6xl pb-1.5"
-          style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW, borderBottom: `2px solid ${CHALK_DIM}88` }}
+          style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW, borderBottom: `2px solid ${CHALK_DIM}88` }}
         >
           Sauce Specials
         </h1>
@@ -283,12 +290,12 @@ export default function SauceBrowse({
                     <g transform={`translate(${cx} ${cy}) scale(${VESSEL_SCALE}) translate(${-cx} ${-cy})`} pointerEvents="none">
                       {vesselMark(sauceVesselFor(fam.name), cx, cy, fam.color, stroke, active)}
                     </g>
-                    <text x={cx} y={cy + 32} textAnchor="middle" fontSize="28" fontFamily="Caveat, cursive" fill={active ? CHALK_CREAM : fam.color} pointerEvents="none">
+                    <text x={cx} y={cy + 32} textAnchor="middle" fontSize="28" fontFamily={HAND} fill={active ? CHALK_CREAM : fam.color} pointerEvents="none">
                       {wrapName(fam.name).map((ln, li) => (
                         <tspan key={li} x={cx} dy={li === 0 ? 0 : 30}>{ln}</tspan>
                       ))}
                     </text>
-                    <text x={cx} y={cy + 32 + (wrapName(fam.name).length > 1 ? 30 : 0) + 24} textAnchor="middle" fontSize="26" fontFamily="Caveat, cursive" fill={CHALK_CREAM} fillOpacity="0.75" pointerEvents="none">{count} sauces</text>
+                    <text x={cx} y={cy + 32 + (wrapName(fam.name).length > 1 ? 30 : 0) + 24} textAnchor="middle" fontSize="26" fontFamily={TEXT} fill={CHALK_CREAM} fillOpacity="0.75" pointerEvents="none">{count} sauces</text>
                   </g>
                 );
               })}
@@ -297,7 +304,7 @@ export default function SauceBrowse({
         })()}
         {filterFamily != null && (
           <div className="text-center -mt-1">
-            <button type="button" onClick={() => onFilterFamily(null)} className="text-sm underline underline-offset-2" style={{ fontFamily: FONT, color: CHALK_DIM }}>
+            <button type="button" onClick={() => onFilterFamily(null)} className="text-sm underline underline-offset-2" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
               Show all families
             </button>
           </div>
@@ -320,7 +327,7 @@ export default function SauceBrowse({
           list="sauce-ingredient-vocab"
           data-sauce-search
           className="w-full pr-2.5 py-1.5 rounded-md focus:outline-none text-[16px]"
-          style={{ paddingLeft: 32, fontFamily: FONT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
+          style={{ paddingLeft: 32, fontFamily: TEXT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
         />
         </div>
         <datalist id="sauce-ingredient-vocab">
@@ -331,14 +338,14 @@ export default function SauceBrowse({
             {onOpenPantry && (
               <button type="button" onClick={onOpenPantry} data-testid="sauce-pantry-open"
                 className="px-3 py-1 rounded-full border min-h-[44px] text-[17px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                style={{ fontFamily: FONT, borderColor: CHALK_RAIL, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
+                style={{ fontFamily: TEXT, borderColor: CHALK_RAIL, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
                 My pantry{pantryCount ? ` (${pantryCount})` : ''}
               </button>
             )}
             {onOpenInvent && (
               <button type="button" onClick={onOpenInvent} data-testid="sauce-invent-open"
                 className="px-3 py-1 rounded-full border min-h-[44px] text-[17px] inline-flex items-center gap-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                style={{ fontFamily: FONT, borderColor: CHALK_RAIL, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
+                style={{ fontFamily: TEXT, borderColor: CHALK_RAIL, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
                 <Whisk size={20} />
                 Invent a sauce
               </button>
@@ -351,7 +358,7 @@ export default function SauceBrowse({
           </p>
         )}
         {searchHits && onInventThis && searchTerm.trim() && matchCount > 0 && <div className="mb-2">{inventButton}</div>}
-        <div className="text-[13px] mb-1" style={{ fontFamily: SANS, color: CHALK_SUB }}>Cuisines</div>
+        <div className="text-[13px] mb-1" style={{ fontFamily: TEXT, color: CHALK_SUB }}>Cuisines</div>
         <div className="flex flex-wrap items-center gap-1.5">
           {[{ key: null, label: 'All cuisines' }, ...cuisines.map((c) => ({ key: c, label: c }))].map((chip) => {
             const active = filterCuisine === chip.key;
@@ -362,7 +369,7 @@ export default function SauceBrowse({
                 onClick={() => onFilterCuisine(active ? null : chip.key)}
                 className="px-3 py-1 rounded-full text-[15px] border transition-colors"
                 style={{
-                  fontFamily: FONT,
+                  fontFamily: TEXT,
                   color: active ? '#0a0a0a' : CHALK_CREAM,
                   background: active ? CHALK_CREAM : 'rgba(255,255,255,0.04)',
                   borderColor: active ? CHALK_CREAM : `${CHALK_RAIL}99`,
@@ -379,7 +386,7 @@ export default function SauceBrowse({
       {/* ───── Menu sections — colored-chalk family headers ───── */}
       <div className="px-4 py-4 max-w-4xl mx-auto pb-24">
         {inventEmpty && (
-          <div className="text-center py-6" data-testid="sauce-invent-empty" style={{ fontFamily: FONT, color: CHALK_CREAM }}>
+          <div className="text-center py-6" data-testid="sauce-invent-empty" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>
             <p className="text-[20px] mb-3">No sauce has {parseQuery(searchTerm).join(' + ')} — invent one?</p>
             {inventButton}
             <p className="mt-3 text-[15px]" style={{ color: CHALK_SUB }}>
@@ -394,8 +401,8 @@ export default function SauceBrowse({
         {yoursShown.length > 0 && (
           <section className="mb-7" data-testid="sauce-yours-group" aria-label="Yours">
             <header className="flex items-baseline gap-2.5 mb-2 py-1.5" style={{ borderTop: `1.5px solid ${CHALK_CREAM}55`, borderBottom: `1.5px solid ${CHALK_CREAM}55` }}>
-              <h2 className="text-[36px] leading-none" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Yours</h2>
-              <span className="text-[13px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>{yoursShown.length} sauces</span>
+              <h2 className="text-[36px] leading-none" style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Yours</h2>
+              <span className="text-[13px]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>{yoursShown.length} sauces</span>
             </header>
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 ml-5">
               {yoursShown.map((m, idx) => {
@@ -416,8 +423,8 @@ export default function SauceBrowse({
                 <svg width="42" height="36" viewBox="-8 2 80 72" aria-hidden="true" style={{ flexShrink: 0 }}>
                   {vesselMark(famVessel, 32, 58, fam.color, fam.color, true)}
                 </svg>
-                <h2 className="text-[36px] leading-none" style={{ fontFamily: FONT, color: fam.color, textShadow: CHALK_SHADOW }}>{fam.name}</h2>
-                <span className="text-[13px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>{sorted.length} of {members.length} sauces</span>
+                <h2 className="text-[36px] leading-none" style={{ fontFamily: HAND, color: fam.color, textShadow: CHALK_SHADOW }}>{fam.name}</h2>
+                <span className="text-[13px]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>{sorted.length} of {members.length} sauces</span>
               </header>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 ml-5">
                 {sorted.map((s, idx) => (
@@ -428,7 +435,7 @@ export default function SauceBrowse({
           );
         })}
         {!inventEmpty && yoursShown.length === 0 && sections.every((x) => x.filtered.length === 0) && (
-          <div className="text-center text-base py-12" style={{ fontFamily: FONT, color: CHALK_SUB }}>
+          <div className="text-center text-base py-12" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
             No sauces match these filters.{' '}
             <button
               type="button"

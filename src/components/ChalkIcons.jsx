@@ -199,6 +199,17 @@ export const Help = (p) =>
     p,
   );
 
+export const Info = (p) =>
+  drawn(
+    'info',
+    [
+      'M12 3.4 C16.8 3.3 20.7 7.2 20.6 12 C20.5 16.8 16.6 20.7 11.9 20.6 C7.2 20.5 3.3 16.7 3.4 11.9 C3.5 7.4 7.2 3.6 11.6 3.4',
+      'M11.8 10.8 Q12.2 13.4 12 17',
+    ],
+    [[12, 7.6, 1.2]],
+    p,
+  );
+
 // Not icons (lower case on purpose: these are drawing helpers, not part of the icon set).
 // chalkUnderline: the short drawn mark under the current tab label. chalkRule: an uneven 1 px chalk line.
 export function chalkUnderline({ width = 22, style } = {}) {

@@ -16,8 +16,9 @@ import InventFlavorProfile from './InventFlavorProfile.jsx';
 import { profileForRecipe } from '../data/shareCardData.js';
 import { NO_CHART_LINE } from '../data/recipeProfileAnalysis.js';
 import { IngredientName } from './IngredientCardProvider.jsx';
-import { heading, small, SANS, CHALK_CREAM, CHALK_SUB } from './inventUi.jsx';
+import { heading, small, CHALK_CREAM, CHALK_SUB } from './inventUi.jsx';
 
+import { TEXT } from '../data/chalkTheme.js';
 export function useFlavorToggle(onOpen) {
   const [open, setOpen] = useState(false);
   const btnRef = useRef(null);
@@ -59,7 +60,7 @@ export function RecipeFlavorProfile({ recipe, nodes, testidPrefix = 'recipe-prof
     return (
       <div data-testid={testidPrefix} className="min-w-0">
         <p className="mb-1" style={heading}>Flavor profile</p>
-        <p className="text-[14px]" style={{ fontFamily: SANS, color: CHALK_SUB }} data-testid={`${testidPrefix}-empty`}>{NO_CHART_LINE}</p>
+        <p className="text-[14px]" style={{ fontFamily: TEXT, color: CHALK_SUB }} data-testid={`${testidPrefix}-empty`}>{NO_CHART_LINE}</p>
       </div>
     );
   }
@@ -71,7 +72,7 @@ export function RecipeFlavorProfile({ recipe, nodes, testidPrefix = 'recipe-prof
         <div className="mt-1" data-testid="flavor-profile-driven">
           <p style={{ ...small, fontSize: 13 }}>Where it comes from</p>
           {driven.map((d) => (
-            <p key={d.head} className="text-[13px]" style={{ fontFamily: SANS, color: CHALK_CREAM }}>
+            <p key={d.head} className="text-[13px]" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>
               {d.head}
               {d.keys.map((k, j) => <span key={k}>{j > 0 ? ', ' : ''}<IngredientName name={k} loose tall>{k}</IngredientName></span>)}
             </p>
@@ -88,7 +89,7 @@ export function FlavorProfileSection({ toggle, recipe, nodes, className = '', st
     <div id={FLAVOR_SECTION_ID} role="region" aria-label="Flavor profile" data-testid="flavor-profile-section" onKeyDown={toggle.onKeyDown}
       className={`rounded-xl px-3 py-3 ${className}`} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(245,239,222,0.18)', ...style }}>
       <RecipeFlavorProfile recipe={recipe} nodes={nodes} />
-      <button type="button" onClick={toggle.close} data-testid="flavor-profile-close" className="mt-1 min-h-[44px] px-2 text-[13px] underline" style={{ fontFamily: SANS, color: CHALK_SUB }}>
+      <button type="button" onClick={toggle.close} data-testid="flavor-profile-close" className="mt-1 min-h-[44px] px-2 text-[13px] underline" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
         Close
       </button>
     </div>

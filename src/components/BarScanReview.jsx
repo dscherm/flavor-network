@@ -7,12 +7,11 @@
  * Nothing is added until onAdd, called with the checked rows and items.
  */
 import { barKey as toBarKey, isBooze } from '../data/myBar.js';
-import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL } from '../data/chalkTheme.js';
 
-const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 const LONG_LIST = 25;
-const btn = { fontFamily: FONT, border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM };
-const field = { fontFamily: SANS, background: 'rgba(255,255,255,0.06)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM };
+const btn = { fontFamily: TEXT, border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM };
+const field = { fontFamily: TEXT, background: 'rgba(255,255,255,0.06)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM };
 
 /**
  * @param {{ rows: object[], other: object[], bar: string[], names?: Set<string>, roles?: object, vocab?: string[],
@@ -37,9 +36,9 @@ export default function BarScanReview({
   };
 
   return (
-    <section className="w-full rounded-xl px-3 py-3 mt-3" style={{ border: `1px solid ${CHALK_RAIL}`, background: 'rgba(255,255,255,0.03)', fontFamily: SANS, color: CHALK_CREAM }}
+    <section className="w-full rounded-xl px-3 py-3 mt-3" style={{ border: `1px solid ${CHALK_RAIL}`, background: 'rgba(255,255,255,0.03)', fontFamily: TEXT, color: CHALK_CREAM }}
       data-testid="bar-scan-review" aria-label="Bottles found in the photo">
-      <h3 className="text-[22px]" style={{ fontFamily: FONT }}>Found in your photo</h3>
+      <h3 className="text-[22px]" style={{ fontFamily: HAND }}>Found in your photo</h3>
       <p className="text-[13px]" style={{ color: CHALK_SUB }}>One shelf at a time, labels facing you.</p>
       {effective.length > LONG_LIST && (
         <p className="text-[13px] mt-1" data-testid="bar-scan-long-note" style={{ color: CHALK_DIM }}>
@@ -82,7 +81,7 @@ export default function BarScanReview({
 
       {other.length > 0 && (
         <div className="mt-3" data-testid="bar-scan-other">
-          <h4 className="text-[18px]" style={{ fontFamily: FONT }}>Also spotted</h4>
+          <h4 className="text-[18px]" style={{ fontFamily: HAND }}>Also spotted</h4>
           <p className="text-[12px]" style={{ color: CHALK_SUB }}>Not alcohol: these go to your kitchen list, not the bar.</p>
           <ul>
             {other.map((o) => (
@@ -100,7 +99,7 @@ export default function BarScanReview({
       <div className="mt-3 flex flex-wrap gap-2">
         <button type="button" disabled={total === 0 || busy} data-testid="bar-scan-add"
           onClick={() => onAdd(ready, otherReady)} className="px-4 rounded-md min-h-[44px] disabled:opacity-40"
-          style={{ fontFamily: FONT, color: '#0a0a0a', background: CHALK_CREAM }}>
+          style={{ fontFamily: TEXT, color: '#0a0a0a', background: CHALK_CREAM }}>
           Add {ready.length} to my bar
         </button>
         {onAnother && <button type="button" disabled={busy} data-testid="bar-scan-another" onClick={onAnother} className="px-4 rounded-md min-h-[44px] disabled:opacity-40" style={btn}>Add another photo</button>}

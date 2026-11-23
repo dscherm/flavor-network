@@ -1,4 +1,4 @@
-const FONT_FAMILY = 'Caveat, cursive';
+import { TEXT } from '../data/chalkTheme.js';
 
 // 7-pill recipe-type row per RECIPE-LAB-SPEC §16. Single-select with
 // re-tap to clear. Tapping a different pill replaces the previous
@@ -37,7 +37,7 @@ export default function RecipeTypePills({ value = null, onChange }) {
                 ? 'bg-[#e8dcc0] border-[#c9b99a] text-[#5a4a2a] font-medium'
                 : 'border-transparent text-[#a09070] hover:bg-[#f0e8d0]'
             }`}
-            style={{ fontFamily: FONT_FAMILY }}
+            style={{ fontFamily: TEXT }}
           >
             {p.label}
           </button>

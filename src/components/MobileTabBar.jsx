@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Home, Person, Labs, Help, chalkUnderline, chalkRule } from './ChalkIcons.jsx';
-import { SANS, ACCENT } from './inventUi.jsx';
-import { CHALK_BG, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL } from '../data/chalkTheme.js';
+import { ACCENT } from './inventUi.jsx';
+import { TEXT, CHALK_BG, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL } from '../data/chalkTheme.js';
 
 // Labs popover destinations. The Flavor Network (the 3D pairing map) is
 // surfaced here again (2026-06-25) now that the Pairing Lab gives it a
@@ -54,7 +54,7 @@ export default function MobileTabBar({
   }, [labsOpen]);
 
   const tabStyle = (id, current) => ({
-    fontFamily: SANS,
+    fontFamily: TEXT,
     color: current ? ACCENT : hover === id ? CHALK_CREAM : CHALK_DIM,
     background: 'transparent',
   });
@@ -148,7 +148,7 @@ export default function MobileTabBar({
                       data-testid={`tabbar-labs-item-${lab.id}`}
                       aria-current={current ? 'page' : undefined}
                       className="w-full text-left px-3 py-2 min-h-[44px] hover:bg-white/5 flex flex-col"
-                      style={{ fontFamily: SANS }}
+                      style={{ fontFamily: TEXT }}
                     >
                       <span style={{ fontSize: 16, lineHeight: '20px', color: CHALK_CREAM, display: 'inline-flex', flexDirection: 'column', alignSelf: 'flex-start' }}>
                         {label}
@@ -165,7 +165,7 @@ export default function MobileTabBar({
                       onClick={() => { closeAll(); onOpenHowItWorks(); }}
                       data-testid="tabbar-labs-item-how-it-works"
                       className="w-full text-left px-3 py-2 min-h-[44px] hover:bg-white/5 flex items-center gap-1"
-                      style={{ fontFamily: SANS, color: CHALK_CREAM }}
+                      style={{ fontFamily: TEXT, color: CHALK_CREAM }}
                     >
                       <Help size={20} />
                       <span style={{ fontSize: 16, lineHeight: '20px' }}>How it works</span>

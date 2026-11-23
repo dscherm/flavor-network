@@ -317,7 +317,7 @@ export default function GlobalInsights({ nodes, edges, filterCuisine, filterTast
           <div key={i} className="rounded-lg border border-cyan-900/25 bg-[#0d1f38]/80 overflow-hidden">
             <div className="flex items-center gap-2 px-3 py-2 border-b border-cyan-900/15">
               <span style={{ color: insight.color }}>{ICONS[insight.icon]}</span>
-              <span className="text-xs font-mono font-semibold uppercase tracking-wider" style={{ color: insight.color }}>{insight.title}</span>
+              <span className="text-xs font-sans lining-nums tabular-nums font-semibold uppercase tracking-wider" style={{ color: insight.color }}>{insight.title}</span>
             </div>
             <div className="px-3 py-2.5 space-y-2">
               <p className="text-[12px] text-cyan-200/80 leading-relaxed">{renderMarkdown(insight.body)}</p>
@@ -326,11 +326,11 @@ export default function GlobalInsights({ nodes, edges, filterCuisine, filterTast
                 <div className="mt-2 space-y-1">
                   {insight.bars.map((bar) => (
                     <div key={bar.label} className="flex items-center gap-2">
-                      <span className="text-[10px] text-cyan-300/50 w-16 text-right truncate capitalize font-mono">{bar.label}</span>
+                      <span className="text-[10px] text-cyan-300/50 w-16 text-right truncate capitalize font-sans lining-nums tabular-nums">{bar.label}</span>
                       <div className="flex-1 h-1.5 bg-cyan-950/50 rounded-full overflow-hidden">
                         <div className="h-full rounded-full" style={{ width: `${Math.round(bar.value * 100)}%`, background: bar.color }} />
                       </div>
-                      <span className="text-[9px] text-cyan-600 font-mono w-7 text-right">{Math.round(bar.value * 100)}%</span>
+                      <span className="text-[9px] text-cyan-600 font-sans lining-nums tabular-nums w-7 text-right">{Math.round(bar.value * 100)}%</span>
                     </div>
                   ))}
                 </div>
@@ -339,7 +339,7 @@ export default function GlobalInsights({ nodes, edges, filterCuisine, filterTast
                 <div className="flex gap-1 mt-2">
                   {insight.stats.map((stat) => (
                     <div key={stat.label} className="flex-1 text-center px-1 py-1.5 rounded bg-cyan-950/40 border border-cyan-900/20">
-                      <div className="text-[10px] text-cyan-100 font-mono font-semibold">{stat.value}</div>
+                      <div className="text-[10px] text-cyan-100 font-sans lining-nums tabular-nums font-semibold">{stat.value}</div>
                       <div className="text-[8px] text-cyan-600 uppercase tracking-wider">{stat.label}</div>
                     </div>
                   ))}
@@ -382,7 +382,7 @@ export default function GlobalInsights({ nodes, edges, filterCuisine, filterTast
         <div className="sticky top-0 bg-[#0a1628]/95 backdrop-blur-md p-4 pb-3 border-b border-cyan-900/20 flex items-center justify-between z-10">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-            <h2 className="text-cyan-100 font-semibold text-sm tracking-wide font-mono">Network Analysis</h2>
+            <h2 className="text-cyan-100 font-semibold text-sm tracking-wide font-sans lining-nums tabular-nums">Network Analysis</h2>
           </div>
           <button
             onClick={onClose}
@@ -411,10 +411,10 @@ export default function GlobalInsights({ nodes, edges, filterCuisine, filterTast
               {/* Insight header */}
               <div className="flex items-center gap-2 px-3 py-2 border-b border-cyan-900/15">
                 <span style={{ color: insight.color }}>{ICONS[insight.icon]}</span>
-                <span className="text-xs font-mono font-semibold uppercase tracking-wider" style={{ color: insight.color }}>
+                <span className="text-xs font-sans lining-nums tabular-nums font-semibold uppercase tracking-wider" style={{ color: insight.color }}>
                   {insight.title}
                 </span>
-                <span className="ml-auto text-[9px] text-cyan-800 font-mono">#{i + 1}</span>
+                <span className="ml-auto text-[9px] text-cyan-800 font-sans lining-nums tabular-nums">#{i + 1}</span>
               </div>
 
               {/* Insight body */}
@@ -433,7 +433,7 @@ export default function GlobalInsights({ nodes, edges, filterCuisine, filterTast
                   <div className="mt-2 space-y-1">
                     {insight.bars.map((bar) => (
                       <div key={bar.label} className="flex items-center gap-2">
-                        <span className="text-[10px] text-cyan-300/50 w-16 text-right truncate capitalize font-mono">
+                        <span className="text-[10px] text-cyan-300/50 w-16 text-right truncate capitalize font-sans lining-nums tabular-nums">
                           {bar.label}
                         </span>
                         <div className="flex-1 h-1.5 bg-cyan-950/50 rounded-full overflow-hidden">
@@ -446,7 +446,7 @@ export default function GlobalInsights({ nodes, edges, filterCuisine, filterTast
                             }}
                           />
                         </div>
-                        <span className="text-[9px] text-cyan-600 font-mono w-7 text-right">
+                        <span className="text-[9px] text-cyan-600 font-sans lining-nums tabular-nums w-7 text-right">
                           {Math.round(bar.value * 100)}%
                         </span>
                       </div>
@@ -459,7 +459,7 @@ export default function GlobalInsights({ nodes, edges, filterCuisine, filterTast
                   <div className="flex gap-1 mt-2">
                     {insight.stats.map((stat) => (
                       <div key={stat.label} className="flex-1 text-center px-1 py-1.5 rounded bg-cyan-950/40 border border-cyan-900/20">
-                        <div className="text-[10px] text-cyan-100 font-mono font-semibold">{stat.value}</div>
+                        <div className="text-[10px] text-cyan-100 font-sans lining-nums tabular-nums font-semibold">{stat.value}</div>
                         <div className="text-[8px] text-cyan-600 uppercase tracking-wider">{stat.label}</div>
                       </div>
                     ))}
@@ -472,7 +472,7 @@ export default function GlobalInsights({ nodes, edges, filterCuisine, filterTast
 
         {/* Footer */}
         <div className="px-4 pb-3 pt-1">
-          <p className="text-[9px] text-cyan-900 font-mono text-center">
+          <p className="text-[9px] text-cyan-900 font-sans lining-nums tabular-nums text-center">
             Computed from {nodes?.size || 0} ingredients / {edges?.length || 0} pairings
           </p>
         </div>

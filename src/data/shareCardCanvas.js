@@ -4,9 +4,10 @@
  * truncated, so this file never measures text.
  */
 import { layoutCard, layoutSet } from './shareCardLayout.js';
+import { HAND } from './chalkTheme.js';
 
 const STACK = {
-  hand: 'Caveat, "Comic Sans MS", cursive',
+  hand: HAND,
   sans: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
 };
 
@@ -14,7 +15,7 @@ const STACK = {
 export async function ensureFonts() {
   try {
     if (typeof document === 'undefined' || !document.fonts) return;
-    await Promise.all([document.fonts.load('700 40px Caveat'), document.fonts.load('400 40px Caveat')]);
+    await Promise.all([document.fonts.load(`700 40px ${HAND}`), document.fonts.load(`400 40px ${HAND}`)]);
     await document.fonts.ready;
   } catch { /* fall back to the system cursive face */ }
 }

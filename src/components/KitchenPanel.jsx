@@ -25,11 +25,10 @@ import { SEED_RECIPES, CUISINE_COLOR } from '../data/seedRecipes.js';
 import { categoryLookup } from '../data/recipeMains.js';
 import { dishTypeOf } from '../data/dishType.js';
 import { loadRealRecipes } from '../ml/kitchenRuntime.js';
-import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
 import { DishArt, ChalkLoader, IngredientArt } from './chalkArt.jsx';
 import { Close, ChevronDown, ChevronRight } from './ChalkIcons.jsx';
 
-const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 const NEARLY_SHOWN = 12;
 const FOCUS = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
 const NEUTRAL = CHALK_DIM;
@@ -44,7 +43,7 @@ function ChalkSwitch({ on, onToggle, label, testId, className = '' }) {
         <span className="absolute top-[2px] rounded-full transition-all"
           style={{ width: 17, height: 17, left: on ? 22 : 3, background: on ? CHALK_CREAM : CHALK_SUB }} />
       </span>
-      <span className="text-[18px]" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{label}</span>
+      <span className="text-[18px]" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>{label}</span>
     </button>
   );
 }
@@ -111,8 +110,8 @@ export default function KitchenPanel({
     setText('');
   };
 
-  const pill = { fontFamily: FONT, borderColor: CHALK_RAIL, color: CHALK_CREAM, outlineColor: CHALK_CREAM };
-  const h3 = { fontFamily: FONT, textShadow: CHALK_SHADOW };
+  const pill = { fontFamily: TEXT, borderColor: CHALK_RAIL, color: CHALK_CREAM, outlineColor: CHALK_CREAM };
+  const h3 = { fontFamily: HAND, textShadow: CHALK_SHADOW };
 
   const recipeRow = (entry, nearly) => {
     const r = entry.item;
@@ -123,17 +122,17 @@ export default function KitchenPanel({
           className={`w-full text-left py-1 min-h-[44px] flex items-center gap-2.5 rounded-lg ${FOCUS}`} style={{ outlineColor: CHALK_CREAM }}>
           <DishArt kind={dishTypeOf(r)} accent={color} size={44} />
           <span className="flex-1 min-w-0">
-            <span className="block text-[20px] leading-tight" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{r.name}</span>
-            <span className="block text-[12px]" style={{ fontFamily: SANS, color: nearly ? CHALK_DIM : CHALK_SUB }}>
+            <span className="block text-[20px] leading-tight" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>{r.name}</span>
+            <span className="block text-[12px]" style={{ fontFamily: TEXT, color: nearly ? CHALK_DIM : CHALK_SUB }}>
               {nearly ? missingText(entry.missing) : `${r.cuisine}. You have the ${entry.total === 1 ? 'main' : `${entry.total} mains`}.`}
             </span>
             {!nearly && entry.withSwap && (
-              <span className="block text-[12px]" data-testid={`kitchen-recipe-${r.id}-swap`} style={{ fontFamily: SANS, color: CHALK_CREAM }}>
+              <span className="block text-[12px]" data-testid={`kitchen-recipe-${r.id}-swap`} style={{ fontFamily: TEXT, color: CHALK_CREAM }}>
                 with a swap: {entry.swaps.filter((s) => s.main).map(swapPhrase).join('; ')}
               </span>
             )}
             {!nearly && entry.better?.length > 0 && (
-              <span className="block text-[12px]" data-testid={`kitchen-recipe-${r.id}-better`} style={{ fontFamily: SANS, color: CHALK_DIM }}>
+              <span className="block text-[12px]" data-testid={`kitchen-recipe-${r.id}-better`} style={{ fontFamily: TEXT, color: CHALK_DIM }}>
                 even better with: {entry.better.slice(0, 4).join(', ')}{entry.better.length > 4 ? ` +${entry.better.length - 4}` : ''}
               </span>
             )}
@@ -149,12 +148,12 @@ export default function KitchenPanel({
       data-testid="kitchen-panel" role="dialog" aria-label="What's in my kitchen">
       <div className="w-full max-w-[560px] flex items-center justify-between mb-2 gap-2">
         <button type="button" onClick={onClose} data-testid="kitchen-close"
-          className={`px-3 py-2 rounded-lg min-h-[44px] ${FOCUS}`} style={{ fontFamily: FONT, fontSize: 18, border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM, outlineColor: CHALK_CREAM, minWidth: 44 }}>
+          className={`px-3 py-2 rounded-lg min-h-[44px] ${FOCUS}`} style={{ fontFamily: TEXT, fontSize: 18, border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM, outlineColor: CHALK_CREAM, minWidth: 44 }}>
           Back
         </button>
         {onInvent && (
           <button type="button" onClick={onInvent} data-testid="kitchen-invent"
-            className={`px-3 py-2 rounded-lg min-h-[44px] ${FOCUS}`} style={{ fontFamily: FONT, fontSize: 18, color: '#0a0a0a', background: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
+            className={`px-3 py-2 rounded-lg min-h-[44px] ${FOCUS}`} style={{ fontFamily: TEXT, fontSize: 18, color: '#0a0a0a', background: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
             Invent a recipe
           </button>
         )}
@@ -162,7 +161,7 @@ export default function KitchenPanel({
 
       <div className="w-full max-w-[560px] rounded-2xl px-4 py-4" style={{ border: `2px double ${CHALK_RAIL}`, background: 'rgba(255,255,255,0.025)' }}>
         <h2 className="text-center text-[34px] leading-tight" style={h3}>What's in my kitchen?</h2>
-        <p className="text-center text-[13px] mb-3" style={{ fontFamily: SANS, color: CHALK_SUB }}>
+        <p className="text-center text-[13px] mb-3" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
           What you have on hand. Kept on this device only.
         </p>
 
@@ -173,7 +172,7 @@ export default function KitchenPanel({
             aria-label="Add an ingredient to my kitchen" data-testid="kitchen-input"
             autoComplete="off"
             className="flex-1 min-w-0 px-2.5 py-2 rounded-md min-h-[44px] text-[17px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
-            style={{ fontFamily: FONT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
+            style={{ fontFamily: TEXT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
           />
           <button type="submit" data-testid="kitchen-add" className={`px-4 rounded-md min-h-[44px] border ${FOCUS}`} style={pill}>Add</button>
         </form>
@@ -192,7 +191,7 @@ export default function KitchenPanel({
 
         <ul className="mt-3 flex flex-wrap gap-1.5" data-testid="kitchen-items" aria-label="In my kitchen">
           {kitchen.length === 0 && (
-            <li className="text-[16px]" style={{ fontFamily: FONT, color: CHALK_DIM }}>Your kitchen is empty — add what you have, or tap the common ones below.</li>
+            <li className="text-[16px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>Your kitchen is empty — add what you have, or tap the common ones below.</li>
           )}
           {kitchen.map((k) => (
             <li key={k}>
@@ -207,7 +206,7 @@ export default function KitchenPanel({
 
         {common.some((k) => !kitchen.includes(k)) && (
           <div className="mt-3">
-            <p className="text-[13px] mb-1" style={{ fontFamily: SANS, color: CHALK_SUB }}>Most used in recipes</p>
+            <p className="text-[13px] mb-1" style={{ fontFamily: TEXT, color: CHALK_SUB }}>Most used in recipes</p>
             <div className="flex flex-wrap gap-1.5" data-testid="kitchen-quick">
               {common.filter((k) => !kitchen.includes(k)).map((k) => (
                 <button key={k} type="button" onClick={() => add(k)}
@@ -229,7 +228,7 @@ export default function KitchenPanel({
             <section className="mt-5" data-testid="kitchen-make" aria-label="You can make">
               <h3 className="text-[24px]" style={h3}>You can make ({cookbook.make.length})</h3>
               {cookbook.make.length === 0 && (
-                <p className="text-[16px]" style={{ fontFamily: FONT, color: CHALK_DIM }}>No Cookbook recipe is complete yet — see what is one or two away.</p>
+                <p className="text-[16px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>No Cookbook recipe is complete yet — see what is one or two away.</p>
               )}
               <ul className="flex flex-col">{cookbook.make.map((e) => recipeRow(e, false))}</ul>
             </section>
@@ -248,12 +247,12 @@ export default function KitchenPanel({
                 <div className="py-2"><ChalkLoader compact label="Leafing through 40,000 recipes…" color="#a3e635" /></div>
               )}
               {real.status === 'failed' && (
-                <p className="text-[15px]" style={{ fontFamily: FONT, color: CHALK_DIM }} data-testid="kitchen-real-failed">
+                <p className="text-[15px]" style={{ fontFamily: TEXT, color: CHALK_DIM }} data-testid="kitchen-real-failed">
                   The real-recipe index didn't load. The Cookbook matches above still work.
                 </p>
               )}
               {real.status === 'ready' && realMatches.length === 0 && (
-                <p className="text-[15px]" style={{ fontFamily: FONT, color: CHALK_DIM }}>No close matches yet — add a couple more ingredients.</p>
+                <p className="text-[15px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>No close matches yet — add a couple more ingredients.</p>
               )}
               <ul className="flex flex-col gap-1">
                 {realMatches.map((m, i) => (
@@ -262,21 +261,21 @@ export default function KitchenPanel({
                       <button type="button" onClick={() => onUseRealRecipe?.(m)} data-testid={`kitchen-real-${i}`}
                         aria-label={`Cook ${m.title} in the Recipe Notebook`}
                         className={`flex-1 min-w-0 text-left px-2.5 py-1.5 min-h-[44px] rounded-lg ${FOCUS}`} style={{ outlineColor: CHALK_CREAM }}>
-                        <span className="block text-[19px] leading-tight" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{m.title}</span>
-                        <span className="block text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+                        <span className="block text-[19px] leading-tight" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>{m.title}</span>
+                        <span className="block text-[12px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
                           {`You have ${m.covered} of ${m.total}.`}{m.missing.length ? ` ${missingText(m.missing, 3).replace(/^\w/, (c) => c.toUpperCase())}.` : ' Nothing missing.'}
                         </span>
                       </button>
                       {m.steps.length > 0 && (
                         <button type="button" aria-expanded={openSteps === i} onClick={() => setOpenSteps(openSteps === i ? null : i)}
                           aria-label={`${openSteps === i ? 'Hide' : 'Show'} the method for ${m.title}`}
-                          className={`px-2 min-w-[44px] min-h-[44px] text-[15px] rounded-lg ${FOCUS}`} style={{ fontFamily: FONT, color: CHALK_SUB, outlineColor: CHALK_CREAM }}>
+                          className={`px-2 min-w-[44px] min-h-[44px] text-[15px] rounded-lg ${FOCUS}`} style={{ fontFamily: TEXT, color: CHALK_SUB, outlineColor: CHALK_CREAM }}>
                           <span aria-hidden="true" className="inline-block align-middle" style={{ lineHeight: 0 }}>{openSteps === i ? <ChevronDown size={16} /> : <ChevronRight size={16} />}</span> method
                         </button>
                       )}
                     </div>
                     {openSteps === i && (
-                      <ol className="px-3 pb-2 space-y-1 list-decimal list-inside text-[13px]" style={{ fontFamily: SANS, color: CHALK_CREAM }}>
+                      <ol className="px-3 pb-2 space-y-1 list-decimal list-inside text-[13px]" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>
                         {m.steps.map((s, j) => <li key={j}>{s}</li>)}
                       </ol>
                     )}
@@ -284,7 +283,7 @@ export default function KitchenPanel({
                 ))}
               </ul>
             </section>
-            <p className="mt-3 text-[11px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>
+            <p className="mt-3 text-[11px]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
               {assumeBasics ? 'Salt, pepper, oil, butter, sugar, flour and water are assumed. ' : ''}
               {spiceRack ? 'Common dried spices are assumed. ' : ''}
               A recipe counts when you have its mains; spices, herbs and sauces are "even better with". A swap stays within one kind (onion for scallion, never garlic for onion).

@@ -163,7 +163,8 @@ const PLURAL = {
   handful: 'handfuls', bunch: 'bunches', slice: 'slices', wedge: 'wedges', stalk: 'stalks', drop: 'drops',
   splash: 'splashes', shot: 'shots', jigger: 'jiggers', part: 'parts', barspoon: 'barspoons',
 };
-const FRACTIONS = [[0.25, '¼'], [0.5, '½'], [0.75, '¾'], [1 / 3, '⅓'], [2 / 3, '⅔'], [0.125, '⅛']];
+// Alegreya Sans has no glyph for thirds or eighths, so those print as plain fractions.
+const FRACTIONS = [[0.25, '¼'], [0.5, '½'], [0.75, '¾'], [1 / 3, '1/3'], [2 / 3, '2/3'], [0.125, '1/8']];
 
 export function formatQty(q) {
   const r = Math.round(q * 100) / 100;
@@ -171,7 +172,7 @@ export function formatQty(q) {
   const frac = r - whole;
   if (frac < 0.005) return String(whole);
   const hit = FRACTIONS.find(([v]) => Math.abs(frac - v) < 0.01);
-  if (hit) return `${whole || ''}${hit[1]}`;
+  if (hit) return hit[1].length === 1 ? `${whole || ''}${hit[1]}` : `${whole ? `${whole} ` : ''}${hit[1]}`;
   return String(r);
 }
 

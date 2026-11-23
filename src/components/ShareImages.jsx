@@ -21,8 +21,9 @@ import { absoluteShareUrl, captionFor, printedLinkFor, SHARE_CHARTS_ENABLED } fr
 import { parseSharePath, resolveBuiltIn } from '../data/sharedRecipe.js';
 import { barsFor } from '../data/shareCardData.js';
 import { defaultLoadData, loadLabelNodes } from '../data/sharedLoaders.js';
-import { SANS, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT, btn, heading } from './inventUi.jsx';
+import { CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT, btn, heading } from './inventUi.jsx';
 
+import { TEXT } from '../data/chalkTheme.js';
 const tap = { minHeight: 44 };
 const COUNTS = [{ id: 'one', label: 'One card' }, { id: 'set', label: 'Set of 3' }];
 const FORMATS = [{ id: 'portrait', label: 'Feed' }, { id: 'tall', label: 'Story or TikTok' }];
@@ -130,7 +131,7 @@ export default function ShareImages({ link = '', recipe: given = null, bars: giv
   return (
     <section data-testid="share-images" aria-label="Share as pictures" className="mt-4 pt-3 min-w-0" style={{ borderTop: `1px solid ${CHALK_RAIL}` }}>
       <h3 style={{ ...heading, fontSize: 22 }}>As pictures</h3>
-      <p className="text-[14px] mt-0.5" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+      <p className="text-[14px] mt-0.5" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
         For Instagram and TikTok. The link is printed on every card.
       </p>
       <div className="mt-2 flex flex-col gap-2">
@@ -141,18 +142,18 @@ export default function ShareImages({ link = '', recipe: given = null, bars: giv
           {canShareFiles ? 'Share images' : 'Download images'}
         </button>
         <p role="status" data-testid="share-images-status" className="text-[14px] min-h-[1.25rem]"
-          style={{ fontFamily: SANS, color: error ? '#fda4af' : CHALK_SUB }}>
+          style={{ fontFamily: TEXT, color: error ? '#fda4af' : CHALK_SUB }}>
           {error || (waiting ? 'Drawing the pictures...' : note)}
         </p>
         <button type="button" onClick={() => copyText(captionFor(recipe || { name: '', kind: target.kind }, fullLink), setCaptionNote, 'Caption copied')}
           data-testid="share-caption" className="w-full rounded-lg px-4" style={{ ...btn({ background: 'rgba(255,255,255,0.05)' }), ...tap }}>
           Copy caption
         </button>
-        <p role="status" data-testid="share-caption-status" className="text-[14px] min-h-[1.25rem]" style={{ fontFamily: SANS, color: ACCENT }}>{captionNote}</p>
-        <p className="text-[14px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+        <p role="status" data-testid="share-caption-status" className="text-[14px] min-h-[1.25rem]" style={{ fontFamily: TEXT, color: ACCENT }}>{captionNote}</p>
+        <p className="text-[14px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
           Posting a Story? Copy the link and add it as a link sticker.{' '}
           <button type="button" onClick={() => copyText(fullLink, setStoryNote, 'Link copied')} data-testid="share-story-copy"
-            className="underline px-1" style={{ ...tap, color: CHALK_CREAM, fontFamily: SANS, fontSize: 14 }}>
+            className="underline px-1" style={{ ...tap, color: CHALK_CREAM, fontFamily: TEXT, fontSize: 14 }}>
             Copy the link
           </button>
           <span role="status" data-testid="share-story-status" style={{ color: ACCENT }}>{storyNote}</span>

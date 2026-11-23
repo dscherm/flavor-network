@@ -33,15 +33,14 @@ import { loadUnitSystem, saveUnitSystem } from '../data/shoppingUnits.js';
 import ShoppingRecipeAdd from './ShoppingRecipeAdd.jsx';
 import StoreAlternatives from './StoreAlternatives.jsx';
 import HelpBubble from './HelpBubble.jsx';
-import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, chalkSurfaceStyle } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, chalkSurfaceStyle } from '../data/chalkTheme.js';
 
-const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 const FOCUS = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
-const buttonStyle = { fontFamily: SANS, fontSize: 14, color: CHALK_CREAM, border: `1.5px solid ${CHALK_DIM}`, background: 'transparent', outlineColor: CHALK_CREAM };
-const inputStyle = { fontFamily: SANS, fontSize: 16, color: CHALK_CREAM, background: 'rgba(10,10,10,0.6)', border: `1.5px solid ${CHALK_DIM}`, outlineColor: CHALK_CREAM };
+const buttonStyle = { fontFamily: TEXT, fontSize: 14, color: CHALK_CREAM, border: `1.5px solid ${CHALK_DIM}`, background: 'transparent', outlineColor: CHALK_CREAM };
+const inputStyle = { fontFamily: TEXT, fontSize: 16, color: CHALK_CREAM, background: 'rgba(10,10,10,0.6)', border: `1.5px solid ${CHALK_DIM}`, outlineColor: CHALK_CREAM };
 
 export default function ShoppingList({ shopping, onChange, onClose, loadIngredients = loadShoppingIngredients, own = null, loadRecipes, recipeStock, loadRoles }) {
   const list = shopping?.list || emptyList();
@@ -266,10 +265,10 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
             Back to the Labs
           </button>
         </div>
-        <h1 style={{ fontFamily: FONT, fontSize: 36, lineHeight: 1.1, marginTop: 6 }}>Shopping list</h1>
-        <p data-testid="shopping-count" role="status" aria-live="polite" style={{ fontFamily: SANS, fontSize: 14, color: CHALK_DIM, minHeight: 20 }}>{countText}</p>
+        <h1 style={{ fontFamily: HAND, fontSize: 36, lineHeight: 1.1, marginTop: 6 }}>Shopping list</h1>
+        <p data-testid="shopping-count" role="status" aria-live="polite" style={{ fontFamily: TEXT, fontSize: 14, color: CHALK_DIM, minHeight: 20 }}>{countText}</p>
         <div role="group" aria-label="Amounts shown in" data-testid="shopping-units" className="flex items-center gap-2 mt-1">
-          <span style={{ fontFamily: SANS, fontSize: 14, color: CHALK_DIM }}>Amounts</span>
+          <span style={{ fontFamily: TEXT, fontSize: 14, color: CHALK_DIM }}>Amounts</span>
           {[['us', 'US'], ['metric', 'Metric']].map(([id, label]) => (
             <button
               key={id}
@@ -328,7 +327,7 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
             </ul>
           )}
           {ing.status === 'failed' && (
-            <p style={{ fontFamily: SANS, fontSize: 12, color: CHALK_SUB, marginTop: 6 }}>Ingredient suggestions are not available right now. You can still type any item.</p>
+            <p style={{ fontFamily: TEXT, fontSize: 12, color: CHALK_SUB, marginTop: 6 }}>Ingredient suggestions are not available right now. You can still type any item.</p>
           )}
         </form>
         <ShoppingRecipeAdd
@@ -341,7 +340,7 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
           {...(recipeStock ? { stock: recipeStock } : {})}
         />
 
-        <p data-testid="shopping-note" role="status" aria-live="polite" style={{ fontFamily: SANS, fontSize: 14, color: CHALK_CREAM, marginTop: 8, minHeight: 20 }}>
+        <p data-testid="shopping-note" role="status" aria-live="polite" style={{ fontFamily: TEXT, fontSize: 14, color: CHALK_CREAM, marginTop: 8, minHeight: 20 }}>
           {note}
           {removed && note === removed.msg && (
             <button type="button" data-testid="shopping-undo-removal" onClick={undoRemoval} className={`ml-2 min-h-[44px] px-3 rounded-lg ${FOCUS}`} style={buttonStyle}>Undo</button>
@@ -350,9 +349,9 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
 
         {list.items.length === 0 ? (
           <div data-testid="shopping-empty" className="mt-4 rounded-xl p-4" style={{ border: `1.5px dashed ${CHALK_RAIL}` }}>
-            <div style={{ fontFamily: FONT, fontSize: 26 }}>Nothing on your list yet</div>
+            <div style={{ fontFamily: HAND, fontSize: 26 }}>Nothing on your list yet</div>
             <div className="flex items-center gap-1" style={{ marginTop: 4 }}>
-              <p style={{ fontFamily: SANS, fontSize: 14, color: CHALK_DIM }}>Type an item above, or add a recipe.</p>
+              <p style={{ fontFamily: TEXT, fontSize: 14, color: CHALK_DIM }}>Type an item above, or add a recipe.</p>
               <HelpBubble variant="chalk" label="How this works" testId="shopping-empty-help"
                 body="Adding a recipe adds only what you do not have. Ticked items drop to the bottom of their aisle." />
             </div>
@@ -361,7 +360,7 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
           <div className="mt-2">
             {groups.map((g) => (
               <section key={g.aisle} aria-label={cap(g.aisle)} data-testid={`shopping-aisle-${g.aisle.replace(/\s+/g, '-')}`} className="mt-3">
-                <h2 style={{ fontFamily: FONT, fontSize: 24, color: CHALK_DIM, borderBottom: `1px solid ${CHALK_RAIL}` }}>{cap(g.aisle)}</h2>
+                <h2 style={{ fontFamily: HAND, fontSize: 24, color: CHALK_DIM, borderBottom: `1px solid ${CHALK_RAIL}` }}>{cap(g.aisle)}</h2>
                 <ul>
                   {g.items.map((item) => {
                     const qty = itemAmountText(item, system);
@@ -381,7 +380,7 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
                               style={{ width: 28, height: 28, accentColor: CHALK_CREAM, outlineColor: CHALK_CREAM }}
                             />
                           </label>
-                          <span className="flex-1 min-w-0" style={{ fontFamily: SANS, opacity: item.checked ? 0.6 : 1 }}>
+                          <span className="flex-1 min-w-0" style={{ fontFamily: TEXT, opacity: item.checked ? 0.6 : 1 }}>
                             <span className="block break-words" style={{ fontSize: 17, textDecoration: item.checked ? 'line-through' : 'none' }}>
                               <IngredientName name={item.key} loose tall testid={`shopping-name-${item.key}`} ariaName={item.label}
                                 style={item.checked ? { textDecoration: 'none' } : undefined}>
@@ -392,10 +391,10 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
                               <label htmlFor={`shopping-check-${item.id}`} className="block break-words" style={{ fontSize: 13, color: CHALK_DIM, cursor: 'pointer' }}>for {forNames.join(', ')}</label>
                             )}
                           </span>
-                          {qty && <label htmlFor={`shopping-check-${item.id}`} data-testid={`shopping-qty-${item.key}`} className="flex-shrink-0 text-right" style={{ fontFamily: SANS, color: CHALK_DIM, fontSize: 15, cursor: 'pointer', maxWidth: '40%' }}>{qty}</label>}
+                          {qty && <label htmlFor={`shopping-check-${item.id}`} data-testid={`shopping-qty-${item.key}`} className="flex-shrink-0 text-right" style={{ fontFamily: TEXT, color: CHALK_DIM, fontSize: 15, cursor: 'pointer', maxWidth: '40%' }}>{qty}</label>}
                         </div>
                                         {(item.swappedFrom || item.note) && (
-                          <div className="pl-10 pb-1" data-testid={`shopping-swap-${item.key}`} style={{ fontFamily: SANS, fontSize: 13, color: CHALK_DIM }}>
+                          <div className="pl-10 pb-1" data-testid={`shopping-swap-${item.key}`} style={{ fontFamily: TEXT, fontSize: 13, color: CHALK_DIM }}>
                             {item.swappedFrom && <span>instead of {item.swappedFrom}</span>}
                             {item.note && <span className="block break-words">{item.note}</span>}
                           </div>
@@ -463,8 +462,8 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
                 style={{ border: `2px solid ${CHALK_CREAM}`, background: 'rgba(10,10,10,0.8)' }}
                 onKeyDown={(e) => { if (e.key === 'Escape') setConfirmClear(false); }}
               >
-                <div id="shopping-clear-title" style={{ fontFamily: FONT, fontSize: 24 }}>Clear the whole list?</div>
-                <p id="shopping-clear-desc" style={{ fontFamily: SANS, fontSize: 14, color: CHALK_DIM }}>
+                <div id="shopping-clear-title" style={{ fontFamily: HAND, fontSize: 24 }}>Clear the whole list?</div>
+                <p id="shopping-clear-desc" style={{ fontFamily: TEXT, fontSize: 14, color: CHALK_DIM }}>
                   This removes all {plural(list.items.length, 'item', 'items')}, ticked or not. It cannot be undone.
                 </p>
                 <div className="mt-3 flex gap-2">

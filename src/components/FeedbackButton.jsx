@@ -10,8 +10,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { buildFeedback, feedbackLeft, recordFeedback, FEEDBACK_LIMIT_MESSAGE, NOTE_MAX, GOAL_MAX } from '../data/feedback.js';
-import { SANS, CHALK_CREAM, CHALK_DIM, CHALK_RAIL, ACCENT, btn, inputStyle } from './inventUi.jsx';
+import { CHALK_CREAM, CHALK_DIM, CHALK_RAIL, ACCENT, btn, inputStyle } from './inventUi.jsx';
 
+import { TEXT } from '../data/chalkTheme.js';
 const tap = { minHeight: 44 };
 
 async function defaultSend(fb) {
@@ -84,7 +85,7 @@ export default function FeedbackButton({ screen = 'other', sendFeedback = defaul
             className="w-full rounded-xl p-4" style={{ maxWidth: 440, background: '#161a17', border: `1px solid ${CHALK_RAIL}`, boxSizing: 'border-box' }}>
             {sent ? (
               <div>
-                <p role="status" data-testid="feedback-thanks" className="text-[16px]" style={{ fontFamily: SANS, color: CHALK_CREAM }}>
+                <p role="status" data-testid="feedback-thanks" className="text-[16px]" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>
                   Thank you. Your note was sent.
                 </p>
                 <button type="button" data-testid="feedback-cancel" onClick={close}
@@ -94,22 +95,22 @@ export default function FeedbackButton({ screen = 'other', sendFeedback = defaul
               </div>
             ) : (
               <>
-                <p className="text-[16px]" style={{ fontFamily: SANS, color: CHALK_CREAM }}>What would make Neural Flavor better?</p>
-                <label className="block mt-3 text-[14px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+                <p className="text-[16px]" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>What would make Neural Flavor better?</p>
+                <label className="block mt-3 text-[14px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
                   Your note (required)
                   <textarea ref={noteRef} data-testid="feedback-note" value={note} maxLength={NOTE_MAX} rows={4} required
                     onChange={(e) => setNote(e.target.value)} className="block w-full mt-1 rounded-lg px-3 py-2" style={inputStyle} />
                 </label>
-                <p data-testid="feedback-note-count" className="mt-1 text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>{note.length}/{NOTE_MAX}</p>
-                <label className="block mt-2 text-[14px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+                <p data-testid="feedback-note-count" className="mt-1 text-[12px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>{note.length}/{NOTE_MAX}</p>
+                <label className="block mt-2 text-[14px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
                   What were you trying to do? (optional)
                   <textarea data-testid="feedback-goal" value={goal} maxLength={GOAL_MAX} rows={2}
                     onChange={(e) => setGoal(e.target.value)} className="block w-full mt-1 rounded-lg px-3 py-2" style={inputStyle} />
                 </label>
-                <p className="mt-1 text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+                <p className="mt-1 text-[12px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
                   Anonymous. We do not store who sent it, and it does not depend on your usage-data answer. {goal.length}/{GOAL_MAX}
                 </p>
-                {msg && <p role="alert" data-testid="feedback-error" className="mt-2 text-[14px]" style={{ fontFamily: SANS, color: '#fda4af' }}>{msg}</p>}
+                {msg && <p role="alert" data-testid="feedback-error" className="mt-2 text-[14px]" style={{ fontFamily: TEXT, color: '#fda4af' }}>{msg}</p>}
                 <div className="mt-3 flex gap-2">
                   <button type="button" data-testid="feedback-send" disabled={busy} onClick={submit}
                     className="inline-flex items-center justify-center rounded-lg px-4" style={{ ...btn({ background: `${ACCENT}55`, borderColor: ACCENT }), ...tap }}>

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { TEXT } from '../data/chalkTheme.js';
 
 /**
  * AxisLabels — Creates text sprites positioned at axis extremes in 3D space.
@@ -10,7 +11,7 @@ function createTextSprite(text, color = '#ffffff', fontSize = 48) {
   const ctx = canvas.getContext('2d');
 
   // Measure text to size canvas
-  ctx.font = `bold ${fontSize}px system-ui, -apple-system, sans-serif`;
+  ctx.font = `500 ${fontSize}px ${TEXT}`;
   const metrics = ctx.measureText(text);
   const textWidth = metrics.width;
 
@@ -27,7 +28,7 @@ function createTextSprite(text, color = '#ffffff', fontSize = 48) {
   canvas.height = fontSize + vertPad;
 
   // Re-set font after resize
-  ctx.font = `bold ${fontSize}px system-ui, -apple-system, sans-serif`;
+  ctx.font = `500 ${fontSize}px ${TEXT}`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
 

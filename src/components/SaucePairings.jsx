@@ -13,7 +13,7 @@
  * still render and the wine section is simply absent.
  */
 import { useEffect, useMemo, useState } from 'react';
-import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB } from '../data/chalkTheme.js';
 import { loadWineStyles, familyColor } from '../data/wineStyles.js';
 import { winesForSauce, proteinIngredient } from '../data/sauceWines.js';
 import { WineGlass } from './wineGlasses.jsx';
@@ -23,7 +23,7 @@ const SHADOW = '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)';
 
 function Label({ children }) {
   return (
-    <h3 style={{ color: CHALK_CREAM, fontFamily: FONT, fontSize: 22, fontWeight: 400, marginTop: 24, marginBottom: 12, textShadow: SHADOW }}>
+    <h3 style={{ color: CHALK_CREAM, fontFamily: HAND, fontSize: 22, fontWeight: 400, marginTop: 24, marginBottom: 12, textShadow: SHADOW }}>
       {children}
     </h3>
   );
@@ -55,7 +55,7 @@ export default function SaucePairings({ sauce, color = '#fb923c', categoryOf = n
       <ul className="flex flex-wrap gap-1.5" data-testid="sauce-proteins">
         {proteins.map((p) => (
           <li key={p} className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border"
-            style={{ borderColor: `${color}77`, background: `${color}1a`, color: CHALK_CREAM, fontFamily: FONT, fontSize: 18 }}>
+            style={{ borderColor: `${color}77`, background: `${color}1a`, color: CHALK_CREAM, fontFamily: TEXT, fontSize: 18 }}>
             <IngredientArt category="protein" name={proteinIngredient(p)} size={18} ink={CHALK_CREAM} />
             {p}
           </li>
@@ -70,10 +70,10 @@ export default function SaucePairings({ sauce, color = '#fb923c', categoryOf = n
               <li key={wine.id} className="flex items-center gap-2.5" data-testid={`sauce-wine-${wine.id}`}>
                 <WineGlass family={wine.family} color={familyColor(styles.families, wine.family)} size={40} />
                 <div className="min-w-0">
-                  <div style={{ fontFamily: FONT, fontSize: 19, color: CHALK_CREAM, lineHeight: 1.2, textShadow: SHADOW }}>
+                  <div style={{ fontFamily: TEXT, fontSize: 19, color: CHALK_CREAM, lineHeight: 1.2, textShadow: SHADOW }}>
                     {wine.name}
                   </div>
-                  <div style={{ fontFamily: FONT, fontSize: 17, color: CHALK_DIM, lineHeight: 1.2 }}>With {ps.join(', ')}</div>
+                  <div style={{ fontFamily: TEXT, fontSize: 17, color: CHALK_DIM, lineHeight: 1.2 }}>With {ps.join(', ')}</div>
                   {reason ? <div className="text-[13px]" style={{ color: CHALK_SUB }}>{reason}</div> : null}
                 </div>
               </li>
@@ -85,7 +85,7 @@ export default function SaucePairings({ sauce, color = '#fb923c', categoryOf = n
               data-testid="sauce-more-wines"
               onClick={() => onFindWine([...ingredients, proteinIngredient(first)], `${sauce.name} with ${first}`, 'sauce', { cuisine: sauce.cuisine })}
               className="mt-2 min-h-[44px] px-3 rounded-lg border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-              style={{ borderColor: `${color}88`, color: CHALK_CREAM, fontFamily: FONT, fontSize: 18, outlineColor: CHALK_CREAM }}
+              style={{ borderColor: `${color}88`, color: CHALK_CREAM, fontFamily: TEXT, fontSize: 18, outlineColor: CHALK_CREAM }}
             >
               More wines for {sauce.name} with {first}
             </button>

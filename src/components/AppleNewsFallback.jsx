@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW } from '../data/chalkTheme.js';
 
 // WEBLINK-17 (2026-11-07): what the user sees when an Apple News link can't
 // be turned into the publisher's recipe page automatically.
@@ -40,7 +40,7 @@ export default function AppleNewsFallback({ info, onImportUrl, onBack, inputStyl
     <div data-testid="make-weblink-applenews" className="rounded-xl p-5 sm:p-6" style={panelStyle}>
       <h2
         className="text-2xl mb-2"
-        style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}
+        style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}
         data-testid="make-weblink-applenews-found"
       >
         {title ? (
@@ -73,7 +73,7 @@ export default function AppleNewsFallback({ info, onImportUrl, onBack, inputStyl
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block px-4 py-2 rounded-md text-base underline"
-            style={{ fontFamily: FONT, color: CHALK_DIM }}
+            style={{ fontFamily: TEXT, color: CHALK_DIM }}
             data-testid="make-weblink-applenews-publisher"
           >
             Open it on {linked}
@@ -117,7 +117,7 @@ export default function AppleNewsFallback({ info, onImportUrl, onBack, inputStyl
           type="button"
           onClick={onBack}
           className="text-base underline"
-          style={{ fontFamily: FONT, color: CHALK_DIM }}
+          style={{ fontFamily: TEXT, color: CHALK_DIM }}
           data-testid="make-weblink-applenews-back"
         >
           Back to the picker

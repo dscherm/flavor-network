@@ -2,7 +2,15 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNoResultSearch } from '../hooks/useUsage.js';
 import { cocktailBaseSpirit, COCKTAIL_SPIRIT_LEGEND, COCKTAIL_SPIRIT_COLORS } from '../data/cocktailBaseSpirit.js';
 import {
-  FONT, CHALK_BG, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle,
+  TEXT,
+  HAND,
+  CHALK_BG,
+  CHALK_CREAM,
+  CHALK_DIM,
+  CHALK_SUB,
+  CHALK_RAIL,
+  CHALK_SHADOW,
+  chalkSurfaceStyle,
 } from '../data/chalkTheme.js';
 import { parseQuery, matchItem, cocktailIngredientNames, buildIngredientVocab } from '../data/ingredientSearch.js';
 import { subclusterName } from '../data/cocktailSubclusters.js';
@@ -10,7 +18,7 @@ import { deriveFacets, matchesFacetFilter, loadFacetContext, FACET_GROUPS } from
 import { glassMark, glassTypeFor } from './cocktailGlasses.jsx';
 import { UNCATEGORISED } from '../data/savedInventions.js';
 import PictureView from './PictureView.jsx';
-import { SANS } from './inventUi.jsx';
+
 import { ChalkBottle } from './chalkArt.jsx';
 import { Shaker, Close, Search, Filters, ChevronDown, ChevronUp } from './ChalkIcons.jsx';
 
@@ -280,7 +288,7 @@ export default function CocktailBrowse({
     <div className="inline-flex flex-col items-start">
       <button type="button" onClick={() => onInventThis(searchTerm.trim())} data-testid="cocktail-invent-this"
         className="px-4 py-1 rounded-full border min-h-[44px] text-[17px] inline-flex items-center gap-1"
-        style={{ fontFamily: FONT, borderColor: CHALK_CREAM, color: CHALK_CREAM }}>
+        style={{ fontFamily: TEXT, borderColor: CHALK_CREAM, color: CHALK_CREAM }}>
         <Shaker size={20} />
         Invent this
       </button>
@@ -309,7 +317,7 @@ export default function CocktailBrowse({
   if (!graph || !annotated) {
     return (
       <div className="flex items-center justify-center w-full h-full pt-10" style={{ background: CHALK_BG }}>
-        <p className="text-base" style={{ fontFamily: FONT, color: CHALK_SUB }}>Chalking up the menu…</p>
+        <p className="text-base" style={{ fontFamily: TEXT, color: CHALK_SUB }}>Chalking up the menu…</p>
       </div>
     );
   }
@@ -358,7 +366,7 @@ export default function CocktailBrowse({
           </svg>
         )}
         <span className="flex-1 min-w-0">
-          <span className="block truncate text-[20px]" style={{ fontFamily: FONT, color: isSelected ? CHALK_CREAM : popColor(fam.color), textShadow: `0 0 6px ${fam.color}66, ${CHALK_SHADOW}` }}>{c.name}</span>
+          <span className="block truncate text-[20px]" style={{ fontFamily: TEXT, color: isSelected ? CHALK_CREAM : popColor(fam.color), textShadow: `0 0 6px ${fam.color}66, ${CHALK_SHADOW}` }}>{c.name}</span>
           {searchHits?.get(c.name)?.length > 0 && (
             <span className="block truncate text-[11px]" style={{ color: CHALK_DIM }} data-search-hit>
               with {searchHits.get(c.name).join(', ')}
@@ -395,7 +403,7 @@ export default function CocktailBrowse({
       <div className="px-4 pt-5 pb-2 max-w-4xl mx-auto text-center">
         <h1
           className="inline-block text-5xl sm:text-6xl pb-1.5"
-          style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW, borderBottom: `2px solid ${CHALK_DIM}88` }}
+          style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW, borderBottom: `2px solid ${CHALK_DIM}88` }}
         >
           Cocktail Menu
         </h1>
@@ -403,7 +411,7 @@ export default function CocktailBrowse({
 
       {/* ───── Back-bar shelf — one chalk bottle per family ───── */}
       <div className="px-4 pt-1 pb-2 max-w-4xl mx-auto">
-        <div className="text-[22px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Families</div>
+        <div className="text-[22px] mb-1" style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Families</div>
         <div className="pb-1">
         <svg
           viewBox={`0 -48 ${graph.families.length * 120} 170`}
@@ -465,11 +473,11 @@ export default function CocktailBrowse({
               >
                 <span
                   className="text-[13px] sm:text-[18px] leading-[1.05] text-center px-1 py-0.5 rounded-sm max-w-full min-h-[2.4em] flex items-center justify-center"
-                  style={{ fontFamily: FONT, color: ink, border: `1px dashed ${ink}99`, background: `${fam.color}1a`, transform: `rotate(${i % 2 ? 5 : -5}deg)`, textShadow: CHALK_SHADOW, boxShadow: `0 0 8px ${fam.color}33` }}
+                  style={{ fontFamily: TEXT, color: ink, border: `1px dashed ${ink}99`, background: `${fam.color}1a`, transform: `rotate(${i % 2 ? 5 : -5}deg)`, textShadow: CHALK_SHADOW, boxShadow: `0 0 8px ${fam.color}33` }}
                 >
                   {fam.name}
                 </span>
-                <span className="text-[11px] sm:text-[13px] mt-1.5" style={{ fontFamily: FONT, color: CHALK_DIM }}>{count} drinks</span>
+                <span className="text-[11px] sm:text-[13px] mt-1.5" style={{ fontFamily: TEXT, color: CHALK_DIM }}>{count} drinks</span>
               </button>
             );
           })}
@@ -481,7 +489,7 @@ export default function CocktailBrowse({
               type="button"
               onClick={() => onFilterFamily(null)}
               className="text-sm underline underline-offset-2"
-              style={{ fontFamily: FONT, color: CHALK_DIM }}
+              style={{ fontFamily: TEXT, color: CHALK_DIM }}
             >
               Show all families
             </button>
@@ -492,7 +500,7 @@ export default function CocktailBrowse({
       {/* ───── Back-bar bottle shelf — one chalk bottle per base spirit ───── */}
       <div className="px-4 pt-1 pb-2 max-w-4xl mx-auto">
         <div className="flex items-baseline justify-between mb-1">
-          <div className="text-[22px]" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Spirits</div>
+          <div className="text-[22px]" style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Spirits</div>
         </div>
         <div className="pb-1 overflow-x-auto chip-row -mx-4 px-4">
         <div style={{ minWidth: SPIRIT_SHELF.length * 76 }}>
@@ -558,11 +566,11 @@ export default function CocktailBrowse({
               >
                 <span
                   className="text-[14px] sm:text-[17px] leading-[1.05] text-center px-1.5 py-0.5 rounded-sm max-w-full min-h-[1.6em] flex items-center justify-center"
-                  style={{ fontFamily: FONT, color: ink, border: `1px dashed ${ink}99`, background: `${base}1a`, transform: `rotate(${i % 2 ? 5 : -5}deg)`, textShadow: CHALK_SHADOW, boxShadow: `0 0 8px ${base}33` }}
+                  style={{ fontFamily: TEXT, color: ink, border: `1px dashed ${ink}99`, background: `${base}1a`, transform: `rotate(${i % 2 ? 5 : -5}deg)`, textShadow: CHALK_SHADOW, boxShadow: `0 0 8px ${base}33` }}
                 >
                   {sp.label}
                 </span>
-                <span className="text-[11px] sm:text-[13px] mt-1.5" style={{ fontFamily: FONT, color: CHALK_DIM }}>{count} drinks</span>
+                <span className="text-[11px] sm:text-[13px] mt-1.5" style={{ fontFamily: TEXT, color: CHALK_DIM }}>{count} drinks</span>
               </button>
             );
           })}
@@ -575,7 +583,7 @@ export default function CocktailBrowse({
               type="button"
               onClick={() => onFilterSpirit(null)}
               className="text-sm underline underline-offset-2"
-              style={{ fontFamily: FONT, color: CHALK_DIM }}
+              style={{ fontFamily: TEXT, color: CHALK_DIM }}
             >
               Show all spirits
             </button>
@@ -606,7 +614,7 @@ export default function CocktailBrowse({
               onClick={() => setBarOnly(!barOnly)}
               data-testid="cocktail-bar-only"
               className="inline-flex items-center gap-2 pl-1 pr-3 rounded-full border min-h-[40px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-              style={{ fontFamily: FONT, fontSize: 16, borderColor: barOnly ? CHALK_CREAM : CHALK_RAIL, color: CHALK_CREAM, outlineColor: CHALK_CREAM, background: barOnly ? 'rgba(245,239,222,0.08)' : 'transparent' }}
+              style={{ fontFamily: TEXT, fontSize: 16, borderColor: barOnly ? CHALK_CREAM : CHALK_RAIL, color: CHALK_CREAM, outlineColor: CHALK_CREAM, background: barOnly ? 'rgba(245,239,222,0.08)' : 'transparent' }}
             >
               {/* the pill: a track with a sliding knob */}
               <span aria-hidden="true" className="relative inline-block rounded-full transition-colors"
@@ -615,11 +623,11 @@ export default function CocktailBrowse({
                   style={{ width: 14, height: 14, left: barOnly ? 17 : 2, background: barOnly ? '#0a0a0a' : CHALK_CREAM }} />
               </span>
               Only what I have
-              <span className="text-[13px]" style={{ fontFamily: 'system-ui, sans-serif', color: CHALK_DIM }}>({makeableNames.size})</span>
+              <span className="text-[13px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>({makeableNames.size})</span>
             </button>
           )}
           {filterSpirit != null && (
-            <span className="text-[15px] inline-flex items-center gap-1.5" style={{ fontFamily: FONT, color: COCKTAIL_SPIRIT_COLORS[filterSpirit] || CHALK_CREAM }}>
+            <span className="text-[15px] inline-flex items-center gap-1.5" style={{ fontFamily: TEXT, color: COCKTAIL_SPIRIT_COLORS[filterSpirit] || CHALK_CREAM }}>
               <span className="inline-block rounded-full" style={{ width: 8, height: 8, background: COCKTAIL_SPIRIT_COLORS[filterSpirit] || CHALK_CREAM }} aria-hidden="true" />
               {SPIRIT_SHELF.find((s) => s.key === filterSpirit)?.label}
               <button type="button" onClick={() => onFilterSpirit(null)} aria-label="Clear spirit filter" className="inline-flex items-center" style={{ color: CHALK_SUB }}><Close size={16} /></button>
@@ -636,7 +644,7 @@ export default function CocktailBrowse({
             list="cocktail-ingredient-vocab"
             data-cocktail-search
             className="w-full pr-2.5 py-1 rounded-md focus:outline-none text-[15px]"
-            style={{ paddingLeft: 32, fontFamily: FONT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
+            style={{ paddingLeft: 32, fontFamily: TEXT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
           />
           </span>
           <datalist id="cocktail-ingredient-vocab">
@@ -647,31 +655,31 @@ export default function CocktailBrowse({
           <button type="button" onClick={() => setFiltersOpen((o) => !o)} data-testid="cocktail-filters-toggle"
             aria-expanded={filtersOpen} aria-controls="cocktail-facet-rail"
             className="px-3 py-1 rounded-full border min-h-[40px] text-[17px] flex items-center gap-1.5"
-            style={{ fontFamily: FONT, borderColor: activeFacetCount ? CHALK_CREAM : CHALK_RAIL, color: CHALK_CREAM }}>
+            style={{ fontFamily: TEXT, borderColor: activeFacetCount ? CHALK_CREAM : CHALK_RAIL, color: CHALK_CREAM }}>
             <Filters size={20} />
             Filters
             {activeFacetCount > 0 && (
-              <span className="rounded-full px-1.5 text-[13px] leading-5" style={{ fontFamily: 'system-ui, sans-serif', background: CHALK_CREAM, color: '#0a0a0a' }}>{activeFacetCount}</span>
+              <span className="rounded-full px-1.5 text-[13px] leading-5" style={{ fontFamily: TEXT, background: CHALK_CREAM, color: '#0a0a0a' }}>{activeFacetCount}</span>
             )}
             <span aria-hidden="true" style={{ color: CHALK_SUB, lineHeight: 0 }}>{filtersOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}</span>
           </button>
           {onOpenMyBar && (
             <button type="button" onClick={onOpenMyBar} data-testid="cocktail-my-bar-open"
               className="px-3 py-1 rounded-full border min-h-[40px] text-[17px]"
-              style={{ fontFamily: FONT, borderColor: CHALK_RAIL, color: CHALK_CREAM }}>
+              style={{ fontFamily: TEXT, borderColor: CHALK_RAIL, color: CHALK_CREAM }}>
               My bar{barCount ? ` (${barCount})` : ''}
             </button>
           )}
           {onOpenInvent && (
             <button type="button" onClick={onOpenInvent} data-testid="cocktail-invent-open"
               className="px-3 py-1 rounded-full border min-h-[40px] text-[17px] inline-flex items-center gap-1"
-              style={{ fontFamily: FONT, borderColor: CHALK_RAIL, color: CHALK_CREAM }}>
+              style={{ fontFamily: TEXT, borderColor: CHALK_RAIL, color: CHALK_CREAM }}>
               <Shaker size={20} />
               Invent a cocktail
             </button>
           )}
           {barFilterOn && makeableNames.size === 0 && (
-            <p className="w-full text-[14px]" role="status" data-testid="cocktail-bar-only-empty" style={{ fontFamily: FONT, color: CHALK_DIM }}>
+            <p className="w-full text-[14px]" role="status" data-testid="cocktail-bar-only-empty" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
               Nothing complete from your bar yet.{' '}
               {onOpenMyBar && <button type="button" onClick={onOpenMyBar} className="underline underline-offset-2" style={{ color: CHALK_CREAM }}>Add bottles in My bar</button>}
             </p>
@@ -698,7 +706,7 @@ export default function CocktailBrowse({
         <div className="mt-2 flex flex-col gap-1.5" id="cocktail-facet-rail" data-testid="cocktail-facet-rail">
           {FACET_GROUPS.map((g) => (
             <div key={g.key} className="flex items-center gap-1.5 overflow-x-auto chip-row" role="group" aria-label={`Filter by ${g.label.toLowerCase()}`}>
-              <span className="text-[13px] flex-shrink-0 w-[4.5rem]" style={{ fontFamily: SANS, color: CHALK_SUB }}>{g.label}</span>
+              <span className="text-[13px] flex-shrink-0 w-[4.5rem]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>{g.label}</span>
               {g.values.map((v) => {
                 const active = facetFilter[g.key] === v;
                 const count = chipCounts.get(`${g.key}:${v}`);
@@ -712,7 +720,7 @@ export default function CocktailBrowse({
                     onClick={() => setFacetFilter((f) => ({ ...f, [g.key]: active ? null : v }))}
                     className="px-2.5 py-0.5 rounded-full text-[14px] border whitespace-nowrap flex-shrink-0 transition-colors"
                     style={{
-                      fontFamily: FONT,
+                      fontFamily: TEXT,
                       color: active ? '#0a0a0a' : (dead ? `${CHALK_SUB}99` : CHALK_CREAM),
                       background: active ? CHALK_CREAM : 'rgba(255,255,255,0.04)',
                       borderColor: active ? CHALK_CREAM : `${CHALK_RAIL}99`,
@@ -748,7 +756,7 @@ export default function CocktailBrowse({
       {/* ───── Menu sections — colored-chalk family headers ───── */}
       <div className="px-4 py-4 max-w-4xl mx-auto pb-24">
         {inventEmpty && (
-          <div className="text-center py-6" data-testid="cocktail-invent-empty" style={{ fontFamily: FONT, color: CHALK_CREAM }}>
+          <div className="text-center py-6" data-testid="cocktail-invent-empty" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>
             <p className="text-[20px] mb-3">No cocktail has {parseQuery(searchTerm).join(' + ')} — invent one?</p>
             {inventButton}
             <p className="mt-3 text-[15px]" style={{ color: CHALK_SUB }}>
@@ -763,8 +771,8 @@ export default function CocktailBrowse({
         {yoursShown.length > 0 && (
           <section className="mb-7" data-testid="cocktail-yours-group" aria-label="Yours">
             <header className="flex items-baseline gap-2.5 mb-2 py-1.5" style={{ borderTop: `1.5px solid ${CHALK_CREAM}55`, borderBottom: `1.5px solid ${CHALK_CREAM}55` }}>
-              <h2 className="text-[36px] leading-none" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Yours</h2>
-              <span className="text-[13px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>{yoursShown.length} drinks</span>
+              <h2 className="text-[36px] leading-none" style={{ fontFamily: HAND, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Yours</h2>
+              <span className="text-[13px]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>{yoursShown.length} drinks</span>
             </header>
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 ml-5">
               {yoursShown.map((c, idx) => {
@@ -803,8 +811,8 @@ export default function CocktailBrowse({
                 <svg width="38" height="58" viewBox="0 16 52 92" aria-hidden="true" style={{ flexShrink: 0 }}>
                   {glassMark(famGlassType, 26, fam.color, fam.color, true)}
                 </svg>
-                <h2 className="text-[36px] leading-none" style={{ fontFamily: FONT, color: fam.color, textShadow: CHALK_SHADOW }}>{fam.name}</h2>
-                <span className="text-[13px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>{filtered.length} of {members.length} drinks</span>
+                <h2 className="text-[36px] leading-none" style={{ fontFamily: HAND, color: fam.color, textShadow: CHALK_SHADOW }}>{fam.name}</h2>
+                <span className="text-[13px]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>{filtered.length} of {members.length} drinks</span>
               </header>
 
               {groups.map(({ sid, members: subMembers, yours }, sidIdx) => {
@@ -821,10 +829,10 @@ export default function CocktailBrowse({
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <SubgroupGlyph kind={kind} color={chalk} />
-                      <span className="text-[24px] leading-tight" style={{ fontFamily: FONT, color: chalk, textShadow: CHALK_SHADOW }}>
+                      <span className="text-[24px] leading-tight" style={{ fontFamily: HAND, color: chalk, textShadow: CHALK_SHADOW }}>
                         {subLabel || `More ${fam.name}`}
                       </span>
-                      <span className="text-[13px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>{subMembers.length} drinks</span>
+                      <span className="text-[13px]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>{subMembers.length} drinks</span>
                     </div>
                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                       {subMembers.map((c, idx) => (
@@ -840,7 +848,7 @@ export default function CocktailBrowse({
           );
         })}
         {!inventEmpty && yoursShown.length === 0 && sections.every((x) => x.filtered.length === 0) && (
-          <div className="text-center text-base py-12" style={{ fontFamily: FONT, color: CHALK_SUB }}>
+          <div className="text-center text-base py-12" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
             No cocktails match these filters.{' '}
             <button
               type="button"

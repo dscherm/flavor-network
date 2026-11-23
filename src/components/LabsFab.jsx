@@ -16,7 +16,7 @@
 
 import React, { useState, useEffect } from 'react';
 
-const FONT_HAND = 'Caveat, cursive';
+import { TEXT } from '../data/chalkTheme.js';
 const CHALK_CREAM = '#f5efde';
 const CHALK_DIM = '#bdb6a3';
 const CHALK_TEXT_SHADOW = '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)';
@@ -78,7 +78,7 @@ export default function LabsFab({
               <span
                 style={{
                   color: CHALK_CREAM,
-                  fontFamily: FONT_HAND,
+                  fontFamily: TEXT,
                   fontSize: 18,
                   textShadow: CHALK_TEXT_SHADOW,
                   lineHeight: 1.1,
@@ -89,7 +89,7 @@ export default function LabsFab({
               <span
                 style={{
                   color: CHALK_DIM,
-                  fontFamily: FONT_HAND,
+                  fontFamily: TEXT,
                   fontSize: 13,
                   textShadow: CHALK_TEXT_SHADOW,
                   lineHeight: 1.1,
@@ -114,7 +114,7 @@ export default function LabsFab({
           border: `2px double #4a4a4a`,
           boxShadow: 'inset 0 0 0 1px #6a6a6a55, 0 8px 24px rgba(0,0,0,0.55)',
           color: CHALK_CREAM,
-          fontFamily: FONT_HAND,
+          fontFamily: TEXT,
           fontSize: 18,
           textShadow: CHALK_TEXT_SHADOW,
           minHeight: 44,

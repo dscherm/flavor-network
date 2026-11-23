@@ -22,6 +22,7 @@ import IngredientProfileCard from './IngredientProfileCard.jsx';
 import { Close, ChevronLeft, ChevronRight } from './ChalkIcons.jsx';
 import { loadQuantityModel, predictAmountFromCtx } from '../ml/quantityRuntime.js';
 
+import { HAND, TEXT } from '../data/chalkTheme.js';
 const ALPHA = 0.3; // popularity-discount strength (mild — high α promotes junk)
 const SWIPE_THRESHOLD = 50; // px — mirror PairingMode
 const NO_NODES = new Map();
@@ -281,19 +282,19 @@ export default function SuggestionCardDeck({
           data-testid="deck-back"
           aria-label="Back without adding"
           className="min-h-[44px] px-3 rounded-lg border border-[#3a3a3a] text-[#bdb6a3] hover:text-[#f5efde] hover:bg-white/5"
-          style={{ fontFamily: 'Caveat, cursive', fontSize: 17 }}
+          style={{ fontFamily: TEXT, fontSize: 17 }}
         >
           Back
         </button>
-        <span className="text-[22px] text-[#f5efde] text-center flex-1 px-2" style={{ fontFamily: 'Caveat, cursive' }}>
+        <span className="text-[22px] text-[#f5efde] text-center flex-1 px-2" style={{ fontFamily: TEXT }}>
           {headerLabel || (mode === 'replace' ? `Instead of ${ingredient}` : 'Goes well with your recipe')}
         </span>
         <button onClick={onClose} aria-label="Close" className="min-h-[44px] text-[#8a8478] hover:text-[#f5efde] px-2"><Close size={20} /></button>
       </div>
 
       <div className="flex flex-col items-center justify-center overflow-y-auto px-3 py-3" style={{ flex: 1 }}>
-        {loading && <p className="text-center text-base text-[#8a8478] py-6" style={{ fontFamily: 'Caveat, cursive' }}>Finding suggestions…</p>}
-        {!loading && items.length === 0 && <p className="text-center text-base text-[#8a8478] py-6" style={{ fontFamily: 'Caveat, cursive' }}>No suggestions for this recipe yet.</p>}
+        {loading && <p className="text-center text-base text-[#8a8478] py-6" style={{ fontFamily: TEXT }}>Finding suggestions…</p>}
+        {!loading && items.length === 0 && <p className="text-center text-base text-[#8a8478] py-6" style={{ fontFamily: TEXT }}>No suggestions for this recipe yet.</p>}
 
         {/* Per-page title (HELP-5): label each swipeable deck page by its subject
             — the candidate name — mirroring the per-page <h3> titles in the
@@ -302,7 +303,7 @@ export default function SuggestionCardDeck({
           <h3
             data-testid="deck-page-title"
             className="text-2xl text-center mb-2 flex-shrink-0"
-            style={{ fontFamily: 'Caveat, cursive', color: '#f5efde', textShadow: '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)' }}
+            style={{ fontFamily: HAND, color: '#f5efde', textShadow: '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)' }}
           >
             {card.name}
             <span className="text-base ml-2" style={{ color: '#8a8478' }}>{cardIdx + 1} / {items.length}</span>

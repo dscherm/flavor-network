@@ -16,7 +16,7 @@ import { useMemo, useRef, useState } from 'react';
 import { whatCanIMake, commonBarIngredients, barKeyLists, addToBar, removeFromBar, substitutionText, barKey, isBooze, stockFor } from '../data/myBar.js';
 import { addToKitchen, removeFromKitchen } from '../data/myKitchen.js';
 import { buildIngredientVocab } from '../data/ingredientSearch.js';
-import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
 import { DrinkGlass } from './cocktailGlasses.jsx';
 import BarScanSetup from './BarScanSetup.jsx';
 import { Camera, Close } from './ChalkIcons.jsx';
@@ -25,7 +25,6 @@ import { usage } from '../data/usageEvents.js';
 import { noteTypedIngredient } from '../data/usageIngredient.js';
 import { scanMode, loadScanKey, loadScanCode, barVocab, runBarScan, toReviewRows, mergeReviewRows, ScanError } from '../data/barScan.js';
 
-const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 const ONE_AWAY_SHOWN = 30;
 
 export default function MyBarPanel({
@@ -145,27 +144,27 @@ export default function MyBarPanel({
     setText('');
   };
 
-  const pill = { fontFamily: FONT, borderColor: CHALK_RAIL, color: CHALK_CREAM };
+  const pill = { fontFamily: TEXT, borderColor: CHALK_RAIL, color: CHALK_CREAM };
   return (
     <div className="fixed inset-x-0 top-0 safe-top-pad z-[82] flex flex-col items-center px-4 py-3 overflow-y-auto overflow-x-hidden"
       style={{ ...chalkSurfaceStyle(), bottom: 'var(--tab-bar-h)', color: CHALK_CREAM }}
       data-testid="my-bar-panel" role="dialog" aria-label="My bar">
       <div className="w-full max-w-[560px] flex items-center justify-between mb-2 gap-2">
         <button type="button" onClick={onClose} data-testid="my-bar-close"
-          className="px-3 py-2 rounded-lg min-h-[44px] min-w-[44px]" style={{ fontFamily: FONT, fontSize: 18, border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}>
+          className="px-3 py-2 rounded-lg min-h-[44px] min-w-[44px]" style={{ fontFamily: TEXT, fontSize: 18, border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}>
           Back to the menu
         </button>
         {onInvent && (
           <button type="button" onClick={onInvent} data-testid="my-bar-invent"
-            className="px-3 py-2 rounded-lg min-h-[44px]" style={{ fontFamily: FONT, fontSize: 18, color: '#0a0a0a', background: CHALK_CREAM }}>
+            className="px-3 py-2 rounded-lg min-h-[44px]" style={{ fontFamily: TEXT, fontSize: 18, color: '#0a0a0a', background: CHALK_CREAM }}>
             Invent a cocktail
           </button>
         )}
       </div>
 
       <div className="w-full max-w-[560px] rounded-2xl px-4 py-4" style={{ border: `2px double ${CHALK_RAIL}`, background: 'rgba(255,255,255,0.025)' }}>
-        <h2 className="text-center text-[34px] leading-tight" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }}>My bar</h2>
-        <p className="text-center text-[13px] mb-3" style={{ fontFamily: SANS, color: CHALK_SUB }}>
+        <h2 className="text-center text-[34px] leading-tight" style={{ fontFamily: HAND, textShadow: CHALK_SHADOW }}>My bar</h2>
+        <p className="text-center text-[13px] mb-3" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
           Your bottles. Mixers, citrus, syrups and eggs come from your kitchen, shared with the Recipe and Sauce Labs. Kept on this device only.
         </p>
 
@@ -175,7 +174,7 @@ export default function MyBarPanel({
             placeholder="Add a bottle — e.g. rye"
             aria-label="Add an ingredient to my bar" list="my-bar-vocab" data-testid="my-bar-input"
             className="flex-1 min-w-0 px-2.5 py-2 rounded-md focus:outline-none text-[17px]"
-            style={{ fontFamily: FONT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
+            style={{ fontFamily: TEXT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
           />
           <datalist id="my-bar-vocab">{vocab.map((v) => <option key={v} value={v} />)}</datalist>
           <button type="submit" data-testid="my-bar-add" className="px-4 rounded-md min-h-[44px] border" style={pill}>Add</button>
@@ -186,15 +185,15 @@ export default function MyBarPanel({
             className="px-3 rounded-md min-h-[44px] border disabled:opacity-50 inline-flex items-center gap-1" style={pill}><Camera size={20} />Add from a photo</button>
           {mode && scanView !== 'setup' && (
             <button type="button" data-testid="my-bar-scan-change" onClick={() => { setScanError(null); setScanView('setup'); }}
-              className="px-2 min-h-[44px] text-[14px] underline" style={{ fontFamily: SANS, color: CHALK_SUB }}>Change key or code</button>
+              className="px-2 min-h-[44px] text-[14px] underline" style={{ fontFamily: TEXT, color: CHALK_SUB }}>Change key or code</button>
           )}
           <input ref={fileRef} type="file" accept="image/*" hidden onChange={onPhoto} data-testid="my-bar-photo-input" aria-label="Choose a photo of your bottles" />
         </div>
         {scanBusy && (
-          <p role="status" data-testid="my-bar-scan-busy" className="mt-2 text-[15px]" style={{ fontFamily: FONT, color: CHALK_DIM }}>Reading the labels…</p>
+          <p role="status" data-testid="my-bar-scan-busy" className="mt-2 text-[15px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>Reading the labels…</p>
         )}
         {scanError && (
-          <div role="alert" data-testid="my-bar-scan-error" className="mt-2 text-[14px]" style={{ fontFamily: SANS, color: '#f2b8a8' }}>
+          <div role="alert" data-testid="my-bar-scan-error" className="mt-2 text-[14px]" style={{ fontFamily: TEXT, color: '#f2b8a8' }}>
             <p>{scanError.message}</p>
             {(scanError.kind === 'bad-key' || scanError.kind === 'bad-code') && (
               <button type="button" data-testid="my-bar-scan-fix" onClick={() => { setScanError(null); setScanView('setup'); }}
@@ -203,7 +202,7 @@ export default function MyBarPanel({
           </div>
         )}
         {scanNote && !scanError && !scanBusy && (
-          <p role="status" data-testid="my-bar-scan-note" className="mt-2 text-[14px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>{scanNote}</p>
+          <p role="status" data-testid="my-bar-scan-note" className="mt-2 text-[14px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>{scanNote}</p>
         )}
         {scanView === 'setup' && (
           <BarScanSetup
@@ -224,7 +223,7 @@ export default function MyBarPanel({
 
         <ul className="mt-3 flex flex-wrap gap-1.5" data-testid="my-bar-items" aria-label="In my bar">
           {bar.length === 0 && (
-            <li className="text-[15px]" style={{ fontFamily: FONT, color: CHALK_DIM }}>No bottles yet — add what you have, or tap the common ones below.</li>
+            <li className="text-[15px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>No bottles yet — add what you have, or tap the common ones below.</li>
           )}
           {bar.map((k) => (
             <li key={k}>
@@ -237,14 +236,14 @@ export default function MyBarPanel({
         </ul>
 
         {routed && (
-          <p className="mt-2 text-[13px]" role="status" data-testid="my-bar-routed" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+          <p className="mt-2 text-[13px]" role="status" data-testid="my-bar-routed" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
             Added {routed} to your kitchen (not a bottle).
           </p>
         )}
 
         {kitchenForDrinks.length > 0 && (
           <div className="mt-3" data-testid="my-bar-kitchen">
-            <p className="text-[13px] mb-1" style={{ fontFamily: SANS, color: CHALK_SUB }}>From your kitchen</p>
+            <p className="text-[13px] mb-1" style={{ fontFamily: TEXT, color: CHALK_SUB }}>From your kitchen</p>
             <ul className="flex flex-wrap gap-1.5" aria-label="From your kitchen">
               {kitchenForDrinks.map((k) => (
                 <li key={k}>
@@ -260,7 +259,7 @@ export default function MyBarPanel({
 
         {common.some((k) => !stock.includes(k)) && (
           <div className="mt-3">
-            <p className="text-[13px] mb-1" style={{ fontFamily: SANS, color: CHALK_SUB }}>Most used in cocktails</p>
+            <p className="text-[13px] mb-1" style={{ fontFamily: TEXT, color: CHALK_SUB }}>Most used in cocktails</p>
             <div className="flex flex-wrap gap-1.5" data-testid="my-bar-quick">
               {common.filter((k) => !stock.includes(k)).map((k) => (
                 <button key={k} type="button" onClick={() => add(k)}
@@ -275,8 +274,8 @@ export default function MyBarPanel({
         {stock.length > 0 && (
           <>
             <section className="mt-5" data-testid="my-bar-make">
-              <h3 className="text-[24px]" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }}>You can make ({result.make.length})</h3>
-              {result.make.length === 0 && <p className="text-[15px]" style={{ fontFamily: FONT, color: CHALK_DIM }}>Nothing complete yet — see what is one bottle away.</p>}
+              <h3 className="text-[24px]" style={{ fontFamily: HAND, textShadow: CHALK_SHADOW }}>You can make ({result.make.length})</h3>
+              {result.make.length === 0 && <p className="text-[15px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>Nothing complete yet — see what is one bottle away.</p>}
               <ul className="flex flex-col">
                 {result.make.map((m) => (
                   <li key={m.cocktail.name}>
@@ -284,9 +283,9 @@ export default function MyBarPanel({
                       className="w-full text-left py-1 min-h-[36px] flex items-center gap-2.5">
                       <DrinkGlass cocktail={m.cocktail} familyById={familyById} />
                       <span className="flex-1 min-w-0">
-                        <span className="block text-[20px]" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{m.cocktail.name}</span>
+                        <span className="block text-[20px]" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>{m.cocktail.name}</span>
                         {m.substitutions.length > 0 && (
-                          <span className="block text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>{substitutionText(m.substitutions)}</span>
+                          <span className="block text-[12px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>{substitutionText(m.substitutions)}</span>
                         )}
                       </span>
                     </button>
@@ -296,7 +295,7 @@ export default function MyBarPanel({
             </section>
 
             <section className="mt-4" data-testid="my-bar-one-away">
-              <h3 className="text-[24px]" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }}>One away ({result.oneAway.length})</h3>
+              <h3 className="text-[24px]" style={{ fontFamily: HAND, textShadow: CHALK_SHADOW }}>One away ({result.oneAway.length})</h3>
               <ul className="flex flex-col">
                 {result.oneAway.slice(0, ONE_AWAY_SHOWN).map((m) => (
                   <li key={m.cocktail.name}>
@@ -304,8 +303,8 @@ export default function MyBarPanel({
                       className="w-full text-left py-1 min-h-[36px] flex items-center gap-2.5">
                       <DrinkGlass cocktail={m.cocktail} familyById={familyById} />
                       <span className="flex-1 min-w-0">
-                        <span className="block text-[20px]" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{m.cocktail.name}</span>
-                        <span className="block text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+                        <span className="block text-[20px]" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>{m.cocktail.name}</span>
+                        <span className="block text-[12px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
                           {`missing ${m.missing[0].key}.`}
                           {m.suggestion ? ` Or use your ${m.suggestion.use} in its place.` : ''}
                           {m.substitutions.length ? ` ${substitutionText(m.substitutions).replace(/\.?$/, '.')}` : ''}
@@ -319,7 +318,7 @@ export default function MyBarPanel({
                 <p className="text-[12px]" style={{ color: CHALK_SUB }}>…and {result.oneAway.length - ONE_AWAY_SHOWN} more.</p>
               )}
             </section>
-            <p className="mt-3 text-[11px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>
+            <p className="mt-3 text-[11px]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
               Water, ice, soda, sugar and garnishes are assumed. A spirit counts for another of its family (any whiskey for a whiskey) — never vodka for gin.
             </p>
           </>

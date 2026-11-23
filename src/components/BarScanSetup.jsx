@@ -11,12 +11,11 @@ import {
   loadScanKey, saveScanKey, clearScanKey, loadScanCode, saveScanCode, clearScanCode,
   looksLikeGeminiKey, looksLikeScanCode, maskSecret,
 } from '../data/barScan.js';
-import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL } from '../data/chalkTheme.js';
 
-const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 const box = { border: `1px solid ${CHALK_RAIL}`, background: 'rgba(255,255,255,0.03)' };
-const field = { fontFamily: SANS, background: 'rgba(255,255,255,0.06)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM };
-const btn = { fontFamily: FONT, border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM };
+const field = { fontFamily: TEXT, background: 'rgba(255,255,255,0.06)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM };
+const btn = { fontFamily: TEXT, border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM };
 
 /** @param {{ onSaved?: (mode: 'key'|'code') => void, onClose?: () => void, storage?: object }} props */
 export default function BarScanSetup({ onSaved, onClose, storage }) {
@@ -45,9 +44,9 @@ export default function BarScanSetup({ onSaved, onClose, storage }) {
   };
 
   return (
-    <section className="w-full rounded-xl px-3 py-3 mt-3" style={{ ...box, fontFamily: SANS, color: CHALK_CREAM }}
+    <section className="w-full rounded-xl px-3 py-3 mt-3" style={{ ...box, fontFamily: TEXT, color: CHALK_CREAM }}
       data-testid="bar-scan-setup" aria-label="Set up photo reading">
-      <h3 className="text-[22px] mb-1" style={{ fontFamily: FONT }}>Add bottles from a photo</h3>
+      <h3 className="text-[22px] mb-1" style={{ fontFamily: HAND }}>Add bottles from a photo</h3>
       <p className="text-[13px] mb-2" style={{ color: CHALK_SUB }}>
         Reading labels uses Google's photo reader. Choose how to connect to it; you only do this once.
       </p>
@@ -61,7 +60,7 @@ export default function BarScanSetup({ onSaved, onClose, storage }) {
       )}
 
       <form onSubmit={saveCode} className="rounded-lg px-3 py-3 mb-2" style={box} data-testid="bar-scan-code-block">
-        <h4 className="text-[18px]" style={{ fontFamily: FONT }}>I have a code</h4>
+        <h4 className="text-[18px]" style={{ fontFamily: HAND }}>I have a code</h4>
         <p className="text-[13px] mb-2" style={{ color: CHALK_DIM }}>
           The photo is read using the app owner's Google key, through this app's server, and is not stored.
         </p>
@@ -74,7 +73,7 @@ export default function BarScanSetup({ onSaved, onClose, storage }) {
       </form>
 
       <form onSubmit={saveKey} className="rounded-lg px-3 py-3" style={box} data-testid="bar-scan-key-block">
-        <h4 className="text-[18px]" style={{ fontFamily: FONT }}>Use my own Google key</h4>
+        <h4 className="text-[18px]" style={{ fontFamily: HAND }}>Use my own Google key</h4>
         <p className="text-[13px] mb-1" style={{ color: CHALK_DIM }}>
           A key is a long password that lets this app ask Google's Gemini model to read a photo for you. It is free.{' '}
           <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" data-testid="bar-scan-key-link"

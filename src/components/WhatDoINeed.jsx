@@ -9,12 +9,11 @@
  * kitchen can swap ("use your onion for the scallion") counts as had.
  */
 import { useState } from 'react';
-import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB } from '../data/chalkTheme.js';
 import { shoppingListText } from '../data/whatDoINeed.js';
 import AddToShoppingList from './AddToShoppingList.jsx';
 import { IngredientName } from './IngredientCardProvider.jsx';
 
-const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 const SHADOW = '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)';
 
 /**
@@ -43,11 +42,11 @@ export default function WhatDoINeed({ title, needs, stockEmpty = false, stockLab
 
   return (
     <section data-testid="what-do-i-need" aria-label="What do I need?">
-      <h3 style={{ color: CHALK_CREAM, fontFamily: FONT, fontSize: 22, fontWeight: 400, marginTop: 24, marginBottom: 12, textShadow: SHADOW }}>
+      <h3 style={{ color: CHALK_CREAM, fontFamily: HAND, fontSize: 22, fontWeight: 400, marginTop: 24, marginBottom: 12, textShadow: SHADOW }}>
         What do I need?
       </h3>
 
-      <p className="mb-2" data-testid="what-do-i-need-summary" style={{ fontFamily: FONT, fontSize: 20, color: CHALK_CREAM, lineHeight: 1.2, textShadow: SHADOW }}>
+      <p className="mb-2" data-testid="what-do-i-need-summary" style={{ fontFamily: TEXT, fontSize: 20, color: CHALK_CREAM, lineHeight: 1.2, textShadow: SHADOW }}>
         {stockEmpty
           ? `Your ${stockLabel} is empty, so here is everything you'd need.`
           : missing.length === 0
@@ -62,15 +61,15 @@ export default function WhatDoINeed({ title, needs, stockEmpty = false, stockLab
           {missing.map((m) => (
             <li key={m.name} className="flex items-center gap-2 min-h-[40px]">
               <span className="flex-1 min-w-0">
-                {m.amount && <span className="mr-1.5 text-[14px]" data-testid={`what-do-i-need-amount-${m.name}`} style={{ fontFamily: SANS, color: CHALK_DIM }}>{m.amount}</span>}{m.amount ? ' ' : null}
-                <IngredientName name={m.name} loose tall testid={`what-do-i-need-name-${m.name}`} style={{ fontFamily: FONT, fontSize: 19, color: CHALK_CREAM }}>{m.name}</IngredientName>
-                {m.hint && <span className="block text-[12px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>{m.hint}</span>}
+                {m.amount && <span className="mr-1.5 text-[14px]" data-testid={`what-do-i-need-amount-${m.name}`} style={{ fontFamily: TEXT, color: CHALK_DIM }}>{m.amount}</span>}{m.amount ? ' ' : null}
+                <IngredientName name={m.name} loose tall testid={`what-do-i-need-name-${m.name}`} style={{ fontFamily: TEXT, fontSize: 19, color: CHALK_CREAM }}>{m.name}</IngredientName>
+                {m.hint && <span className="block text-[12px]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>{m.hint}</span>}
               </span>
               {onHave && (
                 <button type="button" onClick={() => onHave(m.name)} data-testid={`what-do-i-need-have-${m.name}`}
                   aria-label={`I have ${m.name}: add it to my ${stockLabel}`}
                   className="px-2.5 rounded-full border min-h-[36px] text-[14px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                  style={{ fontFamily: FONT, borderColor: `${color}88`, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
+                  style={{ fontFamily: TEXT, borderColor: `${color}88`, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
                   I have it
                 </button>
               )}
@@ -82,7 +81,7 @@ export default function WhatDoINeed({ title, needs, stockEmpty = false, stockLab
       {swaps.length > 0 && (
         <ul className="mt-1 flex flex-col gap-0.5" data-testid="what-do-i-need-swaps" aria-label="Swaps from your kitchen">
           {swaps.map((w) => (
-            <li key={w.name} className="text-[16px]" style={{ fontFamily: FONT, color: CHALK_CREAM }}>
+            <li key={w.name} className="text-[16px]" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>
               Use your {w.use} for the {w.name}
             </li>
           ))}
@@ -90,13 +89,13 @@ export default function WhatDoINeed({ title, needs, stockEmpty = false, stockLab
       )}
 
       {better.length > 0 && (
-        <p className="mt-1.5 text-[16px]" data-testid="what-do-i-need-better" style={{ fontFamily: FONT, color: CHALK_DIM, lineHeight: 1.25 }}>
+        <p className="mt-1.5 text-[16px]" data-testid="what-do-i-need-better" style={{ fontFamily: TEXT, color: CHALK_DIM, lineHeight: 1.25 }}>
           Even better with: {better.map((b) => b.name).join(', ')}
         </p>
       )}
 
       {optional.length > 0 && (
-        <p className="mt-1 text-[13px]" data-testid="what-do-i-need-optional" style={{ fontFamily: SANS, color: CHALK_SUB }}>
+        <p className="mt-1 text-[13px]" data-testid="what-do-i-need-optional" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
           Nice to have: {optional.map((o) => `${o.name}${o.amount ? ` (${o.amount})` : ''}`).join(', ')}
         </p>
       )}
@@ -105,7 +104,7 @@ export default function WhatDoINeed({ title, needs, stockEmpty = false, stockLab
         {missing.length + optional.length + better.length > 0 && (
           <button type="button" onClick={copy} data-testid="what-do-i-need-copy"
             className="px-3 rounded-lg border min-h-[44px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-            style={{ fontFamily: FONT, fontSize: 18, borderColor: `${color}88`, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
+            style={{ fontFamily: TEXT, fontSize: 18, borderColor: `${color}88`, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
             {copied ? 'Copied' : 'Copy shopping list'}
           </button>
         )}
@@ -115,19 +114,19 @@ export default function WhatDoINeed({ title, needs, stockEmpty = false, stockLab
         )}
         {have.length > 0 && (
           <button type="button" onClick={() => setShowHave((v) => !v)} aria-expanded={showHave} data-testid="what-do-i-need-toggle-have"
-            className="px-2 min-h-[44px] underline underline-offset-4" style={{ fontFamily: FONT, fontSize: 16, color: CHALK_DIM }}>
+            className="px-2 min-h-[44px] underline underline-offset-4" style={{ fontFamily: TEXT, fontSize: 16, color: CHALK_DIM }}>
             {showHave ? 'Hide' : 'Show'} what you have ({have.length})
           </button>
         )}
       </div>
 
       {showHave && (
-        <p className="mt-1 text-[13px]" data-testid="what-do-i-need-have" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+        <p className="mt-1 text-[13px]" data-testid="what-do-i-need-have" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
           {have.map((h) => (h.swap ? `${h.name} (your ${h.swap} instead)` : h.via ? `${h.name} (your ${h.via})` : h.name)).join(', ')}
         </p>
       )}
       {basics.length > 0 && (
-        <p className="mt-1 text-[12px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>
+        <p className="mt-1 text-[12px]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
           Assumed on hand: {basics.join(', ')}.
         </p>
       )}

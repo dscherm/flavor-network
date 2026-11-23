@@ -8,7 +8,7 @@
  * under prefers-reduced-motion.
  */
 import { useId } from 'react';
-import { FONT, CHALK_CREAM } from '../data/chalkTheme.js';
+import { LOGO_HAND, CHALK_CREAM } from '../data/chalkTheme.js';
 
 const ORANGE = '#f2a93b';
 const SAGE = '#8fa274';
@@ -83,7 +83,7 @@ export default function ChalkLogo({ className = '', title = 'Neural Flavor', ani
         <Chalk d={gather} c={CHALK_CREAM} w={2.2} opacity={0.85} />
         <Chalk d={band} c={CHALK_CREAM} w={3} />
         <text x="100" y="128" textAnchor="middle" fill={ORANGE}
-          style={{ fontFamily: FONT, fontSize: 32, fontWeight: 700 }}>Nf</text>
+          style={{ fontFamily: LOGO_HAND, fontSize: 32, fontWeight: 700 }}>Nf</text>
 
         {/* Rutherford atom */}
         {ORBITS.map((o) => (

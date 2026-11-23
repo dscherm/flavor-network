@@ -1,4 +1,5 @@
 import { useRef, useCallback } from 'react';
+import { TEXT } from '../data/chalkTheme.js';
 
 /** Canvas roundRect polyfill for browsers that lack ctx.roundRect(). */
 function roundRect(ctx, x, y, w, h, r) {
@@ -57,7 +58,7 @@ export default function CocktailCard({ cocktail, compatibilityScore, codexTempla
 
     // Title
     ctx.fillStyle = '#e5e7eb';
-    ctx.font = 'bold 28px system-ui, -apple-system, sans-serif';
+    ctx.font = `500 28px ${TEXT}`;
     ctx.textAlign = 'center';
     ctx.fillText(cocktail.name || 'Untitled Cocktail', 300, 55);
 
@@ -71,7 +72,7 @@ export default function CocktailCard({ cocktail, compatibilityScore, codexTempla
       roundRect(ctx, 300 - bw / 2, yPos - 14, bw, 22, 6);
       ctx.fill();
       ctx.fillStyle = '#a78bfa';
-      ctx.font = '12px system-ui, -apple-system, sans-serif';
+      ctx.font = `400 12px ${TEXT}`;
       ctx.fillText(badgeText, 300, yPos + 2);
       yPos += 40;
     }
@@ -79,7 +80,7 @@ export default function CocktailCard({ cocktail, compatibilityScore, codexTempla
     // Compatibility score
     if (compatibilityScore > 0) {
       ctx.fillStyle = '#6b7280';
-      ctx.font = '11px system-ui, -apple-system, sans-serif';
+      ctx.font = `400 11px ${TEXT}`;
       ctx.textAlign = 'center';
       ctx.fillText('COMPATIBILITY', 300, yPos);
       yPos += 20;
@@ -97,20 +98,20 @@ export default function CocktailCard({ cocktail, compatibilityScore, codexTempla
       ctx.fill();
 
       ctx.fillStyle = scoreColor;
-      ctx.font = 'bold 14px system-ui, -apple-system, sans-serif';
+      ctx.font = `500 14px ${TEXT}`;
       ctx.fillText(`${compatibilityScore.toFixed(1)}/10`, 300, yPos + 24);
       yPos += 50;
     }
 
     // Ingredients header
     ctx.fillStyle = '#6b7280';
-    ctx.font = '10px system-ui, -apple-system, sans-serif';
+    ctx.font = `400 10px ${TEXT}`;
     ctx.textAlign = 'left';
     ctx.fillText('INGREDIENTS', 60, yPos);
     yPos += 20;
 
     // Ingredient list
-    ctx.font = '14px system-ui, -apple-system, sans-serif';
+    ctx.font = `400 14px ${TEXT}`;
     const ingredients = cocktail.ingredients || [];
     for (const ing of ingredients) {
       // Dot
@@ -139,13 +140,13 @@ export default function CocktailCard({ cocktail, compatibilityScore, codexTempla
     if (cocktail.instructions) {
       yPos += 10;
       ctx.fillStyle = '#6b7280';
-      ctx.font = '10px system-ui, -apple-system, sans-serif';
+      ctx.font = `400 10px ${TEXT}`;
       ctx.textAlign = 'left';
       ctx.fillText('INSTRUCTIONS', 60, yPos);
       yPos += 18;
 
       ctx.fillStyle = '#9ca3af';
-      ctx.font = '12px system-ui, -apple-system, sans-serif';
+      ctx.font = `400 12px ${TEXT}`;
 
       // Word wrap
       const words = cocktail.instructions.split(' ');
@@ -168,7 +169,7 @@ export default function CocktailCard({ cocktail, compatibilityScore, codexTempla
 
     // Footer
     ctx.fillStyle = '#4b5563';
-    ctx.font = '10px system-ui, -apple-system, sans-serif';
+    ctx.font = `400 10px ${TEXT}`;
     ctx.textAlign = 'center';
     ctx.fillText('Created with Flavor Network · Cocktail Lab', 300, 770);
 

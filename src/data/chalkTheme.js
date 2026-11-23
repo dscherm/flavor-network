@@ -3,12 +3,10 @@
  *
  * The 2D lab surfaces (Cocktail menu, Sauce specials board, Cookbook) are
  * drawn as colored chalk on slate, matching the RecipeFlavorProfilesCard.
- * Caveat carries names/headings; small data (counts, badges) stays in a
- * legible sans. These tokens live here so every chalkboard surface reads
+ * The hand (Caveat) carries titles and drawn labels only; everything people
+ * read or tap is set in the steady face (Alegreya Sans). These tokens live here so every chalkboard surface reads
  * like the same board rather than diverging per-component.
  */
-
-export const FONT = 'Caveat, cursive';
 
 // Slate wash — a radial gradient over near-black.
 export const CHALK_GRADIENT = 'radial-gradient(ellipse at center, #1c1c1c 0%, #0a0a0a 75%, #050505 100%)';
@@ -20,6 +18,20 @@ export const CHALK_DIM = '#bdb6a3';   // muted chalk
 export const CHALK_SUB = '#8a8478';   // faint chalk (captions)
 export const CHALK_RAIL = '#4a4a4a';  // slate rail / frame
 export const CHALK_SHADOW = '0 0 1px rgba(245,239,222,0.5), 0 0 3px rgba(245,239,222,0.2)';
+
+// Type: the one place a face is named. Files load from src/fonts.js.
+export const HAND = '"Caveat", cursive';         // titles and drawn labels only
+export const TEXT = '"Alegreya Sans", sans-serif'; // everything people read or tap
+export const LOGO_HAND = HAND;                     // ChalkLogo "Nf"
+const FIG = { fontVariantNumeric: 'lining-nums tabular-nums' };
+export const TYPE = {
+  display: { fontFamily: HAND, fontSize: 32, fontWeight: 700, lineHeight: 1.15, textShadow: CHALK_SHADOW },
+  heading: { fontFamily: HAND, fontSize: 22, fontWeight: 700, lineHeight: 1.2, textShadow: CHALK_SHADOW },
+  drawn: { fontFamily: HAND, fontWeight: 400 },
+  body: { fontFamily: TEXT, fontSize: 16, fontWeight: 400, lineHeight: 1.5, ...FIG },
+  control: { fontFamily: TEXT, fontSize: 16, fontWeight: 500, lineHeight: 1.25, ...FIG },
+  small: { fontFamily: TEXT, fontSize: 13, fontWeight: 400, lineHeight: 1.4, color: CHALK_SUB, ...FIG },
+};
 
 // Faint chalk-dust grain (SVG fractal noise, ~5% white). Layer it ABOVE the
 // slate gradient so the board reads like a real surface, not flat black.

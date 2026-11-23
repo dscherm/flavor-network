@@ -26,12 +26,11 @@ import { loadKitchen, loadSpiceRack } from '../data/myKitchen.js';
 import { loadBar } from '../data/myBar.js';
 import { mainsOf } from '../data/recipeMains.js';
 import { resolveIngredientName } from '../data/recipePairingMatch.js';
-import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL } from '../data/chalkTheme.js';
 
-const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 const FOCUS = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
-const buttonStyle = { fontFamily: SANS, fontSize: 14, color: CHALK_CREAM, border: `1.5px solid ${CHALK_DIM}`, background: 'transparent', outlineColor: CHALK_CREAM };
-const inputStyle = { fontFamily: SANS, fontSize: 16, color: CHALK_CREAM, background: 'rgba(10,10,10,0.6)', border: `1.5px solid ${CHALK_DIM}`, outlineColor: CHALK_CREAM };
+const buttonStyle = { fontFamily: TEXT, fontSize: 14, color: CHALK_CREAM, border: `1.5px solid ${CHALK_DIM}`, background: 'transparent', outlineColor: CHALK_CREAM };
+const inputStyle = { fontFamily: TEXT, fontSize: 16, color: CHALK_CREAM, background: 'rgba(10,10,10,0.6)', border: `1.5px solid ${CHALK_DIM}`, outlineColor: CHALK_CREAM };
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
 const defaultStock = () => ({ kitchen: loadKitchen(), pantry: [], bar: loadBar(), spiceRack: loadSpiceRack() });
@@ -43,7 +42,7 @@ function LineRow({ line, checked, onToggle, muted = false, where = null }) {
       <label htmlFor={id} className="flex items-center gap-3 w-full min-h-[44px] py-1 cursor-pointer" style={{ opacity: muted && !checked ? 0.65 : 1 }}>
         <input id={id} type="checkbox" checked={checked} onChange={onToggle} data-testid={`shopping-preview-line-${line.key}`}
           className={`flex-shrink-0 ${FOCUS}`} style={{ width: 24, height: 24, accentColor: CHALK_CREAM, outlineColor: CHALK_CREAM }} />
-        <span className="flex-1 min-w-0 break-words" style={{ fontFamily: SANS, fontSize: 16 }}>
+        <span className="flex-1 min-w-0 break-words" style={{ fontFamily: TEXT, fontSize: 16 }}>
           {line.amount && <span style={{ color: CHALK_DIM, fontSize: 14 }}>{line.amount}{' '}</span>}
           {line.label}
           {where && <span className="block" style={{ color: CHALK_DIM, fontSize: 12 }}>you have it: {where}</span>}
@@ -163,7 +162,7 @@ export default function ShoppingRecipeAdd({ list, onChange, own = null, names = 
 
       {open && (
         <div id="shopping-recipe-panel" className="mt-2 rounded-xl p-3" style={{ border: `1.5px solid ${CHALK_RAIL}` }}>
-          <label htmlFor="shopping-recipe-search" style={{ fontFamily: SANS, fontSize: 13, color: CHALK_DIM }}>Search cocktails, sauces and dishes by name</label>
+          <label htmlFor="shopping-recipe-search" style={{ fontFamily: TEXT, fontSize: 13, color: CHALK_DIM }}>Search cocktails, sauces and dishes by name</label>
           <input
             id="shopping-recipe-search"
             ref={searchRef}
@@ -176,9 +175,9 @@ export default function ShoppingRecipeAdd({ list, onChange, own = null, names = 
             className={`w-full min-h-[44px] rounded-lg px-3 mt-1 ${FOCUS}`}
             style={inputStyle}
           />
-          {sources.status === 'loading' && <p style={{ fontFamily: SANS, fontSize: 13, color: CHALK_SUB, marginTop: 6 }}>Loading the recipes…</p>}
+          {sources.status === 'loading' && <p style={{ fontFamily: TEXT, fontSize: 13, color: CHALK_SUB, marginTop: 6 }}>Loading the recipes…</p>}
           {sources.status === 'failed' && (
-            <p role="alert" style={{ fontFamily: SANS, fontSize: 13, color: CHALK_CREAM, marginTop: 6 }}>
+            <p role="alert" style={{ fontFamily: TEXT, fontSize: 13, color: CHALK_CREAM, marginTop: 6 }}>
               The built-in recipes could not be loaded just now, so only your own saved recipes are searchable. Close this and open it again to retry, or add items by hand above.
             </p>
           )}
@@ -190,18 +189,18 @@ export default function ShoppingRecipeAdd({ list, onChange, own = null, names = 
                   <li key={e.id} style={{ borderBottom: `1px solid ${CHALK_RAIL}55` }}>
                     <button type="button" onClick={() => openPreview(e)} data-testid={`shopping-recipe-result-${e.id}`}
                       className={`w-full text-left min-h-[44px] py-1 flex items-baseline gap-2 ${FOCUS}`} style={{ color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
-                      <span className="flex-1 min-w-0 break-words" style={{ fontFamily: SANS, fontSize: 16 }}>{e.name}</span>
-                      <span style={{ fontFamily: SANS, fontSize: 12, color: CHALK_DIM }}>{e.origin === 'own' ? `Your ${KIND_LABEL[e.kind].toLowerCase()}` : KIND_LABEL[e.kind]}</span>
+                      <span className="flex-1 min-w-0 break-words" style={{ fontFamily: TEXT, fontSize: 16 }}>{e.name}</span>
+                      <span style={{ fontFamily: TEXT, fontSize: 12, color: CHALK_DIM }}>{e.origin === 'own' ? `Your ${KIND_LABEL[e.kind].toLowerCase()}` : KIND_LABEL[e.kind]}</span>
                     </button>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p data-testid="shopping-recipe-none" style={{ fontFamily: SANS, fontSize: 13, color: CHALK_DIM, marginTop: 6 }}>No recipe has that name.</p>
+              <p data-testid="shopping-recipe-none" style={{ fontFamily: TEXT, fontSize: 13, color: CHALK_DIM, marginTop: 6 }}>No recipe has that name.</p>
             )
           )}
           {!pick && !query.trim() && sources.status === 'ready' && (
-            <p style={{ fontFamily: SANS, fontSize: 13, color: CHALK_SUB, marginTop: 6 }}>Type a name. It adds only what you do not already have.</p>
+            <p style={{ fontFamily: TEXT, fontSize: 13, color: CHALK_SUB, marginTop: 6 }}>Type a name. It adds only what you do not already have.</p>
           )}
 
           {pick && (
@@ -211,28 +210,28 @@ export default function ShoppingRecipeAdd({ list, onChange, own = null, names = 
               className="mt-3"
               onKeyDown={(e) => { if (e.key === 'Escape') { if (ask) setAsk(false); else closePreview(); } }}
             >
-              <h2 id="shopping-preview-title" ref={previewRef} tabIndex={-1} style={{ fontFamily: FONT, fontSize: 26, outline: 'none' }}>
+              <h2 id="shopping-preview-title" ref={previewRef} tabIndex={-1} style={{ fontFamily: HAND, fontSize: 26, outline: 'none' }}>
                 {pick.recipe.name}
-                <span style={{ fontFamily: SANS, fontSize: 12, color: CHALK_DIM }}>{' '}{pick.entry.origin === 'own' ? `your ${KIND_LABEL[pick.entry.kind].toLowerCase()}` : KIND_LABEL[pick.entry.kind].toLowerCase()}</span>
+                <span style={{ fontFamily: TEXT, fontSize: 12, color: CHALK_DIM }}>{' '}{pick.entry.origin === 'own' ? `your ${KIND_LABEL[pick.entry.kind].toLowerCase()}` : KIND_LABEL[pick.entry.kind].toLowerCase()}</span>
               </h2>
 
               {everything ? (
-                <p data-testid="shopping-preview-everything" style={{ fontFamily: SANS, fontSize: 15, marginTop: 4 }}>You have everything for this.</p>
+                <p data-testid="shopping-preview-everything" style={{ fontFamily: TEXT, fontSize: 15, marginTop: 4 }}>You have everything for this.</p>
               ) : (
                 <>
                   {pick.groups.need.length > 0 ? (
                     <>
-                      <h3 style={{ fontFamily: FONT, fontSize: 20, color: CHALK_DIM, marginTop: 8 }}>You need</h3>
+                      <h3 style={{ fontFamily: HAND, fontSize: 20, color: CHALK_DIM, marginTop: 8 }}>You need</h3>
                       <ul data-testid="shopping-preview-need" aria-label="You need">
                         {pick.groups.need.map((l) => <LineRow key={l.id} line={l} checked={pick.ticks.has(l.id)} onToggle={() => toggleLine(l.id)} />)}
                       </ul>
                     </>
                   ) : (
-                    <p data-testid="shopping-preview-mains-have" style={{ fontFamily: SANS, fontSize: 15, marginTop: 4 }}>You have the main ingredients.</p>
+                    <p data-testid="shopping-preview-mains-have" style={{ fontFamily: TEXT, fontSize: 15, marginTop: 4 }}>You have the main ingredients.</p>
                   )}
                   {pick.groups.flavourings.length > 0 && (
                     <>
-                      <h3 style={{ fontFamily: FONT, fontSize: 20, color: CHALK_DIM, marginTop: 8 }}>Flavourings, tap to add</h3>
+                      <h3 style={{ fontFamily: HAND, fontSize: 20, color: CHALK_DIM, marginTop: 8 }}>Flavourings, tap to add</h3>
                       <ul data-testid="shopping-preview-flavourings" aria-label="Flavourings">
                         {pick.groups.flavourings.map((l) => <LineRow key={l.id} line={l} checked={pick.ticks.has(l.id)} onToggle={() => toggleLine(l.id)} />)}
                       </ul>
@@ -243,7 +242,7 @@ export default function ShoppingRecipeAdd({ list, onChange, own = null, names = 
 
               {pick.groups.basics.length > 0 && (
                 <div className="mt-2">
-                  <label className="flex items-center gap-3 min-h-[44px] cursor-pointer" style={{ fontFamily: SANS, fontSize: 15 }}>
+                  <label className="flex items-center gap-3 min-h-[44px] cursor-pointer" style={{ fontFamily: TEXT, fontSize: 15 }}>
                     <input type="checkbox" checked={pick.basics} onChange={toggleBasics} data-testid="shopping-preview-basics"
                       className={`flex-shrink-0 ${FOCUS}`} style={{ width: 24, height: 24, accentColor: CHALK_CREAM, outlineColor: CHALK_CREAM }} />
                     <span>Include basics <span style={{ color: CHALK_DIM, fontSize: 13 }}>({pick.groups.basics.map((l) => l.label).join(', ')})</span></span>
@@ -258,7 +257,7 @@ export default function ShoppingRecipeAdd({ list, onChange, own = null, names = 
 
               {pick.groups.have.length > 0 && (
                 <>
-                  <h3 style={{ fontFamily: FONT, fontSize: 20, color: CHALK_DIM, marginTop: 8 }}>You have</h3>
+                  <h3 style={{ fontFamily: HAND, fontSize: 20, color: CHALK_DIM, marginTop: 8 }}>You have</h3>
                   <ul data-testid="shopping-preview-have" aria-label="You have">
                     {pick.groups.have.map((l) => <LineRow key={l.id} line={l} checked={pick.ticks.has(l.id)} onToggle={() => toggleLine(l.id)} muted where={l.where} />)}
                   </ul>
@@ -268,7 +267,7 @@ export default function ShoppingRecipeAdd({ list, onChange, own = null, names = 
               {ask && (
                 <div role="alertdialog" aria-labelledby="shopping-preview-ask" data-testid="shopping-preview-ask"
                   className="mt-3 rounded-xl p-3" style={{ border: `2px solid ${CHALK_CREAM}`, background: 'rgba(10,10,10,0.8)' }}>
-                  <p id="shopping-preview-ask" style={{ fontFamily: SANS, fontSize: 14 }}>{askAgainText(pick.recipe.name)}</p>
+                  <p id="shopping-preview-ask" style={{ fontFamily: TEXT, fontSize: 14 }}>{askAgainText(pick.recipe.name)}</p>
                   <div className="mt-2 flex gap-2">
                     <button ref={cancelRef} type="button" onClick={() => setAsk(false)} data-testid="shopping-preview-ask-cancel" className={`min-h-[44px] px-4 rounded-lg ${FOCUS}`} style={{ ...buttonStyle, fontWeight: 600 }}>Cancel</button>
                     <button type="button" onClick={() => commit(ticked, true)} data-testid="shopping-preview-ask-yes" className={`min-h-[44px] px-4 rounded-lg ${FOCUS}`} style={buttonStyle}>Add it again</button>
@@ -291,7 +290,7 @@ export default function ShoppingRecipeAdd({ list, onChange, own = null, names = 
                   <button type="button" onClick={closePreview} data-testid="shopping-preview-close" className={`min-h-[44px] px-4 rounded-lg ${FOCUS}`} style={buttonStyle}>Back to search</button>
                 </div>
               )}
-              <p style={{ fontFamily: SANS, fontSize: 12, color: CHALK_SUB, marginTop: 6 }}>
+              <p style={{ fontFamily: TEXT, fontSize: 12, color: CHALK_SUB, marginTop: 6 }}>
                 {plural(pick.groups.have.length, 'ingredient', 'ingredients')} found in what you have; tick one to add it anyway.
               </p>
             </section>
@@ -299,7 +298,7 @@ export default function ShoppingRecipeAdd({ list, onChange, own = null, names = 
         </div>
       )}
 
-      <p role="status" aria-live="polite" data-testid="shopping-recipe-summary" style={{ fontFamily: SANS, fontSize: 14, color: CHALK_CREAM, marginTop: 8, minHeight: 20 }}>{summary}</p>
+      <p role="status" aria-live="polite" data-testid="shopping-recipe-summary" style={{ fontFamily: TEXT, fontSize: 14, color: CHALK_CREAM, marginTop: 8, minHeight: 20 }}>{summary}</p>
     </div>
   );
 }

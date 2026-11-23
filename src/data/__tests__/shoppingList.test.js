@@ -126,7 +126,7 @@ describe('THE MERGE RULE (spec Decision 3), as a table', () => {
 
   it('never invents precision: a sum stays in the units that were written', () => {
     expect(text(put(put(emptyList(), 'x', '200 g'), 'x', '300 g'), 'x')).toBe('500 g');
-    expect(text(put(put(emptyList(), 'x', '1/3 cup'), 'x', '1/3 cup'), 'x')).toBe('⅔ cup');
+    expect(text(put(put(emptyList(), 'x', '1/3 cup'), 'x', '1/3 cup'), 'x')).toBe('2/3 cup');
     expect(text(put(put(put(emptyList(), 'x', '1/3 cup'), 'x', '1/3 cup'), 'x', '1/3 cup'), 'x')).toBe('1 cup');
     expect(addPart([{ qty: 1, unit: 'g' }], { qty: 1, unit: 'kg' })).toEqual([{ qty: 1, unit: 'kg' }, { qty: 1, unit: 'g' }]);
   });

@@ -297,7 +297,7 @@ export function amountFor(name, slot, styleId, catMap) {
     case 'dried chili': return /flake|powder|gochugaru|cayenne/.test(n) ? '½ tsp' : '3, toasted and soaked';
     case 'chili paste': return '1 tsp';
     case 'sweet': return styleId === 'Mole' ? '1 tbsp' : '1 tsp';
-    case 'nut': return /tahini|butter|paste/.test(n) ? '⅓ cup' : '½ cup, toasted';
+    case 'nut': return /tahini|butter|paste/.test(n) ? '1/3 cup' : '½ cup, toasted';
     case 'brine': return '1 tbsp';
     default:
       if (/chocolate|cocoa/.test(n)) return '1 oz (30 g)';

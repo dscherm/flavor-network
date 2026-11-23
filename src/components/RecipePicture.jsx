@@ -17,7 +17,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { PictureArt, picturesFor } from './pictureArt.jsx';
-import { CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, FONT } from '../data/chalkTheme.js';
+import { TEXT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL } from '../data/chalkTheme.js';
 import { CHALK_DEFAULTS, CHALK_RANGES, ChalkCancelled } from '../data/chalkFilter.js';
 import { loadPhoto, runChalk, toCanvas, encodeChalk, findSubject } from '../data/chalkFilterBrowser.js';
 import { cropCentre, CROP_SHAPES } from '../data/pictureCrop.js';
@@ -356,7 +356,7 @@ export default function RecipePicture({
                 ...focusStyle, minWidth: 96,
                 borderColor: on ? CHALK_CREAM : CHALK_RAIL,
                 background: on ? 'rgba(245,239,222,0.12)' : 'transparent',
-                color: on ? CHALK_CREAM : CHALK_DIM, fontFamily: FONT, fontSize: 18,
+                color: on ? CHALK_CREAM : CHALK_DIM, fontFamily: TEXT, fontSize: 18,
               }}
             >
               {m.label}
@@ -403,7 +403,7 @@ export default function RecipePicture({
         <div data-testid="picture-photo" hidden={mode !== 'photo'}>
           <label
             className={`flex items-center justify-center rounded border cursor-pointer ${FOCUS} focus-within:outline focus-within:outline-2`}
-            style={{ minHeight: 44, borderColor: CHALK_RAIL, color: CHALK_CREAM, fontFamily: FONT, fontSize: 18, ...focusStyle }}
+            style={{ minHeight: 44, borderColor: CHALK_RAIL, color: CHALK_CREAM, fontFamily: TEXT, fontSize: 18, ...focusStyle }}
           >
             {hasPhoto ? 'Choose a different photo' : 'Take or choose a photo'}
             <input

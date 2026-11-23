@@ -23,13 +23,12 @@ import { useEffect, useMemo, useRef } from 'react';
 import PairingModeCard from './PairingModeCard.jsx';
 import { buildPairingCardProps } from '../data/pairingCardData.js';
 import { cardPairings } from '../data/ingredientCard.js';
-import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL } from '../data/chalkTheme.js';
+import { TEXT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL } from '../data/chalkTheme.js';
 
-const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 const chip = (extra = {}) => ({
-  fontFamily: FONT, fontSize: 18, padding: '2px 14px', borderRadius: 14, minHeight: 44,
+  fontFamily: TEXT, fontSize: 18, padding: '2px 14px', borderRadius: 14, minHeight: 44,
   border: `1px solid ${CHALK_RAIL}`, background: '#0a0a0a', color: CHALK_CREAM, cursor: 'pointer', ...extra,
 });
 
@@ -104,13 +103,13 @@ export default function IngredientCard({
         </div>
 
         {status === 'loading' && (
-          <p role="status" data-testid="ingredient-card-loading" style={{ fontFamily: FONT, fontSize: 24, color: CHALK_CREAM, padding: '32px 0' }}>
+          <p role="status" data-testid="ingredient-card-loading" style={{ fontFamily: TEXT, fontSize: 24, color: CHALK_CREAM, padding: '32px 0' }}>
             Loading the flavor data…
           </p>
         )}
 
         {status === 'unknown' && (
-          <p role="status" data-testid="ingredient-card-unknown" style={{ fontFamily: SANS, fontSize: 15, color: CHALK_CREAM, textAlign: 'center', padding: '24px 12px' }}>
+          <p role="status" data-testid="ingredient-card-unknown" style={{ fontFamily: TEXT, fontSize: 15, color: CHALK_CREAM, textAlign: 'center', padding: '24px 12px' }}>
             There is no card for “{asked}”. The app has no flavor data for it.
           </p>
         )}
@@ -119,14 +118,14 @@ export default function IngredientCard({
           <>
             <PairingModeCard {...cardProps} />
             {from ? (
-              <div data-testid="ingredient-card-insight" style={{ fontFamily: SANS, fontSize: 12, color: CHALK_DIM, textAlign: 'center', maxWidth: 360 }}>
+              <div data-testid="ingredient-card-insight" style={{ fontFamily: TEXT, fontSize: 12, color: CHALK_DIM, textAlign: 'center', maxWidth: 360 }}>
                 {cardProps.analysis || `${name} pairs with ${from}.`}
               </div>
             ) : null}
 
             {partners.length > 0 && (
               <div className="w-full" data-testid="ingredient-card-pairs">
-                <p className="mb-1" style={{ fontFamily: FONT, fontSize: 18, color: CHALK_SUB }}>Pairs well with</p>
+                <p className="mb-1" style={{ fontFamily: TEXT, fontSize: 18, color: CHALK_SUB }}>Pairs well with</p>
                 <div className="flex flex-wrap gap-1.5">
                   {partners.map((p) => (
                     <button key={p.name} type="button" data-testid="ingredient-card-partner" data-name={p.name}
@@ -146,7 +145,7 @@ export default function IngredientCard({
                 </button>
               )}
               {showAdd && inRecipe && (
-                <span data-testid="ingredient-card-have" style={{ fontFamily: SANS, fontSize: 14, color: CHALK_DIM, alignSelf: 'center' }}>
+                <span data-testid="ingredient-card-have" style={{ fontFamily: TEXT, fontSize: 14, color: CHALK_DIM, alignSelf: 'center' }}>
                   Already in this recipe
                 </span>
               )}

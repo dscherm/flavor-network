@@ -9,9 +9,8 @@
  */
 import { useMemo, useState } from 'react';
 import { riffRows, swapCandidates, applySwap, nearestCocktails, ROLE_LABEL } from '../data/cocktailRiff.js';
-import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
 
-const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 
 export default function CocktailRiff({
   cocktail,
@@ -45,7 +44,7 @@ export default function CocktailRiff({
       data-testid="cocktail-riff" role="dialog" aria-label={`Riff on ${cocktail?.name}`}>
       <div className="w-full max-w-[560px] flex items-center justify-between mb-2">
         <button type="button" onClick={onClose} data-testid="cocktail-riff-close"
-          className="px-3 py-2 rounded-lg" style={{ fontFamily: FONT, fontSize: 18, border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}>
+          className="px-3 py-2 rounded-lg" style={{ fontFamily: TEXT, fontSize: 18, border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}>
           Back to the card
         </button>
         {changed && (
@@ -56,10 +55,10 @@ export default function CocktailRiff({
       </div>
 
       <div className="w-full max-w-[560px] rounded-2xl px-5 py-4" style={{ border: `2px double ${CHALK_RAIL}`, background: 'rgba(255,255,255,0.025)' }}>
-        <h2 className="text-center text-[34px] leading-tight" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }}>
+        <h2 className="text-center text-[34px] leading-tight" style={{ fontFamily: HAND, textShadow: CHALK_SHADOW }}>
           {changed ? `Your ${cocktail?.name} riff` : `Riff on the ${cocktail?.name}`}
         </h2>
-        <p className="text-center text-[13px] mb-3" style={{ fontFamily: SANS, color: CHALK_SUB }}>
+        <p className="text-center text-[13px] mb-3" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
           Swap one part at a time. Suggestions play the same role and are ranked by how well they pair with the rest of the drink.
         </p>
 
@@ -67,10 +66,10 @@ export default function CocktailRiff({
           {rows.map((r, i) => (
             <li key={`${i}-${r.name}`}>
               <div className="flex items-center gap-2">
-                <span className="text-[13px] w-16 flex-shrink-0 text-right" style={{ fontFamily: SANS, color: CHALK_DIM }}>{r.measure}</span>
+                <span className="text-[13px] w-16 flex-shrink-0 text-right" style={{ fontFamily: TEXT, color: CHALK_DIM }}>{r.measure}</span>
                 <span className="flex-1 min-w-0">
-                  <span className="block text-[20px] truncate" style={{ fontFamily: FONT, color: r.swappedFrom ? color : CHALK_CREAM, textShadow: CHALK_SHADOW }}>{r.name}</span>
-                  <span className="block text-[11px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>
+                  <span className="block text-[20px] truncate" style={{ fontFamily: TEXT, color: r.swappedFrom ? color : CHALK_CREAM, textShadow: CHALK_SHADOW }}>{r.name}</span>
+                  <span className="block text-[11px]" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
                     {ROLE_LABEL[r.role] || 'other'}{r.swappedFrom ? `, was ${r.swappedFrom}` : ''}
                   </span>
                 </span>
@@ -78,7 +77,7 @@ export default function CocktailRiff({
                   <button type="button" aria-expanded={open === i} onClick={() => setOpen(open === i ? null : i)}
                     data-testid={`cocktail-riff-swap-${i}`}
                     className="px-3 py-1 rounded-full text-[15px] border flex-shrink-0 min-h-[36px]"
-                    style={{ fontFamily: FONT, color: open === i ? '#0a0a0a' : CHALK_CREAM, background: open === i ? CHALK_CREAM : 'transparent', borderColor: `${CHALK_RAIL}` }}>
+                    style={{ fontFamily: TEXT, color: open === i ? '#0a0a0a' : CHALK_CREAM, background: open === i ? CHALK_CREAM : 'transparent', borderColor: `${CHALK_RAIL}` }}>
                     swap
                   </button>
                 )}
@@ -90,8 +89,8 @@ export default function CocktailRiff({
                     <button key={c.name} type="button" onClick={() => { setRows(applySwap(rows, i, c.name)); setOpen(null); }}
                       className="px-2.5 py-1 rounded-lg border text-left"
                       style={{ borderColor: `${color}88`, background: `${color}1a` }}>
-                      <span className="block text-[17px] leading-tight" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{c.name}</span>
-                      <span className="block text-[10px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>{c.reason}</span>
+                      <span className="block text-[17px] leading-tight" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>{c.name}</span>
+                      <span className="block text-[10px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>{c.reason}</span>
                     </button>
                   ))}
                 </div>
@@ -102,13 +101,13 @@ export default function CocktailRiff({
 
         {changed && (
           <div className="mt-4" data-testid="cocktail-riff-nearest">
-            <p className="text-[13px] mb-1" style={{ fontFamily: SANS, color: CHALK_SUB }}>Closest cocktails on the menu</p>
-            {nearest.length === 0 && <p className="text-[15px]" style={{ fontFamily: FONT, color: CHALK_DIM }}>Nothing close in the list — this one might be new.</p>}
+            <p className="text-[13px] mb-1" style={{ fontFamily: TEXT, color: CHALK_SUB }}>Closest cocktails on the menu</p>
+            {nearest.length === 0 && <p className="text-[15px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>Nothing close in the list — this one might be new.</p>}
             {nearest.map((n, idx) => (
               <button key={n.cocktail.name} type="button" onClick={() => onSelectCocktail?.(n.cocktail.name)}
                 className="w-full text-left flex items-baseline gap-2 py-0.5">
-                <span className="text-[19px]" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{n.cocktail.name}</span>
-                <span className="text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+                <span className="text-[19px]" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>{n.cocktail.name}</span>
+                <span className="text-[12px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>
                   {Math.round(n.similarity * 100)}% alike, shares {n.shared.join(', ')}
                   {idx === 0 && n.similarity >= 0.9 ? ' — your riff is basically this drink' : ''}
                 </span>
@@ -119,7 +118,7 @@ export default function CocktailRiff({
 
         {changed && onOpenRecipeLab && (
           <button type="button" onClick={() => onOpenRecipeLab(rows.map((r) => r.key))}
-            className="mt-4 w-full px-4 py-2.5 rounded-lg" style={{ fontFamily: FONT, fontSize: 18, color: '#0a0a0a', background: CHALK_CREAM }}>
+            className="mt-4 w-full px-4 py-2.5 rounded-lg" style={{ fontFamily: TEXT, fontSize: 18, color: '#0a0a0a', background: CHALK_CREAM }}>
             Write this riff in the Recipe Notebook
           </button>
         )}

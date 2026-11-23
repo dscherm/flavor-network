@@ -4,7 +4,7 @@
  * that lab (DESIGN-1: picture first, words second). Tapping a card routes
  * to that lab via onPick(id).
  */
-import { FONT, CHALK_CREAM, CHALK_SUB, chalkSurfaceStyle } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_CREAM, CHALK_SUB, chalkSurfaceStyle } from '../data/chalkTheme.js';
 import { LabArt } from './chalkArt.jsx';
 import FeedbackButton from './FeedbackButton.jsx';
 
@@ -24,8 +24,8 @@ export default function LabsPanel({ onPick, shoppingCount = 0 }) {
       className="fixed inset-x-0 top-0 overflow-y-auto flex flex-col items-center"
       style={{ bottom: 'var(--tab-bar-h)',  ...chalkSurfaceStyle(), paddingTop: 'calc(var(--nav-h) + 1rem)', color: CHALK_CREAM }}
     >
-      <div style={{ fontFamily: FONT, fontSize: 34, lineHeight: 1 }}>The Labs</div>
-      <div style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif', fontSize: 13, color: CHALK_SUB, marginTop: 4, marginBottom: 16, padding: '0 24px', textAlign: 'center' }}>
+      <div style={{ fontFamily: HAND, fontSize: 34, lineHeight: 1 }}>The Labs</div>
+      <div style={{ fontFamily: TEXT, fontSize: 13, color: CHALK_SUB, marginTop: 4, marginBottom: 16, padding: '0 24px', textAlign: 'center' }}>
         Pick a kitchen to work in.
       </div>
       <div className="w-full max-w-md grid grid-cols-2 gap-3 px-4 pb-3">
@@ -40,8 +40,8 @@ export default function LabsPanel({ onPick, shoppingCount = 0 }) {
             aria-label={`${label} — ${desc}`}
           >
             <LabArt id={id} accent={accent} size={84} />
-            <div style={{ fontFamily: FONT, fontSize: 24, lineHeight: 1, color: accent, marginTop: 2 }}>{label}</div>
-            <div style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif', fontSize: 12, lineHeight: 1.3, color: CHALK_SUB }}>{desc}</div>
+            <div style={{ fontFamily: HAND, fontSize: 24, lineHeight: 1, color: accent, marginTop: 2 }}>{label}</div>
+            <div style={{ fontFamily: TEXT, fontSize: 12, lineHeight: 1.3, color: CHALK_SUB }}>{desc}</div>
           </button>
         ))}
       </div>
@@ -55,21 +55,21 @@ export default function LabsPanel({ onPick, shoppingCount = 0 }) {
         aria-label={shoppingCount > 0 ? `Shopping list, ${shoppingCount} to buy` : 'Shopping list'}
       >
         <span>
-          <span style={{ fontFamily: FONT, fontSize: 24, lineHeight: 1, color: '#a3e635', display: 'block' }}>Shopping list</span>
-          <span style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif', fontSize: 12, color: CHALK_SUB }}>Tick things off as you shop</span>
+          <span style={{ fontFamily: HAND, fontSize: 24, lineHeight: 1, color: '#a3e635', display: 'block' }}>Shopping list</span>
+          <span style={{ fontFamily: TEXT, fontSize: 12, color: CHALK_SUB }}>Tick things off as you shop</span>
         </span>
         {shoppingCount > 0 && (
           <span data-testid="labs-shopping-count" aria-hidden="true" className="inline-flex items-center justify-center rounded-full px-2 min-w-[28px] h-7"
-            style={{ background: '#a3e635', color: '#0a0a0a', fontFamily: 'system-ui, sans-serif', fontSize: 14, fontWeight: 700 }}>
+            style={{ background: '#a3e635', color: '#0a0a0a', fontFamily: TEXT, fontSize: 14, fontWeight: 700 }}>
             {shoppingCount}
           </span>
         )}
       </button>
       </div>
       <div className="mb-24 flex items-center gap-2">
-        <FeedbackButton screen="labs" className="px-3" style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif', fontSize: 13, color: CHALK_SUB }} />
+        <FeedbackButton screen="labs" className="px-3" style={{ fontFamily: TEXT, fontSize: 13, color: CHALK_SUB }} />
         <a href="/privacy" data-testid="labs-privacy-link" className="inline-flex items-center min-h-[44px] px-3 underline"
-          style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif', fontSize: 13, color: CHALK_SUB }}>
+          style={{ fontFamily: TEXT, fontSize: 13, color: CHALK_SUB }}>
           Privacy
         </a>
       </div>

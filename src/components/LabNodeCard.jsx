@@ -19,7 +19,7 @@
 
 import React, { useEffect } from 'react';
 import { liftColor } from '../data/drinkColor.js';
-import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, chalkSurfaceStyle } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, chalkSurfaceStyle } from '../data/chalkTheme.js';
 import { ShareButton } from './ShareSheet.jsx';
 import { OwnShareButton } from './OwnShare.jsx';
 import { ChevronLeft } from './ChalkIcons.jsx';
@@ -40,7 +40,6 @@ const FS_BODY = 'clamp(19px, 2.7vh, 27px)';
 const FS_CHIP = 'clamp(14px, 2vh, 20px)';
 const FS_MEASURE = 'clamp(15px, 1.9vh, 19px)';
 const FS_SUB = 'clamp(11px, 1.5vh, 15px)';
-const SANS_STACK = "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif";
 
 // Split a free-text preparation into steps. Priority: explicit line breaks →
 // pre-existing numbered markers ("1. … 2. …") → sentence boundaries. Any
@@ -61,7 +60,7 @@ function splitPrepSteps(text) {
 
 function SectionLabel({ children, color = CHALK_CREAM }) {
   return (
-    <h3 style={{ color, fontFamily: FONT, fontSize: FS_SECTION, fontWeight: 400, marginTop: 24, marginBottom: 12, textShadow: CHALK_TEXT_SHADOW }}>
+    <h3 style={{ color, fontFamily: HAND, fontSize: FS_SECTION, fontWeight: 400, marginTop: 24, marginBottom: 12, textShadow: CHALK_TEXT_SHADOW }}>
       {children}
     </h3>
   );
@@ -78,7 +77,7 @@ function ChipRow({ items, onSelect, showFamily = false, testid, ingredients = fa
         const fam = showFamily && typeof it === 'object' ? it.family_name : null;
         const chipStyle = {
           color: CHALK_CREAM, background: `${color}1f`, borderColor: `${color}77`,
-          fontFamily: FONT, fontSize: FS_CHIP, cursor: onSelect || ingredients ? 'pointer' : 'default',
+          fontFamily: TEXT, fontSize: FS_CHIP, cursor: onSelect || ingredients ? 'pointer' : 'default',
           ...TEXT_OUTLINE,
         };
         if (ingredients) {
@@ -99,14 +98,14 @@ function ChipRow({ items, onSelect, showFamily = false, testid, ingredients = fa
             className="px-3 py-1 rounded-full border transition-all flex items-center gap-2 text-left"
             style={{
               color: CHALK_CREAM, background: `${color}1f`, borderColor: `${color}77`,
-              fontFamily: FONT, fontSize: FS_CHIP, cursor: onSelect ? 'pointer' : 'default',
+              fontFamily: TEXT, fontSize: FS_CHIP, cursor: onSelect ? 'pointer' : 'default',
               ...TEXT_OUTLINE,
             }}
           >
             <span className="inline-block rounded-full flex-shrink-0" style={{ width: 9, height: 9, background: color }} />
             <span className="flex flex-col">
               <span>{name}</span>
-              {fam ? <span style={{ color: CHALK_SUB, fontFamily: SANS_STACK, fontSize: 13, WebkitTextStroke: 0 }}>{fam}</span> : null}
+              {fam ? <span style={{ color: CHALK_SUB, fontFamily: TEXT, fontSize: 13, WebkitTextStroke: 0 }}>{fam}</span> : null}
             </span>
           </button>
         );
@@ -169,7 +168,7 @@ export default function LabNodeCard({
         <button type="button" onClick={() => onClose?.()}
           data-testid="lab-node-card-back"
           className="px-3 py-2 rounded-lg min-h-[44px] min-w-[44px] inline-flex items-center gap-1"
-          style={{ color: CHALK_CREAM, background: 'rgba(255,255,255,0.04)', border: `1px solid ${CHALK_BORDER_INNER}`, fontFamily: FONT, fontSize: FS_SUB, textShadow: CHALK_TEXT_SHADOW }}>
+          style={{ color: CHALK_CREAM, background: 'rgba(255,255,255,0.04)', border: `1px solid ${CHALK_BORDER_INNER}`, fontFamily: TEXT, fontSize: FS_SUB, textShadow: CHALK_TEXT_SHADOW }}>
           <ChevronLeft size={20} />
           Back
         </button>
@@ -181,7 +180,7 @@ export default function LabNodeCard({
           <div className="flex justify-center flex-shrink-0 mb-1" aria-hidden="true" data-testid="lab-node-card-art">{headerArt}</div>
         )}
         <h2 className="text-center flex-shrink-0"
-          style={{ color: CHALK_CREAM, fontFamily: FONT, fontSize: FS_NAME, lineHeight: 1.05, textShadow: CHALK_TEXT_SHADOW, WebkitTextStroke: '1px rgba(8,8,8,0.55)', paintOrder: 'stroke fill' }}>
+          style={{ color: CHALK_CREAM, fontFamily: HAND, fontSize: FS_NAME, lineHeight: 1.05, textShadow: CHALK_TEXT_SHADOW, WebkitTextStroke: '1px rgba(8,8,8,0.55)', paintOrder: 'stroke fill' }}>
           {name}
         </h2>
 
@@ -190,13 +189,13 @@ export default function LabNodeCard({
           <div className="flex flex-col items-center mt-1 mb-1 flex-shrink-0" data-testid="lab-node-card-cluster">
             <div className="flex items-center gap-2" data-testid="lab-node-card-family">
               {clusterArt}
-              <span style={{ color: liftColor(clusterColor), fontFamily: FONT, fontSize: 22, textShadow: CHALK_TEXT_SHADOW }}>{clusterName}</span>
+              <span style={{ color: liftColor(clusterColor), fontFamily: HAND, fontSize: 22, textShadow: CHALK_TEXT_SHADOW }}>{clusterName}</span>
             </div>
             {clusterTag ? (
-              <span data-testid="lab-node-card-subgroup" style={{ color: CHALK_DIM, fontFamily: FONT, fontSize: 16 }}>{clusterTag}</span>
+              <span data-testid="lab-node-card-subgroup" style={{ color: CHALK_DIM, fontFamily: TEXT, fontSize: 16 }}>{clusterTag}</span>
             ) : null}
             {yours ? (
-              <span data-testid="lab-node-card-yours" style={{ color: CHALK_SUB, fontFamily: SANS_STACK, fontSize: 13 }}>Yours</span>
+              <span data-testid="lab-node-card-yours" style={{ color: CHALK_SUB, fontFamily: TEXT, fontSize: 13 }}>Yours</span>
             ) : null}
           </div>
         )}
@@ -208,12 +207,12 @@ export default function LabNodeCard({
               const flavorAt = actions.findIndex((a) => /riff/i.test(a.label)) + 1; // right after "Riff on this"; first when there is none
               const flavorBtn = flavor?.recipe ? (
                 <FlavorProfileButton key="flavor-profile" toggle={flavorToggle} className="px-4 py-1.5 rounded-full border"
-                  style={{ color: CHALK_CREAM, borderColor: `${clusterColor}aa`, background: `${clusterColor}26`, fontFamily: FONT, fontSize: FS_CHIP, ...TEXT_OUTLINE }} />
+                  style={{ color: CHALK_CREAM, borderColor: `${clusterColor}aa`, background: `${clusterColor}26`, fontFamily: TEXT, fontSize: FS_CHIP, ...TEXT_OUTLINE }} />
               ) : null;
               const btns = actions.map((a) => (
                 <button key={a.label} type="button" onClick={a.onClick} data-testid={a.testid}
                   className="px-4 py-1.5 rounded-full border min-h-[40px]"
-                  style={{ color: CHALK_CREAM, borderColor: `${clusterColor}aa`, background: `${clusterColor}26`, fontFamily: FONT, fontSize: FS_CHIP, ...TEXT_OUTLINE }}>
+                  style={{ color: CHALK_CREAM, borderColor: `${clusterColor}aa`, background: `${clusterColor}26`, fontFamily: TEXT, fontSize: FS_CHIP, ...TEXT_OUTLINE }}>
                   {a.label}
                 </button>
               ));
@@ -222,11 +221,11 @@ export default function LabNodeCard({
             })()}
             {share?.link && (
               <ShareButton recipe={share.recipe} link={share.link} testid="card-share" className="!rounded-full !px-4 !py-1.5"
-                style={{ color: CHALK_CREAM, borderColor: `${clusterColor}aa`, background: `${clusterColor}26`, fontFamily: FONT, fontSize: FS_CHIP, ...TEXT_OUTLINE }} />
+                style={{ color: CHALK_CREAM, borderColor: `${clusterColor}aa`, background: `${clusterColor}26`, fontFamily: TEXT, fontSize: FS_CHIP, ...TEXT_OUTLINE }} />
             )}
             {ownShare?.item && (
               <OwnShareButton kind={ownShare.kind} item={ownShare.item} testid="card-own-share" className="!rounded-full !px-4 !py-1.5"
-                style={{ color: CHALK_CREAM, borderColor: `${clusterColor}aa`, background: `${clusterColor}26`, fontFamily: FONT, fontSize: FS_CHIP, ...TEXT_OUTLINE }} />
+                style={{ color: CHALK_CREAM, borderColor: `${clusterColor}aa`, background: `${clusterColor}26`, fontFamily: TEXT, fontSize: FS_CHIP, ...TEXT_OUTLINE }} />
             )}
           </div>
         )}
@@ -237,7 +236,7 @@ export default function LabNodeCard({
         {cleanDetails.length > 0 && (
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-1 flex-shrink-0">
             {cleanDetails.map((d) => (
-              <span key={d.label} style={{ fontFamily: FONT, fontSize: FS_SUB }}>
+              <span key={d.label} style={{ fontFamily: TEXT, fontSize: FS_SUB }}>
                 <span style={{ color: CHALK_SUB }}>{d.label}: </span>
                 <span style={{ color: CHALK_DIM }}>{d.value}</span>
               </span>
@@ -255,7 +254,7 @@ export default function LabNodeCard({
             <ul className="flex flex-col gap-2" data-testid="lab-node-card-ingredients">
               {ingList.map((ing, i) => (
                 <li key={`${ing.name}-${i}`} className="flex items-baseline gap-2"
-                  style={{ fontFamily: FONT, fontSize: FS_BODY, color: CHALK_CREAM }}>
+                  style={{ fontFamily: TEXT, fontSize: FS_BODY, color: CHALK_CREAM }}>
                   {ing.measure ? (
                     <span className="flex-shrink-0 whitespace-nowrap" data-testid="labcard-ingredient-amount" style={{ color: CHALK_DIM, fontSize: FS_MEASURE }}>{ing.measure}</span>
                   ) : null}
@@ -266,7 +265,7 @@ export default function LabNodeCard({
               ))}
             </ul>
             {ingredientsNote ? (
-              <p className="mt-2" data-testid="lab-node-card-ingredients-note" style={{ fontFamily: SANS_STACK, fontSize: 13, color: CHALK_SUB }}>{ingredientsNote}</p>
+              <p className="mt-2" data-testid="lab-node-card-ingredients-note" style={{ fontFamily: TEXT, fontSize: 13, color: CHALK_SUB }}>{ingredientsNote}</p>
             ) : null}
           </div>
         )}
@@ -283,14 +282,14 @@ export default function LabNodeCard({
                 <ol className="flex flex-col gap-1.5" data-testid="lab-node-card-prep">
                   {steps.map((step, i) => (
                     <li key={i} className="flex gap-2"
-                      style={{ fontFamily: FONT, fontSize: FS_BODY, color: CHALK_CREAM, lineHeight: 1.45 }}>
+                      style={{ fontFamily: TEXT, fontSize: FS_BODY, color: CHALK_CREAM, lineHeight: 1.45 }}>
                       <span className="flex-shrink-0" style={{ color: clusterColor, fontWeight: 700 }}>{i + 1}.</span>
                       <span>{step}</span>
                     </li>
                   ))}
                 </ol>
               ) : (
-                <p data-testid="lab-node-card-prep" style={{ fontFamily: FONT, fontSize: FS_BODY, color: CHALK_CREAM, lineHeight: 1.45 }}>{prep}</p>
+                <p data-testid="lab-node-card-prep" style={{ fontFamily: TEXT, fontSize: FS_BODY, color: CHALK_CREAM, lineHeight: 1.45 }}>{prep}</p>
               )}
             </div>
           );

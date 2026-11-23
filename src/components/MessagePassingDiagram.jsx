@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { TEXT } from '../data/chalkTheme.js';
 
 /**
  * MessagePassingDiagram — visualizes the 3-layer GNN's per-atom activations.
@@ -74,7 +75,7 @@ export default function MessagePassingDiagram({ predictions, tasks, moleculeName
           const mags = isReal ? (preset.layers[key] || []) : [];
           return (
             <g key={key}>
-              <text x="8" y={y + 5} style={{ font: '10px ui-monospace, monospace' }}
+              <text x="8" y={y + 5} style={{ fontFamily: TEXT, fontSize: 10, fontVariantNumeric: 'lining-nums tabular-nums' }}
                     className="fill-gray-500">{LAYER_LABELS[li]}</text>
               {Array.from({ length: maxAtoms }).map((_, ai) => {
                 const x = 80 + ai * atomSpacing;
@@ -112,7 +113,7 @@ export default function MessagePassingDiagram({ predictions, tasks, moleculeName
           const active = tick >= LAYERS.length;
           return (
             <g>
-              <text x="8" y={y + 5} style={{ font: '10px ui-monospace, monospace' }}
+              <text x="8" y={y + 5} style={{ fontFamily: TEXT, fontSize: 10, fontVariantNumeric: 'lining-nums tabular-nums' }}
                     className="fill-gray-500">Output</text>
               {tasks.map((t, ti) => {
                 const x = 100 + ti * 80;
@@ -127,7 +128,7 @@ export default function MessagePassingDiagram({ predictions, tasks, moleculeName
                             opacity={active ? 0.4 + p * 0.6 : 0.2}
                             style={{ transition: 'r 300ms, opacity 300ms' }} />
                     <text x={x} y={y + 22} textAnchor="middle"
-                          style={{ font: '10px ui-monospace, monospace' }}
+                          style={{ fontFamily: TEXT, fontSize: 10, fontVariantNumeric: 'lining-nums tabular-nums' }}
                           className="fill-gray-400">{t}</text>
                   </g>
                 );

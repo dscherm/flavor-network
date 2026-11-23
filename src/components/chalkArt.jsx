@@ -11,7 +11,7 @@
  * with a faint wider stroke behind it so the line reads as chalk dust.
  */
 import { useId } from 'react';
-import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, chalkSurfaceStyle } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB, chalkSurfaceStyle } from '../data/chalkTheme.js';
 import { flagSpec, flagShapes, FLAG_W, FLAG_H } from '../data/countryFlags.js';
 
 // ── chalk line helper: a faint dust halo under a crisp line ────────────
@@ -76,7 +76,7 @@ export function ChalkLoader({ label = 'Getting things ready…', color, compact 
     return (
       <div className="flex items-center justify-center gap-3" role="status" aria-live="polite" data-testid="chalk-loader">
         <ChalkGlass size={36} color={color} />
-        <span style={{ fontFamily: FONT, fontSize: 20, color: CHALK_CREAM }}>{label}</span>
+        <span style={{ fontFamily: TEXT, fontSize: 20, color: CHALK_CREAM }}>{label}</span>
       </div>
     );
   }
@@ -89,7 +89,7 @@ export function ChalkLoader({ label = 'Getting things ready…', color, compact 
       data-testid="chalk-loader"
     >
       <ChalkGlass size={88} color={color} />
-      <p className="mt-3" style={{ fontFamily: FONT, fontSize: 24, color: CHALK_CREAM }}>{label}</p>
+      <p className="mt-3" style={{ fontFamily: TEXT, fontSize: 24, color: CHALK_CREAM }}>{label}</p>
     </div>
   );
 }
@@ -852,7 +852,7 @@ function bottleMark(spirit, cx, color, stroke, active, name) {
         stroke={stroke} strokeWidth="1" strokeOpacity={active ? 0.95 : 0.6} />
       {name && (
         <text x={cx} y={labelCY + 0.5} textAnchor="middle" dominantBaseline="central"
-          fontSize="16" fontFamily={FONT} fontWeight="700" fill="#211e18"
+          fontSize="16" fontFamily={HAND} fontWeight="700" fill="#211e18"
           textLength={labelW - 6} lengthAdjust="spacingAndGlyphs" pointerEvents="none">{name}</text>
       )}
     </g>

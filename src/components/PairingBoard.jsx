@@ -22,7 +22,7 @@
  */
 import { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import { TASTE_COLORS } from '../utils/color.js';
-import { FONT, CHALK_CREAM, CHALK_DIM } from '../data/chalkTheme.js';
+import { HAND, TEXT, CHALK_CREAM, CHALK_DIM } from '../data/chalkTheme.js';
 import { groupByLens } from '../data/pairingEgoModel.js';
 import { More } from './ChalkIcons.jsx';
 import { placeLabels, ringRadii } from '../data/pairingLabelLayout.js';
@@ -30,10 +30,9 @@ import { placeLabels, ringRadii } from '../data/pairingLabelLayout.js';
 const TWEEN_MS = 460;
 const HOLD_MS = 420;           // press-and-hold → peek
 const TAP_MOVE_TOL = 10;       // px; movement beyond this cancels a tap
-const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
-const LABEL_FONT = `600 16px ${FONT}`;
-const BUCKET_FONT = (hi) => `600 ${hi ? 19 : 17}px ${FONT}`;
-const CENTER_FONT = `700 30px ${FONT}`;
+const LABEL_FONT = `500 16px ${TEXT}`;
+const BUCKET_FONT = (hi) => `500 ${hi ? 19 : 17}px ${TEXT}`;
+const CENTER_FONT = `400 30px ${HAND}`;
 
 const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
 
@@ -194,14 +193,22 @@ export default function PairingBoard({
   const cx = width / 2;
   const cy = height / 2;
 
-  // Re-place the labels once the Caveat web font is in, so the measured
-  // widths match what is drawn.
-  const [fontsReady, setFontsReady] = useState(false);
+  // A canvas does not repaint when a web font arrives, so nothing is laid out or
+  // drawn until the three faces it uses have loaded (or the font API is absent).
+  const [fontsReady, setFontsReady] = useState(() => typeof document === 'undefined' || !document.fonts?.load);
   useEffect(() => {
+    if (fontsReady) return undefined;
     let alive = true;
-    try { document.fonts?.ready?.then(() => { if (alive) setFontsReady(true); }); } catch { /* no font API */ }
+    const done = () => { if (alive) setFontsReady(true); };
+    try {
+      Promise.all([
+        document.fonts.load(LABEL_FONT, 'Aa'),
+        document.fonts.load(BUCKET_FONT(false), 'Aa'),
+        document.fonts.load(CENTER_FONT, 'Aa'),
+      ]).then(done, done);
+    } catch { done(); }
     return () => { alive = false; };
-  }, []);
+  }, [fontsReady]);
 
   // ── draw a single frame from posRef ──────────────────────────────────
   const draw = useCallback(() => {
@@ -342,6 +349,7 @@ export default function PairingBoard({
 
   // ── (re)layout + tween whenever inputs change ────────────────────────
   useEffect(() => {
+    if (!fontsReady) return undefined;
     const layout = computeLayout(partners, lens, ctx, cx, cy, width, height);
     let mctx = null;
     try { mctx = canvasRef.current?.getContext?.('2d') || null; } catch { mctx = null; }
@@ -399,8 +407,8 @@ export default function PairingBoard({
     const c = canvas.getContext('2d');
     if (!c) { setCanvasOk(false); return; }
     c.setTransform(dpr, 0, 0, dpr, 0, 0);
-    draw();
-  }, [width, height, draw]);
+    if (fontsReady) draw();
+  }, [width, height, draw, fontsReady]);
 
   // ── pointer: tap re-centers, press-hold peeks ────────────────────────
   const hitAt = (sx, sy) => {
@@ -444,7 +452,7 @@ export default function PairingBoard({
       {/* Always-present accessible fallback / a11y list. */}
       <ul
         className={canvasOk ? 'sr-only' : ''}
-        style={canvasOk ? undefined : { listStyle: 'none', margin: 0, padding: 8, color: CHALK_CREAM, fontFamily: SANS }}
+        style={canvasOk ? undefined : { listStyle: 'none', margin: 0, padding: 8, color: CHALK_CREAM, fontFamily: TEXT }}
         aria-label={center ? `Partners of ${center}` : 'Partners'}
       >
         {partners.map((p) => (
@@ -454,7 +462,7 @@ export default function PairingBoard({
               onClick={() => onSelectPartner?.(p.name)}
               style={canvasOk ? undefined : {
                 background: 'none', border: 'none', color: CHALK_CREAM,
-                fontFamily: SANS, fontSize: 15, padding: '6px 4px', cursor: 'pointer',
+                fontFamily: TEXT, fontSize: 15, padding: '6px 4px', cursor: 'pointer',
               }}
             >
               {p.name}
@@ -466,7 +474,7 @@ export default function PairingBoard({
                 onClick={() => onPeek(p.name)}
                 style={canvasOk ? undefined : {
                   background: 'none', border: `1px solid ${CHALK_DIM}`, color: CHALK_DIM,
-                  fontFamily: SANS, fontSize: 13, borderRadius: 10, padding: '2px 8px', cursor: 'pointer',
+                  fontFamily: TEXT, fontSize: 13, borderRadius: 10, padding: '2px 8px', cursor: 'pointer',
                 }}
               >
                 <More size={20} />

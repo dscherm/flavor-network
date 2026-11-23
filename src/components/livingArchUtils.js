@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { TEXT } from '../data/chalkTheme.js';
 import { scoreIngredient } from '../data/tastePositioning.js';
 import { TASTE_ORDER, TASTE_HEX, CATEGORY_RADII } from './livingArchConstants.js';
 
@@ -52,7 +53,7 @@ export function makeLabel(text, color, size, opts = {}) {
   // don't get clipped by a fixed canvas width. Pad for the stroke +
   // glow so the text doesn't sit flush against the texture edge.
   const measureCtx = canvas.getContext('2d');
-  measureCtx.font = `bold ${fontSize}px "Inter", "Segoe UI", sans-serif`;
+  measureCtx.font = `500 ${fontSize}px ${TEXT}`;
   const textW = measureCtx.measureText(text).width;
   const padding = 64;
   canvas.width = Math.max(256, Math.ceil(textW + padding));
@@ -60,7 +61,7 @@ export function makeLabel(text, color, size, opts = {}) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   // Re-set font after canvas resize (resize wipes ctx state).
-  ctx.font = `bold ${fontSize}px "Inter", "Segoe UI", sans-serif`;
+  ctx.font = `500 ${fontSize}px ${TEXT}`;
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.lineJoin = 'round';
   ctx.lineWidth = 10;

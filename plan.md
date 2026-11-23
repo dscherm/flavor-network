@@ -3481,6 +3481,22 @@ and name exactly as they are.
   "title": "Type: handwriting for titles only, the owner's chosen steady face for everything people read",
   "category": "design",
   "design_surface": "Every screen (type roles)",
+  "public_surface": {
+    "module": "src.data.chalkTheme",
+    "adds": [
+      "HAND, TEXT, LOGO_HAND font tokens and TYPE role set (display, heading, drawn, body, control, small) in src/data/chalkTheme.js",
+      "self-hosted fonts (@fontsource Caveat 400/700, Alegreya Sans 400/500, latin) imported once"
+    ]
+  },
+  "acceptance_criteria": [
+    {"id": "AC-1", "given": "every .js/.jsx/.css/.ts/.tsx file under src/ except src/data/shareCardCanvas.js", "when": "it is scanned for system-ui, -apple-system, Segoe UI, Roboto, Inter as a quoted face, Georgia, Palatino and JetBrains", "then": "the scan returns exactly 0 hits"},
+    {"id": "AC-2", "given": "files under src/ and index.html", "when": "they are scanned for the string literals Alegreya Sans and Caveat", "then": "they appear only in src/data/chalkTheme.js and the one font-loading module (or index.html), never in a component"},
+    {"id": "AC-3", "given": "files under src/", "when": "they are scanned for fontFamily set to a bare generic ('sans-serif', 'serif', 'cursive', 'monospace')", "then": "the scan returns exactly 0 hits"},
+    {"id": "AC-4", "given": "files under src/", "when": "they are scanned for definitions or imports of FONT, FONT_HAND, FONT_FAMILY, SANS or SANS_STACK", "then": "none remain"},
+    {"id": "AC-5", "given": "the TYPE export of src/data/chalkTheme.js", "when": "its roles are read", "then": "display and heading and drawn use HAND (Caveat; owner 2026-11-23 reverted the hand from Kalam to Caveat) at weight 400 or 700; body, control and small use TEXT (Alegreya Sans); control has weight 500; no role has weight 600 or more on Alegreya Sans; body, control and small carry lining-nums tabular-nums"},
+    {"id": "AC-6", "given": "ChalkLogo rendered", "when": "the Nf text is read", "then": "its font family resolves to Caveat at weight 700 (logo unchanged)"},
+    {"id": "AC-7", "given": "the package.json dependencies and the app entry", "when": "they are read", "then": "@fontsource/alegreya-sans and @fontsource/caveat are dependencies, @fontsource/kalam is not, and index.html loads no fonts.googleapis.com stylesheet"}
+  ],
   "passes": false,
   "description": "After LOOK-1 (the owner's choice from the specimens) and LOOK-5. Today Caveat sets titles, buttons, list rows, ingredients and method steps, and plain text falls back to system-ui, Inter or Georgia. Apply the type roles in design/DESIGN.md: the chalk hand only for titles and the hand-drawn moments; the chosen steady face for body, ingredients, method, buttons and inputs; one size scale. Self-host or load only from Google Fonts with font-display swap; remove every system-ui, Inter, Georgia and 'sans-serif' fallback stack used as a face (grep). Share cards and the functions package draw text too: if they use Caveat or a system face, say what they use and whether they change (a change there regenerates through scripts/buildShareIndex.mjs and needs the functions tests; deploying it is the owner's call). Check line length (under about 80 characters) and that no label is clipped at 375 px.",
   "acceptance": [
@@ -3488,6 +3504,23 @@ and name exactly as they are.
     "Before-and-after screenshots at 375 px and desktop width of the Cocktail card, the recipe builder, the shopping list and the Cookbook card; no clipped label; checked against ~/.claude/design-criteria.md",
     "Share cards: stated whether they changed; if they did, server and browser cards still match (existing parity tests) and functions tests are green",
     "npm run gate green; nothing deployed"
+  ]
+}
+```
+
+```json
+{
+  "id": "LOOK-6b",
+  "title": "Share cards in the app's type: Caveat titles and Alegreya Sans text on browser and server cards together",
+  "category": "design",
+  "design_surface": "Share cards (link preview, portrait, tall, set of three), browser canvas and server satori",
+  "passes": false,
+  "description": "Follow-up to LOOK-6 (owner default D2, 2026-11-23). Today the browser cards (src/data/shareCardCanvas.js) draw Caveat and the system stack; the server cards (functions/src/share/card.ts) draw Caveat and bundled Inter, so they already disagree. Change both together: bundle Alegreya Sans 400/500 woff files with licences in functions/fonts (Caveat is already bundled), update the face map in card.ts and the canvas faces (the steady face replaces Inter and the system stack), regenerate through scripts/buildShareIndex.mjs, and look at every card format. Remove shareCardCanvas.js from LOOK-6's banned-face exception. Deploying functions is the owner's call.",
+  "acceptance": [
+    "Browser and server cards use Caveat for titles and Alegreya Sans for text; existing parity tests pass",
+    "No title or ingredient line overflows on any card format (rendered and looked at)",
+    "LOOK-6 contract exception for shareCardCanvas.js removed and the scan still passes",
+    "npm run gate and functions tests green; nothing deployed"
   ]
 }
 ```

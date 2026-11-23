@@ -464,7 +464,7 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, onClose, gra
             {authDebug && (
               <div
                 data-testid="auth-debug"
-                className="mt-2 text-[10px] font-mono opacity-60 break-all"
+                className="mt-2 text-[10px] font-sans lining-nums tabular-nums opacity-60 break-all"
               >
                 {authDebug}
               </div>
