@@ -87,9 +87,9 @@ export function FlavorProfileSection({ toggle, recipe, nodes, className = '', st
   if (!toggle.open) return null;
   return (
     <div id={FLAVOR_SECTION_ID} role="region" aria-label="Flavor profile" data-testid="flavor-profile-section" onKeyDown={toggle.onKeyDown}
-      className={`rounded-xl px-3 py-3 ${className}`} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(245,239,222,0.18)', ...style }}>
+      className={className} style={style}>
       <RecipeFlavorProfile recipe={recipe} nodes={nodes} />
-      <button type="button" onClick={toggle.close} data-testid="flavor-profile-close" className="mt-1 min-h-[44px] px-2 text-[13px] underline" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
+      <button type="button" onClick={toggle.close} data-testid="flavor-profile-close" className="mt-1 min-h-[44px] text-[13px] underline" style={{ fontFamily: TEXT, color: CHALK_SUB }}>
         Close
       </button>
     </div>

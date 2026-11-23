@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cocktail card boxes</title>
+<!-- LOOK-7 prototype: the Negroni card before and after "fewer boxes and pills".
+     Content copied from the live card on the dev server, 2026-11-23 (empty bar and kitchen).
+     Colours are the design/DESIGN.md tokens; nothing here is product code. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* DESIGN.md section 1 roles */
+  --slate: #0a0a0a;
+  --slate-wash: radial-gradient(ellipse at center, #1c1c1c 0%, #0a0a0a 75%, #050505 100%);
+  --chalk: #f5efde;          /* CHALK_CREAM */
+  --chalk-muted: #bdb6a3;    /* CHALK_DIM */
+  --chalk-faint: #8a8478;    /* CHALK_SUB */
+  --rail: #4a4a4a;           /* CHALK_RAIL */
+  --accent: #e8c97a;         /* ACCENT: the one primary action and the current state */
+  --focus: #4f9eff;          /* index.css :focus-visible */
+  --glow: 0 0 1px rgba(245,239,222,0.5), 0 0 3px rgba(245,239,222,0.2); /* CHALK_SHADOW, drawn titles only */
+  /* data colour: the Aromatic Stirred family (codex), and its lifted text form (liftColor) */
+  --fam: #991b1b;
+  --fam-text: #c98980;
+  /* the old card's own literals, used only in the BEFORE column to show what is there today */
+  --old-inner: #6a6a6a;
+  --hand: "Caveat", cursive;
+  --text: "Alegreya Sans", sans-serif;
+  /* DESIGN.md section 2 spacing */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 40px; --s7: 64px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--slate); color: var(--chalk); font-family: var(--text); font-size: 16px; line-height: 1.5;
+  font-variant-numeric: lining-nums tabular-nums; }
+.page { padding: var(--s5) var(--s4) var(--s7); max-width: 1360px; margin: 0 auto; }
+.page > h1 { font-family: var(--hand); font-weight: 700; font-size: 32px; margin: 0 0 var(--s1); text-shadow: var(--glow); }
+.page > p.lede { color: var(--chalk-muted); margin: 0 0 var(--s6); max-width: 70ch; }
+h2.band { font-family: var(--hand); font-weight: 700; font-size: 26px; margin: var(--s6) 0 var(--s3); }
+.pair { display: flex; flex-wrap: wrap; gap: var(--s5); align-items: flex-start; }
+.label { font-size: 13px; color: var(--chalk-faint); margin: 0 0 var(--s2); }
+.label b { color: var(--chalk-muted); font-weight: 500; }
+
+/* ---------- device frames ---------- */
+.phone { width: 375px; flex: 0 0 375px; background: var(--slate-wash), var(--slate); border: 1px solid #222; overflow: hidden; }
+.desk { width: 100%; max-width: 1280px; background: var(--slate-wash), var(--slate); border: 1px solid #222; padding: var(--s5) var(--s4) var(--s6); }
+.desk .col { max-width: 560px; margin: 0 auto; }
+
+/* shared bits */
+.name { font-family: var(--hand); font-weight: 700; text-align: center; font-size: 48px; line-height: 1.05; margin: 0;
+  text-shadow: var(--glow); -webkit-text-stroke: 1px rgba(8,8,8,.55); paint-order: stroke fill; }
+.fam { display: flex; flex-direction: column; align-items: center; }
+.fam .line { display: flex; align-items: center; gap: var(--s2); }
+.fam .fname { font-family: var(--hand); font-size: 22px; color: var(--fam-text); text-shadow: var(--glow); }
+.fam .sub { color: var(--chalk-muted); }
+.details { display: flex; flex-wrap: wrap; justify-content: center; gap: 0 var(--s4); font-size: 13px; }
+.details span span { color: var(--chalk-faint); }
+.details b { color: var(--chalk-muted); font-weight: 400; }
+.sec { font-family: var(--hand); font-weight: 700; font-size: 22px; margin: 0 0 var(--s3); text-shadow: var(--glow); }
+.ing { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s2); }
+.ing li { display: flex; align-items: baseline; gap: var(--s2); }
+.amt { color: var(--chalk-muted); white-space: nowrap; }
+.link { color: var(--chalk); text-decoration: underline dotted; text-decoration-color: var(--chalk-muted); text-underline-offset: 5px; }
+.photo { display: block; margin: 0 auto var(--s3); width: 150px; height: 170px; border: 1px solid var(--rail);
+  background: linear-gradient(160deg,#6a3a22 0%,#a1281c 45%,#3b1410 70%,#24170f 100%); position: relative; }
+.photo::after { content: ""; position: absolute; left: 62px; top: 36px; width: 46px; height: 46px; border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, #ffb24a, #e2731b 60%, #9a4a10); }
+.credit { font-size: 13px; color: var(--chalk-faint); }
+.credit u { text-underline-offset: 3px; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+svg.ic { width: 20px; height: 20px; flex: 0 0 auto; }
+
+/* ---------- BEFORE: today's LabNodeCard ---------- */
+.before .shell { padding: var(--s3) var(--s4); }
+.before .back { display: inline-flex; align-items: center; gap: var(--s1); min-height: 44px; padding: 8px 12px; border-radius: 8px;
+  border: 1px solid var(--old-inner); background: rgba(255,255,255,.04); font-size: 13px; }
+.before .card { margin-top: var(--s2); border-radius: 16px; padding: 16px 20px; background: rgba(255,255,255,.025);
+  border: 2px double var(--rail); box-shadow: inset 0 0 0 1px #6a6a6a55, 0 8px 24px rgba(0,0,0,.55); }
+.before .acts { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s2); margin: 6px 0 2px; }
+.before .pill { min-height: 40px; padding: 6px 16px; border-radius: 999px; border: 1px solid #991b1baa; background: #991b1b26;
+  font-size: 17px; display: inline-flex; align-items: center; gap: 6px; -webkit-text-stroke: .6px rgba(8,8,8,.62); paint-order: stroke fill; }
+.before .details { margin-top: 4px; }
+.before .sec { margin-top: var(--s5); font-weight: 400; }
+.before .ing li { font-size: 22px; }
+.before .ing .amt { font-size: 16px; }
+.before .need p.sum { font-size: 20px; line-height: 1.2; margin: 0 0 var(--s2); text-shadow: var(--glow); }
+.before .need ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.before .need li { display: flex; align-items: center; gap: var(--s2); min-height: 40px; }
+.before .need li .n { flex: 1; } .before .need li .n .amt { font-size: 14px; margin-right: 6px; } .before .need li .n .link { font-size: 19px; }
+.before .have { min-height: 36px; padding: 0 10px; border-radius: 999px; border: 1px solid #991b1b88; font-size: 14px; }
+.before .boxbtns { display: flex; flex-wrap: wrap; gap: var(--s2); margin-top: var(--s2); }
+.before .box { min-height: 44px; padding: 0 12px; border-radius: 8px; border: 1px solid #991b1b88; font-size: 18px; display: inline-flex; align-items: center; gap: 4px; }
+.before hr { border: 0; border-top: 1px solid var(--rail); margin: var(--s5) 0 var(--s3); }
+.before ol.steps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.before ol.steps li { font-size: 22px; line-height: 1.45; display: flex; gap: var(--s2); }
+.before ol.steps li i { font-style: normal; color: var(--fam); font-weight: 700; }
+.before .story p { margin: 0 0 var(--s2); }
+.before .chips { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.before .chip { padding: 4px 12px; border-radius: 999px; border: 1px solid #991b1b77; background: #991b1b1f; font-size: 17px;
+  display: inline-flex; align-items: center; gap: var(--s2); text-align: left; -webkit-text-stroke: .6px rgba(8,8,8,.62); paint-order: stroke fill; min-height: 40px; }
+.before .chip .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--fam); flex: 0 0 auto; }
+.before .chip small { display: block; color: var(--chalk-faint); font-size: 13px; -webkit-text-stroke: 0; }
+.before .chip.boozy { border-color: #5b21b677; background: #5b21b61f; } .before .chip.boozy .dot { background: #6d28d9; }
+.before .chip.aper { border-color: #be185d77; background: #be185d1f; } .before .chip.aper .dot { background: #be185d; }
+.before .like .sec { color: var(--fam-text); }
+
+/* ---------- AFTER: borders only on controls, one filled primary ---------- */
+.after .shell { padding: var(--s3) var(--s4) var(--s6); }
+.after .top { display: flex; align-items: center; justify-content: space-between; }
+.after .back { display: inline-flex; align-items: center; gap: var(--s1); min-height: 44px; padding-right: var(--s3); font-weight: 500; }
+.after .name { margin-top: var(--s2); }
+.after .fam { margin-top: var(--s1); }
+/* secondary actions: one quiet row of text controls, no borders, no fill */
+.after .acts { display: flex; justify-content: center; gap: var(--s5); margin-top: var(--s4); }
+.after .act { min-height: 44px; display: inline-flex; align-items: center; gap: 6px; font-weight: 500; color: var(--chalk);
+  text-decoration: underline; text-decoration-color: var(--rail); text-underline-offset: 6px; text-decoration-thickness: 1px; }
+.after .act[aria-expanded="true"] { color: var(--accent); text-decoration-color: var(--accent); }
+.after .details { margin-top: var(--s2); }
+.after section { margin-top: var(--s6); }
+.after .ing li { font-size: 18px; }
+.after .need p.sum { margin: 0 0 var(--s3); font-size: 17px; }
+.after .need ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.after .need li { display: flex; align-items: center; justify-content: space-between; min-height: 44px; font-size: 18px; }
+.after .need li .amt { font-size: 16px; margin-right: var(--s2); }
+.after .have { min-height: 44px; padding-left: var(--s3); font-size: 15px; color: var(--chalk-muted);
+  text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--rail); }
+.after .primary { margin-top: var(--s4); width: 100%; min-height: 48px; border-radius: 8px; background: var(--accent); color: var(--slate);
+  font-weight: 500; font-size: 17px; display: flex; align-items: center; justify-content: center; gap: var(--s2); }
+.after .primary svg path { stroke: var(--slate); }
+.after .textlink { display: block; margin: var(--s2) auto 0; min-height: 44px; color: var(--chalk-muted); font-weight: 500;
+  text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--rail); }
+.after .rule { display: block; width: 100%; height: 3px; color: var(--rail); margin: var(--s5) 0 var(--s4); }
+.after ol.steps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--s2); }
+.after ol.steps li { font-size: 18px; display: flex; gap: var(--s3); }
+.after ol.steps li i { font-style: normal; color: var(--chalk-faint); min-width: 1.2em; }
+.after .story p { margin: 0 0 var(--s2); }
+.after ul.plain { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; column-gap: var(--s4); }
+.after ul.plain li { min-height: 44px; display: flex; align-items: center; }
+.after ul.plain button { text-align: left; font-size: 17px; }
+.after ul.plain.one { grid-template-columns: 1fr; }
+.after ul.plain.one li { gap: var(--s2); align-items: baseline; padding: 10px 0; min-height: 44px; }
+.after ul.plain.one small { font-size: 13px; color: var(--chalk-faint); }
+.after .photo { margin-top: var(--s1); }
+
+.notes { margin-top: var(--s6); max-width: 75ch; color: var(--chalk-muted); }
+.notes h3 { font-family: var(--hand); font-size: 22px; color: var(--chalk); margin: 0 0 var(--s2); }
+.notes ul { margin: 0; padding-left: 1.1em; } .notes li { margin-bottom: var(--s1); }
+@media (max-width: 800px) { .pair { flex-direction: column; } }
+/* Wider than a phone: the primary sizes to its words and the copy link sits beside it */
+.desk .after .prow, .desk.after .prow { display: flex; align-items: center; gap: var(--s5); margin-top: var(--s4); }
+.desk.after .primary { width: auto; margin-top: 0; padding: 0 var(--s5); }
+.desk.after .textlink { margin: 0; }
+.desk.after ul.plain:not(.one) { grid-template-columns: 1fr 1fr 1fr; }
+/* At phone width the frames run edge to edge, so the mock itself never scrolls sideways */
+@media (max-width: 420px) {
+  .page { padding-left: 0; padding-right: 0; }
+  .page > h1, .page > p.lede, h2.band, .label, .notes { padding-left: var(--s4); padding-right: var(--s4); }
+  .phone { width: 100%; flex-basis: auto; border-left: 0; border-right: 0; }
+  .desk { border-left: 0; border-right: 0; padding-left: 0; padding-right: 0; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>The Negroni card, with fewer boxes</h1>
+  <p class="lede">LOOK-7 prototype. Left (or first): the card as it is today, copied from the dev server with an empty bar and kitchen.
+  Right (or second): borders only on what you can click, one filled button, space and a chalk rule between sections.
+  Same words, same order, same sections.</p>
+
+  <h2 class="band">Phone, 375 px</h2>
+  <div class="pair">
+    <div>
+      <p class="label"><b>Before</b>, today</p>
+      <div class="phone before" id="before-phone"></div>
+    </div>
+    <div>
+      <p class="label"><b>After</b>, proposed</p>
+      <div class="phone after" id="after-phone"></div>
+    </div>
+  </div>
+
+  <h2 class="band">Desktop, 1280 px</h2>
+  <p class="label"><b>Before</b>, today</p>
+  <div class="desk before"><div class="col" id="before-desk"></div></div>
+  <p class="label" style="margin-top:24px"><b>After</b>, proposed</p>
+  <div class="desk after"><div class="col" id="after-desk"></div></div>
+
+  <div class="notes">
+    <h3>What changed</h3>
+    <ul>
+      <li>The double frame around the whole card is gone: the opened card is the board itself.</li>
+      <li>Back, Riff on this, Flavor profile and Share lose their boxes and the family-red fill; they are text controls in one row.</li>
+      <li>One filled button: Add to shopping list. Copy shopping list and I have it are text controls.</li>
+      <li>Cocktails like this and the cousins are plain lists of names (dotted underline, as ingredient names already are), not pills.</li>
+      <li>Sections sit 40 px apart; rows inside a section 8 px apart. Method numbers move from family red to faint chalk.</li>
+    </ul>
+  </div>
+</div>
+
+<template id="glass">
+  <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4 H20 L12 13 Z M12 13 V20 M8 20 H16" fill="none" stroke="#c98980" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</template>
+
+<script>
+const GLASS = document.getElementById('glass').innerHTML;
+const CHEV = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 L8.5 12 L15 19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const DOWN = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px"><path d="M6 9 L12 15 L18 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const SHARE = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15 V4 M7.5 8.5 L12 4 L16.5 8.5 M5 12 V19.5 H19 V12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const BASKET = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 9.5 H20.5 L18.6 19.5 H5.4 Z M8 9.5 L11 4.5 M16 9.5 L13 4.5 M9.5 13 V16.5 M14.5 13 V16.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const RULE = '<svg class="rule" viewBox="0 0 400 3" preserveAspectRatio="none" aria-hidden="true"><path d="M0 1.6 Q40 0.9 80 1.7 T160 1.4 T240 1.8 T320 1.3 T400 1.6" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke" fill="none" stroke-linecap="round"/></svg>';
+
+const D = {
+  name: 'Negroni', family: 'Aromatic Stirred', sub: 'Martinis & Manhattans',
+  details: [['Glass','Old-fashioned glass'],['Build','stir'],['Ice','rocks'],['Aeration','low'],['Strength','strong']],
+  ing: [['30 ml','Gin'],['30 ml','Sweet vermouth'],['30 ml','Campari']],
+  summary: "Your bar and kitchen is empty, so here is everything you'd need.",
+  steps: ['30 ml Gin','30 ml Sweet vermouth','30 ml Campari','Garnish: 1 orange half wheel'],
+  story: 'A Negroni is an Italian cocktail, made of equal parts gin, vermouth rosso, and Campari, generally served with ice, and commonly garnished with an orange slice or orange peel. It is considered an apéritif.',
+  like: ['Rabo de Galo','Godmother','Godfather','White Negroni','Boulevardier',"Beth's Going to Town",'Flying Dutchman','Chrysanthemum'],
+  cousins: [['French Connection','Boozy Sippers','boozy'],['Grim Reaper','Boozy Sippers','boozy'],['Cardinale','Aperitivos','aper']],
+};
+const details = () => `<div class="details">${D.details.map(([l,v]) => `<span><span>${l}: </span><b>${v}</b></span>`).join('')}</div>`;
+const head = () => `<h2 class="name">${D.name}</h2>
+  <div class="fam"><div class="line">${GLASS}<span class="fname">${D.family}</span></div><span class="sub">${D.sub}</span></div>`;
+const ing = () => `<ul class="ing">${D.ing.map(([a,n]) => `<li><span class="amt">${a}</span><button class="link">${n}</button></li>`).join('')}</ul>`;
+const story = () => `<div class="story"><div class="photo" role="img" aria-label="A Negroni on the rocks with an orange slice (stand-in for the Wikimedia photo)"></div>
+  <p>${D.story}</p><p class="credit">Text: <u>Wikipedia</u> (<u>CC BY-SA</u>)<br>Photo: <u>Desdealbert00</u>, <u>CC BY-SA 4.0</u></p></div>`;
+
+function before() {
+  return `<div class="shell"><button class="back">${CHEV} Back</button>
+  <div class="card">
+    ${head()}
+    <div class="acts"><button class="pill">Riff on this</button><button class="pill">Flavor profile</button><button class="pill">${SHARE} Share</button></div>
+    ${details()}
+    <h3 class="sec">Ingredients</h3>${ing()}
+    <div class="need"><h3 class="sec">What do I need?</h3><p class="sum">${D.summary}</p>
+      <ul>${D.ing.map(([a,n]) => `<li><span class="n"><span class="amt">${a}</span><button class="link">${n}</button></span><button class="have">I have it</button></li>`).join('')}</ul>
+      <div class="boxbtns"><button class="box">Copy shopping list</button><button class="box">${BASKET} Add to shopping list</button></div></div>
+    <hr><ol class="steps">${D.steps.map((s,i) => `<li><i>${i+1}.</i><span>${s}</span></li>`).join('')}</ol>
+    <h3 class="sec">About this drink</h3>${story()}
+    <div class="like"><h3 class="sec">Cocktails like this</h3><div class="chips">${D.like.map(n => `<button class="chip"><span class="dot"></span>${n}</button>`).join('')}</div></div>
+    <h3 class="sec">Cousins in other families</h3><div class="chips">${D.cousins.map(([n,f,c]) => `<button class="chip ${c}"><span class="dot"></span><span>${n}<small>${f}</small></span></button>`).join('')}</div>
+  </div></div>`;
+}
+
+function after() {
+  return `<div class="shell">
+  <div class="top"><button class="back">${CHEV} Back</button></div>
+  ${head()}
+  <div class="acts" role="group" aria-label="More with this drink">
+    <button class="act">Riff on this</button>
+    <button class="act" aria-expanded="false">Flavor profile ${DOWN}</button>
+    <button class="act">${SHARE} Share</button>
+  </div>
+  ${details()}
+  <section><h3 class="sec">Ingredients</h3>${ing()}</section>
+  <section class="need"><h3 class="sec">What do I need?</h3><p class="sum">${D.summary}</p>
+    <ul>${D.ing.map(([a,n]) => `<li><span><span class="amt">${a}</span><button class="link">${n}</button></span><button class="have">I have it</button></li>`).join('')}</ul>
+    <div class="prow"><button class="primary" data-primary="true">${BASKET} Add to shopping list</button>
+    <button class="textlink">Copy shopping list</button></div>
+  </section>
+  ${RULE}
+  <ol class="steps">${D.steps.map((s,i) => `<li><i>${i+1}</i><span>${s}</span></li>`).join('')}</ol>
+  <section><h3 class="sec">About this drink</h3>${story()}</section>
+  <section><h3 class="sec">Cocktails like this</h3><ul class="plain">${D.like.map(n => `<li><button class="link">${n}</button></li>`).join('')}</ul></section>
+  <section><h3 class="sec">Cousins in other families</h3><ul class="plain one">${D.cousins.map(([n,f]) => `<li><button class="link">${n}</button><small>${f}</small></li>`).join('')}</ul></section>
+  </div>`;
+}
+document.getElementById('before-phone').innerHTML = before();
+document.getElementById('after-phone').innerHTML = after();
+document.getElementById('before-desk').innerHTML = before();
+document.getElementById('after-desk').innerHTML = after();
+</script>
+</body>
+</html>

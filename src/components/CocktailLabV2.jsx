@@ -13,7 +13,7 @@ import {
 } from '../data/cocktailCodexV2.js';
 import { formatPairedVia, formatMatchBadge } from '../data/recipePairingMatch.js';
 import { subclusterName } from '../data/cocktailSubclusters.js';
-import { CocktailFamilyGlass } from './cocktailGlasses.jsx';
+import { CocktailFamilyGlass, DrinkDrawing } from './cocktailGlasses.jsx';
 import CocktailRiff from './CocktailRiff.jsx';
 import { getCocktailRoles } from '../data/ingredientRoles.js';
 import { buildPairingIndex } from '../data/recipePairingMatch.js';
@@ -435,6 +435,11 @@ export default function CocktailLabV2({
     ];
   }, [selectedNode, facetCtx, cardIngredients]);
 
+  const drinkDrawing = selectedNode ? (
+    <DrinkDrawing name={selectedNode.name} familyName={familyForSelected?.name || ''} ingredients={selectedNode.ingredients_raw || selectedNode.ingredients || []}
+      fallbackColor={familyForSelected?.color || '#9a8f7a'} garnish={/garnish[^.]*/i.exec(`${selectedNode.recipe_text || ''} ${(selectedNode.ingredients_raw || []).map((i) => i?.raw || i).join(' ')}`)?.[0] || ''} />
+  ) : null;
+
   const cardIdentity = {
     clusterName: familyForSelected?.name || (selectedNode?.mine ? 'Uncategorised' : undefined),
     clusterColor: familyForSelected?.color || '#9a8f7a',
@@ -590,7 +595,7 @@ export default function CocktailLabV2({
             onSelect={(name) => setSelectedCocktail(name)}
             onClose={() => setSelectedCocktail(null)}
             afterIngredients={needsSection}
-            afterMethod={<DishStory kind="cocktail" storyKey={selectedNode?.name || selectedCocktail} name={selectedNode?.name || selectedCocktail} />}
+            afterMethod={<DishStory kind="cocktail" storyKey={selectedNode?.name || selectedCocktail} name={selectedNode?.name || selectedCocktail} fallback={drinkDrawing} />}
           />
         )}
         {riffPanel}
@@ -651,7 +656,7 @@ export default function CocktailLabV2({
           onSelect={(name) => setSelectedCocktail(name)}
           onClose={() => setSelectedCocktail(null)}
           afterIngredients={needsSection}
-          afterMethod={<DishStory kind="cocktail" storyKey={selectedNode?.name || selectedCocktail} name={selectedNode?.name || selectedCocktail} />}
+          afterMethod={<DishStory kind="cocktail" storyKey={selectedNode?.name || selectedCocktail} name={selectedNode?.name || selectedCocktail} fallback={drinkDrawing} />}
         />
       )}
       {barPanels}

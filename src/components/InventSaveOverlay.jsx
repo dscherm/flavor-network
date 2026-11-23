@@ -43,7 +43,7 @@ export default function InventSaveOverlay({ save, auth, copy = null }) {
       )}
       {toast && (
         <div role="status" data-testid="invent-save-toast" data-status={toast.status}
-          className="rounded-full px-4 py-2 pointer-events-auto"
+          className="rounded-lg px-4 py-2 pointer-events-auto"
           style={{ fontFamily: TEXT, fontSize: 18, color: toast.status === 'saved' ? '#0a0a0a' : '#fda4af', background: toast.status === 'saved' ? CHALK_CREAM : 'rgba(10,10,10,0.96)', border: `1px solid ${CHALK_RAIL}` }}>
           {toast.message}
         </div>

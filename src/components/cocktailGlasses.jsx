@@ -128,3 +128,51 @@ export function DrinkGlass({ cocktail, familyById, size = 40 }) {
   const { color } = drinkColor(names, fam.color);
   return <CocktailFamilyGlass familyName={fam.name} color={fam.color} liquid={color} size={size} testid="drink-glass" />;
 }
+
+// Where the rim sits for each glass (y, and how far from the centre line), so a garnish can perch on it.
+const RIM = { pilsner: [22, 11], snifter: [48, 8], margarita: [40, 22], highball: [28, 11], rocks: [64, 15], martini: [38, 22], coupe: [43, 20], wine: [38, 13], hurricane: [32, 11] };
+const GARNISHES = [
+  { rx: /cherry/i, kind: 'cherry' },
+  { rx: /olive/i, kind: 'olive' },
+  { rx: /mint|basil/i, kind: 'leaf' },
+  { rx: /orange/i, kind: 'wheel', color: '#fb923c' },
+  { rx: /lime/i, kind: 'wheel', color: '#a3e635' },
+  { rx: /lemon|twist|peel/i, kind: 'wheel', color: '#fde047' },
+];
+const CHALK_LINE = '#f5efde';
+
+function garnishMark(kind, color, x, y) {
+  switch (kind) {
+    case 'cherry':
+      return (<g data-part="garnish"><path d={`M ${x} ${y + 2} Q ${x + 4} ${y - 8} ${x + 9} ${y - 12}`} stroke={CHALK_LINE} strokeWidth={1.6} fill="none" strokeLinecap="round" /><circle cx={x} cy={y + 4} r={4.4} fill="#dc2626" fillOpacity={0.85} stroke={CHALK_LINE} strokeWidth={1.4} /></g>);
+    case 'olive':
+      return (<g data-part="garnish"><line x1={x - 5} y1={y + 6} x2={x + 7} y2={y - 6} stroke={CHALK_LINE} strokeWidth={1.4} strokeLinecap="round" /><ellipse cx={x} cy={y + 1} rx={4.2} ry={3.2} fill="#84cc16" fillOpacity={0.8} stroke={CHALK_LINE} strokeWidth={1.4} /></g>);
+    case 'leaf':
+      return (<g data-part="garnish"><path d={`M ${x} ${y + 2} Q ${x - 3} ${y - 8} ${x + 5} ${y - 11} Q ${x + 8} ${y - 2} ${x} ${y + 2} Z`} fill="#84cc16" fillOpacity={0.8} stroke={CHALK_LINE} strokeWidth={1.4} strokeLinejoin="round" /><path d={`M ${x - 5} ${y + 1} Q ${x - 9} ${y - 6} ${x - 2} ${y - 9} Q ${x} ${y - 2} ${x - 5} ${y + 1} Z`} fill="#84cc16" fillOpacity={0.65} stroke={CHALK_LINE} strokeWidth={1.2} strokeLinejoin="round" /></g>);
+    default:
+      return (<g data-part="garnish"><circle cx={x} cy={y} r={7} fill={color || '#fb923c'} fillOpacity={0.7} stroke={CHALK_LINE} strokeWidth={1.4} /><path d={`M ${x} ${y - 7} L ${x} ${y + 7} M ${x - 7} ${y} L ${x + 7} ${y}`} stroke={CHALK_LINE} strokeWidth={0.9} strokeOpacity={0.7} /></g>);
+  }
+}
+
+/**
+ * The stand-in for a drink with no photo (or a photo that did not load): its glass in chalk line, filled in the
+ * drink's own colour (drinkColor), with its garnish where the method names one. A drawing, not a placeholder disc:
+ * no gradient, no empty frame.
+ *   familyName  the family the drink sits in (chooses the glass)
+ *   ingredients lines or names, for the colour
+ *   garnish     free text (the method or a garnish line); a cherry, olive, mint or citrus is drawn on the rim
+ */
+export function DrinkDrawing({ name = '', familyName = '', ingredients = [], fallbackColor = '#9a8f7a', garnish = '', size = 150, testid = 'drink-drawing' }) {
+  const type = glassTypeFor(familyName);
+  const names = (ingredients || []).map((i) => (typeof i === 'string' ? i : i?.raw || i?.name || ''));
+  const { color } = drinkColor(names, fallbackColor);
+  const g = GARNISHES.find((x) => x.rx.test(garnish || ''));
+  const [rimY, rimX] = RIM[type] || RIM.hurricane;
+  return (
+    <svg width={(size * 64) / 94} height={size} viewBox="-6 14 64 94" role="img" aria-label={`Chalk drawing of ${name || 'the drink'}`}
+      focusable="false" data-testid={testid} data-glass={type} data-color={color} style={{ overflow: 'visible', display: 'block' }}>
+      {glassMark(type, 26, color, CHALK_LINE, true, 0.85)}
+      {g ? garnishMark(g.kind, g.color, 26 + rimX, rimY) : null}
+    </svg>
+  );
+}

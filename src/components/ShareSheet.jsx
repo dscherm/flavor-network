@@ -164,8 +164,8 @@ export function ShareButton({ recipe, link = '', ownItem = false, onPublish, ima
   return (
     <>
       <button type="button" onClick={() => setOpen(true)} data-testid={testid} aria-haspopup="dialog"
-        className={`inline-flex items-center justify-center gap-1 rounded-lg px-4 ${className}`}
-        style={{ ...btn({ background: `${ACCENT}22` }), ...tap, ...style }}>
+        className={`inline-flex items-center justify-center gap-1 px-4 ${className}`}
+        style={{ ...btn(), ...tap, ...style }}>
         <Share size={20} />
         {label}
       </button>

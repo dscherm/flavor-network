@@ -3531,6 +3531,23 @@ and name exactly as they are.
   "title": "Fewer boxes and pills: borders only on what you can click, one filled button per view, varied spacing",
   "category": "design",
   "design_surface": "Cocktail Lab card and menu, the three builders, Flavor Profiles card, shopping list",
+  "public_surface": {
+    "module": "src.components.LabNodeCard",
+    "adds": [
+      "data-primary=\"true\" on the one filled primary button per view (drink card, cocktail menu, builders, shopping list)",
+      "chalk drawing of the drink (glass in drinkColor, garnish) when a drink has no photo or the photo fails",
+      "RADIUS token (8 px) in src/data/chalkTheme.js"
+    ]
+  },
+  "acceptance_criteria": [
+    {"id": "AC-1", "given": "the Negroni card with an empty bar, the cocktail menu, each builder with two ingredients and a name, and the shopping list with two items, each rendered", "when": "[data-primary=\"true\"] is queried", "then": "exactly one element matches, it is a button, and its background is the accent colour"},
+    {"id": "AC-2", "given": "the Flavor Profiles card, the builder start step and a drink card whose ingredients are all owned, each rendered", "when": "[data-primary=\"true\"] is queried", "then": "zero elements match"},
+    {"id": "AC-3", "given": "the same renders as AC-1", "when": "inline background colours are read", "then": "no element other than the primary has the accent colour (#e8c97a or rgb(232, 201, 122), with or without alpha) as its background"},
+    {"id": "AC-4", "given": "the Negroni card rendered", "when": "[data-testid=\"lab-node-card-like-this\"] is read", "then": "it is a ul, its buttons have no border and no background, and nothing inside it has rounded-full"},
+    {"id": "AC-5", "given": "the listed source files (LabNodeCard, CocktailBrowse, Invent*, RecipeFlavorProfilesCard, ShoppingList, inventUi)", "when": "scanned as text", "then": "none contains outlineColor: CHALK_CREAM, and every rounded-full or 999/9999 radius is on a dot or bar or in tests/contracts/LOOK-7/allowlist.json with a reason"},
+    {"id": "AC-6", "given": "a drink with no photo, and a drink whose photo fails to load, rendered as a card", "when": "the picture area is read", "then": "an svg chalk drawing of the drink is shown (no empty frame, no gradient placeholder); a drink whose photo loads shows the photo and no drawing"},
+    {"id": "AC-7", "given": "the cocktail menu rendered", "when": "[data-testid=\"cocktail-row\"] elements are read", "then": "each has no border and no box-shadow and a min height of at least 44 px"}
+  ],
   "passes": false,
   "description": "After LOOK-6. The review found 171 pill shapes in src/components and a box around nearly every row: the Cocktail card wraps its buttons, chips, rows and sections all in the same rounded border; 'Riff on this', 'Flavor profile' and 'Share' are three equal outlined pills; 'Cocktails like this' is a cloud of boxed pills for plain links; every list row in the Cocktail menu is its own bordered box. Apply the components rule in design/DESIGN.md: a border only on something you can click or that holds state; sections separated by space and a chalk rule; one filled primary action per view (on a drink card that is probably 'What do I need?' or 'Add to shopping list'; propose it in the brief); secondary actions as text or a single grouped control; plain lists as text, not pills; spacing tight within a group and generous between sections. Write the brief first (ralph-designer) with one before-and-after mock of the Cocktail card for the owner.",
   "acceptance": [

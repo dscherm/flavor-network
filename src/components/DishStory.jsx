@@ -39,12 +39,14 @@ function useStory(kind, storyKey, given) {
 const linkStyle = { color: CHALK_DIM, textDecoration: 'underline', textUnderlineOffset: 2 };
 const LINK = 'rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60';
 
-export default function DishStory({ kind = 'recipe', storyKey, name, story: given, className = '' }) {
+export default function DishStory({ kind = 'recipe', storyKey, name, story: given, className = '', fallback = null }) {
   const story = useStory(kind, storyKey, given);
   const [imgFailed, setImgFailed] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
   useEffect(() => { setImgFailed(false); setImgLoaded(false); }, [story]);
-  if (!story || !story.text) return null;
+  if (!story || !story.text) {
+    return fallback ? <section className={`mt-10 flex justify-center ${className}`} data-testid="dish-story-drawing" aria-label={`Drawing of ${name || 'the drink'}`}>{fallback}</section> : null;
+  }
 
   const noun = NOUN[kind] || 'dish';
   const photo = story.photo && story.photo.src && !imgFailed ? story.photo : null;
@@ -52,10 +54,12 @@ export default function DishStory({ kind = 'recipe', storyKey, name, story: give
   const label = name || story.title;
 
   return (
-    <section className={`mt-3 ${className}`} data-testid="dish-story" aria-label={`About this ${noun}`}>
+    <section className={`mt-10 ${className}`} data-testid="dish-story" aria-label={`About this ${noun}`}>
       <h3 style={{ fontFamily: HAND, fontSize: 22, fontWeight: 400, margin: '0 0 12px', color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>
         About this {noun}
       </h3>
+
+      {!photo && fallback && <div className="flex justify-center mb-3" data-testid="dish-story-drawing">{fallback}</div>}
 
       {photo && (
         <figure className="m-0 mb-2 mx-auto" data-testid="dish-story-photo" data-aspect={ar.toFixed(3)}

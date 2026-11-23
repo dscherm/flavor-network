@@ -16,7 +16,7 @@
  * Test ids: {p} root, {p}-item-{slotId} (data-done, data-required), {p}-tag-{slotId} (unticked parts only: 'needed' / 'optional'), {p}-open-{slotId} (unticked parts only),
  * {p}-why-{slotId}, {p}-options-{slotId}, {p}-option (data-key), {p}-none-{slotId}.
  */
-import { Chip, heading, small, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL } from './inventUi.jsx';
+import { Chip, heading, small, FOCUS, CHALK_CREAM, CHALK_DIM, CHALK_SUB } from './inventUi.jsx';
 import { Checkbox } from './ChalkIcons.jsx';
 
 import { TEXT } from '../data/chalkTheme.js';
@@ -30,7 +30,7 @@ export default function InventChecklist({
   return (
     <div data-testid={p} className="min-w-0">
       {title && <p className="mb-1" style={heading}>{title}</p>}
-      <ul className="flex flex-col gap-1.5">
+      <ul className="flex flex-col gap-1">
         {ordered.map((it) => {
           const open = openId === it.slotId && !it.done;
           const options = open ? optionsFor(it.slotId) || [] : [];
@@ -49,12 +49,12 @@ export default function InventChecklist({
           );
           return (
             <li key={it.slotId} data-testid={`${p}-item-${it.slotId}`} data-done={it.done ? 'true' : 'false'} data-required={it.required ? 'true' : 'false'}
-              className="rounded-lg" style={{ border: `1px ${it.done ? 'solid' : 'dashed'} ${CHALK_RAIL}` }}>
+>
               {it.done
                 ? <div className="flex items-center gap-2 px-2 min-h-[44px]">{row}</div>
                 : (
                   <button type="button" onClick={() => onOpen(it.slotId)} aria-expanded={open} data-testid={`${p}-open-${it.slotId}`}
-                    className="w-full flex items-center gap-2 px-2 min-h-[44px] text-left">{row}</button>
+                    className={`w-full flex items-center gap-2 px-2 min-h-[44px] text-left ${FOCUS}`}>{row}</button>
                 )}
               {!it.done && it.required && it.why && (
                 <p className="px-2 pb-1.5 text-[13px]" style={{ ...small, fontSize: 13, color: CHALK_DIM }} data-testid={`${p}-why-${it.slotId}`}>{it.why}</p>

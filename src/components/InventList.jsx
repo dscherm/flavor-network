@@ -25,9 +25,10 @@
 import { useState } from 'react';
 import { IngredientName, IngredientInfoButton } from './IngredientCardProvider.jsx';
 import { Close } from './ChalkIcons.jsx';
-import { TextAdd, Chip, btn, inputStyle, heading, small, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT } from './inventUi.jsx';
+import { TextAdd, Chip, btn, textAction, inputStyle, heading, small, FOCUS, CHALK_CREAM, CHALK_DIM, CHALK_SUB } from './inventUi.jsx';
+import { chalkRule } from './ChalkIcons.jsx';
 
-import { TEXT } from '../data/chalkTheme.js';
+import { TEXT, CHALK_RAIL, CONTROL_RADIUS } from '../data/chalkTheme.js';
 export const DEFAULTS = {
   title: 'Your ingredients',
   empty: 'Nothing yet. Add what you want in it.',
@@ -55,7 +56,7 @@ function AmountBox({ line, p, L, onAmount }) {
       aria-label={`${L.suggested}: ${line.key}`} data-testid={`${p}-amount-${line.key}`}
       onChange={(e) => { setDraft(e.target.value); onAmount(line.key, e.target.value); }}
       onBlur={() => setDraft(null)}
-      className="w-20 flex-shrink-0 px-2 rounded-lg min-h-[44px] text-right" style={{ ...inputStyle, fontSize: 14 }} />
+      className="w-20 flex-shrink-0 px-2 min-h-[44px] text-right" style={{ ...inputStyle, fontSize: 14, borderRadius: CONTROL_RADIUS }} />
   );
 }
 
@@ -64,8 +65,7 @@ function Line({ line, p, L, onRemove, onAmount, replacementsFor, onReplace, onRe
   const missing = line.have === false;
   const options = open ? (replacementsFor ? replacementsFor(line.key) || [] : []) : [];
   return (
-    <li className="rounded-lg px-2 py-1.5" data-testid={`${p}-line`} data-key={line.key} data-have={line.have === false ? 'false' : line.have ? 'true' : 'unknown'}
-      style={{ border: `1px solid ${CHALK_RAIL}` }}>
+    <li data-testid={`${p}-line`} data-key={line.key} data-have={line.have === false ? 'false' : line.have ? 'true' : 'unknown'}>
       <div className="flex items-center gap-2 min-w-0">
         <AmountBox line={line} p={p} L={L} onAmount={onAmount} />
         <span className="flex-1 min-w-0">
@@ -77,11 +77,11 @@ function Line({ line, p, L, onRemove, onAmount, replacementsFor, onReplace, onRe
           </span>
         </span>
         <button type="button" onClick={() => onRemove(line.key)} aria-label={`${L.remove} ${line.key}`} data-testid={`${p}-remove-${line.key}`}
-          className="min-h-[44px] min-w-[44px] rounded-lg flex-shrink-0" style={btn({ fontSize: 20 })}><Close size={20} /></button>
+          className={`min-h-[44px] min-w-[44px] flex-shrink-0 inline-flex items-center justify-center ${FOCUS}`} style={{ color: CHALK_DIM, background: 'transparent' }}><Close size={20} /></button>
       </div>
       {missing && (
         <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} data-testid={`${p}-need-${line.key}`}
-          className="mt-1 min-h-[44px] px-3 rounded-lg text-left" style={{ fontFamily: TEXT, fontSize: 14, color: ACCENT, border: `1px dashed ${CHALK_RAIL}` }}>
+          className={`min-h-[44px] mt-1 text-left ${FOCUS}`} style={textAction({ fontSize: 14, color: CHALK_DIM })}>
           {open ? L.close : L.need}
         </button>
       )}
@@ -102,7 +102,7 @@ function Line({ line, p, L, onRemove, onAmount, replacementsFor, onReplace, onRe
             )}
           {onReplaceDeck && options.length > 0 && (
             <button type="button" onClick={() => onReplaceDeck(line.key, options.map((o) => o.key))} data-testid={`${p}-replace-deck-${line.key}`}
-              className="mt-2 min-h-[44px] px-3 rounded-lg" style={btn({ fontSize: 16 })}>{L.deck}</button>
+              className={`min-h-[44px] mt-2 ${FOCUS}`} style={textAction({ fontSize: 16 })}>{L.deck}</button>
           )}
         </div>
       )}
@@ -121,16 +121,17 @@ export default function InventList({
       {lines.length === 0
         ? <p className="text-[14px] mb-2" style={{ fontFamily: TEXT, color: CHALK_SUB }} data-testid={`${p}-empty`}>{L.empty}</p>
         : (
-          <ul className="flex flex-col gap-1.5 mb-2" data-testid={`${p}-lines`}>
+          <ul className="flex flex-col gap-2 mb-3" data-testid={`${p}-lines`}>
             {lines.map((l) => (
               <Line key={l.key} line={l} p={p} L={L} onRemove={onRemove} onAmount={onAmount} replacementsFor={replacementsFor} onReplace={onReplace} onReplaceDeck={onReplaceDeck} />
             ))}
           </ul>
         )}
+      {lines.length > 0 && <div className="mb-3" style={{ color: CHALK_RAIL, lineHeight: 0 }} aria-hidden="true">{chalkRule()}</div>}
       <TextAdd placeholder={L.addPlaceholder} buttonLabel={L.add} label="Add an ingredient" onSubmit={onAdd} vocab={vocab}
         testid={`${p}-add-input`} buttonTestid={`${p}-add`} />
       {notice && (
-        <p role="alert" className="mt-2 text-[14px] rounded-lg px-3 py-2" style={{ ...small, fontSize: 14, color: CHALK_CREAM, border: `1px dashed ${ACCENT}` }} data-testid={`${p}-notice`}>
+        <p role="alert" className="mt-2 text-[14px]" style={{ ...small, fontSize: 14, color: CHALK_CREAM }} data-testid={`${p}-notice`}>
           {notice}
         </p>
       )}

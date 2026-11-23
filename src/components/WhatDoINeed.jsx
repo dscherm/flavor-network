@@ -10,6 +10,7 @@
  */
 import { useState } from 'react';
 import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB } from '../data/chalkTheme.js';
+import { textAction, FOCUS } from './inventUi.jsx';
 import { shoppingListText } from '../data/whatDoINeed.js';
 import AddToShoppingList from './AddToShoppingList.jsx';
 import { IngredientName } from './IngredientCardProvider.jsx';
@@ -42,11 +43,11 @@ export default function WhatDoINeed({ title, needs, stockEmpty = false, stockLab
 
   return (
     <section data-testid="what-do-i-need" aria-label="What do I need?">
-      <h3 style={{ color: CHALK_CREAM, fontFamily: HAND, fontSize: 22, fontWeight: 400, marginTop: 24, marginBottom: 12, textShadow: SHADOW }}>
+      <h3 style={{ color: CHALK_CREAM, fontFamily: HAND, fontSize: 22, fontWeight: 400, marginTop: 40, marginBottom: 12, textShadow: SHADOW }}>
         What do I need?
       </h3>
 
-      <p className="mb-2" data-testid="what-do-i-need-summary" style={{ fontFamily: TEXT, fontSize: 20, color: CHALK_CREAM, lineHeight: 1.2, textShadow: SHADOW }}>
+      <p className="mb-3" data-testid="what-do-i-need-summary" style={{ fontFamily: TEXT, fontSize: 20, color: CHALK_CREAM, lineHeight: 1.2, textShadow: SHADOW }}>
         {stockEmpty
           ? `Your ${stockLabel} is empty, so here is everything you'd need.`
           : missing.length === 0
@@ -57,9 +58,9 @@ export default function WhatDoINeed({ title, needs, stockEmpty = false, stockLab
       </p>
 
       {missing.length > 0 && (
-        <ul className="flex flex-col gap-1" data-testid="what-do-i-need-missing">
+        <ul className="flex flex-col gap-0" data-testid="what-do-i-need-missing">
           {missing.map((m) => (
-            <li key={m.name} className="flex items-center gap-2 min-h-[40px]">
+            <li key={m.name} className="flex items-center gap-2 min-h-[44px]">
               <span className="flex-1 min-w-0">
                 {m.amount && <span className="mr-1.5 text-[14px]" data-testid={`what-do-i-need-amount-${m.name}`} style={{ fontFamily: TEXT, color: CHALK_DIM }}>{m.amount}</span>}{m.amount ? ' ' : null}
                 <IngredientName name={m.name} loose tall testid={`what-do-i-need-name-${m.name}`} style={{ fontFamily: TEXT, fontSize: 19, color: CHALK_CREAM }}>{m.name}</IngredientName>
@@ -68,8 +69,8 @@ export default function WhatDoINeed({ title, needs, stockEmpty = false, stockLab
               {onHave && (
                 <button type="button" onClick={() => onHave(m.name)} data-testid={`what-do-i-need-have-${m.name}`}
                   aria-label={`I have ${m.name}: add it to my ${stockLabel}`}
-                  className="px-2.5 rounded-full border min-h-[36px] text-[14px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                  style={{ fontFamily: TEXT, borderColor: `${color}88`, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
+                  className={`flex-shrink-0 ${FOCUS}`}
+                  style={textAction({ fontSize: 15, color: CHALK_DIM })}>
                   I have it
                 </button>
               )}
@@ -100,21 +101,21 @@ export default function WhatDoINeed({ title, needs, stockEmpty = false, stockLab
         </p>
       )}
 
-      <div className="mt-2 flex flex-wrap items-center gap-2">
-        {missing.length + optional.length + better.length > 0 && (
-          <button type="button" onClick={copy} data-testid="what-do-i-need-copy"
-            className="px-3 rounded-lg border min-h-[44px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-            style={{ fontFamily: TEXT, fontSize: 18, borderColor: `${color}88`, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
-            {copied ? 'Copied' : 'Copy shopping list'}
-          </button>
-        )}
+      <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-0">
         {shopping && missing.length + better.length + optional.length > 0 && (
           <AddToShoppingList recipe={shopping.recipe} missing={missing} better={better} optional={optional} list={shopping.list}
             onChange={shopping.onChange} onOpen={shopping.onOpen} color={color} />
         )}
+        {missing.length + optional.length + better.length > 0 && (
+          <button type="button" onClick={copy} data-testid="what-do-i-need-copy"
+            className={`${FOCUS} mx-auto sm:mx-0`}
+            style={textAction({ fontSize: 17 })}>
+            {copied ? 'Copied' : 'Copy shopping list'}
+          </button>
+        )}
         {have.length > 0 && (
           <button type="button" onClick={() => setShowHave((v) => !v)} aria-expanded={showHave} data-testid="what-do-i-need-toggle-have"
-            className="px-2 min-h-[44px] underline underline-offset-4" style={{ fontFamily: TEXT, fontSize: 16, color: CHALK_DIM }}>
+            className={`min-h-[44px] ${FOCUS}`} style={textAction({ fontSize: 16, color: CHALK_DIM })}>
             {showHave ? 'Hide' : 'Show'} what you have ({have.length})
           </button>
         )}

@@ -154,10 +154,10 @@ describe('RecipeFlavorProfilesCard', () => {
     expect(screen.getByTestId('flavor-profiles-card')).toBeInTheDocument();
   });
 
-  it('calls onClose when the × is tapped', () => {
+  it('calls onClose when Back is tapped', () => {
     const onClose = vi.fn();
     render(<RecipeFlavorProfilesCard bowlNames={['strawberry', 'cranberry']} nodes={nodes} onClose={onClose} />);
-    fireEvent.click(screen.getByLabelText('Close'));
+    fireEvent.click(screen.getByLabelText('Back'));
     expect(onClose).toHaveBeenCalled();
   });
 

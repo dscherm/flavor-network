@@ -14,7 +14,7 @@
  * Test ids: {p} root, {p}-item (each chip, data-key), {p}-info (the small i beside it: opens the ingredient card), {p}-deck (the deck button), {p}-empty.
  */
 import { IngredientInfoButton } from './IngredientCardProvider.jsx';
-import { Chip, btn, heading, CHALK_SUB } from './inventUi.jsx';
+import { AddRow, textAction, heading, FOCUS, CHALK_SUB } from './inventUi.jsx';
 
 import { TEXT } from '../data/chalkTheme.js';
 export default function InventSuggestions({ title, items = [], onAdd, onDeck, emptyText, labels = {}, testidPrefix = 'suggest' }) {
@@ -26,17 +26,17 @@ export default function InventSuggestions({ title, items = [], onAdd, onDeck, em
       {items.length === 0
         ? <p className="text-[14px]" style={{ fontFamily: TEXT, color: CHALK_SUB }} data-testid={`${p}-empty`}>{emptyText}</p>
         : (
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-x-4 gap-y-0">
             {items.map((it) => (
               <span key={it.key} className="inline-flex items-center max-w-full">
-                <Chip fit item={it} testid={`${p}-item`} haveLabel={labels.have || 'have'} onClick={() => onAdd(it.key)} />
+                <AddRow name={it.key} have={!!it.have} note={it.note} haveLabel={labels.have || 'have'} testid={`${p}-item`} onClick={() => onAdd(it.key)} />
                 <IngredientInfoButton name={it.key} testid={`${p}-info`} />
               </span>
             ))}
           </div>
         )}
       {onDeck && items.length > 0 && (
-        <button type="button" onClick={onDeck} data-testid={`${p}-deck`} className="mt-2 px-3 rounded-lg min-h-[44px]" style={btn({ fontSize: 17 })}>
+        <button type="button" onClick={onDeck} data-testid={`${p}-deck`} className={`min-h-[44px] mt-2 ${FOCUS}`} style={textAction({ fontSize: 17 })}>
           {labels.deck || 'See how each changes the flavor'}
         </button>
       )}

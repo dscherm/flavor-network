@@ -55,7 +55,7 @@ import { kitchenKey } from '../data/myKitchen.js';
 import { nearestSauces } from '../data/sauceSimilarity.js';
 import { winesForSauce, proteinIngredient } from '../data/sauceWines.js';
 import { loadWineStyles, familyColor } from '../data/wineStyles.js';
-import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, CARD_INK, chalkSurfaceStyle } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
 import { SauceVessel } from './sauceVessels.jsx';
 import { WineGlass } from './wineGlasses.jsx';
 import InventStart from './InventStart.jsx';
@@ -72,7 +72,9 @@ import HelpBubble from './HelpBubble.jsx';
 import { useInventUsage } from '../hooks/useUsage.js';
 import { noteTypedIngredient } from '../data/usageIngredient.js';
 
-const FOCUS = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
+import { textAction, FOCUS, ACCENT } from './inventUi.jsx';
+import { ChevronLeft, chalkRule } from './ChalkIcons.jsx';
+import { CONTROL_RADIUS } from '../data/chalkTheme.js';
 const PROTEINS_SHOWN = 12;
 const NEED = 'you’d need';
 const P = 'sauce-invent';
@@ -273,12 +275,12 @@ export default function InventSauce({
   const color = family?.color || CHALK_DIM;
   const chip = (active) => ({
     fontFamily: TEXT,
-    color: active ? CARD_INK : CHALK_CREAM,
-    background: active ? CHALK_CREAM : 'transparent',
-    borderColor: CHALK_RAIL,
-    outlineColor: CHALK_CREAM,
+    color: CHALK_CREAM,
+    background: 'transparent',
+    border: `${active ? '1.5px' : '1px'} solid ${active ? ACCENT : CHALK_RAIL}`,
+    borderRadius: CONTROL_RADIUS,
   });
-  const actionBtn = { fontFamily: TEXT, fontSize: 18, borderColor: CHALK_RAIL, color: CHALK_CREAM, outlineColor: CHALK_CREAM };
+  const actionBtn = textAction({ fontSize: 18 });
   const sub = (txt) => <p className="text-[13px] mb-1" style={{ fontFamily: TEXT, color: CHALK_SUB }}>{txt}</p>;
 
   return (
@@ -288,12 +290,12 @@ export default function InventSauce({
       data-testid={P} role="dialog" aria-label="Invent a sauce">
       <div className="w-full max-w-[560px] flex items-center justify-between mb-2">
         <button type="button" onClick={onClose} data-testid={`${P}-close`}
-          className={`px-3 py-2 rounded-lg min-h-[44px] min-w-[44px] ${FOCUS}`} style={{ fontFamily: TEXT, fontSize: 18, border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
-          Back
+          className={`min-h-[44px] inline-flex items-center gap-1 min-w-[44px] ${FOCUS}`} style={{ ...textAction({ fontSize: 18 }), textDecoration: 'none' }}>
+          <ChevronLeft size={20} />Back
         </button>
       </div>
 
-      <div className="w-full max-w-[560px] min-w-0 rounded-2xl px-4 py-4 flex flex-col gap-4" style={{ border: `2px double ${CHALK_RAIL}`, background: 'rgba(255,255,255,0.025)' }}>
+      <div className="w-full max-w-[560px] min-w-0 py-4 flex flex-col gap-6">
         <div>
           <div className="flex items-center justify-center gap-1">
             <h2 className="text-center text-[34px] leading-tight" style={{ fontFamily: HAND, textShadow: CHALK_SHADOW }}>Invent a sauce</h2>
@@ -316,10 +318,10 @@ export default function InventSauce({
                 {sub('What is it for? (optional)')}
                 <div className="flex flex-wrap gap-1.5" role="group" aria-label="What is it for" data-testid={`${P}-proteins`}>
                   <button type="button" aria-pressed={protein == null} onClick={() => setProtein(null)}
-                    className={`px-3 py-1 rounded-full border min-h-[44px] text-[16px] ${FOCUS}`} style={chip(protein == null)}>nothing in particular</button>
+                    className={`px-3 py-1 min-h-[44px] text-[16px] ${FOCUS}`} style={chip(protein == null)}>nothing in particular</button>
                   {proteins.map((p) => (
                     <button key={p} type="button" aria-pressed={protein === p} onClick={() => setProtein(p)}
-                      className={`px-3 py-1 rounded-full border min-h-[44px] text-[16px] ${FOCUS}`} style={chip(protein === p)}>{p}</button>
+                      className={`px-3 py-1 min-h-[44px] text-[16px] ${FOCUS}`} style={chip(protein === p)}>{p}</button>
                   ))}
                 </div>
               </div>
@@ -364,7 +366,8 @@ export default function InventSauce({
             <InventFlavorProfile testidPrefix={`${P}-profile`} title="Flavor profile" profile={profile} />
 
             {sauce && style && (
-              <article className="rounded-xl px-4 py-3" style={{ border: `1px solid ${color}aa`, background: `${color}1a` }} data-testid={`${P}-card`}>
+              <article data-testid={`${P}-card`}>
+                <div className="mb-4" style={{ color: CHALK_RAIL, lineHeight: 0 }} aria-hidden="true">{chalkRule()}</div>
                 <div className="flex items-center gap-3 mb-2">
                   <SauceVessel familyName={family?.name || ''} color={color} size={56} testid={`${P}-vessel`} />
                   <div className="flex-1 min-w-0">
@@ -409,7 +412,7 @@ export default function InventSauce({
                       const fam = familyById.get(x.sauce.family_id);
                       return (
                         <button key={x.sauce.name} type="button" onClick={() => onSelectSauce?.(x.sauce.name)}
-                          className={`w-full text-left flex items-center gap-2 py-0.5 min-h-[44px] rounded-md ${FOCUS}`} style={{ outlineColor: CHALK_CREAM }}>
+                          className={`w-full text-left flex items-center gap-2 py-0.5 min-h-[44px] ${FOCUS}`}>
                           <SauceVessel familyName={fam?.name || ''} color={fam?.color || CHALK_DIM} size={30} />
                           <span className="text-[19px]" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>{x.sauce.name}</span>
                           <span className="text-[12px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>{Math.round(x.similarity * 100)}% alike</span>
@@ -429,16 +432,15 @@ export default function InventSauce({
                 shareItem={lastSaved ? { kind: 'sauce', item: lastSaved } : null} />
             )}
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-x-6 gap-y-0" role="group" aria-label="More things to do with it">
               <button type="button" onClick={startOver} data-testid={`${P}-restart`}
-                className={`px-3 py-2 rounded-lg border min-h-[44px] ${FOCUS}`} style={actionBtn}>
+                className={`min-h-[44px] ${FOCUS}`} style={actionBtn}>
                 Start over
               </button>
               {onOpenRecipeLab && (
                 <button type="button" data-testid={`${P}-notebook`}
                   onClick={() => onOpenRecipeLab([...keys, ...(protein ? [proteinIngredient(protein)] : [])])}
-                  className={`px-3 py-2 rounded-lg min-h-[44px] ${FOCUS}`}
-                  style={{ fontFamily: TEXT, fontSize: 18, color: CARD_INK, background: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
+                  className={`min-h-[44px] ${FOCUS}`} style={actionBtn}>
                   Open in the Recipe Notebook
                 </button>
               )}

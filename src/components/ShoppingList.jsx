@@ -33,14 +33,16 @@ import { loadUnitSystem, saveUnitSystem } from '../data/shoppingUnits.js';
 import ShoppingRecipeAdd from './ShoppingRecipeAdd.jsx';
 import StoreAlternatives from './StoreAlternatives.jsx';
 import HelpBubble from './HelpBubble.jsx';
-import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, chalkSurfaceStyle } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CONTROL_RADIUS, chalkSurfaceStyle } from '../data/chalkTheme.js';
+import { textAction, btn, AddRow, FOCUS, ACCENT } from './inventUi.jsx';
+import { ChevronLeft, chalkRule } from './ChalkIcons.jsx';
 
-const FOCUS = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
-const buttonStyle = { fontFamily: TEXT, fontSize: 14, color: CHALK_CREAM, border: `1.5px solid ${CHALK_DIM}`, background: 'transparent', outlineColor: CHALK_CREAM };
-const inputStyle = { fontFamily: TEXT, fontSize: 16, color: CHALK_CREAM, background: 'rgba(10,10,10,0.6)', border: `1.5px solid ${CHALK_DIM}`, outlineColor: CHALK_CREAM };
+const buttonStyle = textAction({ fontSize: 16 });
+const outlineStyle = btn({ fontSize: 16 });
+const inputStyle = { fontFamily: TEXT, fontSize: 16, color: CHALK_CREAM, background: 'rgba(10,10,10,0.6)', border: `1px solid ${CHALK_RAIL}`, borderRadius: CONTROL_RADIUS };
 
 export default function ShoppingList({ shopping, onChange, onClose, loadIngredients = loadShoppingIngredients, own = null, loadRecipes, recipeStock, loadRoles }) {
   const list = shopping?.list || emptyList();
@@ -260,15 +262,16 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
       style={{ bottom: 'var(--tab-bar-h)', ...chalkSurfaceStyle(), color: CHALK_CREAM, paddingTop: 'env(safe-area-inset-top, 0px)' }}
     >
       <div className="mx-auto w-full max-w-md px-4" style={{ paddingBottom: 150 }}>
-        <div className="flex items-center gap-2 pt-3">
-          <button type="button" onClick={onClose} data-testid="shopping-back" className={`min-h-[44px] px-3 rounded-lg ${FOCUS}`} style={buttonStyle}>
-            Back to the Labs
+        <div className="flex items-center gap-2 pt-1">
+          <button type="button" onClick={onClose} data-testid="shopping-back" className={`inline-flex items-center gap-1 ${FOCUS}`} style={{ ...buttonStyle, textDecoration: 'none' }}>
+            <ChevronLeft size={20} />Back to the Labs
           </button>
         </div>
         <h1 style={{ fontFamily: HAND, fontSize: 36, lineHeight: 1.1, marginTop: 6 }}>Shopping list</h1>
         <p data-testid="shopping-count" role="status" aria-live="polite" style={{ fontFamily: TEXT, fontSize: 14, color: CHALK_DIM, minHeight: 20 }}>{countText}</p>
-        <div role="group" aria-label="Amounts shown in" data-testid="shopping-units" className="flex items-center gap-2 mt-1">
+        <div role="group" aria-label="Amounts shown in" data-testid="shopping-units" className="flex items-center gap-3 mt-2">
           <span style={{ fontFamily: TEXT, fontSize: 14, color: CHALK_DIM }}>Amounts</span>
+          <span className="inline-flex" style={{ border: `1px solid ${CHALK_RAIL}`, borderRadius: CONTROL_RADIUS }}>
           {[['us', 'US'], ['metric', 'Metric']].map(([id, label]) => (
             <button
               key={id}
@@ -276,10 +279,11 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
               aria-pressed={system === id}
               data-testid={`shopping-units-${id}`}
               onClick={() => chooseSystem(id)}
-              className={`min-h-[44px] px-4 rounded-lg ${FOCUS}`}
-              style={{ ...buttonStyle, ...(system === id ? { background: CHALK_CREAM, color: '#1a1a1a', borderColor: CHALK_CREAM } : {}) }}
+              className={`min-h-[44px] px-4 ${FOCUS}`}
+              style={{ ...buttonStyle, textDecoration: 'none', borderRadius: CONTROL_RADIUS, border: `1.5px solid ${system === id ? ACCENT : 'transparent'}` }}
             >{label}</button>
           ))}
+          </span>
         </div>
 
         <form
@@ -297,7 +301,7 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
               placeholder="Add an item"
               autoComplete="off"
               data-testid="shopping-add-text"
-              className={`flex-1 min-w-0 min-h-[44px] rounded-lg px-3 ${FOCUS}`}
+              className={`flex-1 min-w-0 min-h-[44px] px-3 ${FOCUS}`}
               style={inputStyle}
             />
             <input
@@ -308,20 +312,18 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
               placeholder="Amount"
               autoComplete="off"
               data-testid="shopping-add-amount"
-              className={`min-h-[44px] rounded-lg px-2 ${FOCUS}`}
+              className={`min-h-[44px] px-2 ${FOCUS}`}
               style={{ ...inputStyle, width: 92 }}
             />
-            <button type="submit" data-testid="shopping-add-button" className={`min-h-[44px] px-3 rounded-lg ${FOCUS}`} style={{ ...buttonStyle, fontWeight: 600 }}>
+            <button type="submit" data-testid="shopping-add-button" className={`min-h-[44px] px-3 ${FOCUS}`} style={outlineStyle}>
               Add
             </button>
           </div>
           {suggestions.length > 0 && (
-            <ul data-testid="shopping-suggestions" aria-label="Suggestions" className="mt-2 flex flex-wrap gap-2">
+            <ul data-testid="shopping-suggestions" aria-label="Suggestions" className="mt-2 flex flex-wrap gap-x-4 gap-y-0">
               {suggestions.map((s) => (
                 <li key={s}>
-                  <button type="button" onClick={() => add({ key: s, label: s })} className={`min-h-[44px] px-3 rounded-full ${FOCUS}`} style={buttonStyle}>
-                    {s}
-                  </button>
+                  <AddRow name={s} onClick={() => add({ key: s, label: s })} />
                 </li>
               ))}
             </ul>
@@ -343,12 +345,12 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
         <p data-testid="shopping-note" role="status" aria-live="polite" style={{ fontFamily: TEXT, fontSize: 14, color: CHALK_CREAM, marginTop: 8, minHeight: 20 }}>
           {note}
           {removed && note === removed.msg && (
-            <button type="button" data-testid="shopping-undo-removal" onClick={undoRemoval} className={`ml-2 min-h-[44px] px-3 rounded-lg ${FOCUS}`} style={buttonStyle}>Undo</button>
+            <button type="button" data-testid="shopping-undo-removal" onClick={undoRemoval} className={`ml-3 ${FOCUS}`} style={buttonStyle}>Undo</button>
           )}
         </p>
 
         {list.items.length === 0 ? (
-          <div data-testid="shopping-empty" className="mt-4 rounded-xl p-4" style={{ border: `1.5px dashed ${CHALK_RAIL}` }}>
+          <div data-testid="shopping-empty" className="mt-6">
             <div style={{ fontFamily: HAND, fontSize: 26 }}>Nothing on your list yet</div>
             <div className="flex items-center gap-1" style={{ marginTop: 4 }}>
               <p style={{ fontFamily: TEXT, fontSize: 14, color: CHALK_DIM }}>Type an item above, or add a recipe.</p>
@@ -359,8 +361,9 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
         ) : (
           <div className="mt-2">
             {groups.map((g) => (
-              <section key={g.aisle} aria-label={cap(g.aisle)} data-testid={`shopping-aisle-${g.aisle.replace(/\s+/g, '-')}`} className="mt-3">
-                <h2 style={{ fontFamily: HAND, fontSize: 24, color: CHALK_DIM, borderBottom: `1px solid ${CHALK_RAIL}` }}>{cap(g.aisle)}</h2>
+              <section key={g.aisle} aria-label={cap(g.aisle)} data-testid={`shopping-aisle-${g.aisle.replace(/\s+/g, '-')}`} className="mt-10">
+                <h2 style={{ fontFamily: HAND, fontSize: 24, color: CHALK_DIM }}>{cap(g.aisle)}</h2>
+                <div style={{ color: CHALK_RAIL, lineHeight: 0 }} aria-hidden="true">{chalkRule()}</div>
                 <ul>
                   {g.items.map((item) => {
                     const qty = itemAmountText(item, system);
@@ -377,7 +380,7 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
                               aria-label={item.label}
                               onChange={() => onChange((cur) => toggle(cur, item.id))}
                               className={`flex-shrink-0 ${FOCUS}`}
-                              style={{ width: 28, height: 28, accentColor: CHALK_CREAM, outlineColor: CHALK_CREAM }}
+                              style={{ width: 28, height: 28, accentColor: CHALK_CREAM }}
                             />
                           </label>
                           <span className="flex-1 min-w-0" style={{ fontFamily: TEXT, opacity: item.checked ? 0.6 : 1 }}>
@@ -408,8 +411,8 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
                               data-testid={`shopping-alt-${item.key}`}
                               aria-label={`Store doesn't have it? Find an alternative for ${item.label}`}
                               onClick={() => setSheetId(item.id)}
-                              className={`min-h-[44px] px-3 rounded-lg ${FOCUS}`}
-                              style={buttonStyle}
+                              className={`min-h-[44px] ${FOCUS}`}
+                              style={{ ...buttonStyle, fontSize: 15, color: CHALK_DIM }}
                             >
                               Store doesn&apos;t have it?
                             </button>
@@ -420,8 +423,8 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
                               data-testid={`shopping-undo-swap-${item.key}`}
                               aria-label={`Undo the swap: put ${item.was.row?.label || 'the original'} back`}
                               onClick={() => undoSwap(item)}
-                              className={`min-h-[44px] px-3 rounded-lg ${FOCUS}`}
-                              style={buttonStyle}
+                              className={FOCUS}
+                              style={{ ...buttonStyle, fontSize: 15, color: CHALK_DIM }}
                             >
                               Undo
                             </button>
@@ -434,17 +437,17 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
               </section>
             ))}
 
-            <div className="mt-5 flex flex-wrap gap-2">
-              <button type="button" onClick={copy} data-testid="shopping-copy" className={`min-h-[44px] px-4 rounded-lg ${FOCUS}`} style={buttonStyle}>Copy list</button>
+            <div className="mt-10 flex flex-wrap gap-x-6 gap-y-0" role="group" aria-label="List actions">
+              <button type="button" onClick={copy} data-testid="shopping-copy" className={FOCUS} style={buttonStyle}>Copy list</button>
               {checked.length > 0 && (
-                <button type="button" onClick={clearDone} data-testid="shopping-clear-checked" className={`min-h-[44px] px-4 rounded-lg ${FOCUS}`} style={buttonStyle}>Clear checked</button>
+                <button type="button" onClick={clearDone} data-testid="shopping-clear-checked" className={FOCUS} style={buttonStyle}>Clear checked</button>
               )}
-              <button type="button" onClick={() => setConfirmClear(true)} data-testid="shopping-clear-all" className={`min-h-[44px] px-4 rounded-lg ${FOCUS}`} style={buttonStyle}>Clear all</button>
+              <button type="button" onClick={() => setConfirmClear(true)} data-testid="shopping-clear-all" className={FOCUS} style={buttonStyle}>Clear all</button>
             </div>
 
             {checked.length > 0 && (
-              <div className="mt-3 flex items-center gap-1">
-                <button type="button" onClick={putInKitchen} data-testid="shopping-put-away" className={`min-h-[44px] px-4 rounded-lg ${FOCUS}`} style={{ ...buttonStyle, fontWeight: 600 }}>
+              <div className="mt-2 flex items-center gap-1">
+                <button type="button" onClick={putInKitchen} data-testid="shopping-put-away" className={FOCUS} style={buttonStyle}>
                   Put checked items in my kitchen
                 </button>
                 <HelpBubble variant="chalk" placement="top" label="How this works" testId="shopping-put-away-help"
@@ -458,17 +461,17 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
                 aria-labelledby="shopping-clear-title"
                 aria-describedby="shopping-clear-desc"
                 data-testid="shopping-clear-confirm"
-                className="mt-4 rounded-xl p-4"
-                style={{ border: `2px solid ${CHALK_CREAM}`, background: 'rgba(10,10,10,0.8)' }}
+                className="mt-4 p-4"
+                style={{ border: `1.5px solid ${CHALK_CREAM}`, borderRadius: CONTROL_RADIUS, background: 'rgba(10,10,10,0.8)' }}
                 onKeyDown={(e) => { if (e.key === 'Escape') setConfirmClear(false); }}
               >
                 <div id="shopping-clear-title" style={{ fontFamily: HAND, fontSize: 24 }}>Clear the whole list?</div>
                 <p id="shopping-clear-desc" style={{ fontFamily: TEXT, fontSize: 14, color: CHALK_DIM }}>
                   This removes all {plural(list.items.length, 'item', 'items')}, ticked or not. It cannot be undone.
                 </p>
-                <div className="mt-3 flex gap-2">
-                  <button ref={keepRef} type="button" onClick={() => setConfirmClear(false)} data-testid="shopping-clear-cancel" className={`min-h-[44px] px-4 rounded-lg ${FOCUS}`} style={{ ...buttonStyle, fontWeight: 600 }}>Keep my list</button>
-                  <button type="button" onClick={clearAll} data-testid="shopping-clear-confirm-yes" className={`min-h-[44px] px-4 rounded-lg ${FOCUS}`} style={buttonStyle}>Clear all</button>
+                <div className="mt-3 flex gap-6 items-center">
+                  <button ref={keepRef} type="button" onClick={() => setConfirmClear(false)} data-testid="shopping-clear-cancel" className={`px-4 ${FOCUS}`} style={outlineStyle}>Keep my list</button>
+                  <button type="button" onClick={clearAll} data-testid="shopping-clear-confirm-yes" className={FOCUS} style={buttonStyle}>Clear all</button>
                 </div>
               </div>
             )}

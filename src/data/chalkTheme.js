@@ -17,6 +17,7 @@ export const CHALK_CREAM = '#f5efde'; // primary chalk
 export const CHALK_DIM = '#bdb6a3';   // muted chalk
 export const CHALK_SUB = '#8a8478';   // faint chalk (captions)
 export const CHALK_RAIL = '#4a4a4a';  // slate rail / frame
+export const CONTROL_RADIUS = 8;   // one corner radius for every control that keeps a border (LOOK-7 D5)
 export const CHALK_SHADOW = '0 0 1px rgba(245,239,222,0.5), 0 0 3px rgba(245,239,222,0.2)';
 
 // Type: the one place a face is named. Files load from src/fonts.js.

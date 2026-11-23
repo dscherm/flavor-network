@@ -13,9 +13,7 @@
  *   testidPrefix  default 'start'
  * Test ids: {p} root, {p}-option (each chip, data-key), {p}-input, {p}-go, {p}-skip.
  */
-import { TextAdd, Chip, heading, ACCENT, CHALK_DIM, CHALK_RAIL } from './inventUi.jsx';
-
-import { TEXT } from '../data/chalkTheme.js';
+import { TextAdd, Chip, textAction, heading, FOCUS, CHALK_DIM } from './inventUi.jsx';
 export default function InventStart({
   question, options = [], onPick, placeholder = 'or type one', allowSkip = false, onSkip, labels = {}, testidPrefix = 'start',
 }) {
@@ -27,14 +25,14 @@ export default function InventStart({
       {options.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-2">
           {options.map((o) => (
-            <Chip key={o.key} item={o} testid={`${p}-option`} onClick={() => onPick(o.key)} haveLabel={L.have} color={ACCENT} />
+            <Chip key={o.key} item={o} testid={`${p}-option`} onClick={() => onPick(o.key)} haveLabel={L.have} />
           ))}
         </div>
       )}
       <TextAdd placeholder={placeholder} buttonLabel={L.go} label={question} onSubmit={onPick} testid={`${p}-input`} buttonTestid={`${p}-go`} />
       {allowSkip && (
         <button type="button" onClick={() => onSkip && onSkip()} data-testid={`${p}-skip`}
-          className="mt-2 min-h-[44px] px-3 rounded-lg" style={{ fontFamily: TEXT, fontSize: 14, color: CHALK_DIM, border: `1px solid ${CHALK_RAIL}` }}>
+          className={`min-h-[44px] mt-2 ${FOCUS}`} style={textAction({ fontSize: 14, color: CHALK_DIM })}>
           {L.skip}
         </button>
       )}

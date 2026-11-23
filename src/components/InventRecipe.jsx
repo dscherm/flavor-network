@@ -62,10 +62,10 @@ import {
 } from '../data/inventBuild.js';
 import { buildFlavorProfile } from '../data/inventProfile.js';
 import { toSavedItem } from '../data/inventSaved.js';
-import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, CONTROL_RADIUS, chalkSurfaceStyle } from '../data/chalkTheme.js';
 import { DishArt, ChalkLoader } from './chalkArt.jsx';
 import InventStart from './InventStart.jsx';
-import { Close, ChevronDown, ChevronRight } from './ChalkIcons.jsx';
+import { Close, ChevronDown, ChevronRight, ChevronLeft } from './ChalkIcons.jsx';
 import InventList from './InventList.jsx';
 import HelpBubble from './HelpBubble.jsx';
 import { IngredientBuilderScope } from './IngredientCardProvider.jsx';
@@ -83,7 +83,7 @@ import { noteTypedIngredient } from '../data/usageIngredient.js';
 
 const RecipeFlavorProfilesCard = lazy(() => import('./RecipeFlavorProfilesCard.jsx'));
 
-const FOCUS = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
+import { textAction, FOCUS, ACCENT as GOLD } from './inventUi.jsx';
 const ACCENT = '#a3e635';
 const NO_PINS = [];
 const NO_KITCHEN = [];
@@ -397,9 +397,9 @@ export default function InventRecipe({
   };
 
   const chip = (active) => ({
-    fontFamily: TEXT, color: active ? '#0a0a0a' : CHALK_CREAM, background: active ? CHALK_CREAM : 'transparent', borderColor: CHALK_RAIL, outlineColor: CHALK_CREAM,
+    fontFamily: TEXT, color: CHALK_CREAM, background: 'transparent', border: `${active ? '1.5px' : '1px'} solid ${active ? GOLD : CHALK_RAIL}`, borderRadius: CONTROL_RADIUS,
   });
-  const btn = { fontFamily: TEXT, fontSize: 18, borderColor: CHALK_RAIL, color: CHALK_CREAM, outlineColor: CHALK_CREAM };
+  const btn = textAction({ fontSize: 18 });
   const cuisineChips = showAllCuisines ? cuisineList : [...new Set([...leaning, ...(cuisine ? [cuisine] : [])])];
   const typeOptions = DISH_SKELETON_ORDER.map((id) => {
     const d = DISH_SKELETONS[id];
@@ -415,18 +415,18 @@ export default function InventRecipe({
       data-testid="invent-recipe" role="dialog" aria-label="Build a recipe">
       <div className="w-full max-w-[560px] flex items-center justify-between mb-2 gap-2">
         <button type="button" onClick={onClose} data-testid="invent-recipe-close"
-          className={`px-3 py-2 rounded-lg min-h-[44px] min-w-[44px] border ${FOCUS}`} style={btn}>
-          Back
+          className={`min-h-[44px] inline-flex items-center gap-1 min-w-[44px] ${FOCUS}`} style={{ ...btn, textDecoration: 'none' }}>
+          <ChevronLeft size={20} />Back
         </button>
         {onEditKitchen && (
           <button type="button" onClick={onEditKitchen} data-testid="invent-recipe-kitchen"
-            className={`px-3 py-2 rounded-lg min-h-[44px] border ${FOCUS}`} style={btn}>
+            className={`min-h-[44px] ${FOCUS}`} style={btn}>
             My kitchen ({pantry.length})
           </button>
         )}
       </div>
 
-      <div className="w-full max-w-[560px] rounded-2xl px-4 py-4 flex flex-col gap-4" style={{ border: `2px double ${CHALK_RAIL}`, background: 'rgba(255,255,255,0.025)' }}>
+      <div className="w-full max-w-[560px] py-4 flex flex-col gap-6">
         <div>
           <div className="flex items-center justify-center gap-1">
             <h2 className="text-center text-[34px] leading-tight" style={{ fontFamily: HAND, textShadow: CHALK_SHADOW }}>{editId ? 'Edit your recipe' : 'Build a recipe'}</h2>
@@ -459,13 +459,13 @@ export default function InventRecipe({
                 <p className="text-[13px] mb-1" style={{ ...rule, fontFamily: TEXT }}>Cuisine (optional)</p>
                 <div className="flex flex-wrap gap-1.5" role="group" aria-label="Cuisine" data-testid="invent-recipe-cuisines">
                   <button type="button" aria-pressed={cuisine === null} onClick={() => patch({ cuisine: null })}
-                    className={`px-3 py-1 rounded-full border min-h-[44px] text-[17px] ${FOCUS}`} style={chip(cuisine === null)}>any</button>
+                    className={`px-3 py-1 min-h-[44px] text-[17px] ${FOCUS}`} style={chip(cuisine === null)}>any</button>
                   {cuisineChips.map((c) => (
                     <button key={c} type="button" aria-pressed={cuisine === c} onClick={() => patch({ cuisine: c })}
-                      className={`px-3 py-1 rounded-full border min-h-[44px] text-[17px] ${FOCUS}`} style={chip(cuisine === c)}>{c}</button>
+                      className={`px-3 py-1 min-h-[44px] text-[17px] ${FOCUS}`} style={chip(cuisine === c)}>{c}</button>
                   ))}
                   <button type="button" onClick={() => setShowAllCuisines((s) => !s)} aria-expanded={showAllCuisines}
-                    className={`px-3 py-1 rounded-full border min-h-[44px] text-[16px] ${FOCUS}`} style={{ ...chip(false), borderStyle: 'dashed', color: CHALK_DIM }}>
+                    className={`min-h-[44px] ${FOCUS}`} style={{ ...btn, fontSize: 16, color: CHALK_DIM }}>
                     {showAllCuisines ? 'fewer' : `all ${cuisineList.length}…`}
                   </button>
                 </div>
@@ -495,7 +495,7 @@ export default function InventRecipe({
 
             {keys.length >= 3 && nodeMap && (
               <button type="button" onClick={() => setProfilesOpen(true)} data-testid="invent-recipe-profiles"
-                className={`w-full px-3 py-2 rounded-lg border min-h-[44px] text-left ${FOCUS}`} style={btn}>
+                className={`min-h-[44px] text-left ${FOCUS}`} style={btn}>
                 Each flavor note, and what to add for more or less
               </button>
             )}
@@ -510,18 +510,18 @@ export default function InventRecipe({
             {keys.length > 0 && (onFindCocktail || onFindSauce || onFindWine) && (
               <div data-testid="invent-recipe-serve">
                 <p className="text-[13px] mb-1" style={{ ...rule, fontFamily: TEXT }}>Serve it with</p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-x-6 gap-y-0" role="group" aria-label="Serve it with">
                   {onFindCocktail && (
                     <button type="button" onClick={() => onFindCocktail(keys, name.trim())} data-testid="invent-recipe-find-cocktail"
-                      className={`px-3 py-2 rounded-lg border min-h-[44px] ${FOCUS}`} style={{ ...btn, fontSize: 17 }}>Find a cocktail</button>
+                      className={`min-h-[44px] ${FOCUS}`} style={{ ...btn, fontSize: 17 }}>Find a cocktail</button>
                   )}
                   {onFindSauce && (
                     <button type="button" onClick={() => onFindSauce(keys, name.trim())} data-testid="invent-recipe-find-sauce"
-                      className={`px-3 py-2 rounded-lg border min-h-[44px] ${FOCUS}`} style={{ ...btn, fontSize: 17 }}>Need a sauce</button>
+                      className={`min-h-[44px] ${FOCUS}`} style={{ ...btn, fontSize: 17 }}>Need a sauce</button>
                   )}
                   {onFindWine && (
                     <button type="button" onClick={() => onFindWine(keys, name.trim())} data-testid="invent-recipe-find-wine"
-                      className={`px-3 py-2 rounded-lg border min-h-[44px] ${FOCUS}`} style={{ ...btn, fontSize: 17 }}>Find wines</button>
+                      className={`min-h-[44px] ${FOCUS}`} style={{ ...btn, fontSize: 17 }}>Find wines</button>
                   )}
                 </div>
               </div>
@@ -532,15 +532,15 @@ export default function InventRecipe({
                 <img src={photoUrl} alt="Recipe photo" data-testid="invent-recipe-photo-img" className="rounded-lg object-cover min-w-0"
                   style={{ height: 96, maxWidth: '60%', border: `1px solid ${CHALK_RAIL}` }} />
                 <button type="button" onClick={() => setPhotoUrl(null)} aria-label="Remove recipe photo" data-testid="invent-recipe-photo-remove"
-                  className={`min-h-[44px] min-w-[44px] rounded-full border ${FOCUS}`} style={btn}><Close size={20} /></button>
+                  className={`min-h-[44px] min-w-[44px] inline-flex items-center justify-center ${FOCUS}`} style={{ ...btn, textDecoration: 'none' }}><Close size={20} /></button>
               </div>
             )}
 
             {handoffMethod && (
               <div data-testid="invent-recipe-handoff-method">
                 <button type="button" onClick={() => setMethodOpen((o) => !o)} aria-expanded={methodOpen}
-                  className={`w-full min-h-[44px] flex items-center justify-between gap-2 rounded-lg px-3 text-left ${FOCUS}`}
-                  style={{ fontFamily: TEXT, color: CHALK_CREAM, border: `1px dashed ${CHALK_RAIL}`, outlineColor: CHALK_CREAM }}>
+                  className={`w-full min-h-[44px] flex items-center justify-between gap-2 text-left ${FOCUS}`}
+                  style={{ fontFamily: TEXT, color: CHALK_CREAM }}>
                   <span className="text-[19px] leading-tight min-w-0">
                     Method ({handoffMethod.steps.length} steps)
                     {handoffMethod.from && handoffMethod.from !== name && (
@@ -566,7 +566,7 @@ export default function InventRecipe({
                   <div className="mt-2" data-testid="invent-recipe-closest">
                     <p className="text-[13px]" style={{ ...rule, fontFamily: TEXT }}>Closest recipe in the Cookbook</p>
                     <button type="button" aria-expanded={openMethod} onClick={() => setOpenMethod((o) => !o)}
-                      className={`w-full text-left min-h-[44px] flex items-center gap-2 rounded-lg ${FOCUS}`} style={{ outlineColor: CHALK_CREAM }}>
+                      className={`w-full text-left min-h-[44px] flex items-center gap-2 ${FOCUS}`}>
                       <span className="text-[19px] flex-1 min-w-0" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>{closest.title}</span>
                       <span className="text-[14px] flex-shrink-0" style={{ fontFamily: TEXT, color: CHALK_SUB }}><span aria-hidden="true" className="inline-block align-middle" style={{ lineHeight: 0 }}>{openMethod ? <ChevronDown size={16} /> : <ChevronRight size={16} />}</span> {openMethod ? 'Hide method' : 'Show method'}</span>
                     </button>
@@ -592,15 +592,15 @@ export default function InventRecipe({
                 onNameCommit={invent.named} onName={(t) => { setSaveState({ status: 'idle', message: '' }); patch({ name: t }); }} onSave={save} />
             )}
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-x-6 gap-y-0" role="group" aria-label="More things to do with it">
               <button type="button" onClick={() => { setState(fresh()); setPicture(undefined); setHandoffMethod(null); setPhotoUrl(null); setChosenMethods([]); setProfilesOpen(false); reset(); }} data-testid="invent-recipe-restart"
-                className={`px-3 py-2 rounded-lg border min-h-[44px] ${FOCUS}`} style={btn}>
+                className={`min-h-[44px] ${FOCUS}`} style={btn}>
                 Start over
               </button>
               {onWrite && (
                 <button type="button" onClick={write} disabled={!keys.length} data-testid="invent-recipe-write"
-                  className={`flex-1 px-3 py-2 rounded-lg min-h-[44px] ${FOCUS}`}
-                  style={{ fontFamily: TEXT, fontSize: 19, color: '#0a0a0a', background: CHALK_CREAM, outlineColor: CHALK_CREAM, opacity: keys.length ? 1 : 0.5 }}>
+                  className={`min-h-[44px] ${FOCUS}`}
+                  style={{ ...btn, opacity: keys.length ? 1 : 0.5 }}>
                   Write it in the Recipe Notebook
                 </button>
               )}

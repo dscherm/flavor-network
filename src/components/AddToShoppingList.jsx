@@ -18,10 +18,9 @@ import { canonicalKey, emptyList } from '../data/shoppingList.js';
 import { usage } from '../data/usageEvents.js';
 import { loadUnitSystem } from '../data/shoppingUnits.js';
 import { addTicked, askAgainText, countOptional, shopRecipeUsage, summaryText } from '../data/shoppingRecipes.js';
-import { TEXT, CHALK_CREAM, CHALK_DIM } from '../data/chalkTheme.js';
+import { TEXT, CHALK_CREAM, CHALK_DIM, CHALK_RAIL, CONTROL_RADIUS } from '../data/chalkTheme.js';
+import { primaryBtn, textAction, FOCUS } from './inventUi.jsx';
 import { Basket } from './ChalkIcons.jsx';
-
-const FOCUS = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
 
 export default function AddToShoppingList({ recipe, missing, better = [], optional = [], list, onChange, onOpen = null, color = '#a3e635' }) {
   const [ask, setAsk] = useState(false);
@@ -57,23 +56,23 @@ export default function AddToShoppingList({ recipe, missing, better = [], option
   return (
     <>
       <button type="button" ref={buttonRef} onClick={click} data-testid="what-do-i-need-add-shopping"
-        className={`px-3 rounded-lg border min-h-[44px] inline-flex items-center gap-1 ${FOCUS}`}
-        style={{ fontFamily: TEXT, fontSize: 18, borderColor: `${color}88`, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
+        data-primary="true" className={`w-full sm:w-auto px-5 inline-flex items-center justify-center gap-2 ${FOCUS}`}
+        style={primaryBtn({ fontSize: 18 })}>
         <Basket size={20} />
         Add to shopping list
       </button>
       {ask && (
         <div role="alertdialog" aria-labelledby="add-shop-ask" data-testid="what-do-i-need-add-ask"
-          className="basis-full rounded-xl p-3 mt-1" style={{ border: `1.5px solid ${CHALK_CREAM}`, background: 'rgba(10,10,10,0.6)' }}
+          className="basis-full p-3 mt-1" style={{ border: `1.5px solid ${CHALK_CREAM}`, borderRadius: CONTROL_RADIUS, background: 'rgba(10,10,10,0.6)' }}
           onKeyDown={(e) => { if (e.key === 'Escape') { setAsk(false); buttonRef.current?.focus(); } }}>
           <p id="add-shop-ask" style={{ fontFamily: TEXT, fontSize: 14, color: CHALK_CREAM }}>{askAgainText(recipe.name)}</p>
-          <div className="mt-2 flex gap-2">
+          <div className="mt-2 flex gap-6 items-center">
             <button type="button" ref={cancelRef} onClick={() => { setAsk(false); buttonRef.current?.focus(); }} data-testid="what-do-i-need-add-cancel"
-              className={`min-h-[44px] px-4 rounded-lg ${FOCUS}`} style={{ fontFamily: TEXT, fontSize: 14, border: `1.5px solid ${CHALK_DIM}`, color: CHALK_CREAM, fontWeight: 600, outlineColor: CHALK_CREAM }}>
+              className={FOCUS} style={textAction({ fontSize: 15, color: CHALK_DIM })}>
               Cancel
             </button>
             <button type="button" onClick={() => commit(true)} data-testid="what-do-i-need-add-again"
-              className={`min-h-[44px] px-4 rounded-lg ${FOCUS}`} style={{ fontFamily: TEXT, fontSize: 14, border: `1.5px solid ${CHALK_DIM}`, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
+              className={`px-4 ${FOCUS}`} style={{ ...textAction({ fontSize: 15 }), textDecoration: 'none', border: `1px solid ${CHALK_RAIL}`, borderRadius: CONTROL_RADIUS }}>
               Add it again
             </button>
           </div>
@@ -87,7 +86,7 @@ export default function AddToShoppingList({ recipe, missing, better = [], option
               <>
                 {' '}
                 <button type="button" onClick={onOpen} data-testid="what-do-i-need-open-list"
-                  className={`underline underline-offset-4 min-h-[44px] px-1 ${FOCUS}`} style={{ color: CHALK_CREAM, fontFamily: TEXT, fontSize: 14, outlineColor: CHALK_CREAM }}>
+                  className={`underline underline-offset-4 min-h-[44px] px-1 ${FOCUS}`} style={{ color: CHALK_CREAM, fontFamily: TEXT, fontSize: 14 }}>
                   Open list
                 </button>
               </>

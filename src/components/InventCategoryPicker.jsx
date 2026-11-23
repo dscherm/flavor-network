@@ -14,7 +14,7 @@
  *   testidPrefix  default 'category'
  * Test ids: {p} root, {p}-toggle, {p}-option-{id} (aria-pressed), {p}-none.
  */
-import { btn, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT } from './inventUi.jsx';
+import { btn, FOCUS, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT } from './inventUi.jsx';
 import { ChevronDown, ChevronUp } from './ChalkIcons.jsx';
 
 import { TEXT } from '../data/chalkTheme.js';
@@ -27,8 +27,8 @@ export default function InventCategoryPicker({
   const row = (id, label, blurb, art, testid) => (
     <li key={String(id)}>
       <button type="button" onClick={() => onChange(id)} aria-pressed={value === id || (id == null && value == null)} data-testid={testid}
-        className="w-full flex items-center gap-2 px-3 rounded-lg min-h-[44px] text-left"
-        style={{ border: `1px solid ${(value === id || (id == null && value == null)) ? ACCENT : CHALK_RAIL}`, background: (value === id || (id == null && value == null)) ? `${ACCENT}22` : 'transparent' }}>
+        className={`w-full flex items-center gap-2 px-3 min-h-[44px] text-left ${FOCUS}`}
+        style={{ borderRadius: 8, border: `${(value === id || (id == null && value == null)) ? '1.5px' : '1px'} solid ${(value === id || (id == null && value == null)) ? ACCENT : CHALK_RAIL}`, background: 'transparent' }}>
         {art ? <span className="flex-shrink-0" aria-hidden="true">{art}</span> : null}
         <span className="flex-1 min-w-0">
           <span className="block text-[18px]" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>{label}</span>
@@ -40,10 +40,10 @@ export default function InventCategoryPicker({
   return (
     <div data-testid={p} className="min-w-0">
       <button type="button" onClick={onToggle} aria-expanded={open} data-testid={`${p}-toggle`}
-        className="w-full flex items-center justify-between gap-2 px-3 rounded-lg min-h-[44px] text-left" style={btn({ fontSize: 18 })}>
+        className={`w-full flex items-center justify-between gap-2 px-3 min-h-[44px] text-left ${FOCUS}`} style={btn({ fontSize: 18 })}>
         <span className="min-w-0 flex flex-col leading-tight">
           <span className="truncate">{title}</span>
-          {chosen ? <span className="truncate" style={{ color: ACCENT }} data-testid={`${p}-chosen`}>{chosen.label}</span> : null}
+          {chosen ? <span className="truncate" style={{ color: CHALK_CREAM }} data-testid={`${p}-chosen`}>{chosen.label}<span style={{ color: CHALK_SUB, fontSize: 13 }}> chosen</span></span> : null}
         </span>
         <span aria-hidden="true" style={{ color: CHALK_SUB, lineHeight: 0 }}>{open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}</span>
       </button>

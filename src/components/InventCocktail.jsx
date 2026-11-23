@@ -39,6 +39,8 @@ import { canonicalKey } from '../data/shoppingList.js';
 import { SLOT_DEFAULT_AMOUNT } from '../data/cocktailAmounts.js';
 import { barKey, barRolePool, coverLine, stockFor } from '../data/myBar.js';
 import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
+import { textAction, FOCUS } from './inventUi.jsx';
+import { ChevronLeft, chalkRule } from './ChalkIcons.jsx';
 import { CocktailFamilyGlass, DrinkGlass } from './cocktailGlasses.jsx';
 import { drinkColor } from '../data/drinkColor.js';
 import InventStart from './InventStart.jsx';
@@ -271,7 +273,7 @@ export default function InventCocktail({
     art: <CocktailFamilyGlass familyName={familyName(id)} color={familyColor(id)} liquid={familyColor(id)} size={30} testid={`invent-family-glass-${id}`} />,
   }));
 
-  const btnStyle = { fontFamily: TEXT, fontSize: 18, border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM };
+  const btnStyle = textAction({ fontSize: 18 });
   const adviceNotes = advice(build);
   const vocab = useMemo(() => [...names].slice(0, 4000), [names]);
 
@@ -281,10 +283,10 @@ export default function InventCocktail({
       style={{ ...chalkSurfaceStyle(), bottom: 'var(--tab-bar-h)', color: CHALK_CREAM }}
       data-testid="invent-cocktail" role="dialog" aria-label="Invent a cocktail">
       <div className="w-full max-w-[560px] flex items-center justify-between mb-2">
-        <button type="button" onClick={onClose} data-testid="invent-close" className="px-3 py-2 rounded-lg min-h-[44px] min-w-[44px]" style={btnStyle}>Back</button>
+        <button type="button" onClick={onClose} data-testid="invent-close" className={`min-h-[44px] inline-flex items-center gap-1 min-w-[44px] ${FOCUS}`} style={{ ...btnStyle, textDecoration: 'none' }}><ChevronLeft size={20} />Back</button>
       </div>
 
-      <div className="w-full max-w-[560px] rounded-2xl px-4 py-4 flex flex-col gap-4 min-w-0" style={{ border: `2px double ${CHALK_RAIL}`, background: 'rgba(255,255,255,0.025)' }}>
+      <div className="w-full max-w-[560px] py-4 flex flex-col gap-6 min-w-0">
         <div className="flex items-center justify-center gap-1">
           <h2 className="text-center text-[34px] leading-tight" style={{ fontFamily: HAND, textShadow: CHALK_SHADOW }}>Invent a cocktail</h2>
           {started ? (
@@ -317,7 +319,7 @@ export default function InventCocktail({
                 onAccept={() => pickCategory(rec.id)} onDismiss={() => setHintOff(sig)} testidPrefix="invent-hint" />
             )}
 
-            <InventCategoryPicker title="Going for a particular style? (optional)" options={pickerOptions} value={categoryId}
+            <InventCategoryPicker title="A particular style? (optional)" options={pickerOptions} value={categoryId}
               onChange={pickCategory} open={pickerOpen} onToggle={() => setPickerOpen((o) => !o)} testidPrefix="invent-category" />
 
             {styled && (
@@ -338,7 +340,8 @@ export default function InventCocktail({
             </div>
 
             {styled && drink && (
-              <article className="rounded-xl px-4 py-3" style={{ border: `1px solid ${color}aa`, background: `${color}1a` }} data-testid="invent-card">
+              <article data-testid="invent-card">
+                <div className="mb-4" style={{ color: CHALK_RAIL, lineHeight: 0 }} aria-hidden="true">{chalkRule()}</div>
                 <div className="flex items-center gap-3 mb-2">
                   <span data-testid="invent-glass" data-color={pour.color} data-tinted={pour.tinted ? 'true' : 'false'} className="flex-shrink-0">
                     <CocktailFamilyGlass familyName={familyName(categoryId)} color={color} liquid={pour.color} size={92} testid="invent-drink-glass" />
@@ -355,7 +358,7 @@ export default function InventCocktail({
                     <p className="text-[13px] mb-1" style={{ fontFamily: TEXT, color: CHALK_SUB }}>Closest cocktails on the menu</p>
                     {nearest.map((x) => (
                       <button key={x.cocktail.name} type="button" onClick={() => onSelectCocktail?.(x.cocktail.name)}
-                        className="w-full text-left flex items-center gap-2 py-0.5 min-h-[44px]">
+                        className={`w-full text-left flex items-center gap-2 py-0.5 min-h-[44px] ${FOCUS}`}>
                         <DrinkGlass cocktail={x.cocktail} familyById={familyById} size={32} />
                         <span className="text-[19px]" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>{x.cocktail.name}</span>
                         <span className="text-[12px]" style={{ fontFamily: TEXT, color: CHALK_DIM }}>{Math.round(x.similarity * 100)}% alike</span>
@@ -374,16 +377,16 @@ export default function InventCocktail({
                 shareItem={lastSaved ? { kind: 'cocktail', item: lastSaved } : null} />
             )}
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-x-6 gap-y-0" role="group" aria-label="More things to do with it">
               <button type="button" onClick={() => { setSt(emptyState()); setPicture(undefined); setNotice(null); setHintOff(null); setOpenPart(null); setPickerOpen(false); setSaveState({ status: 'idle', message: '' }); }}
-                data-testid="invent-restart" className="px-3 py-2 rounded-lg border min-h-[44px]" style={btnStyle}>Start over</button>
+                data-testid="invent-restart" className={`min-h-[44px] ${FOCUS}`} style={btnStyle}>Start over</button>
               {onRiff && styled && drink && (
                 <button type="button" onClick={() => onRiff(drinkAsCocktail({ ...finalDrink, name: name.trim() || finalDrink.name }))} data-testid="invent-riff"
-                  className="px-3 py-2 rounded-lg border min-h-[44px]" style={btnStyle}>Riff on it</button>
+                  className={`min-h-[44px] ${FOCUS}`} style={btnStyle}>Riff on it</button>
               )}
               {onOpenRecipeLab && hasList && (
                 <button type="button" onClick={() => onOpenRecipeLab(keys)} data-testid="invent-notebook"
-                  className="px-3 py-2 rounded-lg min-h-[44px]" style={{ fontFamily: TEXT, fontSize: 18, color: '#0a0a0a', background: CHALK_CREAM }}>
+                  className={`min-h-[44px] ${FOCUS}`} style={btnStyle}>
                   Write it in the Recipe Notebook
                 </button>
               )}

@@ -26,9 +26,9 @@ import { alternativesFor, needsRoles, KIND_LABEL } from '../data/shoppingAlterna
 import { makeHas } from '../data/shoppingList.js';
 import { getCocktailRoles } from '../data/ingredientRoles.js';
 import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_RAIL } from '../data/chalkTheme.js';
+import { textAction, FOCUS } from './inventUi.jsx';
 
-const FOCUS = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
-const btn = { fontFamily: TEXT, fontSize: 14, color: CHALK_CREAM, border: `1.5px solid ${CHALK_DIM}`, background: 'transparent', outlineColor: CHALK_CREAM };
+const btn = textAction({ fontSize: 16 });
 
 export default function StoreAlternatives({ item, sauce = false, main = null, swaps, names = null, stock, loadRoles = getCocktailRoles, onPick, onUseHave, onClose }) {
   const sheet = useRef(null);
@@ -87,7 +87,7 @@ export default function StoreAlternatives({ item, sauce = false, main = null, sw
         aria-modal="true"
         aria-labelledby="store-alt-title"
         data-testid="store-alt-sheet"
-        className="w-full rounded-xl p-4"
+        className="w-full rounded-lg p-4"
         style={{ maxWidth: 440, background: '#161a17', border: `1px solid ${CHALK_RAIL}`, boxSizing: 'border-box', color: CHALK_CREAM }}
       >
         <h2 id="store-alt-title" style={{ fontFamily: HAND, fontSize: 24 }}>{title}</h2>
@@ -104,7 +104,7 @@ export default function StoreAlternatives({ item, sauce = false, main = null, sw
                 <p data-testid={`store-alt-kind-${a.key}`} style={{ fontFamily: TEXT, fontSize: 13, color: CHALK_DIM }}>{KIND_LABEL[a.kind] || KIND_LABEL.swap}</p>
                 <div style={{ fontFamily: TEXT, fontSize: 17 }}>
                   {a.kind === 'make' ? [a.key, ...a.plus].join(' + ') : a.label}
-                  {a.have && <span data-testid={`store-alt-have-${a.key}`} style={{ color: CHALK_CREAM, fontSize: 13, marginLeft: 8, border: `1px solid ${CHALK_DIM}`, borderRadius: 999, padding: '1px 8px' }}>you have this</span>}
+                  {a.have && <span data-testid={`store-alt-have-${a.key}`} style={{ color: CHALK_DIM, fontSize: 13, marginLeft: 8 }}>you have this</span>}
                 </div>
                 <p style={{ fontFamily: TEXT, fontSize: 14, color: CHALK_DIM }}>{a.useText}</p>
                 {a.amountNote && <p data-testid={`store-alt-amount-${a.key}`} style={{ fontFamily: TEXT, fontSize: 14, color: CHALK_DIM }}>Amount: {a.amountNote}.</p>}
@@ -115,7 +115,7 @@ export default function StoreAlternatives({ item, sauce = false, main = null, sw
                   onClick={() => (a.have ? onUseHave(a) : onPick(a))}
                   aria-label={a.have ? `Use what I have: ${a.label}, instead of ${item.label}`
                     : a.kind === 'make' ? `Make ${item.label}: put ${[a.key, ...a.plus].join(' and ')} on the list instead of ${item.label}` : `Use ${a.label} instead of ${item.label}`}
-                  className={`mt-1 min-h-[44px] px-3 rounded-lg ${FOCUS}`}
+                  className={`mt-1 ${FOCUS}`}
                   style={{ ...btn, fontWeight: 600 }}
                 >
                   {a.have ? 'Use what I have' : a.kind === 'make' ? 'Make it' : `Use ${a.label} instead`}
@@ -145,7 +145,7 @@ export default function StoreAlternatives({ item, sauce = false, main = null, sw
         )}
 
         <div className="mt-3">
-          <button type="button" data-testid="store-alt-close" onClick={onClose} className={`min-h-[44px] px-4 rounded-lg ${FOCUS}`} style={btn}>Close</button>
+          <button type="button" data-testid="store-alt-close" onClick={onClose} className={FOCUS} style={btn}>Close</button>
         </div>
       </section>
     </div>,

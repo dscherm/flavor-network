@@ -11,7 +11,7 @@
  * Cocktail/Sauce Lab.
  *
  * Aesthetic matches IngredientProfileCard / PairingModeCard: near-black slate
- * chalkboard wash, double chalk-rail border, cream-chalk Caveat text.
+ * chalkboard wash, cream-chalk Caveat text.
  *
  * Degrades gracefully: the static analysis (map/score/drivers/insight) renders
  * even if the model / dish index fail to load — only Boost/Temper + dishes drop.
@@ -29,22 +29,23 @@ import { computeRecipeAroma, rankByAromaSimilarity } from '../data/recipeAromaSi
 import { buildPairingIndex, rankByPairing } from '../data/recipePairingMatch.js';
 import { recipeTakesSauce } from '../data/sauceRecommendation.js';
 import HelpBubble from './HelpBubble.jsx';
-import { Close, ChevronLeft, ChevronRight } from './ChalkIcons.jsx';
+import { ChevronLeft, ChevronRight, chalkRule } from './ChalkIcons.jsx';
+import { textAction, AddRow, FOCUS } from './inventUi.jsx';
 import { curateCodexRaw } from '../data/cocktailCodexV2.js';
 import { groupBars, selectAxes, hiddenLine } from '../data/flavorDisplay.js';
 import FlavorWheel from './FlavorWheel.jsx';
 import { ingredientMarks } from '../data/flavorMarks.js';
 import { IngredientName } from './IngredientCardProvider.jsx';
 // CK-14: fold the duplicated chalkboard palette onto the shared theme.
-import { TEXT, HAND, CHALK_BG, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL as CHALK_BORDER_OUTER } from '../data/chalkTheme.js';
+import { TEXT, HAND, CHALK_BG, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL } from '../data/chalkTheme.js';
 
-const CHALK_BORDER_INNER = '#6a6a6a';
 const CHALK_TEXT_SHADOW = '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)';
 
-// Chalk-green pill (Boost/Temper chips + pairing names) — matches the Add pill.
-const PILL_BG = 'rgba(16,78,51,0.55)';
-const PILL_BORDER = 'rgba(110,231,183,0.45)';
-const PILL_TEXT = '#bbf7d0';
+// A pairing name that opens a lab: the dotted underline the app uses for "this opens". No pill, no fill.
+const NAME_LINK = {
+  background: 'none', border: 'none', padding: 0, minHeight: 44, color: CHALK_CREAM, fontFamily: TEXT, fontSize: 17, textAlign: 'left',
+  textDecoration: 'underline dotted', textDecorationColor: 'rgba(245,239,222,0.5)', textUnderlineOffset: 4,
+};
 
 let _modelPromise = null;
 function getModel() {
@@ -93,21 +94,10 @@ function loadSauceItems() {
   return _sauceItemsPromise;
 }
 
-/** Chalk-green pill: a Boost/Temper suggestion chip (tap adds, qty-prefilled). */
+/** A Boost/Temper suggestion as an add row: "+ name", the lift in small print (tap adds, qty-prefilled). */
 function Chip({ name, delta, onTap }) {
   return (
-    <button
-      onClick={() => onTap(name)}
-      className="flex-shrink-0 inline-flex items-center gap-1 px-3 rounded-full border whitespace-nowrap"
-      style={{
-        minHeight: 40, paddingTop: 5, paddingBottom: 5,
-        background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT,
-        fontFamily: TEXT, fontSize: 16, textShadow: CHALK_TEXT_SHADOW,
-      }}
-      title={`Add ${name}`}
-    >
-      {name}{typeof delta === 'number' ? <span className="text-[10px]" style={{ color: PILL_TEXT, opacity: 0.8 }}>+{(delta).toFixed(2)}</span> : null}
-    </button>
+    <AddRow name={name} note={typeof delta === 'number' ? `+${delta.toFixed(2)}` : null} onClick={() => onTap(name)} testid={`boost-${name}`} />
   );
 }
 
@@ -125,12 +115,12 @@ function EnhanceCard({ name, node, onTap }) {
       type="button"
       onClick={() => onTap(name)}
       data-testid={`enhance-card-${name}`}
-      className="flex-shrink-0 flex flex-col items-center justify-center gap-1.5 rounded-xl px-2 py-3 hover:brightness-110 transition-all"
+      className={`flex-shrink-0 flex flex-col items-center justify-center gap-1.5 px-2 py-3 hover:brightness-110 transition-all ${FOCUS}`}
       style={{
         width: 96, minHeight: 104,
-        background: CHALK_BG,
-        border: '2px double #4a4a4a',
-        boxShadow: 'inset 0 0 0 1px #6a6a6a55, 0 4px 12px rgba(0,0,0,0.45)',
+        background: 'transparent',
+        border: `1px solid ${CHALK_RAIL}`,
+        borderRadius: 8,
       }}
       title={`Add ${name}`}
     >
@@ -383,8 +373,8 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
 
   return (
     <div
-      className="w-full h-full shadow-2xl flex flex-col"
-      style={{ height: '100%', background: CHALK_BG, border: `2px double ${CHALK_BORDER_OUTER}`, boxShadow: `inset 0 0 0 1px ${CHALK_BORDER_INNER}55, 0 8px 24px rgba(0,0,0,0.55)` }}
+      className="w-full h-full flex flex-col"
+      style={{ height: '100%', background: CHALK_BG }}
       data-testid="flavor-profiles-card"
       onPointerDown={onPointerDown}
       onPointerUp={onPointerUp}
@@ -394,10 +384,10 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
           onClick={onClose}
           data-testid="profiles-back"
           aria-label="Back"
-          className="min-h-[44px] px-3 rounded-lg border border-[#3a3a3a] hover:bg-white/5"
-          style={{ fontFamily: TEXT, fontSize: 17, color: CHALK_DIM }}
+          className={`inline-flex items-center gap-1 ${FOCUS}`}
+          style={{ ...textAction({ fontSize: 17, color: CHALK_DIM }), textDecoration: 'none' }}
         >
-          Back
+          <ChevronLeft size={20} />Back
         </button>
         <span className="text-[22px] text-center flex-1 px-2" style={{ fontFamily: TEXT, color: CHALK_CREAM }}>Flavor notes</span>
         <div className="flex items-center gap-0.5">
@@ -413,7 +403,6 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
               'On the axis and Enhance pages, tap a Boost or Temper chip to add it (amount prefilled).',
             ]}
           />
-          <button onClick={onClose} aria-label="Close" className="min-h-[44px] px-2" style={{ color: CHALK_SUB }}><Close size={20} /></button>
         </div>
       </div>
 
@@ -479,7 +468,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
             {boost.length > 0 && (
               <div className="mb-1.5">
                 <p className="text-[13px] mb-0.5" style={{ fontFamily: TEXT, color: CHALK_SUB }}>For more {axisLabel(axis).toLowerCase()}</p>
-                <div className="flex gap-1 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+                <div className="flex flex-wrap gap-x-4 gap-y-0">
                   {boost.map((b) => <Chip key={`b-${b.name}`} name={b.name} delta={b.delta} onTap={addWithQty} />)}
                 </div>
               </div>
@@ -487,7 +476,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
             {temper.length > 0 && (
               <div>
                 <p className="text-[13px] mb-0.5" style={{ fontFamily: TEXT, color: CHALK_SUB }}>To balance it</p>
-                <div className="flex gap-1 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+                <div className="flex flex-wrap gap-x-4 gap-y-0">
                   {temper.map((t) => <Chip key={`t-${t.name}`} name={t.name} onTap={addWithQty} />)}
                 </div>
               </div>
@@ -550,13 +539,13 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
               <div className="mb-2">
                 <p className="text-[13px] mb-0.5" style={{ fontFamily: TEXT, color: CHALK_SUB }}>Cocktails</p>
                 {cocktailMatches.length > 0 ? (
-                  <div className="flex flex-wrap gap-1.5" data-testid="pairings-cocktail-names">
+                  <div className="flex flex-wrap gap-x-5 gap-y-0" data-testid="pairings-cocktail-names">
                     {cocktailMatches.map(({ item, similarity }) => (
                       <button
                         key={item.name}
                         onClick={onFindCocktail}
-                        className="min-h-[40px] px-3 rounded-full border"
-                        style={{ fontFamily: TEXT, fontSize: 16, background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT, textShadow: CHALK_TEXT_SHADOW }}
+                        className={FOCUS}
+                        style={NAME_LINK}
                         title={`${Math.round((similarity || 0) * 100)}% match — open in Cocktail Lab`}
                       >
                         {item.name}
@@ -564,7 +553,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
                     ))}
                   </div>
                 ) : (
-                  <button onClick={onFindCocktail} className="min-h-[44px] px-4 rounded-full border" style={{ fontFamily: TEXT, fontSize: 16, background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT, textShadow: CHALK_TEXT_SHADOW }}>Find cocktails</button>
+                  <button onClick={onFindCocktail} className={FOCUS} style={textAction({ fontSize: 17 })}>Find cocktails</button>
                 )}
               </div>
             )}
@@ -573,7 +562,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
             {onFindWine && recipeType !== 'drink' && (
               <div className="mb-2">
                 <p className="text-[13px] mb-0.5" style={{ fontFamily: TEXT, color: CHALK_SUB }}>Wine</p>
-                <button onClick={onFindWine} data-testid="pairings-find-wines" className="min-h-[44px] px-4 rounded-full border" style={{ fontFamily: TEXT, fontSize: 16, background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT, textShadow: CHALK_TEXT_SHADOW }}>Find wines</button>
+                <button onClick={onFindWine} data-testid="pairings-find-wines" className={FOCUS} style={textAction({ fontSize: 17 })}>Find wines</button>
               </div>
             )}
 
@@ -582,13 +571,13 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
               <div>
                 <p className="text-[13px] mb-0.5" style={{ fontFamily: TEXT, color: CHALK_SUB }}>Sauces</p>
                 {sauceMatches.length > 0 ? (
-                  <div className="flex flex-wrap gap-1.5" data-testid="pairings-sauce-names">
+                  <div className="flex flex-wrap gap-x-5 gap-y-0" data-testid="pairings-sauce-names">
                     {sauceMatches.map(({ item, similarity }) => (
                       <button
                         key={item.name}
                         onClick={onFindSauce}
-                        className="min-h-[40px] px-3 rounded-full border"
-                        style={{ fontFamily: TEXT, fontSize: 16, background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT, textShadow: CHALK_TEXT_SHADOW }}
+                        className={FOCUS}
+                        style={NAME_LINK}
                         title={`${Math.round((similarity || 0) * 100)}% match — open in Sauce Lab`}
                       >
                         {item.name}
@@ -596,7 +585,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
                     ))}
                   </div>
                 ) : (
-                  <button onClick={onFindSauce} className="min-h-[44px] px-4 rounded-full border" style={{ fontFamily: TEXT, fontSize: 16, background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT, textShadow: CHALK_TEXT_SHADOW }}>Find sauces</button>
+                  <button onClick={onFindSauce} className={FOCUS} style={textAction({ fontSize: 17 })}>Find sauces</button>
                 )}
               </div>
             )}
@@ -615,7 +604,9 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
       )}
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-between px-4 pb-3 pt-1 flex-shrink-0 border-t border-[#3a3a3a]">
+        <div className="flex-shrink-0">
+        <div style={{ color: CHALK_RAIL, lineHeight: 0 }} aria-hidden="true">{chalkRule()}</div>
+        <div className="flex items-center justify-between px-4 pb-3 pt-1">
           <button onClick={() => goPage(-1)} disabled={page === 0} className="min-h-[44px] px-4 disabled:opacity-30" style={{ color: CHALK_DIM }} aria-label="Previous"><ChevronLeft size={20} /></button>
           <div className="flex items-center gap-1.5" data-testid="profiles-page-dots" role="tablist" aria-label="Flavor Profiles pages">
             {Array.from({ length: totalPages }).map((_, i) => (
@@ -629,12 +620,13 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
                 style={{
                   width: i === page ? 9 : 7,
                   height: i === page ? 9 : 7,
-                  background: i === page ? CHALK_CREAM : CHALK_BORDER_INNER,
+                  background: i === page ? CHALK_CREAM : CHALK_RAIL,
                 }}
               />
             ))}
           </div>
           <button onClick={() => goPage(1)} disabled={page >= totalPages - 1} className="min-h-[44px] px-4 disabled:opacity-30" style={{ color: CHALK_DIM }} aria-label="Next"><ChevronRight size={20} /></button>
+        </div>
         </div>
       )}
     </div>

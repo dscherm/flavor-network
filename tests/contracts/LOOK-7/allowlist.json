@@ -1,0 +1,10 @@
+{
+  "_schema": "Each entry allows pill shapes (rounded-full, borderRadius 999 / 9999 / '999px' / '9999px') on the lines of `file` that contain `pattern` (a literal substring of that source line, e.g. a data-testid or a distinctive class run). `file` is repo-relative with forward slashes and must exist; `pattern` must be non-empty and must still occur in the file; `reason` must say why the shape is allowed (switch track, round help button, page dots, ...).",
+  "entries": [
+    {
+      "file": "src/components/CocktailBrowse.jsx",
+      "pattern": "relative inline-block rounded-full transition-colors",
+      "reason": "The Only-what-I-have on/off switch track: a switch is the one control that is a pill by convention (brief rule 10); its knob is a dot"
+    }
+  ]
+}

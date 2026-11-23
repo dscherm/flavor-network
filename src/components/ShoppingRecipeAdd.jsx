@@ -28,9 +28,10 @@ import { mainsOf } from '../data/recipeMains.js';
 import { resolveIngredientName } from '../data/recipePairingMatch.js';
 import { TEXT, HAND, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL } from '../data/chalkTheme.js';
 
-const FOCUS = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
-const buttonStyle = { fontFamily: TEXT, fontSize: 14, color: CHALK_CREAM, border: `1.5px solid ${CHALK_DIM}`, background: 'transparent', outlineColor: CHALK_CREAM };
-const inputStyle = { fontFamily: TEXT, fontSize: 16, color: CHALK_CREAM, background: 'rgba(10,10,10,0.6)', border: `1.5px solid ${CHALK_DIM}`, outlineColor: CHALK_CREAM };
+import { textAction, btn, primaryBtn, FOCUS } from './inventUi.jsx';
+const buttonStyle = textAction({ fontSize: 16 });
+const outlineStyle = btn({ fontSize: 16 });
+const inputStyle = { fontFamily: TEXT, fontSize: 16, color: CHALK_CREAM, background: 'rgba(10,10,10,0.6)', border: `1px solid ${CHALK_RAIL}`, borderRadius: 8 };
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
 const defaultStock = () => ({ kitchen: loadKitchen(), pantry: [], bar: loadBar(), spiceRack: loadSpiceRack() });
@@ -154,8 +155,9 @@ export default function ShoppingRecipeAdd({ list, onChange, own = null, names = 
         aria-expanded={open}
         aria-controls="shopping-recipe-panel"
         data-testid="shopping-recipe-toggle"
-        className={`min-h-[44px] px-4 rounded-lg ${FOCUS}`}
-        style={{ ...buttonStyle, fontWeight: 600 }}
+        data-primary={open ? undefined : 'true'}
+        className={`px-5 ${FOCUS}`}
+        style={open ? buttonStyle : primaryBtn({ fontSize: 17 })}
       >
         {open ? 'Close recipe search' : 'Add from a recipe'}
       </button>
