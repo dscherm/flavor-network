@@ -63,8 +63,8 @@ export default function WhatDoINeed({ title, needs, stockEmpty = false, stockLab
           {missing.map((m) => (
             <li key={m.name} className="flex items-center gap-2 min-h-[40px]">
               <span className="flex-1 min-w-0">
+                {m.amount && <span className="mr-1.5 text-[14px]" data-testid={`what-do-i-need-amount-${m.name}`} style={{ fontFamily: SANS, color: CHALK_DIM }}>{m.amount}</span>}{m.amount ? ' ' : null}
                 <IngredientName name={m.name} loose tall testid={`what-do-i-need-name-${m.name}`} style={{ fontFamily: FONT, fontSize: 19, color: CHALK_CREAM }}>{m.name}</IngredientName>
-                {m.amount && <span className="ml-1.5 text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>{m.amount}</span>}
                 {m.hint && <span className="block text-[12px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>{m.hint}</span>}
               </span>
               {onHave && (

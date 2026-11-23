@@ -16,6 +16,7 @@
     "measure:flavor": "node scripts/measureFlavorProfile.mjs",
     "measure:standins": "node scripts/measureStandIns.mjs",
     "check:standins": "node scripts/checkStandIns.mjs",
+    "check:lines": "node scripts/checkRecipeLines.mjs",
     "measure:aroma": "node scripts/measureFlavorProfile.mjs --aroma-blind && node scripts/measureFlavorProfile.mjs --aroma-chef",
     "gate": "node scripts/gate.cjs",
     "gate:quick": "node scripts/gate.cjs --no-build",

@@ -245,16 +245,12 @@ export default function LabNodeCard({
                 <li key={`${ing.name}-${i}`} className="flex items-baseline gap-2"
                   style={{ fontFamily: FONT, fontSize: FS_BODY, color: CHALK_CREAM }}>
                   <span className="flex-shrink-0" style={{ color: clusterColor }}>→</span>
-                  <span className="flex-shrink-0 max-w-full">
+                  {ing.measure ? (
+                    <span className="flex-shrink-0 whitespace-nowrap" data-testid="labcard-ingredient-amount" style={{ color: CHALK_DIM, fontSize: FS_MEASURE }}>{ing.measure}</span>
+                  ) : null}
+                  <span className="min-w-0 max-w-full">
                     <IngredientName name={ing.name} loose tall testid="labcard-ingredient-link">{ing.name}</IngredientName>
                   </span>
-                  {ing.measure ? (
-                    <>
-                      <span className="flex-1 self-center mx-1" aria-hidden="true"
-                        style={{ borderBottom: `1px dotted ${CHALK_SUB}88`, transform: 'translateY(-2px)' }} />
-                      <span className="flex-shrink-0 whitespace-nowrap" style={{ color: CHALK_DIM, fontSize: FS_MEASURE }}>{ing.measure}</span>
-                    </>
-                  ) : null}
                 </li>
               ))}
             </ul>

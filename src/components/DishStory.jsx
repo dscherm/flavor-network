@@ -7,8 +7,8 @@
  *
  * The photo box has its aspect ratio fixed from the stored thumbnail size
  * before the image arrives, so the card never jumps while it loads. Photos
- * are hotlinked from upload.wikimedia.org — offline, the box stays an empty
- * frame and the text still reads.
+ * are hotlinked from upload.wikimedia.org — offline the photo is dropped
+ * and the text still reads; the frame is drawn only once the picture loads.
  */
 import { useEffect, useState } from 'react';
 import { loadDishStories, storyFor } from '../data/dishStories.js';
@@ -42,7 +42,8 @@ const LINK = 'rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:r
 export default function DishStory({ kind = 'recipe', storyKey, name, story: given, className = '' }) {
   const story = useStory(kind, storyKey, given);
   const [imgFailed, setImgFailed] = useState(false);
-  useEffect(() => { setImgFailed(false); }, [story]);
+  const [imgLoaded, setImgLoaded] = useState(false);
+  useEffect(() => { setImgFailed(false); setImgLoaded(false); }, [story]);
   if (!story || !story.text) return null;
 
   const noun = NOUN[kind] || 'dish';
@@ -63,11 +64,16 @@ export default function DishStory({ kind = 'recipe', storyKey, name, story: give
             width: `min(100%, ${Math.round(BOX_H * ar)}px)`,
             aspectRatio: `${ar}`,
             padding: 3,
-            border: `1.5px solid ${CHALK_CREAM}60`,
-            borderRadius: 6,
-            boxShadow: CHALK_SHADOW,
-            background: `${CHALK_RAIL}40`,
-            transform: 'rotate(-0.6deg)',
+            // The frame is drawn only once the picture is there: until then the
+            // space is held but nothing shows, so a photo that never arrives
+            // leaves no empty box.
+            ...(imgLoaded ? {
+              border: `1.5px solid ${CHALK_CREAM}60`,
+              borderRadius: 6,
+              boxShadow: CHALK_SHADOW,
+              background: `${CHALK_RAIL}40`,
+              transform: 'rotate(-0.6deg)',
+            } : {}),
           }}>
           <img
             src={photo.src}
@@ -76,8 +82,9 @@ export default function DishStory({ kind = 'recipe', storyKey, name, story: give
             loading="lazy"
             decoding="async"
             alt={`Photo of ${String(label).toLowerCase()}`}
+            onLoad={(e) => { if (e.currentTarget.naturalWidth > 0) setImgLoaded(true); else setImgFailed(true); }}
             onError={() => setImgFailed(true)}
-            style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover', borderRadius: 3 }}
+            style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover', borderRadius: 3, opacity: imgLoaded ? 1 : 0 }}
           />
         </figure>
       )}

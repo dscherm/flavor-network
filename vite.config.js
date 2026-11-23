@@ -63,7 +63,7 @@ export default defineConfig({
     // speed and about 2x the timeout headroom.
     maxWorkers: 12,
     setupFiles: ['./src/test/setup.js'],
-    include: ['src/**/*.test.{js,jsx}', 'chemDataset/validation/**/*.test.{js,jsx}'],
+    include: ['src/**/*.test.{js,jsx}', 'tests/contracts/**/*.test.{js,jsx}', 'chemDataset/validation/**/*.test.{js,jsx}'],
     exclude: ['src/data/tests/**', 'node_modules/**'],
   },
   resolve: {

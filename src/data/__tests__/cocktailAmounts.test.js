@@ -4,7 +4,7 @@ import { splitAmount, suggestAmounts } from '../cocktailAmounts.js';
 describe('splitAmount', () => {
   it('splits common bar measures', () => {
     expect(splitAmount('1 1/2 oz Gin')).toEqual({ amount: '1 1/2 oz', name: 'Gin' });
-    expect(splitAmount('¾ ounce Fresh lime juice')).toEqual({ amount: '¾ ounce', name: 'Fresh lime juice' });
+    expect(splitAmount('¾ ounce Fresh lime juice')).toEqual({ amount: '¾ oz', name: 'Fresh lime juice' });
     expect(splitAmount('2 dashes Angostura bitters')).toEqual({ amount: '2 dashes', name: 'Angostura bitters' });
     expect(splitAmount('4.5 cl gin')).toEqual({ amount: '4.5 cl', name: 'gin' });
     expect(splitAmount('1 egg white')).toEqual({ amount: '1', name: 'egg white' });

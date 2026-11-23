@@ -340,6 +340,20 @@
   }
  },
  "fixes": {
+  "dirty martini": {
+   "patch": [
+    {
+     "match": "70ml/2fl oz Vodka",
+     "set": {
+      "raw": "70 ml Vodka",
+      "name": "vodka",
+      "measure": "70 ml"
+     }
+    }
+   ],
+   "source": "the line gave the same amount twice, in ml and in fl oz (70 ml is 2.4 fl oz); the metric one is kept (LOOK-2)",
+   "reason": "\"70ml/2fl oz Vodka\" was read as a name starting with a number"
+  },
   "negroni": {
    "lines": [
     "30 ml Gin",

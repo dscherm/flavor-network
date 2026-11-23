@@ -12,16 +12,20 @@
  * the recipe's own numbers — the UI must say so.
  */
 
-const AMOUNT_RE = /^\s*((?:[0-9]+\s+)?[0-9]+\/[0-9]+|[0-9]+(?:[.,][0-9]+)?|[¼½¾⅓⅔⅛⅜⅝⅞]|[0-9]+\s*[¼½¾⅓⅔⅛⅜⅝⅞])\s*(ounces?|oz|cl|ml|dashes?|dash|drops?|drop|teaspoons?|tsp|tablespoons?|tbsp|parts?|part|cups?|cup|cubes?|cube|splash(?:es)?|barspoons?|bar spoons?|shots?|l)?\.?\s+(.+)$/i;
+import { splitRecipeLine, formatRecipeLine } from './recipeLines.js';
+
 const WORD_AMOUNT_RE = /^\s*(a |one |two |three |half a |dash of |splash of |pinch of |twist of |top with |fill with )(.+)$/i;
 
-/** "1 1/2 oz Gin" → { amount: '1 1/2 oz', name: 'Gin' }; "Gin" → { amount: '', name: 'Gin' }. */
+/**
+ * "1 1/2 oz Gin" -> { amount: '1 1/2 oz', name: 'Gin' }; "Gin" -> { amount: '', name: 'Gin' }.
+ * Reading the line is recipeLines.js (LOOK-2): it knows "tblsp", "4cl", "1-2 shot" and the
+ * reversed "tblsp Coconut milk 3", so a unit never ends up inside the name.
+ */
 export function splitAmount(raw) {
   const s = String(raw ?? '').trim();
-  const m = AMOUNT_RE.exec(s);
-  if (m) {
-    const unit = m[2] ? ` ${m[2]}` : '';
-    return { amount: `${m[1].trim()}${unit}`.trim(), name: m[3].trim() };
+  const p = splitRecipeLine(s);
+  if ((p.amount || p.unit) && p.name) {
+    return { amount: formatRecipeLine({ amount: p.amount, unit: p.unit }), name: p.name };
   }
   const w = WORD_AMOUNT_RE.exec(s);
   if (w) return { amount: w[1].trim().replace(/ of$| with$/, ''), name: w[2].trim() };

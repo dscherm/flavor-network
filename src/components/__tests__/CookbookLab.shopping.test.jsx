@@ -36,7 +36,7 @@ const optionalNames = (section) => {
   return [t('what-do-i-need-better'), t('what-do-i-need-optional')].join(',').split(',').map((x) => x.replace(/\s*\(.*\)\s*$/, '').trim().toLowerCase()).filter(Boolean);
 };
 const names = (section) => [...within(within(section).getByTestId('what-do-i-need-missing')).getAllByRole('listitem')]
-  .map((li) => li.querySelector('span span').textContent.toLowerCase());
+  .map((li) => li.querySelector('[data-testid^="what-do-i-need-name-"]').textContent.toLowerCase());
 
 
 // SHOP-7: the rows "Add to shopping list" adds are the lines "Copy shopping list" copies.

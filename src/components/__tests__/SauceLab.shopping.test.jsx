@@ -75,7 +75,7 @@ const openSauce = async () => {
   return within(card).getByTestId('what-do-i-need');
 };
 const names = (section) => [...within(within(section).getByTestId('what-do-i-need-missing')).getAllByRole('listitem')]
-  .map((li) => li.querySelector('span span').textContent.toLowerCase());
+  .map((li) => li.querySelector('[data-testid^="what-do-i-need-name-"]').textContent.toLowerCase());
 
 describe('Sauce card — Add to shopping list', () => {
   it('adds exactly the items the panel lists as missing, then shows the summary and an Open list link', async () => {

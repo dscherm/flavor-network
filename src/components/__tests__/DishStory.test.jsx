@@ -84,6 +84,27 @@ describe('<DishStory>', () => {
     expect(screen.queryByRole('img')).toBeNull();
     expect(screen.getByTestId('dish-story-text')).toBeInTheDocument();
   });
+  it('draws no frame until the picture has loaded, then draws it (LOOK-2)', () => {
+    render(<DishStory kind="recipe" story={DATA.recipes.paella} name="Paella" />);
+    const fig = screen.getByTestId('dish-story-photo');
+    expect(fig.style.border).toBe('');
+    expect(fig.style.background).toBe('');
+    const img = screen.getByRole('img');
+    Object.defineProperty(img, 'naturalWidth', { value: 500, configurable: true });
+    fireEvent.load(img);
+    expect(screen.getByTestId('dish-story-photo').style.border).not.toBe('');
+  });
+  it('an image that loads empty (zero width) leaves no frame at all (LOOK-2)', () => {
+    render(<DishStory kind="recipe" story={DATA.recipes.paella} name="Paella" />);
+    fireEvent.load(screen.getByRole('img'));
+    expect(screen.queryByTestId('dish-story-photo')).toBeNull();
+    expect(screen.getByTestId('dish-story-text')).toBeInTheDocument();
+  });
+  it('a failing image leaves no frame element (LOOK-2)', () => {
+    render(<DishStory kind="recipe" story={DATA.recipes.paella} name="Paella" />);
+    fireEvent.error(screen.getByRole('img'));
+    expect(screen.queryByTestId('dish-story-photo')).toBeNull();
+  });
   it('renders nothing when there is no story', () => {
     const { container } = render(<DishStory kind="cocktail" story={null} />);
     expect(container).toBeEmptyDOMElement();
