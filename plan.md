@@ -3530,7 +3530,7 @@ and name exactly as they are.
     {"id": "AC-6", "given": "the same layouts", "when": "their text is read", "then": "no primitive except the link is all capitals with three or more letters, and none contains ' · ' built by the layout"},
     {"id": "AC-7", "given": "the two lining woff files", "when": "parsed", "then": "digits 0-9 map to the tabular lining glyphs and the family name is Alegreya Sans Lining"}
   ],
-  "passes": false,
+  "passes": true,
   "description": "Follow-up to LOOK-6 (owner default D2, 2026-11-23). Today the browser cards (src/data/shareCardCanvas.js) draw Caveat and the system stack; the server cards (functions/src/share/card.ts) draw Caveat and bundled Inter, so they already disagree. Change both together: bundle Alegreya Sans 400/500 woff files with licences in functions/fonts (Caveat is already bundled), update the face map in card.ts and the canvas faces (the steady face replaces Inter and the system stack), regenerate through scripts/buildShareIndex.mjs, and look at every card format. Remove shareCardCanvas.js from LOOK-6's banned-face exception. Deploying functions is the owner's call.",
   "acceptance": [
     "Browser and server cards use Caveat for titles and Alegreya Sans for text; existing parity tests pass",
